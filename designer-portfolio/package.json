@@ -1,0 +1,29 @@
+{
+  "name": "designer-portfolio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.3",
+    "framer-motion": "^10",
+    "lucide-react": "^0.525.0",
+    "@lottiefiles/react-lottie-player": "^3.6.0",
+    "zustand": "^4.5.4",
+    "lodash-es": "^4.17.21",
+    "@google/genai": "latest",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0"
+  }
+}
