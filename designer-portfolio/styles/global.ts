@@ -74,20 +74,5 @@ export const createGlobalStyles = (): string => {
     body.visual-editor-active [contentEditable="true"] {
         -webkit-user-modify: read-write-plaintext-only;
     }
-
-    elevenlabs-convai {
-      position: fixed !important;
-      bottom: 20px !important;
-      right: 20px !important;
-      z-index: 10000 !important;
-      transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-      transform-origin: bottom right;
-    }
-
-    body:not(.visual-editor-active) elevenlabs-convai {
-        transform: scale(0);
-        opacity: 0;
-        pointer-events: none;
-    }
   `;
 };
