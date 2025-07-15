@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
@@ -11,7 +12,6 @@ import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import ContactPage from './pages/ContactPage';
 import CustomCursor from './components/CustomCursor';
-import GlobalStyles from './components/GlobalStyles';
 import VisualEditor from './components/VisualEditor';
 import { useStore } from './store';
 
@@ -50,7 +50,6 @@ function App() {
 
   return (
     <>
-      <GlobalStyles />
       <CustomCursor />
       <HashRouter>
         <AppRoutes />

@@ -69,7 +69,7 @@ const AboutPage = () => {
             </h3>
             <div className="flex flex-wrap justify-center gap-3">
               {content.skills.map((skill, index) => (
-                <SkillBadge key={skill} path={`about.skills.${index}`} />
+                <SkillBadge key={index} path={`about.skills.${index}`} />
               ))}
             </div>
           </motion.div>

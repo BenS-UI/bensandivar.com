@@ -10,8 +10,11 @@ import Editable from '../components/Editable';
 
 const ParallaxText = ({ children }: { children: React.ReactNode }) => {
   const ref = useRef(null);
+  // This hook needs a reference to a DOM element to track its scroll position.
+  // The div wrapping the motion.div provides this stable reference.
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], ['-20%', '20%']);
+
   return (
     <div ref={ref}>
       <motion.div style={{ y }}>{children}</motion.div>
@@ -23,14 +26,18 @@ const HomePage = () => {
   const homeContent = useStore(state => state.content.home);
   const projects = useStore(state => state.content.projects);
   const featuredProjects = projects.slice(0, 2);
+  const heroImageScroll = useScroll();
+  const heroImageY = useTransform(heroImageScroll.scrollYProgress, [0, 1], ["0%", "25%"]);
+
 
   return (
     <AnimatedPage>
       <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
-        <img
+        <motion.img
           src="https://github.com/BenS-UI/portfolio/blob/main/Thoughtful%20(2).jpg?raw=true"
           alt="Abstract background"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover scale-125"
+          style={{ y: heroImageY }}
         />
         <div className="absolute inset-0 bg-black/60"></div>
 

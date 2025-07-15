@@ -1,12 +1,24 @@
+
 import { GoogleGenAI } from '@google/genai';
 import type { GenerateContentResponse } from '@google/genai';
 import { Difference } from '../utils/diff';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+// In a Vite project, environment variables are typically exposed via `import.meta.env`.
+// To align with the Gemini SDK's standard `process.env` convention, we use Vite's `define`
+// feature to make `process.env.API_KEY` available on the client. This declaration
+// informs TypeScript about the injected global variable.
+declare var process: {
+  env: {
+    API_KEY: string;
+  }
+};
+
+// The API key is injected at build time by Vite.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export async function generateCodeForChanges(differences: Difference[]): Promise<string> {
   if (!process.env.API_KEY) {
-    return Promise.resolve("`ERROR: API_KEY` is not set. Please configure it to use the AI features.");
+    return Promise.resolve("`ERROR: API_KEY` is not set. Please configure it in your Netlify environment variables (as VITE_API_KEY) to use the AI features.");
   }
   
   if (differences.length === 0) {

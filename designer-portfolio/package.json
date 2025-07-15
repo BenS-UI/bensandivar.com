@@ -1,3 +1,4 @@
+
 {
   "name": "designer-portfolio",
   "private": true,
@@ -9,21 +10,28 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "react-router-dom": "^7.6.3",
-    "framer-motion": "10.18.0",
-    "lucide-react": "^0.525.0",
+    "@google/genai": "^0.16.0",
     "@lottiefiles/react-lottie-player": "^3.6.0",
-    "zustand": "^4.5.4",
+    "framer-motion": "10.18.0",
     "lodash-es": "^4.17.21",
-    "@google/genai": "latest",
+    "lucide-react": "^0.525.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
-    "remark-gfm": "^4.0.0"
+    "react-router-dom": "^6.25.1",
+    "remark-gfm": "^4.0.0",
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "typescript": "~5.7.2",
-    "vite": "^6.2.0"
+    "@tailwindcss/typography": "^0.5.13",
+    "@types/lodash-es": "^4.17.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4"
   }
 }
