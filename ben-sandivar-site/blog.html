@@ -1,0 +1,99 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Ben Sandivar</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@100;400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="navbar">
+    <nav class="nav-container container-full">
+      <a href="#home" class="logo"><img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Logo"></a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="work.html">Work</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="blog" class="blog-page parallax-section fade-in">
+      <div class="container-main">
+        <div class="sidebar"></div>
+        <div class="main-column">
+          <h2>From the Blog</h2>
+          <p>Thoughts on design, tech, culture, and the future</p>
+          <div class="blog-grid">
+            <article class="blog-card">
+              <img src="https://via.placeholder.com/300x200/667EEA/FFFFFF?text=Design+Thinking" alt="Blog Post 1" data-parallax-speed="0.01">
+              <div class="blog-meta">October 26, 2023 · Ben Sandivar</div>
+              <h4>A Deep Dive into Design Thinking</h4>
+              <p>Design thinking is more than a buzzword; it’s a powerful framework for innovation. Let's explore its five stages...</p>
+              <a href="post-slug.html" class="read-more">Read More →</a>
+            </article>
+            <article class="blog-card">
+              <img src="https://via.placeholder.com/300x200/764BA2/FFFFFF?text=AI+Design" alt="Blog Post 2" data-parallax-speed="0.01">
+              <div class="blog-meta">November 15, 2023 · Ben Sandivar</div>
+              <h4>Exploring AI in Creative Design</h4>
+              <p>Artificial intelligence is transforming how we approach design. Discover its potential and challenges...</p>
+              <a href="#post-2" class="read-more">Read More →</a>
+            </article>
+          </div>
+        </div>
+        <div class="sidebar"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p style="padding-bottom: 1rem;">© 2025 Ben Sandivar</p>
+  </footer>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
