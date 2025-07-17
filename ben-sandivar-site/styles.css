@@ -1031,11 +1031,11 @@ footer {
   }
   .carousel-container {
     width: 95%;
-    min-height: 180px;
-    max-height: 180px;
+    min-height: 190px;
+    max-height: 190px;
   }
   .carousel-inner {
-    padding: 1.5rem;
+    padding: 1rem;
   }
   .carousel-card {
     flex: 0 0 100px;
@@ -1046,6 +1046,7 @@ footer {
 
   .carousel-track {
   padding: 1rem 1rem;
+  overflow-y: hidden;
 }
 
   .carousel-card img {
