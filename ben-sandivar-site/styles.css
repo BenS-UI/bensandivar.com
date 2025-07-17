@@ -717,22 +717,19 @@ footer {
   justify-content: center;
   margin-bottom: 2rem;
 }
-
 .intro-content {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-  justify-content: space-between;
+  justify-content: flex-start; /* Changed to avoid narrow effect */
   width: 100%;
 }
-
 .profile-container {
-  flex: 0 0 45%;
+  flex: 1; /* Grow to fill space */
   background: transparent;
   display: flex;
   justify-content: center;
 }
-
 .profile-pic img {
   width: 200px;
   height: 200px;
@@ -740,43 +737,36 @@ footer {
   object-fit: cover;
   display: block;
 }
-
 .text-container {
-  flex: 0 0 45%;
+  flex: 1; /* Grow to fill space */
   background: transparent;
   text-align: left;
 }
-
 .intro-text .tagline {
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--color-accent);
   margin-bottom: 1rem;
 }
-
 .about-bio {
-  max-width: 700px;
+  max-width: 1200px;
 }
-
 .about-bio p {
   font-size: 1.1rem;
   line-height: 1.8;
 }
-
 .about-skills {
   margin-top: 3rem;
 }
-
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 200px));
   gap: 1rem;
   margin-top: 2rem;
   padding: 0 1rem;
-  max-width: 680px;
+  max-width: 1200px;
   justify-content: center;
 }
-
 .skills-grid span {
   font-size: 1rem;
   color: var(--color-primary);
@@ -785,11 +775,10 @@ footer {
   white-space: nowrap;
   min-width: 140px;
 }
-
 @media (min-width: 769px) {
   .skills-grid {
     grid-template-columns: repeat(4, minmax(140px, 200px));
-    max-width: 680px;
+    max-width: 1200px;
     gap: 1rem;
     padding: 0 1rem;
   }
