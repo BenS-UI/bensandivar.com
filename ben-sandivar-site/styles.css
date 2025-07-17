@@ -540,6 +540,7 @@ footer {
 .carousel-card {
   flex: 0 0 350px;
   height: auto;
+  min-width: 150px;
   background: linear-gradient(to bottom, #FFF, #F9F9F9);
   border-radius: var(--radius);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
