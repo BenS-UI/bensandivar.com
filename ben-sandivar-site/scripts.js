@@ -111,8 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const lerp = (start, end, factor) => start + (end - start) * factor;
 
   function animateCursor() {
-    posX = lerp(posX, mouseX, 0.05);
-    posY = lerp(posY, mouseY, 0.05);
+    posX = lerp(posX, mouseX, 1);
+    posY = lerp(posY, mouseY, 1);
     cursor.style.transform = `translate3d(${posX}px, ${posY}px, 0)`;
     requestAnimationFrame(animateCursor);
   }
