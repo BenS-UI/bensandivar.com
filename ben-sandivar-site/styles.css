@@ -434,13 +434,14 @@ footer {
   font-weight: 600;
   transition: var(--transition);
   display: inline-block;
+  align-self: flex-end;
   position: relative;
   bottom: 0;
 }
 
 .card-content a:hover {
   color: var(--color-primary);
-  transform: translateX(0.01rem);
+  transform: translateX(2px);
 }
 
 
