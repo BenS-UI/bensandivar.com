@@ -216,6 +216,7 @@ p {
 }
 
 .logo img {
+  position: absolute;
   height: 1.5rem;
   vertical-align: middle;
 }
