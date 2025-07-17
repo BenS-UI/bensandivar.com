@@ -84,7 +84,7 @@ elevenlabs-convai {
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
   padding: 3rem;
-  margin: 0 auto 20rem;
+  margin: 0 auto 4rem;
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-top: none;
@@ -220,6 +220,7 @@ p {
 /* Page Header */
 .page-header {
   text-align: center;
+  margin-top: 10rem;
   padding: 10rem 0 3rem;
 }
 
