@@ -708,81 +708,82 @@ footer {
 
 
 /* ABOUT */
-.about-intro {
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-  margin-bottom: 2rem;
+.about-intro { /* Container for the About page intro section */
+  padding: 0; /* Removes padding to keep content flush with main-column */
+  display: flex; /* Uses flexbox for layout */
+  flex-wrap: wrap; /* Allows content to wrap to next line on smaller screens */
+  gap: 2rem; /* Adds 2rem spacing between flex items */
+  justify-content: center; /* Centers content horizontally */
+  margin-bottom: 2rem; /* Adds 2rem space below the section */
+  max-height: 600px; /* Caps section height to prevent stretching */
 }
-.intro-content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: flex-start;
-  width: 100%;
+.intro-content { /* Inner container for profile picture and text */
+  display: flex; /* Uses flexbox for side-by-side layout */
+  flex-wrap: wrap; /* Allows wrapping for responsive design */
+  gap: 2rem; /* Sets 2rem spacing between profile picture and text */
+  justify-content: flex-start; /* Aligns items to the start (left) */
+  width: 100%; /* Ensures full width of main-column */
 }
-.profile-container {
-  flex: 1;
-  background: transparent;
-  display: flex;
-  justify-content: center;
+.profile-container { /* Container for the profile picture */
+  flex: 1; /* Allows it to grow and fill available space */
+  background: transparent; /* Keeps background transparent */
+  display: flex; /* Uses flexbox to center the image */
+  justify-content: center; /* Centers the profile picture horizontally */
+  max-height: 400px; /* Caps height to limit layout impact */
 }
-.profile-pic img {
-  width: 300px; /* Smaller to reduce layout stretch */
-  height: 300px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
+.profile-pic img { /* Styles the profile image */
+  width: 300px; /* Sets fixed width to 300px */
+  height: 300px; /* Sets fixed height to 300px */
+  border-radius: 50%; /* Makes the image circular */
+  object-fit: cover; /* Ensures image fits without stretching */
+  display: block; /* Makes image a block element for spacing */
 }
-.text-container {
-  flex: 1;
-  background: transparent;
-  text-align: left;
+.text-container { /* Container for the bio text and tagline */
+  flex: 1; /* Allows it to grow and fill available space */
+  background: transparent; /* Keeps background transparent */
+  text-align: left; /* Aligns text to the left */
 }
-.intro-text .tagline {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--color-accent);
-  margin-bottom: 1rem;
+.intro-text .tagline { /* Styles the tagline paragraph */
+  font-weight: 600; /* Sets bold font weight */
+  font-size: 1.1rem; /* Sets font size to 1.1rem */
+  color: var(--color-accent); /* Uses accent color (blue) */
+  margin-bottom: 1rem; /* Adds 1rem space below the tagline */
 }
-.about-bio {
-  max-width: 1200px;
+.about-bio { /* Container for bio paragraphs */
+  max-width: 1200px; /* Limits bio width to match main-column */
 }
-.about-bio p {
-  font-size: 1.1rem;
-  line-height: 1.8;
+.about-bio p { /* Styles bio paragraphs */
+  font-size: 1.1rem; /* Sets font size to 1.1rem */
+  line-height: 1.8; /* Sets line spacing for readability */
 }
-
 
 /* SKILLS & TOOLS */
-.about-skills {
-  margin-top: 3rem;
+.about-skills { /* Container for the skills section */
+  margin-top: 3rem; /* Adds 3rem space above the skills section */
 }
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 200px));
-  gap: 1rem;
-  margin-top: 2rem;
-  padding: 0 1rem;
-  max-width: 1200px;
-  justify-content: center;
+.skills-grid { /* Grid container for skills list */
+  display: grid; /* Uses CSS grid for layout */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 200px)); /* Creates flexible columns */
+  gap: 1rem; /* Adds 1rem spacing between grid items */
+  margin-top: 2rem; /* Adds 2rem space above the grid */
+  padding: 0 1rem; /* Adds 1rem padding on sides */
+  max-width: 1200px; /* Caps grid width to match main-column */
+  justify-content: center; /* Centers grid items horizontally */
 }
-.skills-grid span {
-  font-size: 1rem;
-  color: var(--color-primary);
-  text-align: center;
-  padding: 0.5rem;
-  white-space: nowrap;
-  min-width: 140px;
+.skills-grid span { /* Styles individual skill items */
+  font-size: 1rem; /* Sets font size to 1rem */
+  color: var(--color-primary); /* Uses primary color (dark gray) */
+  text-align: center; /* Centers text in each skill item */
+  padding: 0.5rem; /* Adds 0.5rem padding around each skill */
+  white-space: nowrap; /* Prevents text wrapping */
+  min-width: 140px; /* Ensures minimum width of 140px */
 }
-@media (min-width: 769px) {
-  .skills-grid {
-    grid-template-columns: repeat(4, minmax(140px, 200px));
-    max-width: 1200px;
-    gap: 1rem;
-    padding: 0 1rem;
+@media (min-width: 769px) { /* Desktop-specific styles for screens wider than 768px */
+  .skills-grid { /* Overrides skills grid for desktop */
+    grid-template-columns: repeat(4, minmax(140px, 200px)); /* Forces four columns */
+    max-width: 1200px; /* Maintains max width to match main-column */
+    gap: 1rem; /* Keeps 1rem spacing between grid items */
+    padding: 0 1rem; /* Keeps 1rem side padding */
   }
 }
 
