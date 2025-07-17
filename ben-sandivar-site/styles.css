@@ -154,7 +154,7 @@ p {
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
   /* Fix: Reduced padding to fix huge gap */
-  padding: 4rem 3rem;
+  padding: 10rem 3rem;
   margin: 0 auto;
   position: relative;
   border: 1px solid var(--color-border);
@@ -179,8 +179,8 @@ p {
   position: sticky;
   top: 0;
   width: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(1px);
   padding: 1rem 0;
   z-index: 1000;
   transition: var(--transition);
@@ -463,12 +463,13 @@ footer {
 .carousel-container {
   position: relative;
   overflow: hidden;
-  width: 90%;
+  width: 85%;
   margin: 0 auto;
   padding: 0;
   min-height: 230px;
 }
 
+/* CAROUSEL FADE-IN AND FADE-OUT */
 .carousel-container::before,
 .carousel-container::after {
   content: '';
@@ -624,7 +625,7 @@ footer {
 }
 
 
-/*FADE-INS & FADE-OUTS */
+/*FADE-INS UPON LOADING*/
 .fade-in {
   opacity: 0;
   transform: translateY(30px);
