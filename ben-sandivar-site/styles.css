@@ -1037,7 +1037,8 @@ footer {
     padding: 1.5rem;
   }
   .carousel-card {
-    flex: 0 0 180px;
+    flex: 0 0 130px;
+    max-height: 100px;
   }
   .carousel-btn {
     font-size: 0.5rem;
