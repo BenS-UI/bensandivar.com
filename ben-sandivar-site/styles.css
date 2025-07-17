@@ -1041,7 +1041,7 @@ footer {
     flex: 0 0 100px;
     min-height: 170px;
     max-height: 170px;
-    box-shadow: 0 0.1px 0.4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.1px 0.4px 5px rgba(0, 0, 0, 0.1);
   }
 
   .carousel-track {
