@@ -14,7 +14,6 @@ html, body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  cursor: none;
 }
 
 /* BODY BOTTOM PADDING */
@@ -61,12 +60,14 @@ elevenlabs-convai {
 /* BACKGROUND COLORS & SETTINGS */
 :root {
   --color-primary: #1A1A1A;
-  --color-secondary: #6B7280;
+  --color-secondary: #f4f4f4;
   --color-accent: #3B82F6;
   --font-heading: 'Gabarito', sans-serif;
   --radius: 16px;
   --transition: all 0.3s ease;
   --spacing: 0.5rem;
+  --color-border: #e7e7e7;
+  --color-shadow: rgba(0,0,0,0.1);
 }
 
 /* HEADINGS & BODY SETTINGS */
@@ -85,7 +86,6 @@ h2 {
   font-size: 2.5rem;
   font-weight: 900;
   line-height: 1.3;
-  margin-bottom: 1rem;
 }
 
 h3 {
@@ -104,7 +104,7 @@ h4 {
 p {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: var(--color-secondary);
+  color: #6B7280;
   margin-bottom: 1rem;
 }
 
@@ -153,12 +153,12 @@ p {
   background: #FFF;
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
-  padding: 10rem 3rem 10rem; /* Generous top and bottom padding */
+  /* Fix: Reduced padding to fix huge gap */
+  padding: 4rem 3rem;
   margin: 0 auto;
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-border);
   border-top: none;
-  backdrop-filter: blur(10px);
   transition: var(--transition);
   text-align: center;
   z-index: 1;
@@ -171,19 +171,19 @@ p {
 
 /* NAVBAR LOGIC */
 .navbar {
-  position: fixed;
+  position: sticky;
   top: 0;
   width: 100%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   padding: 1rem 0;
   z-index: 1000;
   transition: var(--transition);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .navbar:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 1);
 }
 
 .navbar.scrolled {
@@ -252,23 +252,28 @@ p {
 /* MAIN HEADER */
 .page-header {
   text-align: center;
-  padding-top: 14rem;
-  padding-bottom: 6rem;
+  /* Fix: Removed huge padding, replaced with margin on h2 */
+  padding: 0;
+}
+.page-header h2 {
+    margin-bottom: 3rem;
 }
 
 
 /* FOOTER */
 footer {
-  padding: 0;
+  padding: 2rem 1rem;
+  margin-top: 4rem;
   text-align: center;
-  background: #FFF;
-  color: var(--color-secondary);
+  background: var(--color-secondary);
+  color: #6B7280;
+  border-top: 1px solid var(--color-border);
 }
 .footer-text {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   line-height: 1.2;
   padding: 0;
-  margin: 0.5rem 0 0;
+  margin: 0;
 }
 
 /* HOME PAGE */
@@ -315,6 +320,7 @@ footer {
 .hero-content h1 {
   font-size: 4rem;
   font-weight: 900;
+  color: #FFF;
 }
 
 /* hero tagline */
@@ -637,9 +643,6 @@ footer {
 }
 
 
-
-
-
 /* PROJECT PAGES */
 .project-detail {
   padding: 0;
@@ -705,91 +708,85 @@ footer {
 }
 
 
-
-
 /* ABOUT */
-.about-intro { /* Container for the About page intro section */
-  padding: 0; /* Removes padding to keep content flush with main-column */
-  display: flex; /* Uses flexbox for layout */
-  flex-wrap: wrap; /* Allows content to wrap to next line on smaller screens */
-  gap: 2rem; /* Adds 2rem spacing between flex items */
-  justify-content: center; /* Centers content horizontally */
-  margin-bottom: 2rem; /* Adds 2rem space below the section */
-  max-height: 600px; /* Caps section height to prevent stretching */
+.about-intro { 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
-.intro-content { /* Inner container for profile picture and text */
-  display: flex; /* Uses flexbox for side-by-side layout */
-  flex-wrap: wrap; /* Allows wrapping for responsive design */
-  gap: 2rem; /* Sets 2rem spacing between profile picture and text */
-  justify-content: flex-start; /* Aligns items to the start (left) */
-  width: 100%; /* Ensures full width of main-column */
-  max-height: 500px; /* Caps content height to prevent footer push */
+.intro-content {
+  display: flex;
+  /* Fix: prevent wrapping before breakpoint to avoid awkward layout shift */
+  flex-wrap: nowrap;
+  gap: 4rem;
+  justify-content: flex-start;
+  width: 100%;
+  align-items: center;
 }
-.profile-container { /* Container for the profile picture */
-  flex: 1; /* Allows it to grow and fill available space */
-  background: transparent; /* Keeps background transparent */
-  display: flex; /* Uses flexbox to center the image */
-  justify-content: center; /* Centers the profile picture horizontally */
-  max-height: 400px; /* Caps height to limit layout impact */
+.profile-container {
+  /* Fix: Sizing for desktop flex layout */
+  flex: 0 1 300px;
+  background: transparent;
+  display: flex;
+  justify-content: center;
 }
-.profile-pic img { /* Styles the profile image */
-  width: 300px; /* Sets fixed width to 300px */
-  height: 300px; /* Sets fixed height to 300px */
-  border-radius: 50%; /* Makes the image circular */
-  object-fit: cover; /* Ensures image fits without stretching */
-  display: block; /* Makes image a block element for spacing */
+.profile-pic img {
+  /* Fix: Use aspect ratio for perfect circle and fluid width */
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 5px solid var(--color-secondary);
+  box-shadow: 0 4px 15px var(--color-shadow);
 }
-.text-container { /* Container for the bio text and tagline */
-  flex: 1; /* Allows it to grow and fill available space */
-  background: transparent; /* Keeps background transparent */
-  text-align: left; /* Aligns text to the left */
+.text-container {
+  /* Fix: Sizing for desktop flex layout */
+  flex: 1 1 320px;
+  background: transparent;
+  text-align: left;
 }
-.intro-text .tagline { /* Styles the tagline paragraph */
-  font-weight: 600; /* Sets bold font weight */
-  font-size: 1.1rem; /* Sets font size to 1.1rem */
-  color: var(--color-accent); /* Uses accent color (blue) */
-  margin-bottom: 1rem; /* Adds 1rem space below the tagline */
+.intro-text .tagline {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--color-accent);
+  margin-bottom: 1rem;
 }
-.about-bio { /* Container for bio paragraphs */
-  max-width: 1200px; /* Limits bio width to match main-column */
+.about-bio {
+  max-width: 1200px;
 }
-.about-bio p { /* Styles bio paragraphs */
-  font-size: 1.1rem; /* Sets font size to 1.1rem */
-  line-height: 1.8; /* Sets line spacing for readability */
+.about-bio p {
+  font-size: 1.1rem;
+  line-height: 1.8;
 }
 
 
 /* SKILLS & TOOLS */
-.about-skills { /* Container for the skills section */
-  margin-top: 3rem; /* Adds 3rem space above the skills section */
+.about-skills {
+  margin-top: 3rem;
 }
-.skills-grid { /* Grid container for skills list */
-  display: grid; /* Uses CSS grid for layout */
-  grid-template-columns: repeat(auto-fit, minmax(140px, 200px)); /* Creates flexible columns */
-  gap: 1rem; /* Adds 1rem spacing between grid items */
-  margin-top: 2rem; /* Adds 2rem space above the grid */
-  padding: 0 1rem; /* Adds 1rem padding on sides */
-  max-width: 600px; /* Caps grid width to match main-column */
-  justify-content: center; /* Centers grid items horizontally */
+.about-skills h3 {
+    margin-bottom: 2rem;
 }
-.skills-grid span { /* Styles individual skill items */
-  font-size: 1rem; /* Sets font size to 1rem */
-  color: var(--color-primary); /* Uses primary color (dark gray) */
-  text-align: center; /* Centers text in each skill item */
-  padding: 0.5rem; /* Adds 0.5rem padding around each skill */
-  white-space: nowrap; /* Prevents text wrapping */
-  min-width: 140px; /* Ensures minimum width of 140px */
+.skills-grid {
+  /* Fix: convert to fluid flexbox layout */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 0 1rem;
+  max-width: 1200px;
 }
-@media (min-width: 769px) { /* Desktop-specific styles for screens wider than 768px */
-  .skills-grid { /* Overrides skills grid for desktop */
-    grid-template-columns: repeat(4, minmax(140px, 200px)); /* Forces four columns */
-    max-width: 1200px; /* Maintains max width to match main-column */
-    gap: 1rem; /* Keeps 1rem spacing between grid items */
-    padding: 0 1rem; /* Keeps 1rem side padding */
-  }
+.skills-grid span {
+  font-size: 1rem;
+  color: var(--color-primary);
+  text-align: center;
+  padding: 0.5rem;
+  white-space: nowrap;
 }
-
-
 
 
 /* CONTACT */
@@ -905,7 +902,7 @@ footer {
 .blog-meta {
   padding: 1rem 1.5rem 0;
   font-size: 0.85rem;
-  color: var(--color-secondary);
+  color: #6B7280;
 }
 
 .blog-card h4 {
@@ -982,13 +979,7 @@ footer {
 }
 
 
-
-
-
-
-
-
-/* MOBILE RESPONSIVE LAYOUT */
+/* MOBILE RESPONSIVE LAYOUT - 768px */
 @media (max-width: 768px) {
   .container-main {
     padding: 0 1rem;
@@ -1081,36 +1072,11 @@ footer {
   .more-btn {
     display: block;
   }
-  .about-intro {
-    flex-direction: column;
-    align-items: center;
-  }
-  .intro-content {
-    flex-direction: column;
-    align-items: center;
-  }
-  .profile-container {
-    margin-bottom: 1rem;
-    justify-content: center;
-  }
-  .text-container {
-    text-align: center;
-    flex: 1 1 100%;
-  }
-  .profile-pic img {
-    width: 150px;
-    height: 150px;
-  }
-  .about-bio {
-    padding: 0 1rem;
-  }
-  .skills-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    padding: 0 1rem;
-  }
+  
+  /* Fix: Removed old broken about page styles from this breakpoint */
+
   .page-header {
-    padding-top: 12rem;
-    padding-bottom: 3rem;
+    /* Original broken padding removed from global scope */
   }
   .carousel-section {
     padding: 0.5rem 0;
@@ -1128,4 +1094,36 @@ footer {
     padding: 0;
     margin: 0.5rem 0 0;
   }
+}
+
+/* MOBILE RESPONSIVE LAYOUT - 992px (for tablet and down) */
+@media (max-width: 992px) {
+    .sidebar {
+        display: none;
+    }
+    .container-main {
+        flex-direction: column;
+        padding: 0 1rem;
+    }
+    .main-column {
+      padding: 4rem 2rem;
+    }
+    .intro-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+    .profile-container {
+        /* Fix: Precise scaling from 30% at 992px to 60% at 480px and below. */
+        width: clamp(30%, -5.8594vw + 88.125%, 60%);
+        flex-basis: auto;
+    }
+    .text-container {
+        text-align: center;
+        max-width: 90%;
+    }
+    .page-header h2 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
 }
