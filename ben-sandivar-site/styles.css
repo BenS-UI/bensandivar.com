@@ -723,6 +723,7 @@ footer {
   gap: 2rem; /* Sets 2rem spacing between profile picture and text */
   justify-content: flex-start; /* Aligns items to the start (left) */
   width: 100%; /* Ensures full width of main-column */
+  max-height: 500px; /* Caps content height to prevent footer push */
 }
 .profile-container { /* Container for the profile picture */
   flex: 1; /* Allows it to grow and fill available space */
@@ -756,6 +757,7 @@ footer {
   font-size: 1.1rem; /* Sets font size to 1.1rem */
   line-height: 1.8; /* Sets line spacing for readability */
 }
+
 
 /* SKILLS & TOOLS */
 .about-skills { /* Container for the skills section */
