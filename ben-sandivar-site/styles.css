@@ -17,7 +17,7 @@ html, body {
 }
 
 body {
-  padding-bottom: 1rem; /* Footer close to bottom */
+  padding-bottom: 1rem;
 }
 
 html::-webkit-scrollbar,
@@ -35,18 +35,20 @@ body::-webkit-scrollbar-thumb {
   background: transparent;
 }
 
+main {
+  flex: 1 0 auto;
+}
+
 section {
   width: 100%;
   overflow-x: hidden;
 }
 
-/* Constrain ElevenLabs Widget */
 elevenlabs-convai {
   max-width: 100%;
   overflow: hidden;
 }
 
-/* Root Variables */
 :root {
   --color-primary: #1A1A1A;
   --color-secondary: #6B7280;
@@ -57,7 +59,6 @@ elevenlabs-convai {
   --spacing: 0.5rem;
 }
 
-/* Central Container */
 .container-full {
   width: 100%;
   margin: 0 auto;
@@ -84,13 +85,14 @@ elevenlabs-convai {
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
   padding: 3rem;
-  margin: 0 auto 4rem; /* No top margin to stay at screen top */
+  margin: 0 auto 4rem;
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-top: none;
   backdrop-filter: blur(10px);
   transition: var(--transition);
   text-align: center;
+  z-index: 1;
 }
 
 .main-column:hover {
@@ -98,7 +100,6 @@ elevenlabs-convai {
   transform: translateY(-2px);
 }
 
-/* Navbar */
 .navbar {
   position: fixed;
   top: 0;
@@ -178,7 +179,6 @@ elevenlabs-convai {
   outline-offset: 2px;
 }
 
-/* Typography */
 h1, h2, h3, h4 {
   font-family: var(--font-heading);
   color: var(--color-primary);
@@ -217,23 +217,23 @@ p {
   margin-bottom: 1rem;
 }
 
-/* Page Header */
 .page-header {
   text-align: center;
-  padding: 14rem 0 3rem; /* Huge top padding for headers */
+  padding-top: 14rem;
+  padding-bottom: 3rem;
 }
 
-/* Hero */
 .hero {
-  height: 100vh;
+  height: 40vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: #FFF;
+  background: var(--color-primary);
   color: #FFF;
   position: relative;
   overflow: hidden;
+  z-index: 2;
 }
 
 .hero-bg {
@@ -288,7 +288,6 @@ p {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Featured Projects */
 .featured-projects {
   padding: 0;
 }
@@ -347,7 +346,6 @@ p {
   transform: translateX(4px);
 }
 
-/* About Page */
 .about-intro {
   padding: 0;
   display: flex;
@@ -434,7 +432,6 @@ p {
   }
 }
 
-/* Blog Page */
 .blog-page {
   padding: 0;
 }
@@ -503,7 +500,6 @@ p {
   transform: translateX(4px);
 }
 
-/* Contact Page */
 .contact-page {
   padding: 0;
 }
@@ -574,7 +570,6 @@ p {
   transform: translateY(-2px);
 }
 
-/* Project Detail Page */
 .project-detail {
   padding: 0;
 }
@@ -638,8 +633,7 @@ p {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Blog Post Detail Page */
-.blog-post-detail {
+.post-detail {
   padding: 0;
 }
 
@@ -681,13 +675,12 @@ p {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Work Page */
 .work-page {
   padding: 0;
 }
 
 .carousel-section {
-  padding: 0.5rem 0; /* Minimal gap between sections */
+  padding: 0.5rem 0;
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -868,7 +861,6 @@ p {
   right: 1rem;
 }
 
-/* Fade-in Animation */
 .fade-in {
   opacity: 0;
   transform: translateY(30px);
@@ -880,7 +872,6 @@ p {
   transform: translateY(0);
 }
 
-/* Custom Cursor */
 #custom-cursor {
   position: fixed;
   width: 16px;
@@ -899,7 +890,6 @@ p {
   background: rgba(59, 130, 246, 0.5);
 }
 
-/* Lightbox */
 #lightbox {
   position: fixed;
   top: 0;
@@ -913,20 +903,20 @@ p {
   z-index: 9999;
 }
 
-/* Footer */
 footer {
   padding: 1rem 0;
   text-align: center;
   background: #FFF;
-  color: #A0A0A0;
-  z-index: 1000;
+  color: var(--color-secondary);
 }
 
 footer p {
-  font-size: 0.55rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  height: auto;
+  min-height: 1rem;
 }
 
-/* Media Queries */
 @media (max-width: 768px) {
   .container-main {
     padding: 0 1rem;
@@ -934,7 +924,7 @@ footer p {
   .main-column {
     width: 95%;
     max-width: 95%;
-    margin: 0 auto 10rem; /* No top margin for mobile */
+    margin: 0 auto 10rem;
     padding: 2rem;
   }
   .sidebar {
@@ -1047,15 +1037,22 @@ footer p {
     padding: 0 1rem;
   }
   .page-header {
-    padding: 12rem 0 3rem; /* Huge top padding for mobile */
+    padding-top: 12rem;
+    padding-bottom: 3rem;
   }
   .carousel-section {
-    padding: 0.5rem 0; /* Minimal gap for mobile */
+    padding: 0.5rem 0;
   }
   body {
     padding-bottom: 1rem;
   }
   footer {
     padding: 1rem 0;
+  }
+  footer p {
+    font-size: 0.8rem;
+    line-height: 1.2;
+    height: auto;
+    min-height: 1rem;
   }
 }
