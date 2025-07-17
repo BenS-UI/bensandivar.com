@@ -84,7 +84,7 @@ elevenlabs-convai {
   background: #FFF;
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
-  padding: 3rem 3rem 14rem; /* Generous bottom padding */
+  padding: 20rem 3rem 14rem; /* Generous bottom padding */
   margin: 0 auto;
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.2);
