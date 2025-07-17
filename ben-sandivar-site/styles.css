@@ -708,7 +708,6 @@ footer {
 
 
 /* ABOUT */
-/* about intro */
 .about-intro {
   padding: 0;
   display: flex;
@@ -721,24 +720,24 @@ footer {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-  justify-content: flex-start; /* Changed to avoid narrow effect */
+  justify-content: flex-start;
   width: 100%;
 }
 .profile-container {
-  flex: 1; /* Grow to fill space */
+  flex: 1;
   background: transparent;
   display: flex;
   justify-content: center;
 }
 .profile-pic img {
-  width: 200px;
-  height: 200px;
+  width: 300px; /* Smaller to reduce layout stretch */
+  height: 300px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
 }
 .text-container {
-  flex: 1; /* Grow to fill space */
+  flex: 1;
   background: transparent;
   text-align: left;
 }
@@ -755,6 +754,9 @@ footer {
   font-size: 1.1rem;
   line-height: 1.8;
 }
+
+
+/* SKILLS & TOOLS */
 .about-skills {
   margin-top: 3rem;
 }
