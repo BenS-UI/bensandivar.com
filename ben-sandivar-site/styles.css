@@ -154,7 +154,7 @@ p {
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
   /* Fix: Reduced padding to fix huge gap */
-  padding: 10rem 3rem;
+  padding: 4rem 3rem;
   margin: 0 auto;
   position: relative;
   border: 1px solid var(--color-border);
@@ -185,7 +185,7 @@ p {
   z-index: 1000;
   transition: var(--transition);
   border-bottom: 1px solid var(--color-border);
-  overflow: hidden;
+  /* Fix: Removed overflow: hidden which was clipping the dropdown */
 }
 
 .navbar:hover {
@@ -1097,33 +1097,8 @@ footer {
     padding: 0.5rem 1rem;
     font-size: 0.8rem;
   }
-  .nav-container {
-    padding: 0 2rem;
-    position: relative;
-  }
-  .nav-links {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 2rem;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(2px);
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    border-radius: var(--radius);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-  }
-  .nav-links.active {
-    display: flex;
-  }
-  .more-btn {
-    display: block;
-    background: rgba(0, 0, 0, 0.2);
-  }
   
-  /* Fix: Removed old broken about page styles from this breakpoint */
+  /* Fix: Removed mobile nav rules from here to consolidate in 992px breakpoint */
 
   .page-header {
     /* Original broken padding removed from global scope */
@@ -1154,6 +1129,7 @@ footer {
     .container-main {
         flex-direction: column;
         padding: 0 1rem;
+        position: relative; /* Fix: Needed for dropdown positioning */
     }
     .main-column {
       padding: 4rem 2rem;
@@ -1175,5 +1151,31 @@ footer {
     .page-header h2 {
         font-size: 2rem;
         margin-bottom: 2rem;
+    }
+    
+    /* Fix: Mobile Menu Logic */
+    .nav-container {
+        position: relative; /* This is the anchor for the dropdown */
+        padding: 0 2rem;
+    }
+    .more-btn {
+        display: block;
+    }
+    .nav-links {
+        display: none; /* Hide desktop links by default on mobile */
+    }
+    .nav-links.active {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        right: 2rem;
+        background: #FFF;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        border: 1px solid var(--color-border);
     }
 }
