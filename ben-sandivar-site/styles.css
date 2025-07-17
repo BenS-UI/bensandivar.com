@@ -84,7 +84,7 @@ elevenlabs-convai {
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
   padding: 3rem;
-  margin: 8rem auto 4rem; /* Generous top margin to create space ABOVE the container */
+  margin: 0 auto 4rem; /* No top margin to stay at screen top */
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-top: none;
@@ -220,7 +220,7 @@ p {
 /* Page Header */
 .page-header {
   text-align: center;
-  padding: 3rem 0 3rem; /* Reduced top padding as margin is now on .main-column */
+  padding: 14rem 0 3rem; /* Huge top padding for headers */
 }
 
 /* Hero */
@@ -639,7 +639,7 @@ p {
 }
 
 /* Blog Post Detail Page */
-.post-detail {
+.blog-post-detail {
   padding: 0;
 }
 
@@ -687,7 +687,7 @@ p {
 }
 
 .carousel-section {
-  padding: 6rem 0 1rem; /* Generous top padding for headers */
+  padding: 0.5rem 0; /* Minimal gap between sections */
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -703,71 +703,6 @@ p {
   font-size: 1.8rem;
   text-align: center;
   color: var(--color-primary);
-}
-
-.carousel-container {
-  position: relative;
-  overflow: hidden;
-  width: 90%;
-  margin: 0 auto;
-  padding: 0;
-  min-height: 230px;
-}
-
-.carousel-container::before,
-.carousel-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 120px;
-  z-index: 5;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.carousel-container::before {
-  left: 1rem;
-  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
-}
-
-.carousel-container::after {
-  right: 1rem;
-  background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
-}
-
-.carousel-container.fade-start::before {
-  opacity: 1;
-}
-
-.carousel-container.fade-end::after {
-  opacity: 1;
-}
-
-.carousel-inner {
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  overflow: visible;
-}
-
-.carousel-track {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  overflow-y: visible;
-  scroll-snap-type: x mandatory;
-  padding: 3rem 1rem;
-  scroll-padding: 0 0rem;
-  position: relative;
-  z-index: 0;
-  scroll-behavior: smooth;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.carousel-track::-webkit-scrollbar {
-  display: none;
 }
 
 .carousel-container {
@@ -999,7 +934,7 @@ footer p {
   .main-column {
     width: 95%;
     max-width: 95%;
-    margin: 6rem auto 10rem; /* Top margin for mobile */
+    margin: 0 auto 10rem; /* No top margin for mobile */
     padding: 2rem;
   }
   .sidebar {
@@ -1112,10 +1047,10 @@ footer p {
     padding: 0 1rem;
   }
   .page-header {
-    padding: 2rem 0 3rem; /* Reduced top padding for mobile */
+    padding: 12rem 0 3rem; /* Huge top padding for mobile */
   }
   .carousel-section {
-    padding: 4rem 0 1rem; /* Generous top padding for mobile */
+    padding: 0.5rem 0; /* Minimal gap for mobile */
   }
   body {
     padding-bottom: 1rem;
