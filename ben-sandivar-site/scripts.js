@@ -12,7 +12,16 @@ window.addEventListener('scroll', () => {
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('page-loaded');
 
+  //MORE BUTTON
+  // Fix: Correctly implemented mobile menu toggle. This fixes the fatal script error.
+  const moreBtn = document.querySelector('.more-btn');
+  const navLinks = document.querySelector('.nav-links');
 
+  if (moreBtn && navLinks) {
+    moreBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+  }
 
   // CUSTOM CURSOR
   const cursor = document.createElement('div');
@@ -41,18 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
-
-  //MORE BUTTON
-  // Fix: Correctly implemented mobile menu toggle. This fixes the fatal script error.
-  const moreBtn = document.querySelector('.more-btn');
-  const navLinks = document.querySelector('.nav-links');
-
-  if (moreBtn && navLinks) {
-    moreBtn.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
-    });
-  }
-
 
   // CAROUSEL SCROLL BUTTONS AND FADE EFFECTS
   const carousels = document.querySelectorAll('.work-page .carousel-container');
