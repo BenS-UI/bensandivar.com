@@ -1031,7 +1031,7 @@ footer {
   }
   .carousel-container {
     width: 95%;
-    min-height: 194px;
+    min-height: 120px;
   }
   .carousel-inner {
     padding: 1.5rem;
@@ -1040,6 +1040,11 @@ footer {
     flex: 0 0 130px;
     max-height: 100px;
   }
+
+  .carousel-card img {
+    max-height: 30px;
+  }
+  
   .carousel-btn {
     font-size: 0.5rem;
     padding: 0.5rem;
