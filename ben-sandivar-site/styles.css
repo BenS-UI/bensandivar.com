@@ -220,7 +220,7 @@ p {
 /* Page Header */
 .page-header {
   text-align: center;
-  padding: 8rem 0 3rem; /* Generous top padding for headers */
+  padding: 20rem 0 3rem; /* Generous top padding for headers */
 }
 
 /* Hero */
@@ -687,7 +687,7 @@ p {
 }
 
 .carousel-section {
-  padding: 6rem 0 1rem; /* Generous top padding for headers */
+  padding: 2rem 0 1rem; /* Padding between sections */
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s ease;
