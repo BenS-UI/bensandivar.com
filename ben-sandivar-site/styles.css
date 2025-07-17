@@ -1121,6 +1121,10 @@ footer {
     padding: 0;
     margin: 0.5rem 0 0;
   }
+
+/*ABOUT*/
+  .intro-content {
+  padding-right: 0rem;
 }
 
 /* MOBILE RESPONSIVE LAYOUT - 992px (for tablet and down) */
