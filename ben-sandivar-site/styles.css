@@ -17,7 +17,7 @@ html, body {
 }
 
 body {
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 html::-webkit-scrollbar,
@@ -84,8 +84,8 @@ elevenlabs-convai {
   background: #FFF;
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
-  padding: 3rem;
-  margin: 0 auto 4rem;
+  padding: 3rem 3rem 14rem; /* Generous bottom padding */
+  margin: 0 auto;
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-top: none;
@@ -224,12 +224,12 @@ p {
 }
 
 .hero {
-  height: 40vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: var(--color-primary);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7)), rgba(0, 0, 0, 0.15);
   color: #FFF;
   position: relative;
   overflow: hidden;
@@ -904,17 +904,16 @@ p {
 }
 
 footer {
-  padding: 1rem 0;
+  padding: 0;
   text-align: center;
   background: #FFF;
   color: var(--color-secondary);
 }
 
-footer p {
+.footer-text {
   font-size: 0.8rem;
   line-height: 1.2;
-  height: auto;
-  min-height: 1rem;
+  padding-top: 0.5rem;
 }
 
 @media (max-width: 768px) {
@@ -924,8 +923,8 @@ footer p {
   .main-column {
     width: 95%;
     max-width: 95%;
-    margin: 0 auto 10rem;
-    padding: 2rem;
+    margin: 0 auto;
+    padding: 2rem 2rem 12rem;
   }
   .sidebar {
     display: none;
@@ -1044,15 +1043,14 @@ footer p {
     padding: 0.5rem 0;
   }
   body {
-    padding-bottom: 1rem;
+    padding-bottom: 0.5rem;
   }
   footer {
-    padding: 1rem 0;
+    padding: 0;
   }
-  footer p {
+  .footer-text {
     font-size: 0.8rem;
     line-height: 1.2;
-    height: auto;
-    min-height: 1rem;
+    padding-top: 0.5rem;
   }
 }
