@@ -826,7 +826,7 @@ footer {
   display: grid;
   grid-template-columns: repeat(3, minmax(200px, 1fr));
   gap: 1.5rem;
-  margin: 2rem 0;
+  margin: 2rem 8rem;
   width: 100%;
   max-width: 960px;
   justify-content: center;
@@ -1123,8 +1123,11 @@ footer {
   }
 
 /*ABOUT*/
-  .intro-content {
+.intro-content {
   padding-right: 0rem;
+}
+.profile-container {
+  padding-left: 0rem;
 }
 
 /* MOBILE RESPONSIVE LAYOUT - 992px (for tablet and down) */
