@@ -5,6 +5,7 @@
   box-sizing: border-box;
 }
 
+/*CCS HTML BODY STYLES (FONT/BACKGROUND/COLORS) */
 html, body {
   font-family: 'Geologica', sans-serif;
   background: #FFF;
@@ -16,10 +17,12 @@ html, body {
   cursor: none;
 }
 
+/* BODY BOTTOM PADDING */
 body {
-  padding-bottom: 0.5rem;
+  padding-bottom: 0rem;
 }
 
+/* SCROLLBAR SETTINGS */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   width: 0;
@@ -35,20 +38,24 @@ body::-webkit-scrollbar-thumb {
   background: transparent;
 }
 
+/* HEIGHT */
 main {
   flex: 1 0 auto;
 }
 
+/* WIDTH */
 section {
   width: 100%;
   overflow-x: hidden;
 }
 
+/* ELEVEN LABS WIDGET */
 elevenlabs-convai {
   max-width: 100%;
   overflow: hidden;
 }
 
+/* BACKGROUND COLORS & SETTINGS */
 :root {
   --color-primary: #1A1A1A;
   --color-secondary: #6B7280;
@@ -59,12 +66,14 @@ elevenlabs-convai {
   --spacing: 0.5rem;
 }
 
+/* PAGE CONTAINER */
 .container-full {
   width: 100%;
   margin: 0 auto;
   padding: 0;
 }
 
+/* CONTENT AREA */
 .container-main {
   max-width: 1200px;
   margin: 0 auto;
@@ -73,13 +82,10 @@ elevenlabs-convai {
   position: relative;
 }
 
-.sidebar {
-  width: 10%;
-  background: transparent;
-}
 
+/* MAIN-COLUMN */
 .main-column {
-  width: 80%;
+  width: 100%;
   max-width: 960px;
   background: #FFF;
   border-radius: 0 0 var(--radius) var(--radius);
@@ -100,6 +106,7 @@ elevenlabs-convai {
   transform: translateY(-2px);
 }
 
+/* NAVBAR LOGIC */
 .navbar {
   position: fixed;
   top: 0;
@@ -903,19 +910,6 @@ p {
   z-index: 9999;
 }
 
-footer {
-  padding: 0;
-  text-align: center;
-  background: #FFF;
-  color: var(--color-secondary);
-}
-
-.footer-text {
-  font-size: 0.8rem;
-  line-height: 1.2;
-  padding-top: 0.5rem;
-}
-
 @media (max-width: 768px) {
   .container-main {
     padding: 0 1rem;
@@ -1045,6 +1039,8 @@ footer {
   body {
     padding-bottom: 0.5rem;
   }
+}
+
 /* Footer */
 footer {
   padding: 0;
@@ -1070,5 +1066,4 @@ footer {
     padding: 0;
     margin: 0.5rem 0 0;
   }
-}
 }
