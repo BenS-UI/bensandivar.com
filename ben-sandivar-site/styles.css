@@ -741,7 +741,6 @@ footer {
   gap: 2rem;
   justify-content: center;
   margin-bottom: 2rem;
-  max-width: 900px;
 }
 .intro-content {
   display: flex;
@@ -749,7 +748,7 @@ footer {
   flex-wrap: nowrap;
   gap: 4rem;
   justify-content: flex-start;
-  width: 100%;
+  width: 80%;
   align-items: center;
 }
 .profile-container {
@@ -761,7 +760,7 @@ footer {
 }
 .profile-pic img {
   /* Fix: Use aspect ratio for perfect circle and fluid width */
-  width: 100%;
+  width: 80%;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   object-fit: cover;
