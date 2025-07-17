@@ -395,6 +395,7 @@ footer {
   transition: var(--transition);
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
+  position: relative;
 }
 
 /* this controls the hover effect for the whole card */
@@ -427,11 +428,12 @@ footer {
 .card-content a {
   color: var(--color-accent);
   font-size: 0.9rem;
-  padding: 0.5rem 0;
+  padding-bottom: 0.3px;
   text-decoration: none;
   font-weight: 600;
   transition: var(--transition);
   display: inline-block;
+  position: absolute; 
 }
 
 .card-content a:hover {
