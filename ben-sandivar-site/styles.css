@@ -253,6 +253,10 @@ p {
   color: var(--color-primary);
   font-size: 1rem;
   padding: 0.5rem;
+  position: absolute;
+  right: 0;
+  vertical-align: middle;
+  height: 1.5rem;
 }
 
 .more-btn:focus {
@@ -1017,15 +1021,6 @@ footer {
   .sidebar {
     display: none;
   }
-  
-  .more-btn {
-  display: visible;
-  background: none;
-  border: none;
-  color: var(--color-primary);
-  font-size: 1rem;
-  padding: 0.5rem;
-}
   .project-cards,
   .blog-grid,
   .contact-grid,
@@ -1126,6 +1121,7 @@ footer {
   }
   .more-btn {
     display: block;
+    background: rgba(0, 0, 0, 0.2);
   }
   
   /* Fix: Removed old broken about page styles from this breakpoint */

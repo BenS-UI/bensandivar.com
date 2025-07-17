@@ -6,7 +6,6 @@ window.addEventListener('scroll', () => {
 
 
 
-
 // PAGE TRANSITION (FADE-IN)
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('page-loaded');
@@ -41,7 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
 
-
+  //MORE BUTTON
+  const morebtn = document.querySelectorAll('.more-btn');
+  morebtn.addEventListener('click', () => {
+    menubar.classList.toggle('visible')
+  }
 
   // CAROUSEL SCROLL BUTTONS AND FADE EFFECTS
   const carousels = document.querySelectorAll('.work-page .carousel-container');
