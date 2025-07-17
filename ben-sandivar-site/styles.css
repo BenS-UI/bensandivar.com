@@ -1041,7 +1041,12 @@ footer {
     flex: 0 0 100px;
     min-height: 170px;
     max-height: 170px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   }
+
+  .carousel-track {
+  padding: 1rem 1rem;
+}
 
   .carousel-card img {
     min-height: 100px;
