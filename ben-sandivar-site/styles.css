@@ -1010,7 +1010,7 @@ footer p {
     top: 100%;
     right: 2rem;
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(2px);
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem;
@@ -1052,7 +1052,7 @@ footer p {
     padding: 0 1rem;
   }
   body {
-    padding-bottom: 3rem;
+    padding-bottom: 10rem;
   }
   footer {
     padding: 0.5rem 0;
