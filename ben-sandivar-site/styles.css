@@ -84,7 +84,7 @@ elevenlabs-convai {
   background: #FFF;
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
-  padding: 20rem 3rem 14rem; /* Generous bottom padding */
+  padding: 10rem 3rem 10rem; /* Generous top and bottom padding */
   margin: 0 auto;
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1045,12 +1045,30 @@ footer {
   body {
     padding-bottom: 0.5rem;
   }
+/* Footer */
+footer {
+  padding: 0;
+  text-align: center;
+  background: #FFF;
+  color: var(--color-secondary);
+}
+
+.footer-text {
+  font-size: 0.8rem;
+  line-height: 1.2;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+
+@media (max-width: 768px) {
   footer {
     padding: 0;
   }
   .footer-text {
     font-size: 0.8rem;
     line-height: 1.2;
-    padding-top: 0.5rem;
+    padding: 0;
+    margin: 0.5rem 0 0;
   }
+}
 }
