@@ -755,6 +755,7 @@ footer {
 .profile-container {
   /* Fix: Sizing for desktop flex layout */
   flex: 0 1 300px;
+  padding-left: 5rem;
   background: transparent;
   display: flex;
   justify-content: center;
@@ -762,7 +763,6 @@ footer {
 .profile-pic img {
   /* Fix: Use aspect ratio for perfect circle and fluid width */
   width: 100%;
-  padding-left: 5rem;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   object-fit: cover;
