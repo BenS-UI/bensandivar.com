@@ -1008,9 +1008,6 @@ footer {
     padding: 0 1rem;
   }
   
-:root {
---radius: 25px;  
-}
   .main-column {
     width: 95%;
     max-width: 95%;
@@ -1045,6 +1042,7 @@ footer {
     flex: 0 0 100px;
     min-height: 170px;
     max-height: 170px;
+    border-radius: 25px;
     box-shadow: 0 1px 6px 3px rgba(0, 0, 0, 0.1);
   }
 
