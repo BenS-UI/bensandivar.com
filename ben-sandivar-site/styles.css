@@ -374,7 +374,6 @@ footer {
   padding: 0;
 }
 
-
 /* FEATURED PROJECT GRID */
 /* this controls project cards grid logic */
 .project-cards {
@@ -384,7 +383,6 @@ footer {
   margin-top: 2rem;
   width: 100%;
 }
-
 
 /* INDIVIDUAL FEATURED PROJECT CARDS */
 /* this controls single card appearance */
@@ -396,6 +394,8 @@ footer {
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   position: relative;
+  display: flex; /* Ensure card supports flex for content */
+  flex-direction: column; /* Stack image and content vertically */
 }
 
 /* this controls the hover effect for the whole card */
@@ -417,9 +417,10 @@ footer {
 /* card padding */
 .card-content {
   padding: 2rem;
-  display: flex; /* Make .card-content a flex container */
-  flex-direction: column; /* Stack children vertically */
-  min-height: 150px; /* Optional: Ensure a minimum height for consistency */
+  display: flex;
+  flex-direction: column;
+  min-height: 200px; /* Increased to ensure space for link positioning */
+  flex-grow: 1; /* Allow card-content to expand to fill available space */
 }
 
 /* title */
@@ -437,10 +438,10 @@ footer {
   margin-top: auto; /* Push the link to the bottom of the flex container */
 }
 
+/* link hover effect */
 .card-content a:hover {
   color: var(--color-primary);
   transform: translateX(2px);
-}
 
 
 
