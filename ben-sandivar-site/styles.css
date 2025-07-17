@@ -1039,6 +1039,7 @@ footer {
   .carousel-card {
     flex: 0 0 100px;
     min-height: 150px;
+    max-height: 150px;
   }
 
   .carousel-card img {
