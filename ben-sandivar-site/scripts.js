@@ -1,7 +1,9 @@
 // NAV SCROLL DETECTION
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('.navbar');
-  nav.classList.toggle('scrolled', window.scrollY > 50);
+  if (nav) {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  }
 });
 
 
@@ -41,10 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   //MORE BUTTON
-  const morebtn = document.querySelectorAll('.more-btn');
-  morebtn.addEventListener('click', () => {
-    menubar.classList.toggle('visible')
-  });
+  // Fix: Correctly implemented mobile menu toggle. This fixes the fatal script error.
+  const moreBtn = document.querySelector('.more-btn');
+  const navLinks = document.querySelector('.nav-links');
+
+  if (moreBtn && navLinks) {
+    moreBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+  }
+
 
   // CAROUSEL SCROLL BUTTONS AND FADE EFFECTS
   const carousels = document.querySelectorAll('.work-page .carousel-container');
@@ -86,7 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
       } else {
-        entry.target.classList.remove('visible'); // Ensure fade-out when out of view
+        // Optional: remove to keep elements visible once they appear
+        // entry.target.classList.remove('visible'); 
       }
     });
   }, { threshold: 0.1 });
@@ -97,51 +106,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // LIGHTBOX MODAL FOR PROJECT GALLERY
   const galleryImages = Array.from(document.querySelectorAll('.project-gallery img'));
-  let currentIndex = 0;
+  if (galleryImages.length > 0) {
+    let currentIndex = 0;
 
-  const lightbox = document.createElement('div');
-  lightbox.id = 'lightbox';
-  Object.assign(lightbox.style, {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    background: 'rgba(0,0,0,0.9)',
-    display: 'none',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999
-  });
-  document.body.appendChild(lightbox);
+    const lightbox = document.createElement('div');
+    lightbox.id = 'lightbox';
+    Object.assign(lightbox.style, {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'rgba(0,0,0,0.9)',
+      display: 'none',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999
+    });
+    document.body.appendChild(lightbox);
 
-  const img = document.createElement('img');
-  Object.assign(img.style, {
-    maxWidth: '90%',
-    maxHeight: '90%',
-    borderRadius: '1rem'
-  });
-  lightbox.appendChild(img);
+    const img = document.createElement('img');
+    Object.assign(img.style, {
+      maxWidth: '90%',
+      maxHeight: '90%',
+      borderRadius: '1rem'
+    });
+    lightbox.appendChild(img);
 
-  function showImage(index) {
-    currentIndex = index;
-    img.src = galleryImages[index].src;
-    lightbox.style.display = 'flex';
-  }
-
-  galleryImages.forEach((image, index) => {
-    image.addEventListener('click', () => showImage(index));
-  });
-
-  lightbox.addEventListener('click', (e) => {
-    if (e.target !== img) lightbox.style.display = 'none';
-  });
-
-  document.addEventListener('keydown', e => {
-    if (lightbox.style.display === 'flex') {
-      if (e.key === 'Escape') lightbox.style.display = 'none';
-      else if (e.key === 'ArrowRight') showImage((currentIndex + 1) % galleryImages.length);
-      else if (e.key === 'ArrowLeft') showImage((currentIndex - 1 + galleryImages.length) % galleryImages.length);
+    function showImage(index) {
+      currentIndex = index;
+      img.src = galleryImages[index].src;
+      lightbox.style.display = 'flex';
     }
-  });
+
+    galleryImages.forEach((image, index) => {
+      image.addEventListener('click', () => showImage(index));
+    });
+
+    lightbox.addEventListener('click', (e) => {
+      if (e.target !== img) lightbox.style.display = 'none';
+    });
+
+    document.addEventListener('keydown', e => {
+      if (lightbox.style.display === 'flex') {
+        if (e.key === 'Escape') lightbox.style.display = 'none';
+        else if (e.key === 'ArrowRight') showImage((currentIndex + 1) % galleryImages.length);
+        else if (e.key === 'ArrowLeft') showImage((currentIndex - 1 + galleryImages.length) % galleryImages.length);
+      }
+    });
+  }
 });
