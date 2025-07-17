@@ -538,7 +538,7 @@ footer {
 }
 
 .carousel-card {
-  flex: 0 0 220px;
+  flex: 0 0 350px;
   height: auto;
   background: linear-gradient(to bottom, #FFF, #F9F9F9);
   border-radius: var(--radius);
@@ -596,7 +596,7 @@ footer {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.3);
   border: none;
   color: var(--color-primary);
   font-size: 1rem;
@@ -604,7 +604,7 @@ footer {
   cursor: pointer;
   z-index: 10;
   transition: var(--transition), opacity 0.3s ease;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(2px);
   border-radius: var(--radius);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
