@@ -255,7 +255,6 @@ p {
   /* Fix: Style the button for the icon */
   font-size: 2rem;
   padding: 0.5rem;
-  cursor: pointer;
   line-height: 1; /* Aligns icon better */
 }
 
@@ -606,7 +605,6 @@ footer {
   color: var(--color-primary);
   font-size: 1rem;
   padding: 0.5rem;
-  cursor: pointer;
   z-index: 10;
   transition: var(--transition), opacity 0.3s ease;
   backdrop-filter: blur(2px);
@@ -726,7 +724,6 @@ footer {
   border-radius: var(--radius);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   transition: var(--transition);
-  cursor: pointer;
 }
 
 .project-gallery img:hover {
