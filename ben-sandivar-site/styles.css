@@ -1007,6 +1007,10 @@ footer {
   .container-main {
     padding: 0 1rem;
   }
+  
+:root {
+--radius: 10px;  
+}
   .main-column {
     width: 95%;
     max-width: 95%;
