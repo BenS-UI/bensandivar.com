@@ -1017,6 +1017,15 @@ footer {
   .sidebar {
     display: none;
   }
+  
+  .more-btn {
+  display: visible;
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 1rem;
+  padding: 0.5rem;
+}
   .project-cards,
   .blog-grid,
   .contact-grid,
