@@ -17,10 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnLeft && btnRight && track) {
       btnLeft.addEventListener('click', () => {
-        track.scrollBy({ left: -220, behavior: 'smooth' }); // Updated to match carousel-card width
+        track.scrollBy({ left: -240, behavior: 'smooth' }); // Updated to match carousel-card width
       });
       btnRight.addEventListener('click', () => {
-        track.scrollBy({ left: 220, behavior: 'smooth' }); // Updated to match carousel-card width
+        track.scrollBy({ left: 240, behavior: 'smooth' }); // Updated to match carousel-card width
       });
 
       // Handle fade-start and fade-end classes for gradient overlays
@@ -111,8 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const lerp = (start, end, factor) => start + (end - start) * factor;
 
   function animateCursor() {
-    posX = lerp(posX, mouseX, 0);
-    posY = lerp(posY, mouseY, 0);
+    posX = lerp(posX, mouseX, 0.1);
+    posY = lerp(posY, mouseY, 0.1);
     cursor.style.transform = `translate3d(${posX}px, ${posY}px, 0)`;
     requestAnimationFrame(animateCursor);
   }
