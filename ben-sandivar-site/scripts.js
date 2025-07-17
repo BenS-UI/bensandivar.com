@@ -4,9 +4,44 @@ window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 50);
 });
 
+
+
+
 // PAGE TRANSITION (FADE-IN)
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('page-loaded');
+
+
+
+  // CUSTOM CURSOR
+  const cursor = document.createElement('div');
+  cursor.id = 'custom-cursor';
+  document.body.appendChild(cursor);
+
+  let mouseX = 0, mouseY = 0, posX = 0, posY = 0;
+
+  const lerp = (start, end, factor) => start + (end - start) * factor;
+
+  function animateCursor() {
+    posX = lerp(posX, mouseX, 1);
+    posY = lerp(posY, mouseY, 1);
+    cursor.style.transform = `translate3d(${posX}px, ${posY}px, 0)`;
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  const hoverTargets = document.querySelectorAll('a, button');
+  hoverTargets.forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+
 
   // CAROUSEL SCROLL BUTTONS AND FADE EFFECTS
   const carousels = document.querySelectorAll('.work-page .carousel-container');
@@ -38,6 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+
+
+
   // INTERSECTION OBSERVER FOR FADE-IN ANIMATIONS
   const elements = document.querySelectorAll('.fade-in, .carousel-section, .carousel-card, .carousel-btn');
   const observer = new IntersectionObserver(entries => {
@@ -50,6 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, { threshold: 0.1 });
   elements.forEach(element => observer.observe(element));
+
+
+
 
   // LIGHTBOX MODAL FOR PROJECT GALLERY
   const galleryImages = Array.from(document.querySelectorAll('.project-gallery img'));
@@ -99,33 +140,5 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (e.key === 'ArrowRight') showImage((currentIndex + 1) % galleryImages.length);
       else if (e.key === 'ArrowLeft') showImage((currentIndex - 1 + galleryImages.length) % galleryImages.length);
     }
-  });
-
-  // CUSTOM CURSOR
-  const cursor = document.createElement('div');
-  cursor.id = 'custom-cursor';
-  document.body.appendChild(cursor);
-
-  let mouseX = 0, mouseY = 0, posX = 0, posY = 0;
-
-  const lerp = (start, end, factor) => start + (end - start) * factor;
-
-  function animateCursor() {
-    posX = lerp(posX, mouseX, 1);
-    posY = lerp(posY, mouseY, 1);
-    cursor.style.transform = `translate3d(${posX}px, ${posY}px, 0)`;
-    requestAnimationFrame(animateCursor);
-  }
-  animateCursor();
-
-  document.addEventListener('mousemove', e => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-
-  const hoverTargets = document.querySelectorAll('a, button');
-  hoverTargets.forEach(el => {
-    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
 });
