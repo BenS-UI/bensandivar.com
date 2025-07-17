@@ -741,6 +741,7 @@ footer {
   gap: 2rem;
   justify-content: center;
   margin-bottom: 2rem;
+  max-width: 900px;
 }
 .intro-content {
   display: flex;
@@ -792,6 +793,7 @@ footer {
 /* SKILLS & TOOLS */
 .about-skills {
   margin-top: 3rem;
+  max width: 900px;
 }
 .about-skills h3 {
     margin-bottom: 2rem;
