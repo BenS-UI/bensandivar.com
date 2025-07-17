@@ -220,7 +220,7 @@ p {
 }
 
 .logo img:hover {
-font-size: 2rem;
+  height: 2rem;
 }
 
 .nav-links {
