@@ -247,7 +247,7 @@ p {
 }
 
 .more-btn {
-  display: none;
+  display: none !important; /* Reinforced to prevent overrides */
   background: none;
   border: none;
   color: var(--color-primary);
@@ -1120,7 +1120,7 @@ footer {
     display: flex;
   }
   .more-btn {
-    display: block;
+    display: block !important; /* Show on mobile */
     background: rgba(0, 0, 0, 0.2);
   }
   
