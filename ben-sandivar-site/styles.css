@@ -66,7 +66,7 @@ elevenlabs-convai {
 
 .container-main {
   max-width: 1200px;
-  margin: 4rem 0 auto;
+  margin: 0 auto;
   display: flex;
   justify-content: center;
   position: relative;
@@ -940,7 +940,7 @@ footer p {
   .main-column {
     width: 95%;
     max-width: 95%; /* Match mobile width across all pages */
-    margin: 10rem auto 10rem;
+    margin: 1rem auto 10rem;
     padding: 2rem;
   }
   .sidebar {
@@ -970,7 +970,7 @@ footer p {
     flex: 0 0 180px;
   }
   .carousel-btn {
-    font-size: 0.8rem;
+    font-size: 0.5rem;
     padding: 0.5rem;
   }
   .project-card,
@@ -1053,7 +1053,7 @@ footer p {
     padding: 0 1rem;
   }
   body {
-    padding-bottom: 1rem;
+    padding-bottom: 20rem;
   }
   footer {
     padding: 0.5rem 0;
