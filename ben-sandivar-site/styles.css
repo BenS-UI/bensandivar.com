@@ -769,7 +769,7 @@ footer {
   gap: 1rem; /* Adds 1rem spacing between grid items */
   margin-top: 2rem; /* Adds 2rem space above the grid */
   padding: 0 1rem; /* Adds 1rem padding on sides */
-  max-width: 1200px; /* Caps grid width to match main-column */
+  max-width: 600px; /* Caps grid width to match main-column */
   justify-content: center; /* Centers grid items horizontally */
 }
 .skills-grid span { /* Styles individual skill items */
