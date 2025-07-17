@@ -1031,20 +1031,20 @@ footer {
   }
   .carousel-container {
     width: 95%;
-    min-height: 120px;
+    min-height: 160px;
   }
   .carousel-inner {
     padding: 1.5rem;
   }
   .carousel-card {
-    flex: 0 0 130px;
-    max-height: 100px;
+    flex: 0 0 100px;
+    min-height: 150px;
   }
 
   .carousel-card img {
-    max-height: 30px;
+    max-height: 50px;
   }
-  
+
   .carousel-btn {
     font-size: 0.5rem;
     padding: 0.5rem;
