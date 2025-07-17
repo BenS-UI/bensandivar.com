@@ -84,7 +84,7 @@ elevenlabs-convai {
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
   padding: 3rem;
-  margin: 0 auto 8rem;
+  margin: 0 auto 20rem;
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-top: none;
@@ -220,7 +220,7 @@ p {
 /* Page Header */
 .page-header {
   text-align: center;
-  padding: 4rem 0 3rem;
+  padding: 10rem 0 3rem;
 }
 
 /* Hero */
@@ -920,7 +920,7 @@ p {
 
 /* Footer */
 footer {
-  padding: 5rem 0 1rem 0;
+  padding: 2rem 0 1rem 0;
   text-align: center;
   background: #FFF;
   color: #A0A0A0;
@@ -937,9 +937,9 @@ footer p {
     padding: 0 1rem;
   }
   .main-column {
-    width: 100%;
-    max-width: 100%; /* Match mobile width across all pages */
-    margin: 1rem auto 2rem;
+    width: 95%;
+    max-width: 95%; /* Match mobile width across all pages */
+    margin: 1rem auto 10rem;
     padding: 2rem;
   }
   .sidebar {
