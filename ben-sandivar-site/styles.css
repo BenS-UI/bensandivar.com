@@ -1009,7 +1009,7 @@ footer {
   }
   
 :root {
---radius: 10px;  
+--radius: 25px;  
 }
   .main-column {
     width: 95%;
