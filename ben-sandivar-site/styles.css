@@ -188,7 +188,7 @@ p {
 }
 
 .navbar:hover {
-  background: rgba(255, 255, 255, 1);
+ backdrop-filter: blur(12px);
 }
 
 .navbar.scrolled {
@@ -217,6 +217,10 @@ p {
 .logo img {
   height: 1.5rem;
   vertical-align: middle;
+}
+
+.logo:hover {
+font-size: 2rem;
 }
 
 .nav-links {
