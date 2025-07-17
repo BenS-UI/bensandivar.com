@@ -428,12 +428,12 @@ footer {
 .card-content a {
   color: var(--color-accent);
   font-size: 0.9rem;
-  padding-bottom: 0.3px;
+  padding-bottom: 0.3rem;
   text-decoration: none;
   font-weight: 600;
   transition: var(--transition);
   display: inline-block;
-  position: absolute; 
+  position: absolute;
 }
 
 .card-content a:hover {
