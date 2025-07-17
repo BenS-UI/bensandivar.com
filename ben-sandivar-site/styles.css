@@ -396,6 +396,9 @@ footer {
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }
 
 /* this controls the hover effect for the whole card */
