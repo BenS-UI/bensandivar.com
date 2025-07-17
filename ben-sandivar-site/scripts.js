@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const morebtn = document.querySelectorAll('.more-btn');
   morebtn.addEventListener('click', () => {
     menubar.classList.toggle('visible')
-  }
+  });
 
   // CAROUSEL SCROLL BUTTONS AND FADE EFFECTS
   const carousels = document.querySelectorAll('.work-page .carousel-container');

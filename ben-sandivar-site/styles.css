@@ -1130,12 +1130,7 @@ footer {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
-  
-  /* Fix: Removed old broken about page styles from this breakpoint */
 
-  .page-header {
-    /* Original broken padding removed from global scope */
-  }
   .carousel-section {
     padding: 0.5rem 0;
   }
