@@ -169,6 +169,8 @@ p {
   transform: translateY(-2px);
 }
 
+
+
 /* NAVBAR LOGIC */
 .navbar {
   position: sticky;
@@ -265,8 +267,9 @@ footer {
   margin-top: 12rem; /* Increased gap */
   padding: 2rem 1rem;
   background: transparent; /* Transparent background */
-  color: #6B7280;
+  color: rgba(255, 255, 255, 1);
   border-top: none; /* No border */
+  z-index: 0;
 }
 .footer-text {
   font-size: 0.9rem;
@@ -274,6 +277,7 @@ footer {
   padding: 0;
   margin: 0;
   text-align: center;
+  z-index: 1000;
 }
 
 /* HOME PAGE */
@@ -286,7 +290,7 @@ footer {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7)), rgba(0, 0, 0, 0.15);
+  background: #FFF;
   color: #FFF;
   position: relative;
   overflow: hidden;
