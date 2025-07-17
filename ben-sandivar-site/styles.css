@@ -17,7 +17,7 @@ html, body {
 }
 
 body {
-  padding-bottom: 4rem; /* Prevents footer overlap with content */
+  padding-bottom: 1rem; /* Footer close to bottom */
 }
 
 html::-webkit-scrollbar,
@@ -79,12 +79,12 @@ elevenlabs-convai {
 
 .main-column {
   width: 80%;
-  max-width: 960px; /* Match standard width across all pages */
+  max-width: 960px;
   background: #FFF;
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
   padding: 3rem;
-  margin: 0 auto 4rem;
+  margin: 12rem auto 4rem; /* Generous top margin for headers */
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-top: none;
@@ -220,8 +220,7 @@ p {
 /* Page Header */
 .page-header {
   text-align: center;
-  margin-top: 10rem;
-  padding: 10rem 0 3rem;
+  padding: 0 0 3rem; /* Remove top padding */
 }
 
 /* Hero */
@@ -291,7 +290,7 @@ p {
 
 /* Featured Projects */
 .featured-projects {
-  padding: 0; /* Main column handles padding */
+  padding: 0;
 }
 
 .project-cards {
@@ -350,7 +349,7 @@ p {
 
 /* About Page */
 .about-intro {
-  padding: 0; /* Main column handles padding */
+  padding: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
@@ -437,7 +436,7 @@ p {
 
 /* Blog Page */
 .blog-page {
-  padding: 0; /* Main column handles padding */
+  padding: 0;
 }
 
 .blog-grid {
@@ -506,7 +505,7 @@ p {
 
 /* Contact Page */
 .contact-page {
-  padding: 0; /* Main column handles padding */
+  padding: 0;
 }
 
 .contact-grid {
@@ -577,7 +576,7 @@ p {
 
 /* Project Detail Page */
 .project-detail {
-  padding: 0; /* Main column handles padding */
+  padding: 0;
 }
 
 .back-link {
@@ -641,7 +640,7 @@ p {
 
 /* Blog Post Detail Page */
 .post-detail {
-  padding: 0; /* Main column handles padding */
+  padding: 0;
 }
 
 .post-hero img {
@@ -684,12 +683,12 @@ p {
 
 /* Work Page */
 .work-page {
-  padding: 0; /* Main column handles padding */
+  padding: 0;
 }
 
 .page-header {
   text-align: center;
-  padding: 4rem 0 3rem;
+  padding: 0 0 3rem;
 }
 
 .carousel-section {
@@ -921,7 +920,7 @@ p {
 
 /* Footer */
 footer {
-  padding: 2rem 0 1rem 0;
+  padding: 1rem 0;
   text-align: center;
   background: #FFF;
   color: #A0A0A0;
@@ -939,8 +938,8 @@ footer p {
   }
   .main-column {
     width: 95%;
-    max-width: 95%; /* Match mobile width across all pages */
-    margin: 1rem auto 10rem;
+    max-width: 95%;
+    margin: 8rem auto 10rem;
     padding: 2rem;
   }
   .sidebar {
@@ -978,16 +977,16 @@ footer p {
   .carousel-card {
     max-width: 100%;
   }
-  h1 {
+  .h1 {
     font-size: 3rem;
   }
-  h2 {
+  .h2 {
     font-size: 2rem;
   }
-  h3 {
+  .h3 {
     font-size: 1.5rem;
   }
-  h4 {
+  .h4 {
     font-size: 1rem;
   }
   p {
@@ -1053,9 +1052,9 @@ footer p {
     padding: 0 1rem;
   }
   body {
-    padding-bottom: 20rem;
+    padding-bottom: 1rem;
   }
   footer {
-    padding: 0.5rem 0;
+    padding: 1rem 0;
   }
 }
