@@ -337,8 +337,8 @@
 
     if (project) {
       document.title = `${project.title} — Ben Sandivar`;
-      document.querySelector("h2").textContent = project.title;
-      document.querySelector(".meta").textContent = `${project.year} · ${project.tags.join(" · ")}`;
+      document.querySelector(".project-header h2").textContent = project.title;
+      document.querySelector(".project-header .meta").textContent = `${project.year} · ${project.tags.join(" · ")}`;
       document.querySelector(".project-hero img").src = project.heroImage;
       document.querySelector(".project-hero img").alt = `${project.title} Hero Image`;
       document.querySelector(".project-description p").textContent = project.description;
@@ -353,9 +353,15 @@
       });
     } else {
       document.title = "Project Not Found — Ben Sandivar";
-      document.querySelector(".main-column").innerHTML = `
-        <p>Project not found.</p>
-        <p><a href="work.html">Return to Work</a></p>
+      const mainColumn = document.querySelector(".main-column");
+      mainColumn.innerHTML = `
+        <div class="back-link"><a href="work.html">← Back to Work</a></div>
+        <section class="project-header">
+          <h2>Project Not Found</h2>
+        </section>
+        <section class="project-description">
+          <p>The project you are looking for does not exist.</p>
+        </section>
       `;
     }
   </script>
