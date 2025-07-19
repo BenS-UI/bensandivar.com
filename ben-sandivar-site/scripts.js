@@ -151,5 +151,18 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (e.key === 'ArrowLeft') showImage((currentIndex - 1 + galleryImages.length) % galleryImages.length);
       }
     });
+    // MAKE ENTIRE CAROUSEL CARD CLICKABLE
+document.querySelectorAll('.carousel-card').forEach(card => {
+  const link = card.querySelector('a[href]');
+  if (link) {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', e => {
+      // Prevents double navigation if user clicks directly on <a>
+      if (e.target.tagName.toLowerCase() !== 'a') {
+        window.location.href = link.href;
+           }
+          });
+      }
+    });
   }
 });
