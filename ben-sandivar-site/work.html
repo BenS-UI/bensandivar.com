@@ -1,290 +1,244 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
+import React from 'react';
 
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
+const WorkPageFromFile: React.FC = () => {
+  return (
+    <>
+      <header className="navbar">
+        <nav className="nav-container container-full">
+          <a href="#home" className="logo"><img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Logo" /></a>
 
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
+          <button className="more-btn">
+            <span className="material-symbols-outlined">menu</span>
+          </button>
 
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Work — Ben Sandivar</title>
-  <link rel="icon" href="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" type="image/svg+xml">
-  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@100;400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <header class="navbar">
-    <nav class="nav-container container-full">
-      <a href="#home" class="logo"><img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Logo"></a>
-      
-      <!-- This is the new, functional mobile menu button -->
-      <button class="more-btn">
-        <span class="material-symbols-outlined">menu</span>
-      </button>
+          <ul className="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="work.html">Work</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
 
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="work.html">Work</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="blog.html">Blog</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+      <main>
+        <section id="work" className="work-page parallax-section fade-in">
+          <div className="container-main">
+            <div className="sidebar"></div>
+            <div className="main-column">
+              <h2>My Work</h2>
+              <p>Explore a curated selection of my design, tech, and creative projects.</p>
 
-  <main>
-    <section id="work" class="work-page parallax-section fade-in">
-      <div class="container-main">
-        <div class="sidebar"></div>
-        <div class="main-column">
-          <h2>My Work</h2>
-          <p>Explore a curated selection of my design, tech, and creative projects.</p>
+              <div className="carousel-section">
+                <h3>Design &amp; Branding</h3>
+                <div className="carousel-container">
+                  <button className="carousel-btn left">←</button>
+                  <div className="carousel-track">
 
-          <div class="carousel-section">
-            <h3>Design & Branding</h3>
-            <div class="carousel-container">
-              <button class="carousel-btn left">←</button>
-              <div class="carousel-track">
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/LEAP%20(2).jpg?raw=true" alt="Design 1" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>LEAP</h4>
+                        <a href="#design-1">View Thumbnail</a>
+                      </div>
+                    </article>
 
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/LEAP%20(2).jpg?raw=true" alt="Design 1" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>LEAP</h4>
-                    <a href="#design-1">View Thumbnail</a>
+                    <article className="carousel-card">
+                      <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/refs/heads/main/Slides%20Alpha.png" alt="Design 2" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>SLIDES</h4>
+                        <a href="#design-2">View Thumbnail</a>
+                      </div>
+                    </article>
+
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Ben%20Sandivar.jpg?raw=true" alt="Design 3" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Personal Branding</h4>
+                        <a href="#design-3">View Thumbnail</a>
+                      </div>
+                    </article>
+
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Gente%20Como%20T%C3%BA.jpg?raw=true" alt="Design 4" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Cover Art</h4>
+                        <a href="#design-4">View Thumbnail</a>
+                      </div>
+                    </article>
+
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/concierto-20.4.24-DXyH9Xtm.jpg?raw=true" alt="Design 5" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Poster</h4>
+                        <a href="#design-5">View Thumbnail</a>
+                      </div>
+                    </article>
+
                   </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/refs/heads/main/Slides%20Alpha.png" alt="Design 2" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>SLIDES</h4>
-                    <a href="#design-2">View Thumbnail</a>
-                  </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Ben%20Sandivar.jpg?raw=true" alt="Design 3" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Personal Branding</h4>
-                    <a href="#design-3">View Thumbnail</a>
-                  </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Gente%20Como%20T%C3%BA.jpg?raw=true" alt="Design 4" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Cover Art</h4>
-                    <a href="#design-4">View Thumbnail</a>
-                  </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/concierto-20.4.24-DXyH9Xtm.jpg?raw=true" alt="Design 5" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Poster</h4>
-                    <a href="#design-5">View Thumbnail</a>
-                  </div>
-                </article>
-
+                  <button className="carousel-btn right">→</button>
+                </div>
               </div>
-              <button class="carousel-btn right">→</button>
-            </div>
-          </div>
 
-          <div class="carousel-section">
-            <h3>AI & Apps</h3>
-            <div class="carousel-container">
-              <button class="carousel-btn left">←</button>
-              <div class="carousel-track">
+              <div className="carousel-section">
+                <h3>AI &amp; Apps</h3>
+                <div className="carousel-container">
+                  <button className="carousel-btn left">←</button>
+                  <div className="carousel-track">
 
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Emma%20tn.jpg?raw=true" alt="App 1" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Emma</h4>
-                    <a href="#app-1">View Thumbnail</a>
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Emma%20tn.jpg?raw=true" alt="App 1" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Emma</h4>
+                        <a href="#app-1">View Thumbnail</a>
+                      </div>
+                    </article>
+
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Iceberg.png?raw=true" alt="App 2" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Iceberg</h4>
+                        <a href="#app-2">View Thumbnail</a>
+                      </div>
+                    </article>
+
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/ZEN.jpg?raw=true" alt="App 3" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Zen</h4>
+                        <a href="#app-3">View Thumbnail</a>
+                      </div>
+                    </article>
+
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Vise.png?raw=true" alt="App 4" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Vise</h4>
+                        <a href="#app-4">View Thumbnail</a>
+                      </div>
+                    </article>
+
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Cabin%20Cover.jpg?raw=true" alt="App 5" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Cabin</h4>
+                        <a href="#app-5">View Thumbnail</a>
+                      </div>
+                    </article>
+
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Pearl.jpg?raw=true" alt="App 6" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Pearl</h4>
+                        <a href="#app-6">View Thumbnail</a>
+                      </div>
+                    </article>
+
                   </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Iceberg.png?raw=true" alt="App 2" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Iceberg</h4>
-                    <a href="#app-2">View Thumbnail</a>
-                  </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/ZEN.jpg?raw=true" alt="App 3" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Zen</h4>
-                    <a href="#app-3">View Thumbnail</a>
-                  </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Vise.png?raw=true" alt="App 4" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Vise</h4>
-                    <a href="#app-4">View Thumbnail</a>
-                  </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Cabin%20Cover.jpg?raw=true" alt="App 5" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Cabin</h4>
-                    <a href="#app-5">View Thumbnail</a>
-                  </div>
-                </article>
-
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Pearl.jpg?raw=true" alt="App 6" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Pearl</h4>
-                    <a href="#app-6">View Thumbnail</a>
-                  </div>
-                </article>
-
+                  <button className="carousel-btn right">→</button>
+                </div>
               </div>
-              <button class="carousel-btn right">→</button>
-            </div>
-          </div>
 
-          <div class="carousel-section">
-            <h3>Music & Production</h3>
-            <div class="carousel-container">
-              <button class="carousel-btn left">←</button>
-              <div class="carousel-track">
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Gente%20Como%20T%C3%BA.jpg?raw=true" alt="Music 1" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Gente Como Tú</h4>
-                    <a href="#music-1">View Thumbnail</a>
+              <div className="carousel-section">
+                <h3>Music &amp; Production</h3>
+                <div className="carousel-container">
+                  <button className="carousel-btn left">←</button>
+                  <div className="carousel-track">
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Gente%20Como%20T%C3%BA.jpg?raw=true" alt="Music 1" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Gente Como Tú</h4>
+                        <a href="#music-1">View Thumbnail</a>
+                      </div>
+                    </article>
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Underneath%20Cover.jpg?raw=true" alt="Music 2" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Underneath</h4>
+                        <a href="#music-2">View Thumbnail</a>
+                      </div>
+                    </article>
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/ALMA.png?raw=true" alt="Music 3" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>AʟᴍA</h4>
+                        <a href="#music-3">View Thumbnail</a>
+                      </div>
+                    </article>
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/BlackRose.jpg?raw=true" alt="Music 4" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>BlackRose</h4>
+                        <a href="#music-4">View Thumbnail</a>
+                      </div>
+                    </article>
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Siberia.jpg?raw=true" alt="Music 5" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Siberia</h4>
+                        <a href="#music-5">View Thumbnail</a>
+                      </div>
+                    </article>
                   </div>
-                </article>
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Underneath%20Cover.jpg?raw=true" alt="Music 2" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Underneath</h4>
-                    <a href="#music-2">View Thumbnail</a>
-                  </div>
-                </article>
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/ALMA.png?raw=true" alt="Music 3" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>AʟᴍA</h4>
-                    <a href="#music-3">View Thumbnail</a>
-                  </div>
-                </article>
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/BlackRose.jpg?raw=true" alt="Music 4" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>BlackRose</h4>
-                    <a href="#music-4">View Thumbnail</a>
-                  </div>
-                </article>
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Siberia.jpg?raw=true" alt="Music 5" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Siberia</h4>
-                    <a href="#music-5">View Thumbnail</a>
-                  </div>
-                </article>
+                  <button className="carousel-btn right">→</button>
+                </div>
               </div>
-              <button class="carousel-btn right">→</button>
-            </div>
-          </div>
 
-          <div class="carousel-section">
-            <h3>Writing & Art</h3>
-            <div class="carousel-container">
-              <button class="carousel-btn left">←</button>
-              <div class="carousel-track">
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Book%20Cover.jpg?raw=true" alt="Misc 1" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>The Arcane</h4>
-                    <a href="#misc-1">View Thumbnail</a>
+              <div className="carousel-section">
+                <h3>Writing &amp; Art</h3>
+                <div className="carousel-container">
+                  <button className="carousel-btn left">←</button>
+                  <div className="carousel-track">
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Book%20Cover.jpg?raw=true" alt="Misc 1" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>The Arcane</h4>
+                        <a href="#misc-1">View Thumbnail</a>
+                      </div>
+                    </article>
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/A%20Dark%20Place.jpg?raw=true" alt="Misc 2" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>A Dark Place</h4>
+                        <a href="#misc-2">View Thumbnail</a>
+                      </div>
+                    </article>
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/Downfall%20Cover.jpg?raw=true" alt="Misc 3" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Downfall</h4>
+                        <a href="#misc-3">View Thumbnail</a>
+                      </div>
+                    </article>
+                    <article className="carousel-card">
+                      <img src="https://github.com/BenS-UI/portfolio/blob/main/blackhat.jpg?raw=true" alt="Misc 4" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>BlackHat, WhiteHat</h4>
+                        <a href="#misc-4">View Thumbnail</a>
+                      </div>
+                    </article>
+                    <article className="carousel-card">
+                      <img src="https://via.placeholder.com/300x200/667EEA/FFFFFF?text=Misc+5" alt="Misc 5" data-parallax-speed="0.01" />
+                      <div className="card-content">
+                        <h4>Misc 5</h4>
+                        <a href="#misc-5">View Thumbnail</a>
+                      </div>
+                    </article>
                   </div>
-                </article>
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/A%20Dark%20Place.jpg?raw=true" alt="Misc 2" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>A Dark Place</h4>
-                    <a href="#misc-2">View Thumbnail</a>
-                  </div>
-                </article>
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/Downfall%20Cover.jpg?raw=true" alt="Misc 3" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Downfall</h4>                    
-                    <a href="#misc-3">View Thumbnail</a>
-                  </div>
-                </article>
-                <article class="carousel-card">
-                  <img src="https://github.com/BenS-UI/portfolio/blob/main/blackhat.jpg?raw=true" alt="Misc 4" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>BlackHat, WhiteHat</h4>
-                    <a href="#misc-4">View Thumbnail</a>
-                  </div>
-                </article>
-                <article class="carousel-card">
-                  <img src="https://via.placeholder.com/300x200/667EEA/FFFFFF?text=Misc+5" alt="Misc 5" data-parallax-speed="0.01">
-                  <div class="card-content">
-                    <h4>Misc 5</h4>
-                    <a href="#misc-5">View Thumbnail</a>
-                  </div>
-                </article>
+                  <button className="carousel-btn right">→</button>
+                </div>
               </div>
-              <button class="carousel-btn right">→</button>
             </div>
+            <div className="sidebar"></div>
           </div>
-        </div>
-        <div class="sidebar"></div>
-      </div>
-    </section>
-  </main>
+        </section>
+      </main>
 
-  <footer>
-    <p style="padding-bottom: 1rem; text-align: center;">© 2025 Ben Sandivar</p>
-  </footer>
+      <footer>
+        <p style={{ paddingBottom: '1rem', textAlign: 'center' }}>© 2025 Ben Sandivar</p>
+      </footer>
+    </>
+  );
+};
 
-  <script src="scripts.js"></script>
-</body>
-</html>
+export default WorkPageFromFile;
