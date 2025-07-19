@@ -155,6 +155,7 @@ p {
   border: 1px solid var(--color-border);
   border-top: none;
   transition: var(--transition);
+  text-align: center;
   z-index: 1;
   overflow-y: visible;
   overflow-x: visible;
@@ -172,6 +173,7 @@ p {
   line-height: 1.8;
   color: #6B7280;
   margin-bottom: 1rem;
+  text-align: center;
 }
 
 .main-column a {
@@ -273,14 +275,12 @@ p {
 }
 
 /* MAIN HEADER */
-.page-header,
-.page-section-header {
+.page-header {
   text-align: center;
   padding: 0;
-  margin-bottom: 3rem;
 }
-.page-section-description {
-  text-align: center;
+.page-header h2 {
+    margin-bottom: 3rem;
 }
 
 /* FOOTER */
@@ -425,13 +425,12 @@ footer {
 }
 
 /* card padding */
-.project-card .card-content {
+.card-content {
   padding: 2rem;
   display: flex;
   flex-direction: column;
   min-height: 200px; /* Increased to ensure space for link positioning */
   flex-grow: 1; /* Allow card-content to expand to fill available space */
-  text-align: left;
 }
 
 /* title */
@@ -567,14 +566,14 @@ footer {
   transform: translateY(0);
 }
 
-.carousel-card.dimmed {
-  opacity: 0.7;
-}
-
 .carousel-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 999;
+}
+
+.carousel-card.dimmed {
+  opacity: 0.7;
 }
 
 .carousel-card img {
@@ -586,8 +585,11 @@ footer {
 }
 
 .carousel-card .card-content {
-  padding: 0.5rem 1rem;
-  text-align: left;
+  padding: 0.5rem 1rem 0.5rem; /* Reduced bottom padding as link/description are gone */
+  display: flex; /* Keep flex to center h4 vertically if needed */
+  align-items: center; /* Center h4 vertically */
+  justify-content: center; /* Center h4 horizontally */
+  min-height: 60px; /* Adjusted for just title */
 }
 
 .carousel-card .card-content p {
@@ -684,11 +686,12 @@ footer {
 .project-detail {
   padding: 0;
   width: 100%;
-  text-align: center;
+  /* text-align is inherited from main-column and overridden for children */
 }
 
 .project-header {
   margin-bottom: 2rem;
+  text-align: left; /* Ensure the header content is left-aligned */
 }
 
 .project-header h2 {
@@ -696,12 +699,14 @@ footer {
   font-weight: 900;
   line-height: 1.3;
   color: var(--color-primary);
+  text-align: left; /* Explicitly left-align title */
 }
 
 .project-header .meta {
   font-size: 1rem;
   color: #6B7280;
   margin-top: 0.5rem;
+  text-align: left; /* Explicitly left-align meta */
 }
 
 .project-hero {
@@ -774,7 +779,7 @@ footer {
 }
 
 /* ABOUT */
-.about-intro {
+.about-intro { 
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
@@ -960,13 +965,11 @@ footer {
   padding: 1rem 1.5rem 0;
   font-size: 0.85rem;
   color: #6B7280;
-  text-align: left;
 }
 
 .blog-card h4 {
   padding: 0.5rem 1.5rem;
   margin-bottom: 0.5rem;
-  text-align: left;
 }
 
 .blog-card p {
@@ -974,7 +977,6 @@ footer {
   font-size: 0.95rem;
   line-height: 1.6;
   margin-bottom: 1rem;
-  text-align: left;
 }
 
 .read-more {
