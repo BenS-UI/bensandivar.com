@@ -5,7 +5,7 @@
   box-sizing: border-box;
 }
 
-/*CCS HTML BODY STYLES (FONT/BACKGROUND/COLORS) */
+/* CCS HTML BODY STYLES (FONT/BACKGROUND/COLORS) */
 html, body {
   font-family: 'Geologica', sans-serif;
   background: #FFF;
@@ -49,13 +49,11 @@ section {
   overflow-x: hidden;
 }
 
-
 /* ELEVEN LABS WIDGET */
 elevenlabs-convai {
   max-width: 100%;
   overflow: hidden;
 }
-
 
 /* APPEARANCE SETTINGS */
 /* BACKGROUND COLORS & SETTINGS */
@@ -109,14 +107,12 @@ p {
   margin-bottom: 1rem;
 }
 
-
 /* PAGE CONTAINER */
 .container-full {
   width: 100%;
   margin: 0 auto;
   padding: 0;
 }
-
 
 /* CURSOR */
 #custom-cursor {
@@ -137,7 +133,6 @@ p {
   background: rgba(59, 130, 246, 0.5);
 }
 
-
 /* CONTENT AREA */
 .container-main {
   max-width: 1200px;
@@ -154,7 +149,6 @@ p {
   background: #FFF;
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
-  /* Fix: Reduced padding to fix huge gap */
   padding: 4rem 3rem;
   margin: 0 auto;
   position: relative;
@@ -173,8 +167,6 @@ p {
   transform: translateY(-2px);
 }
 
-
-
 /* NAVBAR LOGIC */
 .navbar {
   position: sticky;
@@ -186,11 +178,10 @@ p {
   z-index: 1000;
   transition: var(--transition);
   border-bottom: 1px solid var(--color-border);
-  /* Fix: Removed overflow: hidden which was clipping the dropdown */
 }
 
 .navbar:hover {
- backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .navbar.scrolled {
@@ -252,7 +243,6 @@ p {
   background: none;
   border: none;
   color: var(--color-primary);
-  /* Fix: Style the button for the icon */
   font-size: 2rem;
   padding: 0.5rem;
   line-height: 1; /* Aligns icon better */
@@ -263,17 +253,14 @@ p {
   outline-offset: 2px;
 }
 
-
 /* MAIN HEADER */
 .page-header {
   text-align: center;
-  /* Fix: Removed huge padding, replaced with margin on h2 */
   padding: 0;
 }
 .page-header h2 {
     margin-bottom: 3rem;
 }
-
 
 /* FOOTER */
 footer {
@@ -371,7 +358,6 @@ footer {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-
 /* FEATURED PROJECTS SECTION */
 .featured-projects {
   padding: 0;
@@ -446,8 +432,6 @@ footer {
   color: var(--color-primary);
   transform: translateX(2px);
 }
-
-
 
 /* WORK */
 .work-page {
@@ -553,6 +537,7 @@ footer {
   scroll-snap-align: start;
   opacity: 0;
   transform: translateY(20px);
+  pointer-events: auto; /* Ensure cards are clickable */
 }
 
 .carousel-card.visible {
@@ -587,13 +572,19 @@ footer {
   margin: 0.5rem 0;
 }
 
-.carousel-card .card-content a {
+.carousel-card a {
+  display: inline-block;
   color: var(--color-accent);
   text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  transition: var(--transition);
 }
 
-.carousel-card a {
-  display: none;
+.carousel-card a:hover {
+  color: var(--color-primary);
+  transform: translateX(2px);
 }
 
 .carousel-btn {
@@ -610,6 +601,7 @@ footer {
   backdrop-filter: blur(2px);
   border-radius: var(--radius);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  pointer-events: auto; /* Ensure buttons are clickable */
 }
 
 .carousel-btn:hover {
@@ -638,8 +630,7 @@ footer {
   right: 1rem;
 }
 
-
-/*FADE-INS UPON LOADING*/
+/* FADE-INS UPON LOADING */
 .fade-in {
   opacity: 0;
   transform: translateY(30px);
@@ -650,7 +641,6 @@ footer {
   opacity: 1;
   transform: translateY(0);
 }
-
 
 /* LIGHT UP EFFECT */
 /* this controls the carousels light up hover effect */
@@ -666,7 +656,6 @@ footer {
   align-items: center;
   z-index: 9999;
 }
-
 
 /* PROJECT PAGES */
 .project-detail {
@@ -731,7 +720,6 @@ footer {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-
 /* ABOUT */
 .about-intro { 
   display: flex;
@@ -742,7 +730,6 @@ footer {
 }
 .intro-content {
   display: flex;
-  /* Fix: prevent wrapping before breakpoint to avoid awkward layout shift */
   flex-wrap: nowrap;
   gap: 4rem;
   justify-content: flex-start;
@@ -751,7 +738,6 @@ footer {
   align-items: center;
 }
 .profile-container {
-  /* Fix: Sizing for desktop flex layout */
   flex: 0 1 300px;
   padding-left: 5rem;
   background: transparent;
@@ -759,7 +745,6 @@ footer {
   justify-content: center;
 }
 .profile-pic img {
-  /* Fix: Use aspect ratio for perfect circle and fluid width */
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
@@ -769,7 +754,6 @@ footer {
   box-shadow: 0 4px 15px var(--color-shadow);
 }
 .text-container {
-  /* Fix: Sizing for desktop flex layout */
   flex: 1 1 320px;
   background: transparent;
   text-align: left;
@@ -788,7 +772,6 @@ footer {
   line-height: 1.8;
 }
 
-
 /* SKILLS & TOOLS */
 .about-skills {
   margin-top: 3rem;
@@ -797,7 +780,6 @@ footer {
     margin-bottom: 2rem;
 }
 .skills-grid {
-  /* Fix: convert to fluid flexbox layout */
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -813,7 +795,6 @@ footer {
   padding: 0.5rem;
   white-space: nowrap;
 }
-
 
 /* CONTACT */
 .contact-page {
@@ -886,9 +867,6 @@ footer {
   transform: translateY(-2px);
 }
 
-
-
-
 /* BLOG PAGE */
 .blog-page {
   padding: 0;
@@ -958,9 +936,6 @@ footer {
   transform: translateX(4px);
 }
 
-
-
-
 /* BLOG PAGES */
 .post-detail {
   padding: 0;
@@ -1004,7 +979,6 @@ footer {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-
 /* MOBILE RESPONSIVE LAYOUT - 768px */
 @media (max-width: 768px) {
   .container-main {
@@ -1042,32 +1016,32 @@ footer {
     padding: 1rem;
   }
   .carousel-card {
-    flex: 0 0 100px;
-    min-height: 170px;
-    max-height: 170px;
+    flex: 0 0 150px; /* Increased from 100px for better touch targets */
+    min-height: 200px; /* Increased from 170px */
+    max-height: 200px; /* Increased from 170px */
     border-radius: 25px;
     box-shadow: 0 1px 6px 3px rgba(0, 0, 0, 0.1);
   }
 
   .carousel-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 1px 8px 4PX rgba(0, 0, 0, 0.13);
-  z-index: 999;
-}
+    transform: translateY(-1px);
+    box-shadow: 0 1px 8px 4px rgba(0, 0, 0, 0.13);
+    z-index: 999;
+  }
 
   .carousel-track {
-  padding: 1rem 1rem;
-  overflow-y: hidden;
-}
+    padding: 1rem 1rem;
+    overflow-y: hidden;
+  }
 
   .carousel-card img {
-    min-height: 100px;
-    max-height: 100px;
+    min-height: 120px; /* Adjusted from 100px */
+    max-height: 120px; /* Adjusted from 100px */
   }
 
   .carousel-btn {
-    font-size: 0.5rem;
-    padding: 0.5rem;
+    font-size: 0.8rem; /* Slightly larger for visibility */
+    padding: 0.6rem;
   }
   .project-card,
   .blog-card,
@@ -1098,8 +1072,6 @@ footer {
     font-size: 0.8rem;
   }
   
-  /* Fix: Removed mobile nav rules from here to consolidate in 992px breakpoint */
-
   .page-header {
     /* Original broken padding removed from global scope */
   }

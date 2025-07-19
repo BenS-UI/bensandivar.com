@@ -29,7 +29,7 @@
       <div class="container-main">
         <div class="sidebar"></div>
         <div class="main-column">
-          <div class="back-link"><a href="work.html">&larr; Back to Work</a></div>
+          <div class="back-link"><a href="work.html">← Back to Work</a></div>
           <section class="project-header">
             <h2></h2>
             <p class="meta"></p>
@@ -48,7 +48,7 @@
   </main>
 
   <footer>
-    <p style="padding-bottom: 1rem; text-align: center;">&copy; 2025 Ben Sandivar</p>
+    <p style="padding-bottom: 1rem; text-align: center;">© 2025 Ben Sandivar</p>
   </footer>
 
   <script>
@@ -119,7 +119,6 @@
           "https://via.placeholder.com/600x400/EE5A6F/FFFFFF?text=Final+Applications"
         ]
       },
-
       // AI & Apps Projects
       emma: {
         title: "Emma",
@@ -199,7 +198,6 @@
           "https://via.placeholder.com/600x400/8E44AD/FFFFFF?text=Content+Analytics"
         ]
       },
-
       // Music & Production Projects
       "gente-como-tu": {
         title: "Gente Como Tú",
@@ -266,7 +264,6 @@
           "https://via.placeholder.com/600x400/AED6F1/FFFFFF?text=Sound+Design"
         ]
       },
-
       // Writing & Art Projects
       "the-arcane": {
         title: "The Arcane",
@@ -339,9 +336,11 @@
     const project = projects[slug];
 
     if (project) {
+      document.title = `${project.title} — Ben Sandivar`;
       document.querySelector("h2").textContent = project.title;
       document.querySelector(".meta").textContent = `${project.year} · ${project.tags.join(" · ")}`;
       document.querySelector(".project-hero img").src = project.heroImage;
+      document.querySelector(".project-hero img").alt = `${project.title} Hero Image`;
       document.querySelector(".project-description p").textContent = project.description;
 
       const gallery = document.querySelector(".project-gallery");
@@ -353,7 +352,11 @@
         gallery.appendChild(img);
       });
     } else {
-      document.querySelector(".main-column").innerHTML = "<p>Project not found.</p>";
+      document.title = "Project Not Found — Ben Sandivar";
+      document.querySelector(".main-column").innerHTML = `
+        <p>Project not found.</p>
+        <p><a href="work.html">Return to Work</a></p>
+      `;
     }
   </script>
   <script src="scripts.js"></script>

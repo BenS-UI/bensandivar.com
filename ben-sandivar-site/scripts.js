@@ -6,14 +6,11 @@ window.addEventListener('scroll', () => {
   }
 });
 
-
-
 // PAGE TRANSITION (FADE-IN)
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('page-loaded');
 
-  //MORE BUTTON
-  // Fix: Correctly implemented mobile menu toggle. This fixes the fatal script error.
+  // MORE BUTTON
   const moreBtn = document.querySelector('.more-btn');
   const navLinks = document.querySelector('.nav-links');
 
@@ -60,10 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnLeft && btnRight && track) {
       btnLeft.addEventListener('click', () => {
-        track.scrollBy({ left: -240, behavior: 'smooth' }); // Updated to match carousel-card width
+        track.scrollBy({ left: -240, behavior: 'smooth' });
       });
       btnRight.addEventListener('click', () => {
-        track.scrollBy({ left: 240, behavior: 'smooth' }); // Updated to match carousel-card width
+        track.scrollBy({ left: 240, behavior: 'smooth' });
       });
 
       // Handle fade-start and fade-end classes for gradient overlays
@@ -71,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const scrollLeft = track.scrollLeft;
         const maxScroll = track.scrollWidth - track.clientWidth;
         container.classList.toggle('fade-start', scrollLeft > 0);
-        container.classList.toggle('fade-end', scrollLeft < maxScroll - 1); // Small buffer for precision
+        container.classList.toggle('fade-end', scrollLeft < maxScroll - 1);
         btnLeft.disabled = scrollLeft <= 0;
         btnRight.disabled = scrollLeft >= maxScroll - 1;
       };
@@ -81,25 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
-
-
   // INTERSECTION OBSERVER FOR FADE-IN ANIMATIONS
   const elements = document.querySelectorAll('.fade-in, .carousel-section, .carousel-card, .carousel-btn');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
-      } else {
-        // Optional: remove to keep elements visible once they appear
-        // entry.target.classList.remove('visible'); 
       }
     });
   }, { threshold: 0.1 });
   elements.forEach(element => observer.observe(element));
-
-
-
 
   // LIGHTBOX MODAL FOR PROJECT GALLERY
   const galleryImages = Array.from(document.querySelectorAll('.project-gallery img'));
@@ -151,18 +139,17 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (e.key === 'ArrowLeft') showImage((currentIndex - 1 + galleryImages.length) % galleryImages.length);
       }
     });
-    // MAKE ENTIRE CAROUSEL CARD CLICKABLE
-document.querySelectorAll('.carousel-card').forEach(card => {
-  const link = card.querySelector('a[href]');
-  if (link) {
-    card.style.cursor = 'pointer';
-    card.addEventListener('click', e => {
-      // Prevents double navigation if user clicks directly on <a>
-      if (e.target.tagName.toLowerCase() !== 'a') {
-        window.location.href = link.href;
-           }
-          });
-      }
-    });
   }
+
+  // MAKE ENTIRE CAROUSEL CARD CLICKABLE
+  document.querySelectorAll('.carousel-card').forEach(card => {
+    const link = card.querySelector('a[href]');
+    if (link) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', e => {
+        e.preventDefault();
+        window.location.href = link.href;
+      });
+    }
+  });
 });
