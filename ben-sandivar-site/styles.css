@@ -8,13 +8,75 @@
 /* CCS HTML BODY STYLES (FONT/BACKGROUND/COLORS) */
 html, body {
   font-family: 'Geologica', sans-serif;
-  background: #FFF;
-  color: #1A1A1A;
   scroll-behavior: smooth;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  cursor: none;
+}
+
+/* Theme Variables */
+:root {
+  --color-primary-light: #1A1A1A;
+  --color-secondary-light: #f4f4f4;
+  --color-accent-light: #3B82F6;
+  --color-border-light: #e7e7e7;
+  --color-shadow-light: rgba(0,0,0,0.1);
+  --color-text-light: #6B7280;
+  --color-body-bg-light: #FFF;
+  --color-main-column-bg-light: #FFF;
+  --color-navbar-bg-light: rgba(255, 255, 255, 0.1);
+  --color-navbar-hover-bg-light: rgba(255, 255, 255, 0.5);
+  --color-blob-light: #A0C4FF;
+
+  --color-primary-dark: #F4F4F4;
+  --color-secondary-dark: #2A2A2A;
+  --color-accent-dark: #6C8EE0; /* A lighter blue for dark theme */
+  --color-border-dark: #333;
+  --color-shadow-dark: rgba(0,0,0,0.3);
+  --color-text-dark: #B0B0B0;
+  --color-body-bg-dark: #1A1A1A;
+  --color-main-column-bg-dark: #2A2A2A;
+  --color-navbar-bg-dark: rgba(26, 26, 26, 0.1);
+  --color-navbar-hover-bg-dark: rgba(26, 26, 26, 0.5);
+  --color-blob-dark: #4A5777;
+
+  /* Default to light theme variables */
+  --color-primary: var(--color-primary-light);
+  --color-secondary: var(--color-secondary-light);
+  --color-accent: var(--color-accent-light);
+  --color-border: var(--color-border-light);
+  --color-shadow: var(--color-shadow-light);
+  --color-text: var(--color-text-light);
+  --color-body-bg: var(--color-body-bg-light);
+  --color-main-column-bg: var(--color-main-column-bg-light);
+  --color-navbar-bg: var(--color-navbar-bg-light);
+  --color-navbar-hover-bg: var(--color-navbar-hover-bg-light);
+  --color-blob: var(--color-blob-light);
+
+  --font-heading: 'Gabarito', sans-serif;
+  --radius: 50px;
+  --transition: all 0.3s ease;
+  --spacing: 0.5rem;
+}
+
+/* Dark Theme Specific Overrides */
+body[data-theme="dark"] {
+  --color-primary: var(--color-primary-dark);
+  --color-secondary: var(--color-secondary-dark);
+  --color-accent: var(--color-accent-dark);
+  --color-border: var(--color-border-dark);
+  --color-shadow: var(--color-shadow-dark);
+  --color-text: var(--color-text-dark);
+  --color-body-bg: var(--color-body-bg-dark);
+  --color-main-column-bg: var(--color-main-column-bg-dark);
+  --color-navbar-bg: var(--color-navbar-bg-dark);
+  --color-navbar-hover-bg: var(--color-navbar-hover-bg-dark);
+  --color-blob: var(--color-blob-dark);
+}
+
+html, body {
+  background: var(--color-body-bg);
+  color: var(--color-primary);
 }
 
 /* BODY BOTTOM PADDING */
@@ -30,7 +92,7 @@ body::-webkit-scrollbar {
 
 html::-webkit-scrollbar-track,
 body::-webkit-scrollbar-track {
-  background: #FFF;
+  background: var(--color-body-bg);
 }
 
 html::-webkit-scrollbar-thumb,
@@ -56,19 +118,6 @@ elevenlabs-convai {
 }
 
 /* APPEARANCE SETTINGS */
-/* BACKGROUND COLORS & SETTINGS */
-:root {
-  --color-primary: #1A1A1A;
-  --color-secondary: #f4f4f4;
-  --color-accent: #3B82F6;
-  --font-heading: 'Gabarito', sans-serif;
-  --radius: 50px;
-  --transition: all 0.3s ease;
-  --spacing: 0.5rem;
-  --color-border: #e7e7e7;
-  --color-shadow: rgba(0,0,0,0.1);
-}
-
 /* HEADINGS & BODY SETTINGS */
 h1, h2, h3, h4 {
   font-family: var(--font-heading);
@@ -103,7 +152,7 @@ h4 {
 p {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #6B7280;
+  color: var(--color-text);
   margin-bottom: 1rem;
 }
 
@@ -114,7 +163,7 @@ p {
   padding: 0;
 }
 
-/* CURSOR */
+/* CURSOR - Modified to hide on touch devices */
 #custom-cursor {
   position: fixed;
   width: 16px;
@@ -125,12 +174,24 @@ p {
   z-index: 10000;
   transform: translate(-50%, -50%);
   transition: transform 0.1s ease, background 0.3s ease, width 0.3s ease, height 0.3s ease;
+  cursor: none; /* Hide default OS cursor */
 }
 
 #custom-cursor.hover {
   width: 24px;
   height: 24px;
-  background: rgba(59, 130, 246, 0.5);
+  background: var(--color-accent);
+  opacity: 0.5;
+}
+
+/* Hide custom cursor on devices that don't have a fine pointer (e.g., touch screens) */
+@media (pointer: coarse), (hover: none) {
+  #custom-cursor {
+    display: none !important;
+  }
+  body {
+    cursor: auto !important; /* Restore default cursor */
+  }
 }
 
 /* CONTENT AREA */
@@ -146,9 +207,9 @@ p {
 .main-column {
   width: 100%;
   max-width: 1200px;
-  background: #FFF;
+  background: var(--color-main-column-bg);
   border-radius: 0 0 var(--radius) var(--radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 8px 32px var(--color-shadow), 0 4px 16px var(--color-shadow);
   padding: 4rem 3rem;
   margin: 0 auto;
   position: relative;
@@ -163,7 +224,7 @@ p {
 }
 
 .main-column:hover {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08), 0 6px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 30px var(--color-shadow), 0 6px 24px var(--color-shadow);
   transform: translateY(-2px);
 }
 
@@ -171,7 +232,7 @@ p {
 .main-column p {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #6B7280;
+  color: var(--color-text);
   margin-bottom: 1rem;
   text-align: center;
 }
@@ -193,7 +254,7 @@ p {
   position: sticky;
   top: 0;
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-navbar-bg);
   backdrop-filter: blur(1px);
   padding: 1rem 0;
   z-index: 1000;
@@ -206,7 +267,7 @@ p {
 }
 
 .navbar.scrolled {
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 24px var(--color-shadow);
 }
 
 .nav-container {
@@ -288,7 +349,7 @@ footer {
   margin-top: 12rem; /* Increased gap */
   padding: 2rem 1rem;
   background: transparent; /* Transparent background */
-  color: rgba(255, 255, 255, 1);
+  color: var(--color-primary);
   border-top: none; /* No border */
   justify-content: center;
   z-index: 0;
@@ -314,7 +375,7 @@ footer {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: #FFF;
+  background: var(--color-body-bg);
   color: #FFF;
   position: relative;
   overflow: hidden;
@@ -397,11 +458,11 @@ footer {
 /* INDIVIDUAL FEATURED PROJECT CARDS */
 /* this controls single card appearance */
 .project-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-main-column-bg);
   border-radius: var(--radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px var(--color-shadow);
   transition: var(--transition);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-border);
   overflow: hidden;
   position: relative;
   display: flex; /* Ensure card supports flex for content */
@@ -411,7 +472,7 @@ footer {
 /* this controls the hover effect for the whole card */
 .project-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 48px var(--color-shadow);
 }
 
 /* thumbnail */
@@ -503,12 +564,21 @@ footer {
 
 .carousel-container::before {
   left: 0rem;
-  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  background: linear-gradient(to right, var(--color-main-column-bg), var(--color-main-column-bg-alpha-60), rgba(255, 255, 255, 0));
 }
 
 .carousel-container::after {
   right: 0rem;
-  background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  background: linear-gradient(to left, var(--color-main-column-bg), var(--color-main-column-bg-alpha-60), rgba(255, 255, 255, 0));
+}
+
+/* Special handling for gradient in dark mode */
+body[data-theme="dark"] .carousel-container::before {
+    background: linear-gradient(to right, var(--color-main-column-bg-dark), rgba(42, 42, 42, 0.6), rgba(42, 42, 42, 0));
+}
+
+body[data-theme="dark"] .carousel-container::after {
+    background: linear-gradient(to left, var(--color-main-column-bg-dark), rgba(42, 42, 42, 0.6), rgba(42, 42, 42, 0));
 }
 
 .carousel-container.fade-start::before {
@@ -549,9 +619,9 @@ footer {
   flex: 0 0 350px;
   height: auto;
   min-width: 150px;
-  background: linear-gradient(to bottom, #FFF, #F9F9F9);
+  background: var(--color-secondary);
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px var(--color-shadow);
   transition: var(--transition), opacity 0.3s ease;
   will-change: transform, opacity;
   z-index: 1;
@@ -568,7 +638,7 @@ footer {
 
 .carousel-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px var(--color-shadow);
   z-index: 999;
 }
 
@@ -616,7 +686,7 @@ footer {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--color-navbar-bg);
   border: none;
   color: var(--color-primary);
   font-size: 1rem;
@@ -625,12 +695,12 @@ footer {
   transition: var(--transition), opacity 0.3s ease;
   backdrop-filter: blur(2px);
   border-radius: var(--radius);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--color-shadow);
   pointer-events: auto; /* Ensure buttons are clickable */
 }
 
 .carousel-btn:hover {
-  background: rgba(255, 255, 255, 1);
+  background: var(--color-navbar-hover-bg);
 }
 
 .carousel-btn:focus {
@@ -704,7 +774,7 @@ footer {
 
 .project-header .meta {
   font-size: 1rem;
-  color: #6B7280;
+  color: var(--color-text);
   margin-top: 0.5rem;
   text-align: left; /* Explicitly left-align meta */
 }
@@ -719,13 +789,13 @@ footer {
   max-height: 500px;
   object-fit: cover;
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px var(--color-shadow);
   transition: var(--transition);
 }
 
 .project-hero img:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px var(--color-shadow);
 }
 
 .project-description {
@@ -736,7 +806,7 @@ footer {
 .project-description p {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #6B7280;
+  color: var(--color-text);
 }
 
 .project-gallery {
@@ -751,13 +821,13 @@ footer {
   width: 100%;
   height: auto;
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px var(--color-shadow);
   transition: var(--transition);
 }
 
 .project-gallery img:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px var(--color-shadow);
 }
 
 .back-link {
@@ -779,7 +849,7 @@ footer {
 }
 
 /* ABOUT */
-.about-intro { 
+.about-intro {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
@@ -854,9 +924,35 @@ footer {
   white-space: nowrap;
 }
 
+/* ABOUT PAGE IMAGE */
+.about-image {
+  margin-top: 4rem;
+  text-align: center;
+  padding: 0 5rem;
+}
+
+.about-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px var(--color-shadow);
+  transition: var(--transition);
+}
+
+.about-image img:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px var(--color-shadow);
+}
+
 /* CONTACT */
 .contact-page {
   padding: 0;
+}
+
+.contact-page .main-column {
+  padding: 8rem 3rem 8rem;
+  position: relative;
+  overflow: hidden; /* Important: Clip the blob within the column */
 }
 
 .contact-grid {
@@ -867,22 +963,24 @@ footer {
   width: 100%;
   max-width: 960px;
   justify-content: center;
+  position: relative; /* Positioned relative to main-column to stack contact-items above blob */
+  z-index: 2; /* Ensure contact items are above the blob */
 }
 
 .contact-item {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-main-column-bg);
   backdrop-filter: blur(10px);
   border-radius: var(--radius);
   padding: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px var(--color-shadow);
   text-align: center;
   transition: var(--transition);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-border);
 }
 
 .contact-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px var(--color-shadow);
 }
 
 .contact-item .icon {
@@ -900,6 +998,7 @@ footer {
 
 .contact-item p {
   font-size: 0.85rem;
+  color: var(--color-text);
 }
 
 .contact-cta {
@@ -925,6 +1024,19 @@ footer {
   transform: translateY(-2px);
 }
 
+/* Blob styles */
+.contact-blob {
+  position: absolute;
+  background: var(--color-blob);
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  z-index: -1;
+  pointer-events: none;
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.3s ease, height 0.3s ease;
+  will-change: transform, width, height;
+}
+
 /* BLOG PAGE */
 .blog-page {
   padding: 0;
@@ -936,21 +1048,21 @@ footer {
   gap: 2rem;
   margin-top: 2rem;
   width: 100%;
+  perspective: 1000px; /* Added for 3D perspective on blog cards */
 }
 
 .blog-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-main-column-bg);
   border-radius: var(--radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-  transition: var(--transition);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--color-shadow);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; /* Modified for JS-controlled hover */
+  will-change: transform, box-shadow; /* Optimize performance */
+  border: 1px solid var(--color-border);
   overflow: hidden;
+  transform-style: preserve-3d; /* Enable 3D transformations */
 }
 
-.blog-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
-}
+/* Removed blog-card:hover specific styles as JS now controls this */
 
 .blog-card img {
   width: 100%;
@@ -964,7 +1076,7 @@ footer {
 .blog-meta {
   padding: 1rem 1.5rem 0;
   font-size: 0.85rem;
-  color: #6B7280;
+  color: var(--color-text);
 }
 
 .blog-card h4 {
@@ -977,6 +1089,7 @@ footer {
   font-size: 0.95rem;
   line-height: 1.6;
   margin-bottom: 1rem;
+  color: var(--color-text);
 }
 
 .read-more {
@@ -1004,13 +1117,13 @@ footer {
   height: auto;
   margin: 2rem 0;
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px var(--color-shadow);
   transition: var(--transition);
 }
 
 .post-hero img:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px var(--color-shadow);
 }
 
 .post-body {
@@ -1030,11 +1143,43 @@ footer {
 }
 
 .tags span {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-secondary);
   padding: 0.5rem 1rem;
   border-radius: var(--radius);
   font-weight: 500;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-border);
+}
+
+/* Theme Toggle Button */
+.theme-toggle-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+#theme-toggle {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--color-shadow);
+  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+#theme-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--color-shadow);
+}
+
+#theme-toggle .theme-icon {
+  font-size: 24px;
 }
 
 /* MOBILE RESPONSIVE LAYOUT - 768px */
@@ -1049,6 +1194,11 @@ footer {
     margin: 0 auto;
     padding: 2rem 2rem 12rem;
   }
+
+  .contact-page .main-column {
+    padding: 4rem 2rem 4rem;
+  }
+
   .sidebar {
     display: none;
   }
@@ -1078,12 +1228,12 @@ footer {
     min-height: 200px; /* Increased from 170px */
     max-height: 200px; /* Increased from 170px */
     border-radius: 25px;
-    box-shadow: 0 1px 6px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 6px 3px var(--color-shadow);
   }
 
   .carousel-card:hover {
     transform: translateY(-1px);
-    box-shadow: 0 1px 8px 4px rgba(0, 0, 0, 0.13);
+    box-shadow: 0 1px 8px 4px var(--color-shadow);
     z-index: 999;
   }
 
@@ -1168,6 +1318,7 @@ footer {
 
   /* ABOUT */
   .intro-content {
+    flex-direction: column;
     padding-right: 0rem;
   }
   .profile-container {
@@ -1223,12 +1374,12 @@ footer {
     position: absolute;
     top: 100%;
     right: 2rem;
-    background: #FFF;
+    background: var(--color-main-column-bg);
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem;
     border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px var(--color-shadow);
     z-index: 1000;
     border: 1px solid var(--color-border);
   }
