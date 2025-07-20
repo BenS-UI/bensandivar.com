@@ -27,6 +27,7 @@ html, body {
   --color-navbar-bg-light: rgba(255, 255, 255, 0.1);
   --color-navbar-hover-bg-light: rgba(255, 255, 255, 0.5);
   --color-blob-light: #A0C4FF;
+  --color-main-column-bg-alpha-60-light: rgba(255, 255, 255, 0.6);
 
   --color-primary-dark: #F4F4F4;
   --color-secondary-dark: #2A2A2A;
@@ -39,6 +40,7 @@ html, body {
   --color-navbar-bg-dark: rgba(26, 26, 26, 0.1);
   --color-navbar-hover-bg-dark: rgba(26, 26, 26, 0.5);
   --color-blob-dark: #4A5777;
+  --color-main-column-bg-alpha-60-dark: rgba(42, 42, 42, 0.6);
 
   /* Default to light theme variables */
   --color-primary: var(--color-primary-light);
@@ -52,6 +54,7 @@ html, body {
   --color-navbar-bg: var(--color-navbar-bg-light);
   --color-navbar-hover-bg: var(--color-navbar-hover-bg-light);
   --color-blob: var(--color-blob-light);
+  --color-main-column-bg-alpha-60: var(--color-main-column-bg-alpha-60-light);
 
   --font-heading: 'Gabarito', sans-serif;
   --radius: 50px;
@@ -72,6 +75,7 @@ body[data-theme="dark"] {
   --color-navbar-bg: var(--color-navbar-bg-dark);
   --color-navbar-hover-bg: var(--color-navbar-hover-bg-dark);
   --color-blob: var(--color-blob-dark);
+  --color-main-column-bg-alpha-60: var(--color-main-column-bg-alpha-60-dark);
 }
 
 html, body {
@@ -303,7 +307,7 @@ p {
   list-style: none;
   display: flex;
   gap: 2rem;
-  transition: transform 0.1s ease,
+  transition: transform 0.1s ease;
 }
 
 .nav-links a {
@@ -394,7 +398,7 @@ footer {
   filter: brightness(70%);
   transform: translateZ(0) translateY(0);
   will-change: transform;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.6s ease-out; /* Adjusted transition for smoother parallax */
 }
 
 /* all hero content */
@@ -461,7 +465,7 @@ footer {
   background: var(--color-main-column-bg);
   border-radius: var(--radius);
   box-shadow: 0 8px 32px var(--color-shadow);
-  transition: var(--transition);
+  transition: var(--transition), opacity 0.3s ease; /* Added opacity for dimming */
   border: 1px solid var(--color-border);
   overflow: hidden;
   position: relative;
@@ -481,8 +485,8 @@ footer {
   height: 400px;
   object-fit: cover;
   position: relative;
-  transform: translateY(0);
-  transition: transform 0.6s ease-out;
+  transform: translateY(0); /* Controlled by JS parallax */
+  transition: transform 0.6s ease-out; /* Controlled by JS parallax */
 }
 
 /* card padding */
@@ -564,21 +568,12 @@ footer {
 
 .carousel-container::before {
   left: 0rem;
-  background: linear-gradient(to right, var(--color-main-column-bg), var(--color-main-column-bg-alpha-60), rgba(255, 255, 255, 0));
+  background: linear-gradient(to right, var(--color-main-column-bg), var(--color-main-column-bg-alpha-60), transparent);
 }
 
 .carousel-container::after {
   right: 0rem;
-  background: linear-gradient(to left, var(--color-main-column-bg), var(--color-main-column-bg-alpha-60), rgba(255, 255, 255, 0));
-}
-
-/* Special handling for gradient in dark mode */
-body[data-theme="dark"] .carousel-container::before {
-    background: linear-gradient(to right, var(--color-main-column-bg-dark), rgba(42, 42, 42, 0.6), rgba(42, 42, 42, 0));
-}
-
-body[data-theme="dark"] .carousel-container::after {
-    background: linear-gradient(to left, var(--color-main-column-bg-dark), rgba(42, 42, 42, 0.6), rgba(42, 42, 42, 0));
+  background: linear-gradient(to left, var(--color-main-column-bg), var(--color-main-column-bg-alpha-60), transparent);
 }
 
 .carousel-container.fade-start::before {
@@ -622,7 +617,7 @@ body[data-theme="dark"] .carousel-container::after {
   background: var(--color-secondary);
   border-radius: var(--radius);
   box-shadow: 0 4px 16px var(--color-shadow);
-  transition: var(--transition), opacity 0.3s ease;
+  transition: var(--transition), opacity 0.3s ease; /* Added opacity for dimming */
   will-change: transform, opacity;
   z-index: 1;
   scroll-snap-align: start;
@@ -642,7 +637,10 @@ body[data-theme="dark"] .carousel-container::after {
   z-index: 999;
 }
 
-.carousel-card.dimmed {
+/* Dimmed state for all card types */
+.carousel-card.dimmed,
+.project-card.dimmed,
+.blog-card.dimmed {
   opacity: 0.7;
 }
 
@@ -652,6 +650,10 @@ body[data-theme="dark"] .carousel-container::after {
   object-fit: cover;
   border-radius: var(--radius) var(--radius) 0 0;
   padding: 0;
+  /* Added for parallax within cards */
+  position: relative;
+  transform: translateY(0);
+  transition: transform 0.6s ease-out; /* Smooth transition for parallax */
 }
 
 .carousel-card .card-content {
@@ -759,6 +761,11 @@ body[data-theme="dark"] .carousel-container::after {
   /* text-align is inherited from main-column and overridden for children */
 }
 
+/* Fix for shadow clipping on project pages and main column content spacing */
+.project-detail .main-column {
+  padding-bottom: 6rem; /* Increase bottom padding to accommodate shadows and give more space */
+}
+
 .project-header {
   margin-bottom: 2rem;
   text-align: left; /* Ensure the header content is left-aligned */
@@ -789,13 +796,13 @@ body[data-theme="dark"] .carousel-container::after {
   max-height: 500px;
   object-fit: cover;
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px var(--color-shadow);
-  transition: var(--transition);
+  box-shadow: none; /* Removed shadow as requested */
+  transition: none; /* No hover effect as shadow is removed */
+  transform: none; /* No hover effect as shadow is removed */
 }
 
 .project-hero img:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px var(--color-shadow);
+  /* No hover effects */
 }
 
 .project-description {
@@ -821,7 +828,7 @@ body[data-theme="dark"] .carousel-container::after {
   width: 100%;
   height: auto;
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px var(--color-shadow);
+  box-shadow: 0 4px 16px var(--color-shadow); /* Retain shadow for gallery images */
   transition: var(--transition);
 }
 
@@ -899,6 +906,11 @@ body[data-theme="dark"] .carousel-container::after {
   font-size: 1.1rem;
   line-height: 1.8;
 }
+/* Explicitly left-align about me content text */
+.about-intro .text-container .intro-text p,
+.about-intro .text-container .intro-text .tagline {
+    text-align: left;
+}
 
 /* SKILLS & TOOLS */
 .about-skills {
@@ -935,13 +947,13 @@ body[data-theme="dark"] .carousel-container::after {
   max-width: 100%;
   height: auto;
   border-radius: var(--radius);
-  box-shadow: 0 8px 32px var(--color-shadow);
+  box-shadow: none; /* Shadow removed as requested */
   transition: var(--transition);
 }
 
 .about-image img:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 48px var(--color-shadow);
+  box-shadow: none; /* Shadow removed as requested */
 }
 
 /* CONTACT */
@@ -1010,7 +1022,7 @@ body[data-theme="dark"] .carousel-container::after {
 .contact-button {
   display: inline-block;
   background: var(--color-accent);
-  color: #FFFFFF;
+  color: #FFFFFF; /* Text color is already white */
   font-weight: 600;
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius);
@@ -1022,19 +1034,6 @@ body[data-theme="dark"] .carousel-container::after {
 .contact-button:hover {
   background: #2563EB;
   transform: translateY(-2px);
-}
-
-/* Blob styles */
-.contact-blob {
-  position: absolute;
-  background: var(--color-blob);
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.6;
-  z-index: -1;
-  pointer-events: none;
-  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.3s ease, height 0.3s ease;
-  will-change: transform, width, height;
 }
 
 /* BLOG PAGE */
@@ -1055,22 +1054,32 @@ body[data-theme="dark"] .carousel-container::after {
   background: var(--color-main-column-bg);
   border-radius: var(--radius);
   box-shadow: 0 8px 32px var(--color-shadow);
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; /* Modified for JS-controlled hover */
-  will-change: transform, box-shadow; /* Optimize performance */
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out, opacity 0.3s ease; /* Adjusted for smoother tilt and dimming */
+  will-change: transform, box-shadow, opacity; /* Optimize performance */
   border: 1px solid var(--color-border);
   overflow: hidden;
-  transform-style: preserve-3d; /* Enable 3D transformations */
+  display: block; /* Added to make <a> act as a block element */
+  text-decoration: none; /* Remove underline from <a> tag */
+  color: inherit; /* Inherit color for text inside the link */
+  transform-style: preserve-3d; /* Needed for 3D transforms */
 }
 
-/* Removed blog-card:hover specific styles as JS now controls this */
+.blog-card.hover-tilt {
+  transform: perspective(1000px) rotateX(2deg) rotateY(2deg) scale(1.02); /* Subtle tilt and scale */
+  box-shadow: 0 12px 48px var(--color-shadow);
+}
+
+.blog-card.hover-tilt img {
+    transform: translateZ(10px); /* Move image slightly forward on tilt */
+}
 
 .blog-card img {
   width: 100%;
   height: 200px;
   object-fit: cover;
   position: relative;
-  transform: translateY(0);
-  transition: transform 0.6s ease-out;
+  transform: translateY(0); /* Will be controlled by JS parallax */
+  transition: transform 0.6s ease-out; /* Smooth transition for parallax */
 }
 
 .blog-meta {
@@ -1107,7 +1116,7 @@ body[data-theme="dark"] .carousel-container::after {
   transform: translateX(4px);
 }
 
-/* BLOG PAGES */
+/* BLOG POST PAGES */
 .post-detail {
   padding: 0;
 }
@@ -1128,7 +1137,7 @@ body[data-theme="dark"] .carousel-container::after {
 
 .post-body {
   margin-bottom: 3rem;
-  text-align: left;
+  text-align: left; /* Left-aligned on desktop */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -1324,6 +1333,10 @@ body[data-theme="dark"] .carousel-container::after {
   .profile-container {
     padding-left: 0rem;
   }
+  /* Blog post body left-aligned (except on mobile) */
+  .post-body {
+    text-align: inherit; /* Revert to parent's text-align (center on mobile) */
+  }
 }
 
 /* MOBILE RESPONSIVE LAYOUT - 992px (for tablet and down) */
@@ -1382,5 +1395,20 @@ body[data-theme="dark"] .carousel-container::after {
     box-shadow: 0 4px 16px var(--color-shadow);
     z-index: 1000;
     border: 1px solid var(--color-border);
+  }
+  /* Blog post body on mobile should be centered/inherit from main-column */
+  .post-body {
+    text-align: inherit; 
+  }
+}
+
+/* Desktop-only styles for About Me section (min-width: 993px) */
+@media (min-width: 993px) {
+  .about-intro .text-container {
+    text-align: left;
+  }
+  .about-intro .intro-text .tagline,
+  .about-intro .about-bio p {
+    text-align: left;
   }
 }

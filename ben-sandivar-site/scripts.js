@@ -6,9 +6,34 @@ window.addEventListener('scroll', () => {
   }
 });
 
+// Parallax effect
+const applyParallax = () => {
+  document.querySelectorAll('[data-parallax-speed]').forEach(el => {
+    const speed = parseFloat(el.dataset.parallaxSpeed);
+    const rect = el.getBoundingClientRect();
+    // Calculate how far the element is from the center of the viewport
+    const centerOfViewport = window.innerHeight / 2;
+    const elementCenter = rect.top + rect.height / 2;
+    const distanceToCenter = centerOfViewport - elementCenter;
+    const translateY = distanceToCenter * speed;
+
+    if (el.classList.contains('hero-bg')) {
+        el.style.transform = `translateY(${translateY * 0.5}px) scale(1.1)`; // Hero bg moves slower and is scaled up
+    } else {
+        el.style.transform = `translateY(${translateY}px)`;
+    }
+  });
+};
+
+window.addEventListener('scroll', applyParallax);
+window.addEventListener('resize', applyParallax); // Recalculate on resize
+
 // PAGE TRANSITION (FADE-IN)
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('page-loaded');
+
+  // Initial parallax application on load
+  applyParallax();
 
   // MORE BUTTON
   const moreBtn = document.querySelector('.more-btn');
@@ -45,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Updated hover targets to include carousel-card and blog-card
-    const hoverTargets = document.querySelectorAll('a, button, .carousel-card, .blog-card');
+    const hoverTargets = document.querySelectorAll('a, button, .carousel-card, .blog-card, .project-card');
     hoverTargets.forEach(el => {
       el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
       el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
@@ -83,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // INTERSECTION OBSERVER FOR FADE-IN ANIMATIONS
-  const elements = document.querySelectorAll('.fade-in, .carousel-section, .carousel-card, .carousel-btn');
+  const elements = document.querySelectorAll('.fade-in, .carousel-section, .carousel-card, .carousel-btn, .project-card, .blog-card');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -145,7 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // MAKE ENTIRE CAROUSEL CARD CLICKABLE - MODIFIED
+  // MAKE ENTIRE CAROUSEL CARDS CLICKABLE
+  // Blog cards are now native <a> tags, so no JS handler is needed for them.
   document.querySelectorAll('.carousel-card').forEach(card => {
     const linkHref = card.dataset.href; // Get href from data-href attribute
     if (linkHref) { // Ensure there is a href to navigate to
@@ -154,12 +180,54 @@ document.addEventListener('DOMContentLoaded', () => {
         // Prevent default behavior if the click was on an actual link inside the card
         if (e.target.tagName === 'A' || e.target.closest('A')) {
           return; // Let the actual link handle it if it exists
-        }
-        e.preventDefault(); // Prevent default if clicking the card background
+        } 
+        // Only navigate if the click was directly on the card or its non-link children
         window.location.href = linkHref;
       });
     }
   });
+
+  // Make entire project cards clickable on the index page
+  document.querySelectorAll('.project-card').forEach(card => {
+    const linkHref = card.querySelector('a').href;
+    if (linkHref) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', e => {
+        if (e.target.tagName === 'A' || e.target.closest('A')) {
+          return; // Let the actual link handle it
+        }
+        window.location.href = linkHref;
+      });
+    }
+  });
+
+  // Lightbox effect: dim other cards on hover
+  function applyDimmingToCards(containerSelector, cardSelector) {
+    document.querySelectorAll(containerSelector).forEach(container => {
+      const cards = Array.from(container.querySelectorAll(cardSelector));
+
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          cards.forEach(otherCard => {
+            if (otherCard !== card) {
+              otherCard.classList.add('dimmed');
+            }
+          });
+        });
+
+        card.addEventListener('mouseleave', () => {
+          cards.forEach(otherCard => {
+            otherCard.classList.remove('dimmed');
+          });
+        });
+      });
+    });
+  }
+
+  // Apply dimming to different card sections
+  applyDimmingToCards('.carousel-track', '.carousel-card');   // For work page carousel cards
+  applyDimmingToCards('.project-cards', '.project-card');     // For homepage featured project cards
+  applyDimmingToCards('.blog-grid', '.blog-card');           // For blog page blog cards
 
   // THEME TOGGLE FUNCTIONALITY
   const themeToggleBtn = document.getElementById('theme-toggle');
@@ -190,124 +258,15 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme(newTheme);
   });
 
-  // BLOG CARD INTERACTIVE TILT EFFECT
+  // Blog Card Hover effect (reintroducing tilt and magnetic feel)
+  // The CSS now handles the 'hover-tilt' class, ensuring the effect is subtle and elegant.
   document.querySelectorAll('.blog-card').forEach(card => {
-    const tiltAmount = 10; // Max tilt in degrees
-    const hoverScale = 1.02; // Scale factor on hover
-    const shadowSpread = 24; // Shadow spread on hover
-
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left; // Mouse x relative to card
-      const y = e.clientY - rect.top;  // Mouse y relative to card
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      // Calculate position relative to center, normalized to -1 to 1
-      const offsetX = (x - centerX) / centerX; // -1 to 1
-      const offsetY = (y - centerY) / centerY; // -1 to 1
-
-      // Apply rotation for a subtle 3D tilt
-      const rotateY = offsetX * tiltAmount; // Tilt card horizontally based on mouse X
-      const rotateX = -offsetY * tiltAmount; // Tilt card vertically based on mouse Y (inverted for natural feel)
-
-      // Apply translation for "magnetic" effect (slight pull towards mouse)
-      const translateX = offsetX * 5; // Slight horizontal shift
-      const translateY = offsetY * 5; // Slight vertical shift
-
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateX(${translateX}px) translateY(${translateY}px) scale(${hoverScale})`;
-      // Adjust box shadow for a deeper effect on hover
-      card.style.boxShadow = `0 ${shadowSpread}px ${shadowSpread * 2}px var(--color-shadow)`;
+    card.addEventListener('mouseenter', () => {
+      card.classList.add('hover-tilt');
     });
 
     card.addEventListener('mouseleave', () => {
-      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateX(0px) translateY(0px) scale(1)';
-      card.style.boxShadow = '0 8px 32px var(--color-shadow)'; // Revert to original shadow
+      card.classList.remove('hover-tilt');
     });
   });
-
-  // CONTACT PAGE BLOB ANIMATION
-  const contactMainColumn = document.querySelector('#contact .main-column');
-  const contactBlob = document.querySelector('.contact-blob');
-
-  if (contactMainColumn && contactBlob && window.matchMedia('(pointer: fine)').matches) {
-    let targetX = 0, targetY = 0;
-    let currentX = 0, currentY = 0;
-    let animationFrameId;
-    let resetTimeoutId;
-
-    const blobWidth = 400; // Initial blob width
-    const blobHeight = 400; // Initial blob height
-    const lerpFactor = 0.05; // Smoothness of movement (lower = smoother, more jelly-like)
-    const maxOffset = 50; // Max movement from center for the blob in pixels
-    const scaleFactor = 0.1; // How much it scales on hover
-    const resetDelay = 2000; // 2 seconds delay to stop following
-
-    // Set initial size and position (centered)
-    contactBlob.style.width = `${blobWidth}px`;
-    contactBlob.style.height = `${blobHeight}px`;
-    contactBlob.style.top = `calc(50% - ${blobHeight / 2}px)`;
-    contactBlob.style.left = `calc(50% - ${blobWidth / 2}px)`;
-
-    const updateBlobPosition = () => {
-      const deltaX = targetX - currentX;
-      const deltaY = targetY - currentY;
-
-      currentX += deltaX * lerpFactor;
-      currentY += deltaY * lerpFactor;
-
-      // Apply a subtle scale based on movement speed to simulate squishiness
-      const speed = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      const scale = 1 + Math.min(speed / 200, 0.05); // Max 5% squish/stretch
-      const inverseScale = 1 - Math.min(speed / 200, 0.05);
-
-      // Rotate to match direction of movement for a more organic feel
-      const rotation = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-      
-      contactBlob.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotation}deg) scaleX(${scale}) scaleY(${inverseScale})`;
-
-      if (Math.abs(deltaX) > 0.1 || Math.abs(deltaY) > 0.1) {
-        animationFrameId = requestAnimationFrame(updateBlobPosition);
-      } else {
-        contactBlob.style.transform = `translate(${currentX}px, ${currentY}px) scaleX(1) scaleY(1)`; // Reset scale when stopped
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
-
-    contactMainColumn.addEventListener('mousemove', (e) => {
-      // Clear any pending reset timeout
-      clearTimeout(resetTimeoutId);
-
-      const rect = contactMainColumn.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left - (rect.width / 2); // Mouse X relative to center of main-column
-      const mouseY = e.clientY - rect.top - (rect.height / 2); // Mouse Y relative to center of main-column
-
-      // Map mouse position to a constrained target for the blob
-      targetX = Math.max(-maxOffset, Math.min(maxOffset, mouseX * (maxOffset / (rect.width / 2))));
-      targetY = Math.max(-maxOffset, Math.min(maxOffset, mouseY * (maxOffset / (rect.height / 2))));
-
-      if (!animationFrameId) {
-        animationFrameId = requestAnimationFrame(updateBlobPosition);
-      }
-
-      // Set a timeout to reset if mouse stops moving
-      resetTimeoutId = setTimeout(() => {
-        targetX = 0; // Reset target to center
-        targetY = 0;
-        if (!animationFrameId) {
-           animationFrameId = requestAnimationFrame(updateBlobPosition);
-        }
-      }, resetDelay);
-    });
-
-    contactMainColumn.addEventListener('mouseleave', () => {
-      clearTimeout(resetTimeoutId);
-      targetX = 0; // Reset target to center
-      targetY = 0;
-      if (!animationFrameId) {
-         animationFrameId = requestAnimationFrame(updateBlobPosition);
-      }
-    });
-  }
 });
