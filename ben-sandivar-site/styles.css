@@ -8,6 +8,7 @@
 /* HTML BODY STYLES */
 html, body {
   font-family: 'Geologica', sans-serif;
+  scroll-behavior: smooth;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -21,7 +22,7 @@ html, body {
 :root {
   --color-primary-light: #1A1A1A;
   --color-secondary-light: #f4f4f4;
-  --color-accent-light: #3B82F6;
+  --color-accent-light: #A5D8FF;
   --color-border-light: #e7e7e7;
   --color-shadow-light: rgba(0,0,0,0.1);
   --color-text-light: #6B7280;
@@ -445,13 +446,12 @@ p {
 
 .intro-content {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4rem;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   max-width: 1200px;
   align-items: center;
-  text-align: center;
 }
 
 .profile-container {
@@ -474,7 +474,7 @@ p {
 .text-container {
   flex: 1 1 320px;
   background: transparent;
-  text-align: center;
+  text-align: left;
 }
 
 .intro-text .tagline {
@@ -491,6 +491,16 @@ p {
 .about-bio p {
   font-size: 1.1rem;
   line-height: 1.8;
+}
+
+@media (min-width: 993px) {
+  .about-intro .text-container {
+    text-align: left;
+  }
+  .about-intro .intro-text .tagline,
+  .about-intro .about-bio p {
+    text-align: left;
+  }
 }
 
 /* Skills */
@@ -540,19 +550,18 @@ p {
   display: flex;
   opacity: 0.15;
   pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    var(--color-body-bg) 0%,
-    transparent 10%,
-    transparent 90%,
-    var(--color-body-bg) 100%
-  );
+  justify-content: center;
+  align-items: center;
 }
 
 .letters-column {
-  flex: 1;
+  flex: 0 0 5%;
   white-space: nowrap;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   animation: scroll-letters 60s linear infinite;
 }
 
@@ -569,6 +578,7 @@ p {
   font-size: 3rem;
   color: #888;
   transition: filter 0.5s, color 0.5s;
+  text-align: center;
 }
 
 @keyframes scroll-letters {
@@ -606,7 +616,13 @@ p {
 .video-placeholder {
   width: 66.66%;
   height: 100%;
-  object-fit: cover;
+  background: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 1.2rem;
+  text-align: center;
   border-right: 2px solid var(--color-accent);
 }
 
@@ -838,6 +854,11 @@ footer {
   }
 
   .expression-content h2 {
+    font-size: 2rem;
+  }
+
+  .letters-column {
+    flex: 0 0 8%;
     font-size: 2rem;
   }
 }

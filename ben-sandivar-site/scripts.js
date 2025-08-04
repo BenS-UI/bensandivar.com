@@ -1,18 +1,3 @@
-// Initialize Lenis for smooth scrolling
-const lenis = new Lenis({
-  smoothWheel: true,
-  smoothTouch: true,
-  wheelMultiplier: 0.8,
-  lerp: 0.1
-});
-
-function raf(time) {
-  lenis.raf(time);
-  requestAnimationFrame(raf);
-}
-
-requestAnimationFrame(raf);
-
 // NAV SCROLL DETECTION
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('.navbar');
@@ -39,12 +24,14 @@ const applyParallax = () => {
   });
 };
 
-lenis.on('scroll', applyParallax);
+window.addEventListener('scroll', applyParallax);
 window.addEventListener('resize', applyParallax);
 
 // PAGE TRANSITION (FADE-IN)
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('page-loaded');
+
+  // Initial parallax application on load
   applyParallax();
 
   // MORE BUTTON
@@ -80,61 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
       mouseY = e.clientY;
     });
 
-    const hoverTargets = document.querySelectorAll('a, button, .carousel-card, .blog-card, .project-card');
+    const hoverTargets = document.querySelectorAll('a, button, .project-card');
     hoverTargets.forEach(el => {
       el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
       el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
     });
   }
 
-  // I DESIGN LETTERS SPEED-UP ON MOUSE MOVE
-  const lettersSection = document.getElementById('systems');
-  const lettersColumns = document.querySelectorAll('.letters-column');
-
-  if (lettersSection && lettersColumns.length > 0) {
-    lettersSection.addEventListener('mousemove', (e) => {
-      const rect = lettersSection.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const speedFactor = Math.min(1 + (mouseX / rect.width) * 2, 3);
-      lettersColumns.forEach(column => {
-        column.style.animationDuration = `${60 / speedFactor}s`;
-      });
-    });
-
-    lettersSection.addEventListener('mouseleave', () => {
-      lettersColumns.forEach(column => {
-        column.style.animationDuration = '60s';
-      });
-    });
-  }
-
-  // PHOTO SLIDER
-  const slides = document.querySelector('.photo-slider .slides');
-  const navButtons = document.querySelectorAll('.photo-slider .nav button');
-  let currentSlide = 0;
-
-  if (slides && navButtons.length > 0) {
-    const totalSlides = slides.children.length;
-
-    function updateSlide() {
-      slides.style.transform = `translateX(-${currentSlide * 100}%)`;
-      navButtons.forEach((btn, index) => {
-        btn.classList.toggle('active', index === currentSlide);
-      });
-    }
-
-    navButtons.forEach((btn, index) => {
-      btn.addEventListener('click', () => {
-        currentSlide = index;
-        updateSlide();
-      });
-    });
-
-    updateSlide();
-  }
-
   // INTERSECTION OBSERVER FOR FADE-IN ANIMATIONS
-  const elements = document.querySelectorAll('.fade-in, .carousel-section, .carousel-card, .carousel-btn, .project-card, .blog-card');
+  const elements = document.querySelectorAll('.fade-in, .project-card');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -143,98 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, { threshold: 0.1 });
   elements.forEach(element => observer.observe(element));
-
-  // THREE.JS KLEIN BOTTLE
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.position.z = 5;
-
-  const geometry = new THREE.ParametricGeometry((u, v, target) => {
-    const a = 2, b = 1;
-    const x = (a + b * Math.cos(2 * Math.PI * u)) * Math.cos(2 * Math.PI * v);
-    const y = (a + b * Math.cos(2 * Math.PI * u)) * Math.sin(2 * Math.PI * v);
-    const z = b * Math.sin(2 * Math.PI * u);
-    target.set(x, y, z);
-  }, 48, 48);
-
-  const material = new THREE.MeshBasicMaterial({
-    color: new THREE.Color('#A5D8FF'),
-    wireframe: true,
-    side: THREE.DoubleSide
-  });
-  const kleinBottle = new THREE.Mesh(geometry, material);
-  scene.add(kleinBottle);
-
-  let mouseX = 0, mouseY = 0;
-  document.addEventListener('mousemove', (e) => {
-    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-  });
-
-  document.addEventListener('touchmove', (e) => {
-    const touch = e.touches[0];
-    mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
-  });
-
-  function animate() {
-    requestAnimationFrame(animate);
-    kleinBottle.rotation.x += mouseY * 0.01;
-    kleinBottle.rotation.y += mouseX * 0.01;
-    const time = Date.now() * 0.001;
-    material.color.setHSL(Math.abs(Math.sin(time * 0.1)), 0.7, 0.5);
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  // 3D TILT EFFECT FOR PROJECT CARDS
-  document.querySelectorAll('.project-card').forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = (y - centerY) / centerY * 10; // Max 10 degrees
-      const rotateY = (centerX - x) / centerX * 10; // Max 10 degrees
-
-      gsap.to(card, {
-        rotationX: rotateX,
-        rotationY: rotateY,
-        transformPerspective: 500,
-        ease: 'power2.out',
-        duration: 0.3
-      });
-    });
-
-    card.addEventListener('mouseleave', () => {
-      gsap.to(card, {
-        rotationX: 0,
-        rotationY: 0,
-        ease: 'power2.out',
-        duration: 0.3
-      });
-    });
-
-    // Make entire project card clickable
-    const linkHref = card.querySelector('a').href;
-    if (linkHref) {
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', e => {
-        if (e.target.tagName === 'A' || e.target.closest('A')) return;
-        window.location.href = linkHref;
-      });
-    }
-  });
 
   // THEME TOGGLE FUNCTIONALITY
   const themeToggleBtn = document.getElementById('theme-toggle');
