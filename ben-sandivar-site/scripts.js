@@ -196,8 +196,36 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  // Make entire project cards clickable
+  // 3D TILT EFFECT FOR PROJECT CARDS
   document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = (y - centerY) / centerY * 10; // Max 10 degrees
+      const rotateY = (centerX - x) / centerX * 10; // Max 10 degrees
+
+      gsap.to(card, {
+        rotationX: rotateX,
+        rotationY: rotateY,
+        transformPerspective: 500,
+        ease: 'power2.out',
+        duration: 0.3
+      });
+    });
+
+    card.addEventListener('mouseleave', () => {
+      gsap.to(card, {
+        rotationX: 0,
+        rotationY: 0,
+        ease: 'power2.out',
+        duration: 0.3
+      });
+    });
+
+    // Make entire project card clickable
     const linkHref = card.querySelector('a').href;
     if (linkHref) {
       card.style.cursor = 'pointer';
