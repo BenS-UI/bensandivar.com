@@ -199,24 +199,14 @@ p {
   padding: 0 4rem;
 }
 
-.logo {
-  font-family: var(--font-heading);
-  font-weight: 900;
-  font-size: 1.5rem;
-  text-decoration: none;
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-}
-
 .logo img {
-  position: absolute;
-  height: 1.5rem;
+  width: 40px; /* Fixed size to prevent overflow */
+  height: auto;
   vertical-align: middle;
 }
 
 .logo img:hover {
-  height: 1.6rem;
+  transform: scale(1.05);
 }
 
 .nav-links {
@@ -285,18 +275,18 @@ p {
 .hero-content h1 {
   font-size: 4rem;
   font-weight: 900;
-  color: #FFF;
+  color: var(--color-primary);
 }
 
 .hero-content p {
   font-size: 1.5rem;
   margin: 1rem 0;
-  color: #FFF;
+  color: var(--color-primary);
   opacity: 0.9;
 }
 
 .scroll-arrow {
-  color: #FFF;
+  color: var(--color-primary);
   font-size: 0.9rem;
   text-decoration: none;
   transition: var(--transition);
@@ -402,7 +392,7 @@ p {
   transition: var(--transition), opacity 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid var(--color-border);
   overflow: hidden;
-  position: realtive;
+  position: relative;
   display: flex;
   flex-direction: column;
   transform-style: preserve-3d;

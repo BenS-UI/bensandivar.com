@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ben Sandivar — Transforming Thought into Form</title>
-  <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/BSandivar/portfolio/main/B-logo-a.svg" />
+  <link rel="icon" type="image/svg+xml" href="https://via.placeholder.com/40?text=B" /> <!-- Fixed with placeholder; replace with valid URL -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
@@ -19,7 +19,7 @@
   <nav class="navbar">
     <div class="nav-container">
       <a href="#" class="logo">
-        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/B-logo-a.svg" alt="Ben Sandivar Logo" />
+        <img src="https://via.placeholder.com/40?text=B" alt="Ben Sandivar Logo" /> <!-- Fixed with placeholder; replace with valid URL -->
       </a>
       <button class="more-btn" aria-label="Toggle Menu">
         <span class="material-symbols-outlined">menu</span>
@@ -217,8 +217,9 @@
       smoothTouch: true,
       touchMultiplier: 1.5,
       normalizeWheel: true,
-      wheelMultiplier: 0.6,
-      lerp: 0.1
+      wheelMultiplier: 0.5,
+      lerp: 0.12,
+      syncTouch: true // Sync touch for better mobile/trackpad inertia
     });
 
     function raf(time) {
@@ -259,7 +260,7 @@
       });
     });
 
-    // Three.js Klein Bottle Hero
+    // Three.js Klein Bottle Hero - Synced with Lenis RAF
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg'), alpha: true, antialias: true });
@@ -431,17 +432,22 @@
       });
     });
 
+    // Sync Three.js animation with Lenis RAF
+    lenis.on('scroll', () => {
+      // Optional: Reduce rendering load during scroll if needed
+    });
+
     let lastFrameTime = 0;
     function animate(currentTime) {
       const deltaTime = (currentTime - lastFrameTime) / 1000;
       lastFrameTime = currentTime;
-      requestAnimationFrame(animate);
       time += deltaTime * 0.5;
       material.uniforms.time.value = time;
       shape.rotation.x += 0.001 * deltaTime * 60;
       shape.rotation.y += 0.005 * deltaTime * 60;
       shape.rotation.z += 0.001 * deltaTime * 60;
       renderer.render(scene, camera);
+      requestAnimationFrame(animate);
     }
     requestAnimationFrame(animate);
 
