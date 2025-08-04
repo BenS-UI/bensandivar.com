@@ -209,7 +209,7 @@
 
   <script src="scripts.js"></script>
   <script>
-    // Lenis smooth scroll with section snapping
+    // Lenis smooth scroll with optimizations for trackpad
     const lenis = new Lenis({
       duration: 1.4,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -218,35 +218,25 @@
       touchMultiplier: 1.5,
       normalizeWheel: true,
       wheelMultiplier: 0.5,
-      lerp: 0.12,
-      syncTouch: true // Sync touch for better mobile/trackpad inertia
+      lerp: 0.15,
+      syncTouch: true
     });
 
-    function raf(time) {
-      lenis.raf(time);
+    // Synced RAF for Lenis and Three.js
+    let time = 0;
+    const mouse = { x: 0, y: 0 };
+    function raf(currentTime) {
+      lenis.raf(currentTime);
+      // Three.js render and updates here to sync with Lenis
+      material.uniforms.time.value = time;
+      shape.rotation.x += 0.001;
+      shape.rotation.y += 0.005;
+      shape.rotation.z += 0.001;
+      renderer.render(scene, camera);
+      time += 0.016; // Approximate 60fps delta
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
-
-    // Section snapping
-    const sections = document.querySelectorAll('section, .hero, .photo-slider, footer');
-    lenis.on('scroll', () => {
-      let closestSection = null;
-      let minDistance = Infinity;
-
-      sections.forEach(section => {
-        const rect = section.getBoundingClientRect();
-        const distance = Math.abs(rect.top);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestSection = section;
-        }
-      });
-
-      if (closestSection && minDistance < window.innerHeight / 4) {
-        lenis.scrollTo(closestSection, { duration: 0.8, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), offset: 0 });
-      }
-    });
 
     // Scroll to sections
     document.querySelectorAll('.scroll-to').forEach(link => {
@@ -260,7 +250,7 @@
       });
     });
 
-    // Three.js Klein Bottle Hero - Synced with Lenis RAF
+    // Three.js Klein Bottle Hero - Setup (render moved to synced RAF)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg'), alpha: true, antialias: true });
@@ -394,10 +384,6 @@
     const shape = new THREE.Mesh(geometry, material);
     scene.add(shape);
 
-    let time = 0;
-    let isIdle = false;
-    const mouse = { x: 0, y: 0 };
-
     document.addEventListener('mousemove', (e) => {
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -431,25 +417,6 @@
         column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
       });
     });
-
-    // Sync Three.js animation with Lenis RAF
-    lenis.on('scroll', () => {
-      // Optional: Reduce rendering load during scroll if needed
-    });
-
-    let lastFrameTime = 0;
-    function animate(currentTime) {
-      const deltaTime = (currentTime - lastFrameTime) / 1000;
-      lastFrameTime = currentTime;
-      time += deltaTime * 0.5;
-      material.uniforms.time.value = time;
-      shape.rotation.x += 0.001 * deltaTime * 60;
-      shape.rotation.y += 0.005 * deltaTime * 60;
-      shape.rotation.z += 0.001 * deltaTime * 60;
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    }
-    requestAnimationFrame(animate);
 
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
