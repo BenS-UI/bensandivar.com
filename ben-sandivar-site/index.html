@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Navbar from original index.html -->
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="nav-container">
       <a href="#" class="logo">
@@ -44,17 +44,15 @@
     </div>
   </div>
 
-  <!-- Photo Slider Section -->
-  <div class="photo-slider">
+  <!-- Slideshow Section -->
+  <div class="photo-slider" id="slideshow">
     <div class="slides">
-      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/hero_nature_slideshow.png');" data-parallax-speed="0.1">Project Highlight: Nature Inspired</div>
-      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/hero_writing_slideshow.jpg');" data-parallax-speed="0.1">Project Highlight: Writing Craft</div>
-      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/hero_thoughtful_slideshow.jpg');" data-parallax-speed="0.1">Project Highlight: Thoughtful Design</div>
-      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/hero_band_slideshow.jpg');" data-parallax-speed="0.1">Project Highlight: Band Branding</div>
+      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/project_slides.jpg');" data-parallax-speed="0.1">Project Highlight: SLIDES Platform</div>
+      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/project_branding.jpg');" data-parallax-speed="0.1">Project Highlight: Personal Branding</div>
+      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/project_lexo.jpg');" data-parallax-speed="0.1">Project Highlight: LEXO Dictionary</div>
     </div>
     <div class="nav">
       <button class="active"></button>
-      <button></button>
       <button></button>
       <button></button>
     </div>
@@ -62,37 +60,33 @@
 
   <!-- Featured Projects Section -->
   <section id="projects" class="featured-projects fade-in">
-    <div class="container-main">
-      <div class="main-column">
-        <div class="page-header">
-          <h2>Featured Projects</h2>
-          <p>Check out some of my standout work.</p>
+    <div class="page-header">
+      <h2>Featured Projects</h2>
+      <p>Check out some of my standout work.</p>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card" data-tilt>
+        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_slides.jpg" alt="SLIDES – Visual Vocabulary Platform" />
+        <div class="card-content">
+          <h4>SLIDES</h4>
+          <p>A visual learning tool for enhanced education.</p>
+          <a href="/project-slug.html">View Project →</a>
         </div>
-        <div class="projects-grid">
-          <div class="project-card" data-tilt>
-            <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_slides.jpg" alt="SLIDES – Visual Vocabulary Platform" />
-            <div class="card-content">
-              <h4>SLIDES</h4>
-              <p>A visual learning tool for enhanced education.</p>
-              <a href="/project-slug.html">View Project →</a>
-            </div>
-          </div>
-          <div class="project-card" data-tilt>
-            <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_branding.jpg" alt="Personal Branding – System Design" />
-            <div class="card-content">
-              <h4>Personal Branding</h4>
-              <p>A logo and color palette to represent my core values and vision.</p>
-              <a href="/project-slug.html">View Project →</a>
-            </div>
-          </div>
-          <div class="project-card" data-tilt>
-            <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_lexo.jpg" alt="LEXO – Visual Dictionary UI" />
-            <div class="card-content">
-              <h4>LEXO</h4>
-              <p>Interactive dictionary app with innovative UI.</p>
-              <a href="/project-slug.html">View Project →</a>
-            </div>
-          </div>
+      </div>
+      <div class="project-card" data-tilt>
+        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_branding.jpg" alt="Personal Branding – System Design" />
+        <div class="card-content">
+          <h4>Personal Branding</h4>
+          <p>A logo and color palette to represent my core values and vision.</p>
+          <a href="/project-slug.html">View Project →</a>
+        </div>
+      </div>
+      <div class="project-card" data-tilt>
+        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_lexo.jpg" alt="LEXO – Visual Dictionary UI" />
+        <div class="card-content">
+          <h4>LEXO</h4>
+          <p>Interactive dictionary app with innovative UI.</p>
+          <a href="/project-slug.html">View Project →</a>
         </div>
       </div>
     </div>
@@ -100,25 +94,21 @@
 
   <!-- About Section -->
   <section id="about" class="about-page fade-in">
-    <div class="container-main">
-      <div class="main-column">
-        <div class="page-header">
-          <h2>About Me</h2>
+    <div class="page-header">
+      <h2>About Me</h2>
+    </div>
+    <div class="about-intro">
+      <div class="intro-content">
+        <div class="profile-container">
+          <div class="profile-pic">
+            <img src="https://via.placeholder.com/300?text=Profile+Picture" alt="Ben Sandivar Profile Picture" />
+          </div>
         </div>
-        <div class="about-intro">
-          <div class="intro-content">
-            <div class="profile-container">
-              <div class="profile-pic">
-                <img src="https://via.placeholder.com/300?text=Profile+Picture" alt="Ben Sandivar Profile Picture" />
-              </div>
-            </div>
-            <div class="text-container">
-              <div class="intro-text">
-                <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
-                <div class="about-bio">
-                  <p>Raised in Virginia, USA, I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value. Based in Galicia, Spain, I’ve had the privilege of working with clients such as Inditex, Norvento Enerxía, Abanca, La Voz de Galicia, and Estrella Galicia. Beyond the screen, I’m driven by curiosity, exploring linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
-                </div>
-              </div>
+        <div class="text-container">
+          <div class="intro-text">
+            <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
+            <div class="about-bio">
+              <p>Raised in Virginia, USA, I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value. Based in Galicia, Spain, I’ve had the privilege of working with clients such as Inditex, Norvento Enerxía, Abanca, La Voz de Galicia, and Estrella Galicia. Beyond the screen, I’m driven by curiosity, exploring linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
             </div>
           </div>
         </div>
@@ -128,102 +118,84 @@
 
   <!-- Skills and Tools Section -->
   <section id="skills" class="about-skills fade-in">
-    <div class="container-main">
-      <div class="main-column">
-        <div class="page-header">
-          <h2>Skills and Tools</h2>
-          <p>A multidisciplinary toolkit honed over years of practice, blending creativity with technical precision.</p>
-        </div>
-        <div class="skills-grid">
-          <span>Speed Learning</span>
-          <span>Teaching</span>
-          <span>Mnemonics</span>
-          <span>Graphic Design</span>
-          <span>Concept Art</span>
-          <span>Character Creation</span>
-          <span>Photo & Video Editing</span>
-          <span>Logo Creation</span>
-          <span>Branding</span>
-          <span>App Concept Creation</span>
-          <span>AI Prompt Engineering</span>
-          <span>Creative Writing</span>
-          <span>Songwriting & Poetry</span>
-          <span>Audio Engineering</span>
-          <span>Music Production</span>
-          <span>Cinematic Composition</span>
-          <span>Concept Design</span>
-          <span>Systems Thinking</span>
-          <span>Linguistics & Sociology</span>
-          <span>Semiotics & Symbols</span>
-          <span>Public Speaking & Communication</span>
-          <span>Project Management</span>
-          <span>Cinematography</span>
-        </div>
-      </div>
+    <div class="page-header">
+      <h2>Skills and Tools</h2>
+      <p>A multidisciplinary toolkit honed over years of practice, blending creativity with technical precision.</p>
+    </div>
+    <div class="skills-grid">
+      <span>Speed Learning</span>
+      <span>Teaching</span>
+      <span>Mnemonics</span>
+      <span>Graphic Design</span>
+      <span>Concept Art</span>
+      <span>Character Creation</span>
+      <span>Photo & Video Editing</span>
+      <span>Logo Creation</span>
+      <span>Branding</span>
+      <span>App Concept Creation</span>
+      <span>AI Prompt Engineering</span>
+      <span>Creative Writing</span>
+      <span>Songwriting & Poetry</span>
+      <span>Audio Engineering</span>
+      <span>Music Production</span>
+      <span>Cinematic Composition</span>
+      <span>Concept Design</span>
+      <span>Systems Thinking</span>
+      <span>Linguistics & Sociology</span>
+      <span>Semiotics & Symbols</span>
+      <span>Public Speaking & Communication</span>
+      <span>Project Management</span>
+      <span>Cinematography</span>
     </div>
   </section>
 
   <!-- I Design Section -->
   <section id="systems" class="fade-in">
     <div class="letters-bg"></div>
-    <div class="container-main">
-      <div class="main-column">
-        <div class="page-header">
-          <h2>I Design, Write, and Build Digital Systems</h2>
-          <p>From conceptual sketches to fully functional platforms, my process emphasizes user-centered design. Tools that communicate effectively, interfaces that listen to user needs, and systems that teach and evolve. With expertise in React, Figma, and Three.js, I create scalable solutions for modern challenges.</p>
-        </div>
-      </div>
+    <div class="page-header">
+      <h2>I Design, Write, and Build Digital Systems</h2>
+      <p>From conceptual sketches to fully functional platforms, my process emphasizes user-centered design. Tools that communicate effectively, interfaces that listen to user needs, and systems that teach and evolve. With expertise in React, Figma, and Three.js, I create scalable solutions for modern challenges.</p>
     </div>
   </section>
 
   <!-- The Art of Clear Expression Section -->
   <section class="expression" id="expression" class="fade-in">
     <div class="expression-bg" data-parallax-speed="0.1"></div>
-    <div class="container-main">
-      <div class="main-column">
-        <div class="page-header">
-          <h2>The Art of Clear Expression</h2>
-        </div>
-        <div class="intro-content">
-          <div class="video-placeholder">Placeholder for autoplay looped video or GIF</div>
-          <div class="expression-content">
-            <p>Communication is an art form. I've refined writing for compelling narratives, speaking for impactful presentations, teaching for knowledge transfer, listening for empathy-driven design, and visual craft for emotional resonance. Join my workshops or collaborate on projects to elevate your expression.</p>
-            <a href="#contact" class="contact-button scroll-to">Start Your Course</a>
-          </div>
-        </div>
+    <div class="intro-content">
+      <div class="video-placeholder">Placeholder for autoplay looped video or GIF</div>
+      <div class="expression-content">
+        <h2>The Art of Clear Expression</h2>
+        <p>Communication is an art form. I've refined writing for compelling narratives, speaking for impactful presentations, teaching for knowledge transfer, listening for empathy-driven design, and visual craft for emotional resonance. Join my workshops or collaborate on projects to elevate your expression.</p>
+        <a href="#contact" class="contact-button scroll-to">Start Your Course</a>
       </div>
     </div>
   </section>
 
   <!-- Contact Section -->
   <footer id="contact" class="contact-page fade-in">
-    <div class="container-main">
-      <div class="main-column">
-        <div class="page-header">
-          <h2>Get in Touch</h2>
-          <p>Have a project in mind? Let’s make it happen.</p>
-        </div>
-        <div class="contact-grid">
-          <div class="contact-item">
-            <span class="material-symbols-outlined icon">mail</span>
-            <h4>Email</h4>
-            <p><a href="mailto:contact@bensandivar.com">contact@bensandivar.com</a></p>
-          </div>
-          <div class="contact-item">
-            <span class="material-symbols-outlined icon">phone</span>
-            <h4>Phone</h4>
-            <p>667 321 265</p>
-          </div>
-          <div class="contact-item">
-            <span class="material-symbols-outlined icon">link</span>
-            <h4>LinkedIn</h4>
-            <p><a href="#">LinkedIn Profile</a></p>
-          </div>
-        </div>
-        <div class="contact-cta">
-          <a href="mailto:contact@bensandivar.com" class="contact-button">Send an Email</a>
-        </div>
+    <div class="page-header">
+      <h2>Get in Touch</h2>
+      <p>Have a project in mind? Let’s make it happen.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <span class="material-symbols-outlined icon">mail</span>
+        <h4>Email</h4>
+        <p><a href="mailto:contact@bensandivar.com">contact@bensandivar.com</a></p>
       </div>
+      <div class="contact-item">
+        <span class="material-symbols-outlined icon">phone</span>
+        <h4>Phone</h4>
+        <p>667 321 265</p>
+      </div>
+      <div class="contact-item">
+        <span class="material-symbols-outlined icon">link</span>
+        <h4>LinkedIn</h4>
+        <p><a href="#">LinkedIn Profile</a></p>
+      </div>
+    </div>
+    <div class="contact-cta">
+      <a href="mailto:contact@bensandivar.com" class="contact-button">Send an Email</a>
     </div>
     <div class="footer-text">© 2025 Ben Sandivar</div>
   </footer>
@@ -237,21 +209,34 @@
 
   <script src="scripts.js"></script>
   <script>
-    // Lenis smooth scroll optimized for trackpad
+    // Lenis smooth scroll optimized for smoother performance
     const lenis = new Lenis({
-      duration: 1.0,
+      duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       smoothTouch: true,
       touchMultiplier: 1.5,
       normalizeWheel: true,
-      wheelMultiplier: 0.8
+      wheelMultiplier: 0.7,
+      lerp: 0.05
     });
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
+
+    // Scroll to sections
+    document.querySelectorAll('.scroll-to').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href') || link.getAttribute('data-target');
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          lenis.scrollTo(targetElement, { duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+        }
+      });
+    });
 
     // Three.js Klein Bottle Hero
     const scene = new THREE.Scene();
@@ -389,7 +374,6 @@
 
     let time = 0;
     let isIdle = false;
-    let idleTime = 0;
     let forwardSpeed = 0.01;
     const mouse = { x: 0, y: 0 };
 
@@ -399,7 +383,6 @@
       gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
       material.uniforms.mouse.value.set(mouse.x, mouse.y);
       isIdle = false;
-      idleTime = 0;
       gsap.to(window, { forwardSpeed: 0.03, duration: 1, ease: "power1.inOut" });
       const columns = document.querySelectorAll('.letters-column');
       columns.forEach((column) => {
