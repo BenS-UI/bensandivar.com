@@ -1,3 +1,18 @@
+// Initialize Lenis for smooth scrolling
+const lenis = new Lenis({
+  smoothWheel: true,
+  smoothTouch: true,
+  wheelMultiplier: 0.8,
+  lerp: 0.1
+});
+
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+
+requestAnimationFrame(raf);
+
 // NAV SCROLL DETECTION
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('.navbar');
@@ -11,28 +26,25 @@ const applyParallax = () => {
   document.querySelectorAll('[data-parallax-speed]').forEach(el => {
     const speed = parseFloat(el.dataset.parallaxSpeed);
     const rect = el.getBoundingClientRect();
-    // Calculate how far the element is from the center of the viewport
     const centerOfViewport = window.innerHeight / 2;
     const elementCenter = rect.top + rect.height / 2;
     const distanceToCenter = centerOfViewport - elementCenter;
     const translateY = distanceToCenter * speed;
 
     if (el.classList.contains('hero-bg')) {
-        el.style.transform = `translateY(${translateY * 0.5}px) scale(1.1)`; // Hero bg moves slower and is scaled up
+      el.style.transform = `translateY(${translateY * 0.5}px) scale(1.1)`;
     } else {
-        el.style.transform = `translateY(${translateY}px)`;
+      el.style.transform = `translateY(${translateY}px)`;
     }
   });
 };
 
-window.addEventListener('scroll', applyParallax);
-window.addEventListener('resize', applyParallax); // Recalculate on resize
+lenis.on('scroll', applyParallax);
+window.addEventListener('resize', applyParallax);
 
 // PAGE TRANSITION (FADE-IN)
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('page-loaded');
-
-  // Initial parallax application on load
   applyParallax();
 
   // MORE BUTTON
@@ -45,8 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // CUSTOM CURSOR - Modified to disable on touch devices
-  // Check if the primary input mechanism is a fine pointer (like a mouse)
+  // CUSTOM CURSOR
   if (window.matchMedia('(pointer: fine)').matches) {
     const cursor = document.createElement('div');
     cursor.id = 'custom-cursor';
@@ -69,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
       mouseY = e.clientY;
     });
 
-    // Updated hover targets to include carousel-card and blog-card
     const hoverTargets = document.querySelectorAll('a, button, .carousel-card, .blog-card, .project-card');
     hoverTargets.forEach(el => {
       el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
@@ -77,35 +87,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // CAROUSEL SCROLL BUTTONS AND FADE EFFECTS
-  const carousels = document.querySelectorAll('.work-page .carousel-container');
-  carousels.forEach(container => {
-    const track = container.querySelector('.carousel-track');
-    const btnLeft = container.querySelector('.carousel-btn.left');
-    const btnRight = container.querySelector('.carousel-btn.right');
+  // I DESIGN LETTERS SPEED-UP ON MOUSE MOVE
+  const lettersSection = document.getElementById('systems');
+  const lettersColumns = document.querySelectorAll('.letters-column');
 
-    if (btnLeft && btnRight && track) {
-      btnLeft.addEventListener('click', () => {
-        track.scrollBy({ left: -240, behavior: 'smooth' });
+  if (lettersSection && lettersColumns.length > 0) {
+    lettersSection.addEventListener('mousemove', (e) => {
+      const rect = lettersSection.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const speedFactor = Math.min(1 + (mouseX / rect.width) * 2, 3);
+      lettersColumns.forEach(column => {
+        column.style.animationDuration = `${60 / speedFactor}s`;
       });
-      btnRight.addEventListener('click', () => {
-        track.scrollBy({ left: 240, behavior: 'smooth' });
+    });
+
+    lettersSection.addEventListener('mouseleave', () => {
+      lettersColumns.forEach(column => {
+        column.style.animationDuration = '60s';
       });
+    });
+  }
 
-      // Handle fade-start and fade-end classes for gradient overlays
-      const updateFadeClasses = () => {
-        const scrollLeft = track.scrollLeft;
-        const maxScroll = track.scrollWidth - track.clientWidth;
-        container.classList.toggle('fade-start', scrollLeft > 0);
-        container.classList.toggle('fade-end', scrollLeft < maxScroll - 1);
-        btnLeft.disabled = scrollLeft <= 0;
-        btnRight.disabled = scrollLeft >= maxScroll - 1;
-      };
+  // PHOTO SLIDER
+  const slides = document.querySelector('.photo-slider .slides');
+  const navButtons = document.querySelectorAll('.photo-slider .nav button');
+  let currentSlide = 0;
 
-      track.addEventListener('scroll', updateFadeClasses);
-      updateFadeClasses(); // Initial check
+  if (slides && navButtons.length > 0) {
+    const totalSlides = slides.children.length;
+
+    function updateSlide() {
+      slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+      navButtons.forEach((btn, index) => {
+        btn.classList.toggle('active', index === currentSlide);
+      });
     }
-  });
+
+    navButtons.forEach((btn, index) => {
+      btn.addEventListener('click', () => {
+        currentSlide = index;
+        updateSlide();
+      });
+    });
+
+    updateSlide();
+  }
 
   // INTERSECTION OBSERVER FOR FADE-IN ANIMATIONS
   const elements = document.querySelectorAll('.fade-in, .carousel-section, .carousel-card, .carousel-btn, .project-card, .blog-card');
@@ -118,116 +144,69 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { threshold: 0.1 });
   elements.forEach(element => observer.observe(element));
 
-  // LIGHTBOX MODAL FOR PROJECT GALLERY
-  const galleryImages = Array.from(document.querySelectorAll('.project-gallery img'));
-  if (galleryImages.length > 0) {
-    let currentIndex = 0;
+  // THREE.JS KLEIN BOTTLE
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.position.z = 5;
 
-    const lightbox = document.createElement('div');
-    lightbox.id = 'lightbox';
-    Object.assign(lightbox.style, {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: 'rgba(0,0,0,0.9)',
-      display: 'none',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 9999
-    });
-    document.body.appendChild(lightbox);
+  const geometry = new THREE.ParametricGeometry((u, v, target) => {
+    const a = 2, b = 1;
+    const x = (a + b * Math.cos(2 * Math.PI * u)) * Math.cos(2 * Math.PI * v);
+    const y = (a + b * Math.cos(2 * Math.PI * u)) * Math.sin(2 * Math.PI * v);
+    const z = b * Math.sin(2 * Math.PI * u);
+    target.set(x, y, z);
+  }, 48, 48);
 
-    const img = document.createElement('img');
-    Object.assign(img.style, {
-      maxWidth: '90%',
-      maxHeight: '90%',
-      borderRadius: '1rem'
-    });
-    lightbox.appendChild(img);
+  const material = new THREE.MeshBasicMaterial({
+    color: new THREE.Color('#A5D8FF'),
+    wireframe: true,
+    side: THREE.DoubleSide
+  });
+  const kleinBottle = new THREE.Mesh(geometry, material);
+  scene.add(kleinBottle);
 
-    function showImage(index) {
-      currentIndex = index;
-      img.src = galleryImages[index].src;
-      lightbox.style.display = 'flex';
-    }
-
-    galleryImages.forEach((image, index) => {
-      image.addEventListener('click', () => showImage(index));
-    });
-
-    lightbox.addEventListener('click', (e) => {
-      if (e.target !== img) lightbox.style.display = 'none';
-    });
-
-    document.addEventListener('keydown', e => {
-      if (lightbox.style.display === 'flex') {
-        if (e.key === 'Escape') lightbox.style.display = 'none';
-        else if (e.key === 'ArrowRight') showImage((currentIndex + 1) % galleryImages.length);
-        else if (e.key === 'ArrowLeft') showImage((currentIndex - 1 + galleryImages.length) % galleryImages.length);
-      }
-    });
-  }
-
-  // MAKE ENTIRE CAROUSEL CARDS CLICKABLE
-  // Blog cards are now native <a> tags, so no JS handler is needed for them.
-  document.querySelectorAll('.carousel-card').forEach(card => {
-    const linkHref = card.dataset.href; // Get href from data-href attribute
-    if (linkHref) { // Ensure there is a href to navigate to
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', e => {
-        // Prevent default behavior if the click was on an actual link inside the card
-        if (e.target.tagName === 'A' || e.target.closest('A')) {
-          return; // Let the actual link handle it if it exists
-        } 
-        // Only navigate if the click was directly on the card or its non-link children
-        window.location.href = linkHref;
-      });
-    }
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
   });
 
-  // Make entire project cards clickable on the index page
+  document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    kleinBottle.rotation.x += mouseY * 0.01;
+    kleinBottle.rotation.y += mouseX * 0.01;
+    const time = Date.now() * 0.001;
+    material.color.setHSL(Math.abs(Math.sin(time * 0.1)), 0.7, 0.5);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Make entire project cards clickable
   document.querySelectorAll('.project-card').forEach(card => {
     const linkHref = card.querySelector('a').href;
     if (linkHref) {
       card.style.cursor = 'pointer';
       card.addEventListener('click', e => {
-        if (e.target.tagName === 'A' || e.target.closest('A')) {
-          return; // Let the actual link handle it
-        }
+        if (e.target.tagName === 'A' || e.target.closest('A')) return;
         window.location.href = linkHref;
       });
     }
   });
-
-  // Lightbox effect: dim other cards on hover
-  function applyDimmingToCards(containerSelector, cardSelector) {
-    document.querySelectorAll(containerSelector).forEach(container => {
-      const cards = Array.from(container.querySelectorAll(cardSelector));
-
-      cards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-          cards.forEach(otherCard => {
-            if (otherCard !== card) {
-              otherCard.classList.add('dimmed');
-            }
-          });
-        });
-
-        card.addEventListener('mouseleave', () => {
-          cards.forEach(otherCard => {
-            otherCard.classList.remove('dimmed');
-          });
-        });
-      });
-    });
-  }
-
-  // Apply dimming to different card sections
-  applyDimmingToCards('.carousel-track', '.carousel-card');   // For work page carousel cards
-  applyDimmingToCards('.project-cards', '.project-card');     // For homepage featured project cards
-  applyDimmingToCards('.blog-grid', '.blog-card');           // For blog page blog cards
 
   // THEME TOGGLE FUNCTIONALITY
   const themeToggleBtn = document.getElementById('theme-toggle');
@@ -247,26 +226,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (currentTheme) {
     applyTheme(currentTheme);
   } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    // Default to system preference if no theme is set
     applyTheme('dark');
   } else {
-    applyTheme('light'); // Default to light if no preference and no system preference
+    applyTheme('light');
   }
 
   themeToggleBtn.addEventListener('click', () => {
     const newTheme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
     applyTheme(newTheme);
-  });
-
-  // Blog Card Hover effect (reintroducing tilt and magnetic feel)
-  // The CSS now handles the 'hover-tilt' class, ensuring the effect is subtle and elegant.
-  document.querySelectorAll('.blog-card').forEach(card => {
-    card.addEventListener('mouseenter', () => {
-      card.classList.add('hover-tilt');
-    });
-
-    card.addEventListener('mouseleave', () => {
-      card.classList.remove('hover-tilt');
-    });
   });
 });

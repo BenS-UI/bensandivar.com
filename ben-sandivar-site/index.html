@@ -3,121 +3,112 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ben Sandivar — Transforming Thought into Form</title>
-  <link rel="icon" type="image/svg+xml" href="https://via.placeholder.com/40?text=B" /> <!-- Fixed with placeholder; replace with valid URL -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.18/bundled/lenis.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <title>Ben Sandivar | Portfolio</title>
+  <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/BenS-UI/portfolio/refs/heads/main/B-logo-a.svg" />
   <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
 <body>
-  <!-- Navbar -->
+  <div id="custom-cursor"></div>
+
   <nav class="navbar">
     <div class="nav-container">
-      <a href="#" class="logo">
-        <img src="https://via.placeholder.com/40?text=B" alt="Ben Sandivar Logo" /> <!-- Fixed with placeholder; replace with valid URL -->
+      <a href="/" class="logo">
+        <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/refs/heads/main/B-logo-a.svg" alt="Ben Sandivar Logo" />
       </a>
-      <button class="more-btn" aria-label="Toggle Menu">
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/work">Work</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+      <button class="more-btn" aria-label="Toggle menu">
         <span class="material-symbols-outlined">menu</span>
       </button>
-      <ul class="nav-links">
-        <li><a href="#hero" class="scroll-to">Home</a></li>
-        <li><a href="#projects" class="scroll-to">Work</a></li>
-        <li><a href="#about" class="scroll-to">About</a></li>
-        <li><a href="/blog.html">Blog</a></li>
-        <li><a href="#contact" class="scroll-to">Contact</a></li>
-      </ul>
     </div>
   </nav>
 
-  <!-- Hero Section with Klein Bottle -->
-  <div class="hero" id="hero">
+  <section class="hero">
     <canvas id="bg"></canvas>
     <div class="hero-content">
       <h1>Ben Sandivar</h1>
       <p>Transforming ideas into stunning digital solutions.</p>
-      <a href="#projects" class="scroll-arrow scroll-to">→ View My Work</a>
+      <a href="#projects" class="scroll-arrow">→ View My Work</a>
     </div>
-  </div>
+  </section>
 
-  <!-- Slideshow Section -->
-  <div class="photo-slider" id="slideshow">
+  <section class="photo-slider">
     <div class="slides">
-      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/project_slides.jpg');" data-parallax-speed="0.1">Project Highlight: SLIDES Platform</div>
-      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/project_branding.jpg');" data-parallax-speed="0.1">Project Highlight: Personal Branding</div>
-      <div class="slide" style="background-image: url('https://raw.githubusercontent.com/BSandivar/portfolio/main/project_lexo.jpg');" data-parallax-speed="0.1">Project Highlight: LEXO Dictionary</div>
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1457369804613-52c61a468e7d');" data-parallax-speed="0.1"></div>
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1516321497487-e288fb19713f');" data-parallax-speed="0.1"></div>
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1516321497487-e288fb19713f');" data-parallax-speed="0.1"></div>
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1516321497487-e288fb19713f');" data-parallax-speed="0.1"></div>
     </div>
     <div class="nav">
       <button class="active"></button>
       <button></button>
       <button></button>
+      <button></button>
     </div>
-  </div>
+  </section>
 
-  <!-- Featured Projects Section -->
-  <section id="projects" class="featured-projects fade-in">
+  <section class="featured-projects" id="projects">
     <div class="page-header">
       <h2>Featured Projects</h2>
       <p>Check out some of my standout work.</p>
     </div>
     <div class="projects-grid">
-      <div class="project-card" data-tilt>
-        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_slides.jpg" alt="SLIDES – Visual Vocabulary Platform" />
+      <div class="project-card">
+        <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d" alt="SLIDES" />
         <div class="card-content">
-          <h4>SLIDES</h4>
+          <h3>SLIDES</h3>
           <p>A visual learning tool for enhanced education.</p>
-          <a href="/project-slug.html">View Project →</a>
+          <a href="/project-slides">View Project →</a>
         </div>
       </div>
-      <div class="project-card" data-tilt>
-        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_branding.jpg" alt="Personal Branding – System Design" />
+      <div class="project-card">
+        <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f" alt="Personal Branding" />
         <div class="card-content">
-          <h4>Personal Branding</h4>
+          <h3>Personal Branding</h3>
           <p>A logo and color palette to represent my core values and vision.</p>
-          <a href="/project-slug.html">View Project →</a>
+          <a href="/project-branding">View Project →</a>
         </div>
       </div>
-      <div class="project-card" data-tilt>
-        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_lexo.jpg" alt="LEXO – Visual Dictionary UI" />
+      <div class="project-card">
+        <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f" alt="LEXO" />
         <div class="card-content">
-          <h4>LEXO</h4>
+          <h3>LEXO</h3>
           <p>Interactive dictionary app with innovative UI.</p>
-          <a href="/project-slug.html">View Project →</a>
+          <a href="/project-lexo">View Project →</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- About Section -->
-  <section id="about" class="about-page fade-in">
+  <section class="about-intro">
     <div class="page-header">
       <h2>About Me</h2>
     </div>
-    <div class="about-intro">
-      <div class="intro-content">
-        <div class="profile-container">
-          <div class="profile-pic">
-            <img src="https://via.placeholder.com/300?text=Profile+Picture" alt="Ben Sandivar Profile Picture" />
-          </div>
+    <div class="intro-content">
+      <div class="profile-container">
+        <div class="profile-pic">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e" alt="Profile Picture" />
         </div>
-        <div class="text-container">
-          <div class="intro-text">
-            <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
-            <div class="about-bio">
-              <p>Raised in Virginia, USA, I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value. Based in Galicia, Spain, I’ve had the privilege of working with clients such as Inditex, Norvento Enerxía, Abanca, La Voz de Galicia, and Estrella Galicia. Beyond the screen, I’m driven by curiosity, exploring linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
-            </div>
+      </div>
+      <div class="text-container">
+        <div class="intro-text">
+          <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
+          <div class="about-bio">
+            <p>Raised in Virginia, USA, I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value. Based in Galicia, Spain, I’ve had the privilege of working with clients such as Inditex, Norvento Enerxía, Abanca, La Voz de Galicia, and Estrella Galicia. Beyond the screen, I’m driven by curiosity, exploring linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Skills and Tools Section -->
-  <section id="skills" class="about-skills fade-in">
+  <section class="about-skills">
     <div class="page-header">
       <h2>Skills and Tools</h2>
       <p>A multidisciplinary toolkit honed over years of practice, blending creativity with technical precision.</p>
@@ -149,30 +140,31 @@
     </div>
   </section>
 
-  <!-- I Design Section -->
-  <section id="systems" class="fade-in">
-    <div class="letters-bg"></div>
+  <section id="systems">
     <div class="page-header">
       <h2>I Design, Write, and Build Digital Systems</h2>
       <p>From conceptual sketches to fully functional platforms, my process emphasizes user-centered design. Tools that communicate effectively, interfaces that listen to user needs, and systems that teach and evolve. With expertise in React, Figma, and Three.js, I create scalable solutions for modern challenges.</p>
     </div>
-  </section>
-
-  <!-- The Art of Clear Expression Section -->
-  <section class="expression" id="expression" class="fade-in">
-    <div class="expression-bg" data-parallax-speed="0.1"></div>
-    <div class="intro-content">
-      <div class="video-placeholder">Placeholder for autoplay looped video or GIF</div>
-      <div class="expression-content">
-        <h2>The Art of Clear Expression</h2>
-        <p>Communication is an art form. I've refined writing for compelling narratives, speaking for impactful presentations, teaching for knowledge transfer, listening for empathy-driven design, and visual craft for emotional resonance. Join my workshops or collaborate on projects to elevate your expression.</p>
-        <a href="#contact" class="contact-button scroll-to">Start Your Course</a>
-      </div>
+    <div class="letters-bg">
+      <div class="letters-column"><span>I Design</span><span>I Write</span><span>I Build</span><span>I Design</span><span>I Write</span><span>I Build</span></div>
+      <div class="letters-column"><span>I Design</span><span>I Write</span><span>I Build</span><span>I Design</span><span>I Write</span><span>I Build</span></div>
+      <div class="letters-column"><span>I Design</span><span>I Write</span><span>I Build</span><span>I Design</span><span>I Write</span><span>I Build</span></div>
+      <div class="letters-column"><span>I Design</span><span>I Write</span><span>I Build</span><span>I Design</span><span>I Write</span><span>I Build</span></div>
+      <div class="letters-column"><span>I Design</span><span>I Write</span><span>I Build</span><span>I Design</span><span>I Write</span><span>I Build</span></div>
     </div>
   </section>
 
-  <!-- Contact Section -->
-  <footer id="contact" class="contact-page fade-in">
+  <section class="expression">
+    <div class="expression-bg" data-parallax-speed="0.1"></div>
+    <div class="video-placeholder">Placeholder for autoplay looped video or GIF</div>
+    <div class="expression-content">
+      <h2>The Art of Clear Expression</h2>
+      <p>Communication is an art form. I've refined writing for compelling narratives, speaking for impactful presentations, teaching for knowledge transfer, listening for empathy-driven design, and visual craft for emotional resonance. Join my workshops or collaborate on projects to elevate your expression.</p>
+      <a href="#contact" class="contact-button">Start Your Course</a>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
     <div class="page-header">
       <h2>Get in Touch</h2>
       <p>Have a project in mind? Let’s make it happen.</p>
@@ -181,7 +173,7 @@
       <div class="contact-item">
         <span class="material-symbols-outlined icon">mail</span>
         <h4>Email</h4>
-        <p><a href="mailto:contact@bensandivar.com">contact@bensandivar.com</a></p>
+        <p>contact@bensandivar.com</p>
       </div>
       <div class="contact-item">
         <span class="material-symbols-outlined icon">phone</span>
@@ -191,308 +183,27 @@
       <div class="contact-item">
         <span class="material-symbols-outlined icon">link</span>
         <h4>LinkedIn</h4>
-        <p><a href="https://www.linkedin.com/in/ben-sandivar-public/">LinkedIn Profile</a></p>
+        <p><a href="https://linkedin.com/in/bensandivar">LinkedIn Profile</a></p>
       </div>
     </div>
     <div class="contact-cta">
       <a href="mailto:contact@bensandivar.com" class="contact-button">Send an Email</a>
     </div>
-    <div class="footer-text">© 2025 Ben Sandivar</div>
+  </section>
+
+  <footer>
+    <p class="footer-text">© 2025 Ben Sandivar</p>
   </footer>
 
-  <!-- Theme Toggle -->
   <div class="theme-toggle-container">
     <button id="theme-toggle">
       <span class="material-symbols-outlined theme-icon">dark_mode</span>
     </button>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.27/dist/lenis.min.js"></script>
   <script src="scripts.js"></script>
-  <script>
-    // Lenis smooth scroll with optimizations for trackpad
-    const lenis = new Lenis({
-      duration: 1.4,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      smoothTouch: true,
-      touchMultiplier: 1.5,
-      normalizeWheel: true,
-      wheelMultiplier: 0.5,
-      lerp: 0.15,
-      syncTouch: true
-    });
-
-    // Synced RAF for Lenis and Three.js
-    let time = 0;
-    const mouse = { x: 0, y: 0 };
-    function raf(currentTime) {
-      lenis.raf(currentTime);
-      // Three.js render and updates here to sync with Lenis
-      material.uniforms.time.value = time;
-      shape.rotation.x += 0.001;
-      shape.rotation.y += 0.005;
-      shape.rotation.z += 0.001;
-      renderer.render(scene, camera);
-      time += 0.016; // Approximate 60fps delta
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    // Scroll to sections
-    document.querySelectorAll('.scroll-to').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = link.getAttribute('href') || link.getAttribute('data-target');
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          lenis.scrollTo(targetElement, { duration: 1.4, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), offset: 0 });
-        }
-      });
-    });
-
-    // Three.js Klein Bottle Hero - Setup (render moved to synced RAF)
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg'), alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.setZ(5);
-
-    class ParametricGeometry extends THREE.BufferGeometry {
-      constructor(func = (u, v, dest) => dest.set(u, v, Math.cos(u) * Math.sin(v)), slices = 48, stacks = 48) {
-        super();
-        this.type = 'ParametricGeometry';
-        this.parameters = { func, slices, stacks };
-        const indices = [];
-        const vertices = [];
-        const normals = [];
-        const uvs = [];
-        const eps = 0.00001;
-        const normal = new THREE.Vector3();
-        let p0 = new THREE.Vector3(), p1 = new THREE.Vector3();
-        let pu = new THREE.Vector3(), pv = new THREE.Vector3();
-        for (let i = 0; i <= slices; i++) {
-          const u = i / slices;
-          for (let j = 0; j <= stacks; j++) {
-            const v = j / stacks;
-            func(u, v, p0);
-            vertices.push(p0.x, p0.y, p0.z);
-            func(u + eps, v, p1);
-            pu.subVectors(p1, p0).normalize();
-            func(u, v + eps, p1);
-            pv.subVectors(p1, p0).normalize();
-            normal.crossVectors(pu, pv).normalize();
-            normals.push(normal.x, normal.y, normal.z);
-            uvs.push(u, v);
-          }
-        }
-        for (let i = 0; i < slices; i++) {
-          for (let j = 0; j < stacks; j++) {
-            const a = i * (stacks + 1) + (j + 1);
-            const b = i * (stacks + 1) + j;
-            const c = (i + 1) * (stacks + 1) + j;
-            const d = (i + 1) * (stacks + 1) + (j + 1);
-            indices.push(a, b, d);
-            indices.push(b, c, d);
-          }
-        }
-        this.setIndex(indices);
-        this.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        this.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-        this.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-      }
-    }
-
-    const klein = function (v, u, target) {
-      if (target === undefined) target = new THREE.Vector3();
-      u *= Math.PI;
-      v *= 2 * Math.PI;
-      u = u * 2;
-      let x, y, z;
-      if (u < Math.PI) {
-        x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(u) * Math.cos(v);
-        z = -8 * Math.sin(u) - 2 * (1 - Math.cos(u) / 2) * Math.sin(u) * Math.cos(v);
-      } else {
-        x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(v + Math.PI);
-        z = -8 * Math.sin(u);
-      }
-      y = -2 * (1 - Math.cos(u) / 2) * Math.sin(v);
-      target.set(x, y, z).multiplyScalar(0.5);
-    };
-
-    const geometry = new ParametricGeometry(klein, 48, 48);
-    const material = new THREE.ShaderMaterial({
-      wireframe: true,
-      uniforms: {
-        time: { value: 0 },
-        mouse: { value: new THREE.Vector2() }
-      },
-      vertexShader: `
-        uniform float time;
-        uniform vec2 mouse;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        varying vec3 vNormal;
-        void main() {
-          vUv = uv;
-          vec3 pos = position;
-          vNormal = normal;
-          float distX = abs(pos.x - mouse.x * 3.0);
-          float distY = abs(pos.y - mouse.y * 3.0);
-          float dist = sqrt(distX * distX + distY * distY);
-          float wave = sin(time * 0.5 + dist * 2.0 + pos.z * 0.5) * 0.4;
-          pos += vNormal * wave;
-          float projectInfluence = sin(time * 0.2 + vUv.x * 2.0 + mouse.x) * 0.1;
-          pos.x += sin(time * 0.3 + pos.y * 1.0 + mouse.x * 0.5 + projectInfluence) * 0.15;
-          pos.y += cos(time * 0.3 + pos.z * 1.0 + mouse.y * 0.5 + projectInfluence) * 0.15;
-          pos.z += sin(time * 0.3 + pos.x * 1.0 + length(mouse) + projectInfluence) * 0.15;
-          vPosition = pos;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float time;
-        uniform vec2 mouse;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        void main() {
-          float gradientFactor = (sin(vPosition.y * 2.0 + time * 0.5) + 1.0) / 2.0;
-          vec3 color1 = vec3(0.647, 0.847, 1.0); // Base blue (#A5D8FF)
-          vec3 color2 = vec3(0.0, 1.0, 1.0); // Cyan
-          vec3 color3 = vec3(0.2, 0.8, 1.0); // Light blue
-          float colorMix = sin(time * 0.3) * 0.5 + 0.5;
-          vec3 baseColor = mix(mix(color1, color2, gradientFactor), color3, colorMix);
-          float mouseInfluence = length(mouse) * 0.5 + 0.5;
-          baseColor = mix(baseColor, color3, mouseInfluence * 0.3);
-          vec3 mouse3D = vec3(mouse.x * 4.0, mouse.y * 4.0, 0.0);
-          vec3 baseCenter = vec3(sin(time * 0.2) * 2.0, cos(time * 0.2) * 1.0, sin(time * 0.3) * 2.0);
-          vec3 neonCenter = baseCenter + mouse3D * 0.5;
-          float dist = length(vPosition - neonCenter);
-          float radius = 2.0 + sin(time * 0.4 + mouseInfluence * 0.5) * 0.5;
-          float fadeWidth = 1.5;
-          float neonFactor = 1.0 - smoothstep(radius - fadeWidth, radius, dist);
-          float neonIntensity = (1.0 - smoothstep(radius - fadeWidth, radius, dist)) * 0.8 * (1.0 + mouseInfluence * 0.5);
-          vec3 neonColor1 = vec3(0.5, 1.0, 1.0); // Neon cyan
-          vec3 neonColor2 = vec3(1.0, 0.843, 0.0); // Neon gold (#FFD700)
-          vec3 neonColor = mix(neonColor1, neonColor2, sin(time * 0.5) * 0.5 + 0.5);
-          vec3 finalColor = baseColor + neonColor * neonFactor * neonIntensity * 2.0;
-          gl_FragColor = vec4(finalColor, 1.0);
-        }
-      `,
-      side: THREE.DoubleSide
-    });
-    const shape = new THREE.Mesh(geometry, material);
-    scene.add(shape);
-
-    document.addEventListener('mousemove', (e) => {
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
-      material.uniforms.mouse.value.set(mouse.x, mouse.y);
-      isIdle = false;
-
-      // Update letter columns based on mouse Y position
-      const speed = Math.abs(mouse.y) * 40 + 20; // Speed between 20s and 60s based on mouse Y
-      const columns = document.querySelectorAll('.letters-column');
-      columns.forEach((column, i) => {
-        const direction = i % 2 === 0 ? 'normal' : 'reverse';
-        column.style.animation = `scroll-letters ${speed}s linear infinite ${direction}`;
-      });
-    });
-
-    document.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
-      gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
-      material.uniforms.mouse.value.set(mouse.x, mouse.y);
-    }, { passive: false });
-
-    document.addEventListener('mouseleave', () => {
-      isIdle = true;
-      const columns = document.querySelectorAll('.letters-column');
-      columns.forEach((column, i) => {
-        const direction = i % 2 === 0 ? 'normal' : 'reverse';
-        column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
-      });
-    });
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // Photo Slider Logic
-    const slides = document.querySelector('.slides');
-    const navButtons = document.querySelectorAll('.photo-slider .nav button');
-    let currentSlide = 0;
-
-    function showSlide(index) {
-      slides.style.transform = `translateX(-${index * 100}%)`;
-      navButtons.forEach((btn, i) => btn.classList.toggle('active', i === index));
-      gsap.to('.slide', {
-        x: (window.innerWidth / 20) * (index - currentSlide),
-        duration: 0.8,
-        ease: "power2.out",
-        stagger: 0.1
-      });
-    }
-
-    navButtons.forEach((btn, i) => btn.addEventListener('click', () => showSlide(currentSlide = i)));
-    setInterval(() => showSlide(currentSlide = (currentSlide + 1) % navButtons.length), 5000);
-
-    // Delayed 3D Tilt for Project Cards
-    document.querySelectorAll('[data-tilt]').forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-        const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-        gsap.to(card, {
-          rotationY: x * 10,
-          rotationX: -y * 10,
-          duration: 0.5,
-          ease: "power2.out",
-          transformPerspective: 500
-        });
-      });
-      card.addEventListener('mouseleave', () => {
-        gsap.to(card, {
-          rotationY: 0,
-          rotationX: 0,
-          duration: 0.5,
-          ease: "power2.out"
-        });
-      });
-    });
-
-    // Letters Background for I Design Section
-    const lettersBg = document.querySelector('.letters-bg');
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
-    for (let i = 0; i < 20; i++) {
-      const column = document.createElement('div');
-      column.className = 'letters-column';
-      const direction = i % 2 === 0 ? 'normal' : 'reverse';
-      column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
-      for (let j = 0; j < 200; j++) {
-        const span = document.createElement('span');
-        span.textContent = letters[Math.floor(Math.random() * letters.length)];
-        span.style.color = '#888';
-        column.appendChild(span);
-      }
-      lettersBg.appendChild(column);
-    }
-
-    setInterval(() => {
-      const spans = lettersBg.querySelectorAll('span');
-      spans.forEach(span => {
-        if (Math.random() < 0.05) {
-          span.style.filter = 'blur(5px)';
-          setTimeout(() => span.style.filter = 'none', Math.random() * 2000 + 1000);
-        }
-      });
-    }, 1000);
-  </script>
 </body>
 </html>
