@@ -90,7 +90,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 /* Sections */
-section {
+section, .hero, .photo-slider, footer {
   width: 100%;
   min-height: 100vh;
   padding: 10vh 8vw;
@@ -257,20 +257,23 @@ p {
 
 /* Hero */
 .hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: var(--color-body-bg);
   position: relative;
   overflow: hidden;
   z-index: 2;
 }
 
+#bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
 .hero-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 800px;
   padding: 0 2rem;
   display: flex;
@@ -313,7 +316,6 @@ p {
 
 /* Photo Slider */
 .photo-slider {
-  min-height: 100vh;
   position: relative;
   overflow: hidden;
   background: var(--color-body-bg);
@@ -397,17 +399,18 @@ p {
   background: var(--color-secondary);
   border-radius: var(--radius);
   box-shadow: 0 8px 32px var(--color-shadow);
-  transition: var(--transition), opacity 0.3s ease;
+  transition: var(--transition), opacity 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid var(--color-border);
   overflow: hidden;
-  position: relative;
+  position: realtive;
   display: flex;
   flex-direction: column;
+  transform-style: preserve-3d;
 }
 
 .project-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 16px 48px var(--color-shadow);
+  box-shadow: 0 16px 48px var(--color-shadow), 0 0 20px var(--color-accent);
 }
 
 .project-card img {
@@ -448,6 +451,7 @@ p {
   gap: 2rem;
   justify-content: center;
   margin-bottom: 2rem;
+  max-width: 1200px;
 }
 
 .intro-content {
@@ -663,11 +667,11 @@ p {
 /* Contact */
 .contact-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem auto;
+  grid-template-columns: repeat(3, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 3rem auto;
   width: 100%;
-  max-width: 960px;
+  max-width: 1200px;
   justify-content: center;
 }
 
@@ -675,7 +679,7 @@ p {
   background: var(--color-secondary);
   backdrop-filter: blur(10px);
   border-radius: var(--radius);
-  padding: 1.5rem;
+  padding: 2rem;
   box-shadow: 0 4px 16px var(--color-shadow);
   text-align: center;
   transition: var(--transition);
@@ -688,16 +692,26 @@ p {
 }
 
 .contact-item .icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  margin-bottom: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 1rem;
   color: var(--color-accent);
   fill: var(--color-accent);
 }
 
+.contact-item h4 {
+  font-size: 1.2rem;
+}
+
 .contact-item p {
-  font-size: 0.85rem;
-  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.contact-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+  width: 100%;
 }
 
 /* Footer */
@@ -710,10 +724,10 @@ footer {
 }
 
 .footer-text {
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.2;
   padding: 0;
-  margin: 2rem 0 0;
+  margin: 3rem 0 0;
   display: flex;
   justify-content: center;
   text-align: center;
@@ -753,7 +767,7 @@ footer {
 
 /* Mobile Responsive - 768px */
 @media (max-width: 768px) {
-  section {
+  section, .hero, .photo-slider, footer {
     padding: 10vh 5vw;
   }
 
@@ -791,8 +805,16 @@ footer {
   }
 
   .contact-item .icon {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .contact-item h4 {
+    font-size: 1rem;
+  }
+
+  .contact-item p {
+    font-size: 0.9rem;
   }
 
   .contact-button {

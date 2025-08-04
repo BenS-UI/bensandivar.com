@@ -191,7 +191,7 @@
       <div class="contact-item">
         <span class="material-symbols-outlined icon">link</span>
         <h4>LinkedIn</h4>
-        <p><a href="#">LinkedIn Profile</a></p>
+        <p><a href="https://www.linkedin.com/in/ben-sandivar-public/">LinkedIn Profile</a></p>
       </div>
     </div>
     <div class="contact-cta">
@@ -209,22 +209,43 @@
 
   <script src="scripts.js"></script>
   <script>
-    // Lenis smooth scroll optimized for smoother performance
+    // Lenis smooth scroll with section snapping
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.4,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       smoothTouch: true,
       touchMultiplier: 1.5,
       normalizeWheel: true,
-      wheelMultiplier: 0.7,
-      lerp: 0.05
+      wheelMultiplier: 0.6,
+      lerp: 0.1
     });
+
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
+
+    // Section snapping
+    const sections = document.querySelectorAll('section, .hero, .photo-slider, footer');
+    lenis.on('scroll', () => {
+      let closestSection = null;
+      let minDistance = Infinity;
+
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        const distance = Math.abs(rect.top);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestSection = section;
+        }
+      });
+
+      if (closestSection && minDistance < window.innerHeight / 4) {
+        lenis.scrollTo(closestSection, { duration: 0.8, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), offset: 0 });
+      }
+    });
 
     // Scroll to sections
     document.querySelectorAll('.scroll-to').forEach(link => {
@@ -233,7 +254,7 @@
         const targetId = link.getAttribute('href') || link.getAttribute('data-target');
         const targetElement = document.querySelector(targetId);
         if (targetElement) {
-          lenis.scrollTo(targetElement, { duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+          lenis.scrollTo(targetElement, { duration: 1.4, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), offset: 0 });
         }
       });
     });
@@ -374,7 +395,6 @@
 
     let time = 0;
     let isIdle = false;
-    let forwardSpeed = 0.01;
     const mouse = { x: 0, y: 0 };
 
     document.addEventListener('mousemove', (e) => {
@@ -383,11 +403,13 @@
       gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
       material.uniforms.mouse.value.set(mouse.x, mouse.y);
       isIdle = false;
-      gsap.to(window, { forwardSpeed: 0.03, duration: 1, ease: "power1.inOut" });
+
+      // Update letter columns based on mouse Y position
+      const speed = Math.abs(mouse.y) * 40 + 20; // Speed between 20s and 60s based on mouse Y
       const columns = document.querySelectorAll('.letters-column');
-      columns.forEach((column) => {
-        const currentDirection = column.style.animationDirection || 'normal';
-        column.style.animation = `scroll-letters 20s linear infinite ${currentDirection}`;
+      columns.forEach((column, i) => {
+        const direction = i % 2 === 0 ? 'normal' : 'reverse';
+        column.style.animation = `scroll-letters ${speed}s linear infinite ${direction}`;
       });
     });
 
@@ -402,7 +424,6 @@
 
     document.addEventListener('mouseleave', () => {
       isIdle = true;
-      gsap.to(window, { forwardSpeed: 0.01, duration: 1, ease: "power1.inOut" });
       const columns = document.querySelectorAll('.letters-column');
       columns.forEach((column, i) => {
         const direction = i % 2 === 0 ? 'normal' : 'reverse';
@@ -449,6 +470,30 @@
     navButtons.forEach((btn, i) => btn.addEventListener('click', () => showSlide(currentSlide = i)));
     setInterval(() => showSlide(currentSlide = (currentSlide + 1) % navButtons.length), 5000);
 
+    // Delayed 3D Tilt for Project Cards
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+        const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+        gsap.to(card, {
+          rotationY: x * 10,
+          rotationX: -y * 10,
+          duration: 0.5,
+          ease: "power2.out",
+          transformPerspective: 500
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, {
+          rotationY: 0,
+          rotationX: 0,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+      });
+    });
+
     // Letters Background for I Design Section
     const lettersBg = document.querySelector('.letters-bg');
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
@@ -457,7 +502,7 @@
       column.className = 'letters-column';
       const direction = i % 2 === 0 ? 'normal' : 'reverse';
       column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
-      for (let j = 0; j < 100; j++) {
+      for (let j = 0; j < 200; j++) {
         const span = document.createElement('span');
         span.textContent = letters[Math.floor(Math.random() * letters.length)];
         span.style.color = '#888';
