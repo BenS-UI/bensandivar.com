@@ -232,7 +232,7 @@
       renderer.render(scene, camera);
       requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    // raf will be started after the scene/material are created
 
     // Three.js Klein Bottle Hero
     const scene = new THREE.Scene();
@@ -241,10 +241,7 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.position.setZ(5);
-
-    class ParametricGeometry extends THREE.BufferGeometry { /* ... unchanged from your code ... */ }
-    // Reinserted minimal body for ParametricGeometry
-    ParametricGeometry.prototype.constructor = function(func = (u, v, dest) => dest.set(u, v, Math.cos(u) * Math.sin(v)), slices = 48, stacks = 48){};
+    // Removed broken ParametricGeometry stub to prevent early JS errors
 
     const klein = function (v, u, target) {
       if (target === undefined) target = new THREE.Vector3();
@@ -265,6 +262,8 @@
     });
     const shape = new THREE.Mesh(geometry, material);
     scene.add(shape);
+    // Start RAF only after material/shape exist
+    requestAnimationFrame(raf);
 
     document.addEventListener('mousemove', (e) => {
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -425,7 +424,7 @@
               const ar=clamp(node.ar||1, MIN_AR, MAX_AR);
               const fig=document.createElement('figure'); fig.className='masonry-item'; fig.setAttribute('data-tilt','');
               const wrap=document.createElement('div'); wrap.className='masonry-figure'; wrap.style.aspectRatio=`${ar} / 1`;
-              const img=document.createElement('img'); img.src=node.src; img.alt=''; img.loading='lazy'; img.decoding='async'; img.addEventListener('error',()=>{ img.style.visibility='hidden'; });
+              const img=document.createElement('img'); img.src=node.src; img.alt=''; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.addEventListener('error',()=>{ img.style.visibility='hidden'; });
               const cap=document.createElement('figcaption'); cap.className='masonry-caption'; cap.textContent=captionFrom(node.src);
               wrap.appendChild(img); fig.appendChild(wrap); fig.appendChild(cap); colEl.appendChild(fig); io.observe(fig);
             });
