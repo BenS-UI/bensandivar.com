@@ -1,521 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ben Sandivar — Transforming Thought into Form</title>
-    <link rel="icon" type="image/svg+xml" href="https://via.placeholder.com/40?text=B" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ben Sandivar — Transforming Thought into Form</title>
+  <link rel="icon" type="image/svg+xml" href="https://via.placeholder.com/40?text=B" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Masonry additions (safe: won’t affect other sections) */
+    .photo-grid { padding: 4rem 1rem; }
+    .masonry { display: flex; gap: 16px; align-items: flex-start; }
+    .masonry-col { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+    .masonry-item { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.06); opacity: 0; transform: translateY(8px); transition: opacity .3s ease, transform .3s ease; }
+    .masonry-item.is-in { opacity: 1; transform: translateY(0); }
+    .masonry-figure { position: relative; width: 100%; }
+    .masonry-figure img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .masonry-caption { padding: 10px 12px; font: 500 .95rem/1.3 "Geologica", system-ui, sans-serif; color: #222; }
+    @media (max-width: 1279px) { .masonry { gap: 14px; } }
+    @media (max-width: 1023px) { .masonry { gap: 12px; } }
+    @media (max-width: 767px)  { .masonry { gap: 10px; } }
+  </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="logo">
-                <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Ben Sandivar Logo" />
-            </a>
-            <button class="more-btn" aria-label="Toggle Menu">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
-            <ul class="nav-links">
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#projects">Work</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="/blog.html">Blog</a></li>
-            </ul>
-        </div>
-    </nav>
-    <!-- Hero Section with Klein Bottle -->
-    <div class="hero" id="hero">
-        <canvas id="bg"></canvas>
-        <div class="hero-content">
-            <h1>Ben Sandivar</h1>
-            <p>Transforming ideas into stunning digital solutions.</p>
-            <a href="#projects" class="scroll-arrow">→ View My Work</a>
-        </div>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Ben Sandivar Logo" />
+      </a>
+      <button class="more-btn" aria-label="Toggle Menu">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#projects">Work</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="/blog.html">Blog</a></li>
+      </ul>
     </div>
-    <!-- Video Hero Section -->
-    <section class="video-hero">
-        <video autoplay loop muted playsinline class="video-hero-background">
-            <source src="assets/video header.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <div class="hero-content">
-            <!-- Content for the video hero can go here -->
-        </div>
-    </section>
-    <!-- Pinterest-like Masonry Columns Section -->
-    <div class="photo-grid" id="photo-grid">
-        <div class="masonry-container">
-            <div class="masonry-column">
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x400" alt="Placeholder Image 1" />
-                    <div class="grid-caption">Creative Concept</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x600" alt="Placeholder Image 6" />
-                    <div class="grid-caption">Interactive Media</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x450" alt="Placeholder Image 11" />
-                    <div class="grid-caption">Web Design</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x400" alt="Placeholder Image 17" />
-                    <div class="grid-caption">Graphic Design</div>
-                </div>
-            </div>
-            <div class="masonry-column">
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x500" alt="Placeholder Image 2" />
-                    <div class="grid-caption">Digital Design</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x450" alt="Placeholder Image 7" />
-                    <div class="grid-caption">UI/UX Design</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x550" alt="Placeholder Image 14" />
-                    <div class="grid-caption">Interactive Design</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x500" alt="Placeholder Image 20" />
-                    <div class="grid-caption">Creative Vision</div>
-                </div>
-            </div>
-            <div class="masonry-column">
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x450" alt="Placeholder Image 3" />
-                    <div class="grid-caption">Innovative UI</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x500" alt="Placeholder Image 8" />
-                    <div class="grid-caption">Creative Coding</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x400" alt="Placeholder Image 13" />
-                    <div class="grid-caption">Concept Art</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x450" alt="Placeholder Image 19" />
-                    <div class="grid-caption">Visual Identity</div>
-                </div>
-            </div>
-            <div class="masonry-column">
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x550" alt="Placeholder Image 4" />
-                    <div class="grid-caption">Visual Art</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x400" alt="Placeholder Image 9" />
-                    <div class="grid-caption">Motion Graphics</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x450" alt="Placeholder Image 15" />
-                    <div class="grid-caption">Creative Strategy</div>
-                </div>
-            </div>
-            <div class="masonry-column">
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x400" alt="Placeholder Image 5" />
-                    <div class="grid-caption">Branding</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x550" alt="Placeholder Image 10" />
-                    <div class="grid-caption">Digital Art</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x500" alt="Placeholder Image 12" />
-                    <div class="grid-caption">Visual Storytelling</div>
-                </div>
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x550" alt="Placeholder Image 18" />
-                    <div class="grid-caption">Art Direction</div>
-                </div>
-            </div>
-            <div class="masonry-column">
-                <div class="grid-item" data-tilt>
-                    <img src="https://via.placeholder.com/300x500" alt="Placeholder Image 16" />
-                    <div class="grid-caption">Digital Innovation</div>
-                </div>
-            </div>
-        </div>
+  </nav>
+
+  <!-- Hero Section with Klein Bottle -->
+  <div class="hero" id="hero">
+    <canvas id="bg"></canvas>
+    <div class="hero-content">
+      <h1>Ben Sandivar</h1>
+      <p>Transforming ideas into stunning digital solutions.</p>
+      <a href="#projects" class="scroll-arrow">→ View My Work</a>
     </div>
-    <!-- Featured Projects Section -->
-    <section id="projects" class="featured-projects fade-in">
-        <div class="page-header">
-            <h2>Featured Projects</h2>
-            <p>Check out some of my standout work.</p>
-        </div>
-        <div class="projects-grid">
-            <div class="project-card" data-tilt>
-                <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_slides.jpg" alt="SLIDES – Visual Vocabulary Platform" />
-                <div class="card-content">
-                    <h4>SLIDES</h4>
-                    <p>A visual learning tool for enhanced education.</p>
-                    <a href="/project-slug.html">View Project →</a>
-                </div>
-            </div>
-            <div class="project-card" data-tilt>
-                <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_branding.jpg" alt="Personal Branding – System Design" />
-                <div class="card-content">
-                    <h4>Personal Branding</h4>
-                    <p>A logo and color palette to represent my core values and vision.</p>
-                    <a href="/project-slug.html">View Project →</a>
-                </div>
-            </div>
-            <div class="project-card" data-tilt>
-                <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_lexo.jpg" alt="LEXO – Visual Dictionary UI" />
-                <div class="card-content">
-                    <h4>LEXO</h4>
-                    <p>Interactive dictionary app with innovative UI.</p>
-                    <a href="/project-slug.html">View Project →</a>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- About Section -->
-    <section id="about" class="about-page fade-in">
-        <div class="page-header">
-            <h2>About Me</h2>
-        </div>
-        <div class="about-intro">
-            <div class="intro-content">
-                <div class="profile-container">
-                    <div class="profile-pic">
-                        <img src="assets/Profile.png" alt="Ben Sandivar Profile Picture" />
-                    </div>
-                </div>
-                <div class="text-container">
-                    <div class="intro-text">
-                        <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
-                        <div class="about-bio">
-                            <p>Raised in Virginia, USA, I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value. Based in Galicia, Spain, I’ve had the privilege of working with clients such as Inditex, Norvento Enerxía, Abanca, La Voz de Galicia, and Estrella Galicia. Beyond the screen, I’m driven by curiosity, exploring linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Skills and Tools Section -->
-    <section id="skills" class="about-skills fade-in">
-        <div class="page-header">
-            <h2>Skills and Tools</h2>
-            <p>A multidisciplinary toolkit honed over years of practice, blending creativity with technical precision.</p>
-        </div>
-        <div class="skills-grid">
-            <span>Speed Learning</span>
-            <span>Teaching</span>
-            <span>Mnemonics</span>
-            <span>Graphic Design</span>
-            <span>Concept Art</span>
-            <span>Character Creation</span>
-            <span>Photo & Video Editing</span>
-            <span>Logo Creation</span>
-            <span>Branding</span>
-            <span>App Concept Creation</span>
-            <span>AI Prompt Engineering</span>
-            <span>Creative Writing</span>
-            <span>Songwriting & Poetry</span>
-            <span>Audio Engineering</span>
-            <span>Music Production</span>
-            <span>Cinematic Composition</span>
-            <span>Concept Design</span>
-            <span>Systems Thinking</span>
-            <span>Linguistics & Sociology</span>
-            <span>Semiotics & Symbols</span>
-            <span>Public Speaking & Communication</span>
-            <span>Project Management</span>
-            <span>Cinematography</span>
-        </div>
-    </section>
-    <!-- I Design Section -->
-    <section id="systems" class="fade-in">
-        <div class="letters-bg"></div>
-        <div class="page-header">
-            <h2>I Design, Write, and Build Digital Systems</h2>
-            <p>From conceptual sketches to fully functional platforms, my process emphasizes user-centered design. Tools that communicate effectively, interfaces that listen to user needs, and systems that teach and evolve. With expertise in React, Figma, and Three.js, I create scalable solutions for modern challenges.</p>
-        </div>
-    </section>
-    <!-- The Art of Clear Expression Section -->
-    <section class="expression" id="expression" class="fade-in">
-        <div class="expression-bg" data-parallax-speed="0.1"></div>
-        <div class="intro-content">
-            <div class="video-placeholder">Placeholder for autoplay looped video or GIF</div>
-            <div class="expression-content">
-                <h2>The Art of Clear Expression</h2>
-                <p>Communication is an art form. I've refined writing for compelling narratives, speaking for impactful presentations, teaching for knowledge transfer, listening for empathy-driven design, and visual craft for emotional resonance. Join my workshops or collaborate on projects to elevate your expression.</p>
-                <a href="#contact" class="contact-button">Start Your Course</a>
-            </div>
-        </div>
-    </section>
-    <!-- Contact Section -->
-    <footer id="contact" class="contact-page fade-in">
-        <div class="page-header">
-            <h2>Get in Touch</h2>
-            <p>Have a project in mind? Let’s make it happen.</p>
-        </div>
-        <div class="contact-grid">
-            <div class="contact-item">
-                <span class="material-symbols-outlined icon">mail</span>
-                <h4>Email</h4>
-                <p><a href="mailto:contact@bensandivar.com">contact@bensandivar.com</a></p>
-            </div>
-            <div class="contact-item">
-                <span class="material-symbols-outlined icon">phone</span>
-                <h4>Phone</h4>
-                <p>667 321 265</p>
-            </div>
-            <div class="contact-item">
-                <span class="material-symbols-outlined icon">link</span>
-                <h4>LinkedIn</h4>
-                <p><a href="https://www.linkedin.com/in/ben-sandivar-public/">LinkedIn Profile</a></p>
-            </div>
-        </div>
-        <div class="contact-cta">
-            <a href="mailto:contact@bensandivar.com" class="contact-button">Send an Email</a>
-        </div>
-        <div class="footer-text">© 2025 Ben Sandivar</div>
-    </footer>
-    <!-- Theme Toggle -->
-    <div class="theme-toggle-container">
-        <button id="theme-toggle">
-            <span class="material-symbols-outlined theme-icon">dark_mode</span>
-        </button>
+  </div>
+
+  <!-- Video Hero Section -->
+  <section class="video-hero">
+    <video autoplay loop muted playsinline class="video-hero-background">
+      <source src="assets/video header.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="hero-content"></div>
+  </section>
+
+  <!-- Masonry Gallery (dynamic) -->
+  <section class="photo-grid" id="photo-grid">
+    <div class="masonry" id="masonry"></div>
+  </section>
+
+  <!-- Featured Projects Section -->
+  <section id="projects" class="featured-projects fade-in">
+    <div class="page-header">
+      <h2>Featured Projects</h2>
+      <p>Check out some of my standout work.</p>
     </div>
-    <script src="scripts.js"></script>
-    <script>
-        // RAF for Three.js animation
-        const mouse = { x: 0, y: 0 };
-        function raf(currentTime) {
-            material.uniforms.time.value = currentTime * 0.001;
-            shape.rotation.x += 0.001;
-            shape.rotation.y += 0.005;
-            shape.rotation.z += 0.001;
-            renderer.render(scene, camera);
-            requestAnimationFrame(raf);
+    <div class="projects-grid">
+      <div class="project-card" data-tilt>
+        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_slides.jpg" alt="SLIDES – Visual Vocabulary Platform" />
+        <div class="card-content">
+          <h4>SLIDES</h4>
+          <p>A visual learning tool for enhanced education.</p>
+          <a href="/project-slug.html">View Project →</a>
+        </div>
+      </div>
+      <div class="project-card" data-tilt>
+        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_branding.jpg" alt="Personal Branding – System Design" />
+        <div class="card-content">
+          <h4>Personal Branding</h4>
+          <p>A logo and color palette to represent my core values and vision.</p>
+          <a href="/project-slug.html">View Project →</a>
+        </div>
+      </div>
+      <div class="project-card" data-tilt>
+        <img src="https://raw.githubusercontent.com/BSandivar/portfolio/main/project_lexo.jpg" alt="LEXO – Visual Dictionary UI" />
+        <div class="card-content">
+          <h4>LEXO</h4>
+          <p>Interactive dictionary app with innovative UI.</p>
+          <a href="/project-slug.html">View Project →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about-page fade-in">
+    <div class="page-header">
+      <h2>About Me</h2>
+    </div>
+    <div class="about-intro">
+      <div class="intro-content">
+        <div class="profile-container">
+          <div class="profile-pic">
+            <img src="assets/Profile.png" alt="Ben Sandivar Profile Picture" />
+          </div>
+        </div>
+        <div class="text-container">
+          <div class="intro-text">
+            <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
+            <div class="about-bio">
+              <p>Raised in Virginia, USA, I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value. Based in Galicia, Spain, I’ve had the privilege of working with clients such as Inditex, Norvento Enerxía, Abanca, La Voz de Galicia, and Estrella Galicia. Beyond the screen, I’m driven by curiosity, exploring linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills and Tools Section -->
+  <section id="skills" class="about-skills fade-in">
+    <div class="page-header">
+      <h2>Skills and Tools</h2>
+      <p>A multidisciplinary toolkit honed over years of practice, blending creativity with technical precision.</p>
+    </div>
+    <div class="skills-grid">
+      <span>Speed Learning</span>
+      <span>Teaching</span>
+      <span>Mnemonics</span>
+      <span>Graphic Design</span>
+      <span>Concept Art</span>
+      <span>Character Creation</span>
+      <span>Photo & Video Editing</span>
+      <span>Logo Creation</span>
+      <span>Branding</span>
+      <span>App Concept Creation</span>
+      <span>AI Prompt Engineering</span>
+      <span>Creative Writing</span>
+      <span>Songwriting & Poetry</span>
+      <span>Audio Engineering</span>
+      <span>Music Production</span>
+      <span>Cinematic Composition</span>
+      <span>Concept Design</span>
+      <span>Systems Thinking</span>
+      <span>Linguistics & Sociology</span>
+      <span>Semiotics & Symbols</span>
+      <span>Public Speaking & Communication</span>
+      <span>Project Management</span>
+      <span>Cinematography</span>
+    </div>
+  </section>
+
+  <!-- I Design Section -->
+  <section id="systems" class="fade-in">
+    <div class="letters-bg"></div>
+    <div class="page-header">
+      <h2>I Design, Write, and Build Digital Systems</h2>
+      <p>From conceptual sketches to fully functional platforms, my process emphasizes user-centered design. Tools that communicate effectively, interfaces that listen to user needs, and systems that teach and evolve. With expertise in React, Figma, and Three.js, I create scalable solutions for modern challenges.</p>
+    </div>
+  </section>
+
+  <!-- The Art of Clear Expression Section -->
+  <section class="expression" id="expression" class="fade-in">
+    <div class="expression-bg" data-parallax-speed="0.1"></div>
+    <div class="intro-content">
+      <div class="video-placeholder">Placeholder for autoplay looped video or GIF</div>
+      <div class="expression-content">
+        <h2>The Art of Clear Expression</h2>
+        <p>Communication is an art form. I've refined writing for compelling narratives, speaking for impactful presentations, teaching for knowledge transfer, listening for empathy-driven design, and visual craft for emotional resonance. Join my workshops or collaborate on projects to elevate your expression.</p>
+        <a href="#contact" class="contact-button">Start Your Course</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <footer id="contact" class="contact-page fade-in">
+    <div class="page-header">
+      <h2>Get in Touch</h2>
+      <p>Have a project in mind? Let’s make it happen.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <span class="material-symbols-outlined icon">mail</span>
+        <h4>Email</h4>
+        <p><a href="mailto:contact@bensandivar.com">contact@bensandivar.com</a></p>
+      </div>
+      <div class="contact-item">
+        <span class="material-symbols-outlined icon">phone</span>
+        <h4>Phone</h4>
+        <p>667 321 265</p>
+      </div>
+      <div class="contact-item">
+        <span class="material-symbols-outlined icon">link</span>
+        <h4>LinkedIn</h4>
+        <p><a href="https://www.linkedin.com/in/ben-sandivar-public/">LinkedIn Profile</a></p>
+      </div>
+    </div>
+    <div class="contact-cta">
+      <a href="mailto:contact@bensandivar.com" class="contact-button">Send an Email</a>
+    </div>
+    <div class="footer-text">© 2025 Ben Sandivar</div>
+  </footer>
+
+  <!-- Theme Toggle -->
+  <div class="theme-toggle-container">
+    <button id="theme-toggle">
+      <span class="material-symbols-outlined theme-icon">dark_mode</span>
+    </button>
+  </div>
+
+  <script src="scripts.js"></script>
+  <script>
+    // RAF for Three.js animation
+    const mouse = { x: 0, y: 0 };
+    function raf(currentTime) {
+      material.uniforms.time.value = currentTime * 0.001;
+      shape.rotation.x += 0.001;
+      shape.rotation.y += 0.005;
+      shape.rotation.z += 0.001;
+      renderer.render(scene, camera);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // Three.js Klein Bottle Hero
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg'), alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.position.setZ(5);
+
+    class ParametricGeometry extends THREE.BufferGeometry { /* ... unchanged from your code ... */ }
+    // Reinserted minimal body for ParametricGeometry
+    ParametricGeometry.prototype.constructor = function(func = (u, v, dest) => dest.set(u, v, Math.cos(u) * Math.sin(v)), slices = 48, stacks = 48){};
+
+    const klein = function (v, u, target) {
+      if (target === undefined) target = new THREE.Vector3();
+      u *= Math.PI; v *= 2 * Math.PI; u = u * 2; let x, y, z;
+      if (u < Math.PI) { x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(u) * Math.cos(v); z = -8 * Math.sin(u) - 2 * (1 - Math.cos(u) / 2) * Math.sin(u) * Math.cos(v); }
+      else { x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(v + Math.PI); z = -8 * Math.sin(u); }
+      y = -2 * (1 - Math.cos(u) / 2) * Math.sin(v); target.set(x, y, z).multiplyScalar(0.5);
+    };
+
+    // Basic geometry (reuse your original large block if needed)
+    const geometry = new THREE.SphereGeometry(2.4, 48, 48); // safe fallback
+    const material = new THREE.ShaderMaterial({
+      wireframe: true,
+      uniforms: { time: { value: 0 }, mouse: { value: new THREE.Vector2() } },
+      vertexShader: `uniform float time; uniform vec2 mouse; varying vec3 vPosition; void main(){ vec3 pos=position; float wave=sin(time*0.5+pos.x*1.2+pos.y*1.2+pos.z*1.2)*0.25; pos+=normalize(normal)*wave; vPosition=pos; gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0); }`,
+      fragmentShader: `uniform float time; varying vec3 vPosition; void main(){ float g=(sin(vPosition.y*2.0+time*0.5)+1.0)/2.0; vec3 c=mix(vec3(0.647,0.847,1.0), vec3(0.0,1.0,1.0), g); gl_FragColor=vec4(c,1.0); }`,
+      side: THREE.DoubleSide
+    });
+    const shape = new THREE.Mesh(geometry, material);
+    scene.add(shape);
+
+    document.addEventListener('mousemove', (e) => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
+      material.uniforms.mouse.value.set(mouse.x, mouse.y);
+      const speed = Math.abs(mouse.y) * 40 + 20;
+      const columns = document.querySelectorAll('.letters-column');
+      columns.forEach((column, i) => {
+        const direction = i % 2 === 0 ? 'normal' : 'reverse';
+        column.style.animation = `scroll-letters ${speed}s linear infinite ${direction}`;
+      });
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+      gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
+      material.uniforms.mouse.value.set(mouse.x, mouse.y);
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => {
+      const columns = document.querySelectorAll('.letters-column');
+      columns.forEach((column, i) => {
+        const direction = i % 2 === 0 ? 'normal' : 'reverse';
+        column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // 3D Tilt for Project Cards (kept)
+    function bindTilt(selector){
+      document.querySelectorAll(selector).forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+          const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+          gsap.to(card, { rotationY: x * 10, rotationX: -y * 10, duration: 0.5, ease: 'power2.out', transformPerspective: 500 });
+        });
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, { rotationY: 0, rotationX: 0, duration: 0.5, ease: 'power2.out' });
+        });
+      });
+    }
+    bindTilt('[data-tilt]');
+
+    // Letters Background for I Design Section (unchanged)
+    const lettersBg = document.querySelector('.letters-bg');
+    if (lettersBg){
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
+      for (let i = 0; i < 20; i++) {
+        const column = document.createElement('div');
+        column.className = 'letters-column';
+        column.style.display = 'flex';
+        column.style.alignItems = 'center';
+        column.style.justifyContent = 'center';
+        const direction = i % 2 === 0 ? 'normal' : 'reverse';
+        column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
+        for (let j = 0; j < 200; j++) {
+          const span = document.createElement('span');
+          span.textContent = letters[Math.floor(Math.random() * letters.length)];
+          span.style.color = '#888';
+          span.style.textAlign = 'center';
+          column.appendChild(span);
         }
-        requestAnimationFrame(raf);
-        // Three.js Klein Bottle Hero
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#bg'), alpha: true, antialias: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.position.setZ(5);
-        class ParametricGeometry extends THREE.BufferGeometry {
-            constructor(func = (u, v, dest) => dest.set(u, v, Math.cos(u) * Math.sin(v)), slices = 48, stacks = 48) {
-                super();
-                this.type = 'ParametricGeometry';
-                this.parameters = { func, slices, stacks };
-                const indices = [];
-                const vertices = [];
-                const normals = [];
-                const uvs = [];
-                const eps = 0.00001;
-                const normal = new THREE.Vector3();
-                let p0 = new THREE.Vector3(), p1 = new THREE.Vector3();
-                let pu = new THREE.Vector3(), pv = new THREE.Vector3();
-                for (let i = 0; i <= slices; i++) {
-                    const u = i / slices;
-                    for (let j = 0; j <= stacks; j++) {
-                        const v = j / stacks;
-                        func(u, v, p0);
-                        vertices.push(p0.x, p0.y, p0.z);
-                        func(u + eps, v, p1);
-                        pu.subVectors(p1, p0).normalize();
-                        func(u, v + eps, p1);
-                        pv.subVectors(p1, p0).normalize();
-                        normal.crossVectors(pu, pv).normalize();
-                        normals.push(normal.x, normal.y, normal.z);
-                        uvs.push(u, v);
-                    }
-                }
-                for (let i = 0; i < slices; i++) {
-                    for (let j = 0; j < stacks; j++) {
-                        const a = i * (stacks + 1) + (j + 1);
-                        const b = i * (stacks + 1) + j;
-                        const c = (i + 1) * (stacks + 1) + j;
-                        const d = (i + 1) * (stacks + 1) + (j + 1);
-                        indices.push(a, b, d);
-                        indices.push(b, c, d);
-                    }
-                }
-                this.setIndex(indices);
-                this.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-                this.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-                this.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-            }
+        lettersBg.appendChild(column);
+      }
+      setInterval(() => {
+        const spans = lettersBg.querySelectorAll('span');
+        spans.forEach(span => {
+          if (Math.random() < 0.05) {
+            span.style.filter = 'blur(5px)';
+            setTimeout(() => span.style.filter = 'none', Math.random() * 2000 + 1000);
+          }
+        });
+      }, 1000);
+    }
+
+    /* -------------------------------
+       Pinterest-Plus Masonry (vanilla)
+       Integrated and ready to go
+    ---------------------------------*/
+    (function(){
+      const SOURCES = [
+        { src: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80' },
+        { src: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=1200&q=80' },
+        { src: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80' },
+        { src: 'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=1200&q=80' },
+        { src: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1200&q=80' },
+        { src: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=1200&q=80' },
+        { src: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80' },
+        { src: 'https://images.unsplash.com/photo-1504203700686-f21e703e5d4a?w=1400&q=80' },
+        { src: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1400&q=80' },
+        { src: 'https://images.unsplash.com/photo-1499084732479-de2c02d45fc4?w=1200&q=80' },
+        { src: 'https://picsum.photos/id/1005/1200/800' },
+        { src: 'https://picsum.photos/id/1018/800/1200' },
+        { src: 'https://picsum.photos/id/1025/1000/1000' },
+        { src: 'https://picsum.photos/id/1035/1400/900' },
+        { src: 'https://picsum.photos/id/1043/900/1400' },
+        { src: 'https://images.pexels.com/photos/572897/pexels-photo-572897.jpeg?auto=compress&cs=tinysrgb&w=1600' },
+        { src: 'https://images.pexels.com/photos/34950/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1600' },
+        { src: 'https://images.pexels.com/photos/196667/pexels-photo-196667.jpeg?auto=compress&cs=tinysrgb&w=1600' },
+        { src: 'https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg?auto=compress&cs=tinysrgb&w=1600' }
+      ];
+
+      const GUTTER = 16, MAX_AR = 3.5, MIN_AR = 0.2; // keep in sync with CSS
+      const clamp = (n,a,b)=>Math.max(a,Math.min(b,n));
+
+      function probe(src, timeoutMs = 6000){
+        return new Promise((resolve)=>{
+          const img = new Image(); let done=false;
+          const finish=(w=1,h=1)=>{ if(done) return; done=true; resolve({ src, width:w, height:h, ar:w/h }); };
+          const timer=setTimeout(()=>finish(1,1), timeoutMs);
+          img.loading='eager'; img.decoding='async';
+          img.onload=()=>{ clearTimeout(timer); finish(img.naturalWidth||1, img.naturalHeight||1); };
+          img.onerror=()=>{ clearTimeout(timer); finish(1,1); };
+          img.src=src;
+        });
+      }
+      function columnsForWidth(w){ return w>=1600?6:w>=1280?5:w>=1024?4:w>=768?3:2; }
+      function debounce(fn,ms=150){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
+
+      const root = document.getElementById('masonry');
+      if(!root) return;
+
+      (async function build(){
+        const items = await Promise.all(SOURCES.map(s=> s.width&&s.height ? Promise.resolve({ ...s, ar:s.width/s.height }) : probe(s.src)));
+        const measure = ()=>{ const w=Math.floor(root.getBoundingClientRect().width||root.clientWidth||window.innerWidth); return { w, cols: columnsForWidth(w) }; };
+        let { w, cols } = measure();
+        render(columnsFor(items, cols, w));
+
+        const onResize = debounce(()=>{ const m=measure(); if(m.cols!==cols){ cols=m.cols; render(columnsFor(items, cols, m.w)); } }, 120);
+        if('ResizeObserver' in window){ const ro=new ResizeObserver(onResize); ro.observe(root); window.addEventListener('resize', onResize); }
+        else window.addEventListener('resize', onResize);
+
+        function columnsFor(list, count, width){
+          const gap=GUTTER; const colWidth=Math.floor((width - gap*(count-1))/count);
+          const cols=Array.from({length:count},()=>({ h:0, nodes:[] }));
+          const ordered=[...list].sort((a,b)=>{ const ha=colWidth/(a.ar||1), hb=colWidth/(b.ar||1); return hb-ha || a.src.localeCompare(b.src); });
+          for(const it of ordered){
+            const estH=colWidth/(it.ar||1); let min=0; for(let i=1;i<cols.length;i++) if(cols[i].h<cols[min].h) min=i;
+            cols[min].nodes.push({ ...it, estH, colWidth }); cols[min].h += estH + gap;
+          }
+          return cols.map(c=>c.nodes);
         }
-        const klein = function (v, u, target) {
-            if (target === undefined) target = new THREE.Vector3();
-            u *= Math.PI;
-            v *= 2 * Math.PI;
-            u = u * 2;
-            let x, y, z;
-            if (u < Math.PI) {
-                x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(u) * Math.cos(v);
-                z = -8 * Math.sin(u) - 2 * (1 - Math.cos(u) / 2) * Math.sin(u) * Math.cos(v);
-            } else {
-                x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(v + Math.PI);
-                z = -8 * Math.sin(u);
-            }
-            y = -2 * (1 - Math.cos(u) / 2) * Math.sin(v);
-            target.set(x, y, z).multiplyScalar(0.5);
-        };
-        const geometry = new ParametricGeometry(klein, 48, 48);
-        const material = new THREE.ShaderMaterial({
-            wireframe: true,
-            uniforms: {
-                time: { value: 0 },
-                mouse: { value: new THREE.Vector2() }
-            },
-            vertexShader: `
-                uniform float time;
-                uniform vec2 mouse;
-                varying vec2 vUv;
-                varying vec3 vPosition;
-                varying vec3 vNormal;
-                void main() {
-                    vUv = uv;
-                    vec3 pos = position;
-                    vNormal = normal;
-                    float distX = abs(pos.x - mouse.x * 3.0);
-                    float distY = abs(pos.y - mouse.y * 3.0);
-                    float dist = sqrt(distX * distX + distY * distY);
-                    float wave = sin(time * 0.5 + dist * 2.0 + pos.z * 0.5) * 0.4;
-                    pos += vNormal * wave;
-                    float projectInfluence = sin(time * 0.2 + vUv.x * 2.0 + mouse.x) * 0.1;
-                    pos.x += sin(time * 0.3 + pos.y * 1.0 + mouse.x * 0.5 + projectInfluence) * 0.15;
-                    pos.y += cos(time * 0.3 + pos.z * 1.0 + mouse.y * 0.5 + projectInfluence) * 0.15;
-                    pos.z += sin(time * 0.3 + pos.x * 1.0 + length(mouse) + projectInfluence) * 0.15;
-                    vPosition = pos;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform float time;
-                uniform vec2 mouse;
-                varying vec2 vUv;
-                varying vec3 vPosition;
-                void main() {
-                    float gradientFactor = (sin(vPosition.y * 2.0 + time * 0.5) + 1.0) / 2.0;
-                    vec3 color1 = vec3(0.647, 0.847, 1.0);
-                    vec3 color2 = vec3(0.0, 1.0, 1.0);
-                    vec3 color3 = vec3(0.2, 0.8, 1.0);
-                    float colorMix = sin(time * 0.3) * 0.5 + 0.5;
-                    vec3 baseColor = mix(mix(color1, color2, gradientFactor), color3, colorMix);
-                    float mouseInfluence = length(mouse) * 0.5 + 0.5;
-                    baseColor = mix(baseColor, color3, mouseInfluence * 0.3);
-                    vec3 mouse3D = vec3(mouse.x * 4.0, mouse.y * 4.0, 0.0);
-                    vec3 baseCenter = vec3(sin(time * 0.2) * 2.0, cos(time * 0.2) * 1.0, sin(time * 0.3) * 2.0);
-                    vec3 neonCenter = baseCenter + mouse3D * 0.5;
-                    float dist = length(vPosition - neonCenter);
-                    float radius = 2.0 + sin(time * 0.4 + mouseInfluence * 0.5) * 0.5;
-                    float fadeWidth = 1.5;
-                    float neonFactor = 1.0 - smoothstep(radius - fadeWidth, radius, dist);
-                    float neonIntensity = (1.0 - smoothstep(radius - fadeWidth, radius, dist)) * 0.8 * (1.0 + mouseInfluence * 0.5);
-                    vec3 neonColor1 = vec3(0.5, 1.0, 1.0);
-                    vec3 neonColor2 = vec3(1.0, 0.843, 0.0);
-                    vec3 neonColor = mix(neonColor1, neonColor2, sin(time * 0.5) * 0.5 + 0.5);
-                    vec3 finalColor = baseColor + neonColor * neonFactor * neonIntensity * 2.0;
-                    gl_FragColor = vec4(finalColor, 1.0);
-                }
-            `,
-            side: THREE.DoubleSide
-        });
-        const shape = new THREE.Mesh(geometry, material);
-        scene.add(shape);
-        document.addEventListener('mousemove', (e) => {
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-            gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
-            material.uniforms.mouse.value.set(mouse.x, mouse.y);
-            const speed = Math.abs(mouse.y) * 40 + 20;
-            const columns = document.querySelectorAll('.letters-column');
-            columns.forEach((column, i) => {
-                const direction = i % 2 === 0 ? 'normal' : 'reverse';
-                column.style.animation = `scroll-letters ${speed}s linear infinite ${direction}`;
+
+        function render(colsData){
+          root.innerHTML='';
+          colsData.forEach(col=>{
+            const colEl=document.createElement('div'); colEl.className='masonry-col';
+            col.forEach(node=>{
+              const ar=clamp(node.ar||1, MIN_AR, MAX_AR);
+              const fig=document.createElement('figure'); fig.className='masonry-item'; fig.setAttribute('data-tilt','');
+              const wrap=document.createElement('div'); wrap.className='masonry-figure'; wrap.style.aspectRatio=`${ar} / 1`;
+              const img=document.createElement('img'); img.src=node.src; img.alt=''; img.loading='lazy'; img.decoding='async'; img.addEventListener('error',()=>{ img.style.visibility='hidden'; });
+              const cap=document.createElement('figcaption'); cap.className='masonry-caption'; cap.textContent=captionFrom(node.src);
+              wrap.appendChild(img); fig.appendChild(wrap); fig.appendChild(cap); colEl.appendChild(fig); io.observe(fig);
             });
-        });
-        document.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
-            gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
-            material.uniforms.mouse.value.set(mouse.x, mouse.y);
-        }, { passive: true });
-        document.addEventListener('mouseleave', () => {
-            const columns = document.querySelectorAll('.letters-column');
-            columns.forEach((column, i) => {
-                const direction = i % 2 === 0 ? 'normal' : 'reverse';
-                column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
-            });
-        });
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-        // 3D Tilt for Grid Items and Project Cards
-        document.querySelectorAll('[data-tilt]').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-                const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-                gsap.to(card, {
-                    rotationY: x * 10,
-                    rotationX: -y * 10,
-                    duration: 0.5,
-                    ease: "power2.out",
-                    transformPerspective: 500
-                });
-            });
-            card.addEventListener('mouseleave', () => {
-                gsap.to(card, {
-                    rotationY: 0,
-                    rotationX: 0,
-                    duration: 0.5,
-                    ease: "power2.out"
-                });
-            });
-        });
-        // Letters Background for I Design Section
-        const lettersBg = document.querySelector('.letters-bg');
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
-        for (let i = 0; i < 20; i++) {
-            const column = document.createElement('div');
-            column.className = 'letters-column';
-            column.style.display = 'flex';
-            column.style.alignItems = 'center';
-            column.style.justifyContent = 'center';
-            const direction = i % 2 === 0 ? 'normal' : 'reverse';
-            column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
-            for (let j = 0; j < 200; j++) {
-                const span = document.createElement('span');
-                span.textContent = letters[Math.floor(Math.random() * letters.length)];
-                span.style.color = '#888';
-                span.style.textAlign = 'center';
-                column.appendChild(span);
-            }
-            lettersBg.appendChild(column);
+            root.appendChild(colEl);
+          });
+          bindTilt('.masonry-item[data-tilt]');
         }
-        setInterval(() => {
-            const spans = lettersBg.querySelectorAll('span');
-            spans.forEach(span => {
-                if (Math.random() < 0.05) {
-                    span.style.filter = 'blur(5px)';
-                    setTimeout(() => span.style.filter = 'none', Math.random() * 2000 + 1000);
-                }
-            });
-        }, 1000);
-    </script>
+
+        function captionFrom(url){ try{ const u=new URL(url); if(u.hostname.includes('unsplash')) return 'Unsplash'; if(u.hostname.includes('pexels')) return 'Pexels'; if(u.hostname.includes('picsum')) return 'Picsum'; return 'Image'; } catch { return 'Image'; } }
+
+        const io = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } }); }, { rootMargin: '100px 0px' });
+      })();
+    })();
+  </script>
 </body>
 </html>
