@@ -491,13 +491,32 @@ p {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transform-style: preserve-3d;
-  transition: var(--transition), box-shadow 0.3s ease;
+  /* Flatten the card to remove 3D tilt; smooth transitions for lift effect */
+  transition: var(--transition), box-shadow 0.3s ease, transform 0.3s ease;
+  position: relative;
+}
+
+/* Add a subtle neon underline that grows on hover */
+.music-card::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  width: 80%;
+  height: 4px;
+  background: var(--color-accent);
+  transition: transform 0.3s ease;
+}
+.music-card:hover::after {
+  transform: translateX(-50%) scaleX(1);
 }
 
 .music-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 48px var(--color-shadow), 0 0 20px var(--color-accent);
+  /* Subtle lift and glow on hover for improved usability */
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px var(--color-shadow), 0 0 12px var(--color-accent);
 }
 
 .music-card img {
@@ -524,6 +543,37 @@ p {
   outline: none;
   /* Invert the default audio controls for better contrast on dark cards */
   filter: invert(100%);
+}
+
+/* Project cards are no longer links, so disable pointer cursor */
+.project-card {
+  cursor: default;
+}
+
+/* Gallery Masonry with CSS columns */
+/* The gallery container uses multiple columns to create a responsive masonry effect. */
+#gallery .gallery-masonry {
+  display: block;
+  width: 100%;
+  column-gap: 20px;
+  column-count: 4;
+}
+
+#gallery .gallery-masonry .grid-item {
+  break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1023px) {
+  #gallery .gallery-masonry {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 639px) {
+  #gallery .gallery-masonry {
+    column-count: 2;
+  }
 }
 
 /* About */

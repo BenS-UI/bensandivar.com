@@ -113,56 +113,29 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme(newTheme);
   });
 
-  // GALLERY MASONRY LAYOUT
+  // GALLERY: prevent context menu on images to discourage downloading and randomize order
   const galleryContainer = document.getElementById('gallery-container');
   if (galleryContainer) {
-    // Preserve the original list of items for shuffling
-    const items = Array.from(galleryContainer.children);
-
-    function layoutGallery() {
-      // Clear existing columns
-      galleryContainer.innerHTML = '';
-      // Determine number of columns based on viewport width
-      let columnsCount = 3;
-      if (window.innerWidth < 600) {
-        columnsCount = 1;
-      } else if (window.innerWidth < 900) {
-        columnsCount = 2;
-      }
-      // Create column containers
-      const columns = [];
-      for (let i = 0; i < columnsCount; i++) {
-        const col = document.createElement('div');
-        col.className = 'masonry-column';
-        columns.push(col);
-        galleryContainer.appendChild(col);
-      }
-      // Shuffle items so layout changes on every load
-      const shuffled = items.slice().sort(() => Math.random() - 0.5);
-      // Assign items to the shortest column once images are loaded
-      shuffled.forEach(item => {
-        const img = item.querySelector('img');
-        const assign = () => {
-          // find column with smallest height
-          let shortest = columns[0];
-          for (const col of columns) {
-            if (col.scrollHeight < shortest.scrollHeight) shortest = col;
-          }
-          shortest.appendChild(item);
-        };
-        if (img.complete) {
-          assign();
-        } else {
-          img.onload = assign;
-        }
-      });
-    }
-    // Prevent context menu on the gallery images
+    // Disable right-click context menu on the gallery
     galleryContainer.addEventListener('contextmenu', e => {
       e.preventDefault();
     });
-    // Invoke layout after images and on resize
-    window.addEventListener('load', layoutGallery);
-    window.addEventListener('resize', layoutGallery);
+    // Randomize the order of the gallery items on each page load. This creates a fresh layout
+    // when used in combination with CSS columns.
+    const items = Array.from(galleryContainer.children);
+    const shuffled = items.slice().sort(() => Math.random() - 0.5);
+    shuffled.forEach(item => galleryContainer.appendChild(item));
+  }
+
+  // Initialize VanillaTilt with glare on project cards and gallery items
+  const tiltTargets = document.querySelectorAll('.project-card, #gallery .grid-item');
+  if (typeof VanillaTilt !== 'undefined' && tiltTargets.length) {
+    VanillaTilt.init(tiltTargets, {
+      max: 8,
+      speed: 400,
+      glare: true,
+      'max-glare': 0.35,
+      gyroscope: true
+    });
   }
 });
