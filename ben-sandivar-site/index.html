@@ -26,6 +26,7 @@
             <ul class="nav-links">
                 <li><a href="#hero">Home</a></li>
                 <li><a href="#projects">Work</a></li>
+                <li><a href="#music">Music</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
                 <li><a href="/blog.html">Blog</a></li>
@@ -43,8 +44,10 @@
     </div>
     <!-- Video Hero Section -->
     <section class="video-hero">
+        <!-- Use the correct filename for the hero video. Spaces in file names can cause issues,
+             so either rename the file to remove spaces or encode them here. -->
         <video autoplay loop muted playsinline class="video-hero-background">
-            <source src="assets/video header comp.mp4" type="video/mp4">
+            <source src="assets/video%20header%20alpha.mp4" type="video/mp4" />
             Your browser does not support the video tag.
         </video>
         <div class="hero-content">
@@ -325,6 +328,58 @@
             </a>
         </div>
     </section>
+
+    <!-- Music Player Section -->
+    <section id="music" class="music-player">
+        <div class="page-header">
+            <h2>Featured Tracks</h2>
+            <p>Listen to my latest audio projects.</p>
+        </div>
+        <div class="music-grid">
+            <!-- Each music-card holds an album cover and an audio element. Replace the placeholder images and audio sources with your own assets. -->
+            <div class="music-card" data-tilt>
+                <img src="https://via.placeholder.com/600x600?text=Album+Cover+1" alt="Track One Album Cover" />
+                <div class="music-content">
+                    <h4>Track One</h4>
+                    <audio controls preload="metadata">
+                        <source src="assets/audio1.mp3" type="audio/mpeg" />
+                        Your browser does not support the audio tag.
+                    </audio>
+                </div>
+            </div>
+            <div class="music-card" data-tilt>
+                <img src="https://via.placeholder.com/600x600?text=Album+Cover+2" alt="Track Two Album Cover" />
+                <div class="music-content">
+                    <h4>Track Two</h4>
+                    <audio controls preload="metadata">
+                        <source src="assets/audio2.mp3" type="audio/mpeg" />
+                        Your browser does not support the audio tag.
+                    </audio>
+                </div>
+            </div>
+            <div class="music-card" data-tilt>
+                <img src="https://via.placeholder.com/600x600?text=Album+Cover+3" alt="Track Three Album Cover" />
+                <div class="music-content">
+                    <h4>Track Three</h4>
+                    <audio controls preload="metadata">
+                        <source src="assets/audio3.mp3" type="audio/mpeg" />
+                        Your browser does not support the audio tag.
+                    </audio>
+                </div>
+            </div>
+            <div class="music-card" data-tilt>
+                <img src="https://via.placeholder.com/600x600?text=Album+Cover+4" alt="Track Four Album Cover" />
+                <div class="music-content">
+                    <h4>Track Four</h4>
+                    <audio controls preload="metadata">
+                        <source src="assets/audio4.mp3" type="audio/mpeg" />
+                        Your browser does not support the audio tag.
+                    </audio>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- About Section -->
     <section id="about" class="about-page fade-in">
         <div class="page-header">
