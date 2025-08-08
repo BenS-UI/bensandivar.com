@@ -368,6 +368,21 @@ p {
   box-shadow: 0 8px 16px var(--color-shadow);
 }
 
+/* Gallery specifics */
+/* Disable pointer interactions on gallery images to prevent clicks and context menu. */
+#gallery .grid-item img {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Remove cursor pointer and captions in the gallery */
+#gallery .grid-item {
+  cursor: default;
+}
+#gallery .grid-caption {
+  display: none;
+}
+
 /* Page Header */
 .page-header {
   text-align: center;
