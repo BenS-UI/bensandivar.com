@@ -130,12 +130,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize VanillaTilt with glare on project cards and gallery items
   const tiltTargets = document.querySelectorAll('.project-card, #gallery .grid-item');
   if (typeof VanillaTilt !== 'undefined' && tiltTargets.length) {
-    VanillaTilt.init(tiltTargets, {
-      max: 8,
-      speed: 400,
+    // Configure tilt options. Reverse direction so cards tilt away from the cursor.
+    const tiltOptions = {
+      max: 10,
+      speed: 800,
+      reverse: true,
       glare: true,
       'max-glare': 0.35,
       gyroscope: true
+    };
+    // On smaller screens, reduce the tilt intensity and speed to avoid jitter on touch devices
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      tiltOptions.max = 6;
+      tiltOptions.speed = 300;
+    }
+    VanillaTilt.init(tiltTargets, tiltOptions);
+  }
+
+  // Speed up and reverse the letter columns when hovering over the design section
+  const systemsSection = document.getElementById('systems');
+  if (systemsSection) {
+    const adjustLetterAnimation = (reverse, duration) => {
+      const columns = document.querySelectorAll('.letters-column');
+      columns.forEach((column, idx) => {
+        // Determine base direction: odd columns start in reverse; even columns start normal
+        let baseDirection = idx % 2 === 0 ? 'normal' : 'reverse';
+        // If reverse flag is true, flip the direction
+        if (reverse) {
+          baseDirection = baseDirection === 'normal' ? 'reverse' : 'normal';
+        }
+        column.style.animation = `scroll-letters ${duration}s linear infinite ${baseDirection}`;
+      });
+    };
+    // When pointer is over the systems section, invert directions and speed up
+    systemsSection.addEventListener('mousemove', () => {
+      adjustLetterAnimation(true, 20);
+    });
+    // On leaving the section, restore original animation
+    systemsSection.addEventListener('mouseleave', () => {
+      adjustLetterAnimation(false, 60);
     });
   }
 });
