@@ -133,9 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configure tilt options to create a smooth, repelling effect. Increase max a bit and
     // slow down the movement for desktop; on mobile reduce the intensity to avoid jitter.
     const tiltOptions = {
-      max: 15,                // Stronger tilt to emphasise repelling motion
-      speed: 800,             // Smooth yet responsive movement
-      reverse: true,          // Pushes corners away from the cursor
+      max: 20,                // Increased tilt strength for a more dramatic repelling effect
+      speed: 600,             // Smooth and refined motion speed
+      reverse: true,          // Push corners away from the cursor rather than attract
       glare: true,
       'max-glare': 0.4,
       gyroscope: false,
@@ -144,8 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     // On mobile, reduce tilt intensity and speed to avoid jitter
     if (window.matchMedia('(max-width: 768px)').matches) {
-      tiltOptions.max = 8;
-      tiltOptions.speed = 500;
+      tiltOptions.max = 10;
+      tiltOptions.speed = 400;
     }
     VanillaTilt.init(tiltTargets, tiltOptions);
   }
@@ -305,47 +305,158 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Create and animate floating glass and colour blocks behind the content. This adds
-  // a subtle prismatic and reeded-glass effect reminiscent of modern award‑winning
-  // websites. When the user hovers over a block, it will briefly move aside to
-  // allow a clearer view of the content beneath.
-  initFloatingBlocks();
+  // Initialize the ElectricBlue hero background (swirling particles) for the hero section.
+  initElectricBlueHero();
+
+
+  // Create the scrolling letters background for the "I Design" section. This generates
+  // multiple columns of random alphanumeric characters that slowly scroll and
+  // periodically blur individual characters for a subtle, tech-inspired texture.
+  const lettersBg = document.querySelector('.letters-bg');
+  if (lettersBg) {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
+    // Clear any existing columns to avoid duplication
+    lettersBg.innerHTML = '';
+    for (let i = 0; i < 20; i++) {
+      const column = document.createElement('div');
+      column.className = 'letters-column';
+      column.style.display = 'flex';
+      column.style.alignItems = 'center';
+      column.style.justifyContent = 'center';
+      const direction = i % 2 === 0 ? 'normal' : 'reverse';
+      column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
+      for (let j = 0; j < 200; j++) {
+        const span = document.createElement('span');
+        span.textContent = letters[Math.floor(Math.random() * letters.length)];
+        span.style.color = '#888';
+        span.style.textAlign = 'center';
+        column.appendChild(span);
+      }
+      lettersBg.appendChild(column);
+    }
+    setInterval(() => {
+      const spans = lettersBg.querySelectorAll('span');
+      spans.forEach(span => {
+        if (Math.random() < 0.05) {
+          span.style.filter = 'blur(5px)';
+          setTimeout(() => span.style.filter = 'none', Math.random() * 2000 + 1000);
+        }
+      });
+    }, 1000);
+  }
 });
 
-// Initialize floating glass, prismatic and coloured blocks that drift across the screen
-// and gently move aside when hovered. The blocks are inserted into a fixed container
-// (#floating-blocks) appended to the body. Each block receives a random size,
-// position, colour effect and animation duration for an organic feel.
-function initFloatingBlocks() {
-  const container = document.getElementById('floating-blocks');
-  if (!container) return;
-  // Avoid reinitialising if blocks already exist
-  if (container.children.length) return;
-  const types = ['reeded-block', 'prismatic-block', 'color-block', 'glass-block'];
-  const blockCount = 8;
-  for (let i = 0; i < blockCount; i++) {
-    const block = document.createElement('div');
-    block.className = 'floating-block ' + types[Math.floor(Math.random() * types.length)];
-    // Randomize size between 150px and 350px
-    const size = 150 + Math.random() * 200;
-    block.style.width = `${size}px`;
-    block.style.height = `${size}px`;
-    // Random initial position within viewport
-    block.style.top = `${Math.random() * 90}%`;
-    block.style.left = `${Math.random() * 90}%`;
-    // Random animation duration (40–80s) and delay (0–20s)
-    block.style.animationDuration = `${40 + Math.random() * 40}s`;
-    block.style.animationDelay = `${Math.random() * 20}s`;
-    // When user hovers over the block, move it away briefly
-    block.addEventListener('mouseenter', () => {
-      const dx = (Math.random() - 0.5) * 300;
-      const dy = (Math.random() - 0.5) * 300;
-      block.style.transition = 'transform 0.5s ease';
-      block.style.transform = `translate(${dx}px, ${dy}px)`;
-      setTimeout(() => {
-        block.style.transform = '';
-      }, 1000);
-    });
-    container.appendChild(block);
+// Initialise the ElectricBlue hero background. This function creates a swirling
+// particle system on the canvas with id="bg". The particles rotate slowly by
+// default, accelerate when hovering over the hero, disperse on click and
+// reassemble after a brief delay. The animation pauses when the hero is not
+// visible in the viewport. Camera distance adjusts for mobile for better
+// readability.
+function initElectricBlueHero() {
+  const heroSection = document.getElementById('hero');
+  const canvas = document.getElementById('bg');
+  if (!heroSection || !canvas || typeof THREE === 'undefined') return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = window.innerWidth < 768 ? 12 : 8;
+
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const particleCount = 1500;
+  const positions = new Float32Array(particleCount * 3);
+  const originPositions = new Float32Array(particleCount * 3);
+  for (let i = 0; i < particleCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.sqrt(Math.random()) * 5;
+    const y = (Math.random() - 0.5) * 2;
+    const x = radius * Math.cos(angle);
+    const z = radius * Math.sin(angle);
+    positions[i * 3] = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
+    originPositions[i * 3] = x;
+    originPositions[i * 3 + 1] = y;
+    originPositions[i * 3 + 2] = z;
   }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const material = new THREE.PointsMaterial({
+    color: new THREE.Color(0x00A8E8),
+    size: 0.04,
+    transparent: true,
+    opacity: 0.8,
+    depthWrite: false
+  });
+  const points = new THREE.Points(geometry, material);
+  scene.add(points);
+
+  let swirlSpeed = 0.004;
+  let isPaused = false;
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!isPaused) {
+      points.rotation.y += swirlSpeed;
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  heroSection.addEventListener('mouseenter', () => {
+    swirlSpeed = 0.02;
+  });
+  heroSection.addEventListener('mousemove', () => {
+    swirlSpeed = 0.02;
+  });
+  heroSection.addEventListener('mouseleave', () => {
+    swirlSpeed = 0.004;
+  });
+
+  heroSection.addEventListener('click', () => {
+    const pos = geometry.attributes.position.array;
+    const startPositions = new Float32Array(pos.length);
+    for (let i = 0; i < pos.length; i++) {
+      startPositions[i] = pos[i];
+      pos[i] = (Math.random() - 0.5) * 20;
+    }
+    geometry.attributes.position.needsUpdate = true;
+    swirlSpeed = 0.004;
+    setTimeout(() => {
+      const duration = 4000;
+      const startTime = performance.now();
+      function returnAnim(now) {
+        const elapsed = now - startTime;
+        const ratio = Math.min(elapsed / duration, 1);
+        for (let i = 0; i < pos.length; i++) {
+          pos[i] = startPositions[i] + (originPositions[i] - startPositions[i]) * ratio;
+        }
+        geometry.attributes.position.needsUpdate = true;
+        if (ratio < 1) {
+          requestAnimationFrame(returnAnim);
+        }
+      }
+      requestAnimationFrame(returnAnim);
+    }, 5000);
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      isPaused = !entry.isIntersecting;
+    });
+  }, { threshold: 0.1 });
+  observer.observe(heroSection);
 }
+
+// Initialise floating reeded, prismatic, colour and glass blocks. These blocks
+// drift gently across the viewport, simulating prismatic refraction and
+// translucent glass. On hover, a block temporarily moves aside to reveal
+// underlying content. This enhances the site with an Awwwards-like layered
+// aesthetic while remaining performant.

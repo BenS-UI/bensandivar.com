@@ -18,24 +18,22 @@ html, body {
 
 /* Theme Variables */
 :root {
-  /* Updated light theme colours inspired by the site's logo (turquoise and purple) */
-  /* Refreshed light theme colours inspired by the site logo's turquoise and purple gradient */
-  --color-primary-light: #111b2c;
-  --color-secondary-light: #f3f4f7;
-  --color-accent-light: #00b6e2;
-  --color-border-light: #e2e5ed;
+  /* New colour palette reflecting the site logo's dark teal and purple tones */
+  --color-primary-light: #14213d; /* Dark navy for primary text */
+  --color-secondary-light: #f6f8fa; /* Very light grey background */
+  --color-accent-light: #0c7b93; /* Teal accent */
+  --color-border-light: #d9dee8; /* Soft border */
   --color-shadow-light: rgba(0, 0, 0, 0.08);
-  --color-text-light: #53657c;
+  --color-text-light: #425066; /* Muted blue-grey body text */
   --color-body-bg-light: #ffffff;
-  --color-navbar-bg-light: rgba(255, 255, 255, 0.12);
+  --color-navbar-bg-light: rgba(255, 255, 255, 0.15);
   --color-navbar-hover-bg-light: rgba(255, 255, 255, 0.35);
-  --color-blob-light: #7e6cff;
+  --color-blob-light: #5f41a7; /* Rich purple for blobs */
 
-  /* Updated dark theme colours matching the accent palette */
-  /* Dark theme colours tuned to complement the refreshed palette */
-  --color-primary-dark: #e6e7eb;
-  --color-secondary-dark: #152036;
-  --color-accent-dark: #835af1;
+  /* Updated dark theme colours to complement the new palette */
+  --color-primary-dark: #d8dee9; /* Light grey for headings */
+  --color-secondary-dark: #1e2748; /* Deep indigo background */
+  --color-accent-dark: #6f78ff; /* Lavender accent for dark mode */
   --color-border-dark: #37456b;
   --color-shadow-dark: rgba(0, 0, 0, 0.5);
   --color-text-dark: #a8b2d2;
@@ -557,67 +555,10 @@ p {
 /* Increase spacing between the contact section and footer */
 /* Increase negative space before the footer */
 #contact {
-  padding-bottom: 12rem;
+  padding-bottom: 14rem;
 }
 
-/* Floating glass / prismatic / color blocks container and styles */
-#floating-blocks {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
-  overflow: hidden;
-}
 
-#floating-blocks .floating-block {
-  position: absolute;
-  border-radius: 1rem;
-  animation: float 60s ease-in-out infinite;
-  pointer-events: auto;
-  mix-blend-mode: screen;
-}
-
-/* Reeded glass block: vertical lines and blur for reeded effect */
-.floating-block.reeded-block {
-  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0 4px, rgba(255, 255, 255, 0.05) 4px 8px);
-  backdrop-filter: blur(8px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Prismatic block: multi-hue gradient with blur for shimmering effect */
-.floating-block.prismatic-block {
-  background: linear-gradient(45deg, rgba(255, 0, 150, 0.35), rgba(0, 200, 255, 0.35), rgba(255, 255, 0, 0.35));
-  backdrop-filter: blur(15px) brightness(1.1);
-}
-
-/* Color block: soft gradient blur for coloured glow */
-.floating-block.color-block {
-  background: linear-gradient(180deg, rgba(34, 139, 230, 0.4), rgba(136, 51, 255, 0.4));
-  filter: blur(25px);
-}
-
-/* Glass block: translucent panel with subtle border and shadow */
-.floating-block.glass-block {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes float {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate(5vw, -5vh) rotate(180deg);
-  }
-  100% {
-    transform: translate(-5vw, 5vh) rotate(360deg);
-  }
-}
 
 /* Equalizer bars within music cards */
 .eq-bars {
