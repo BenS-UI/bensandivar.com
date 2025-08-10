@@ -147,6 +147,61 @@ document.addEventListener('DOMContentLoaded', () => {
     VanillaTilt.init(tiltTargets, tiltOptions);
   }
 
+  // Apply dynamic backlight effect to gallery images by sampling colors along the image edges.
+  const applyBacklight = () => {
+    const galleryImages = document.querySelectorAll('#gallery .grid-item img');
+    galleryImages.forEach(img => {
+      // Skip remote images due to cross-origin restrictions
+      if (img.src.startsWith('http')) return;
+      const parent = img.closest('.grid-item');
+      if (!parent) return;
+      // Ensure image is loaded
+      if (!img.complete) {
+        img.addEventListener('load', () => applyBacklight());
+        return;
+      }
+      // Create offscreen canvas to sample colors
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+      canvas.width = width;
+      canvas.height = height;
+      try {
+        ctx.drawImage(img, 0, 0, width, height);
+      } catch (e) {
+        // If drawImage fails due to security restrictions, skip
+        return;
+      }
+      // Sample a square region at each corner (15% of the smaller dimension)
+      const sampleSize = Math.floor(Math.min(width, height) * 0.15);
+      const avgColor = (x, y) => {
+        const data = ctx.getImageData(x, y, sampleSize, sampleSize).data;
+        let r = 0, g = 0, b = 0;
+        const count = sampleSize * sampleSize;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i + 1];
+          b += data[i + 2];
+        }
+        return {
+          r: Math.round(r / count),
+          g: Math.round(g / count),
+          b: Math.round(b / count)
+        };
+      };
+      const tl = avgColor(0, 0);
+      const tr = avgColor(width - sampleSize, 0);
+      const bl = avgColor(0, height - sampleSize);
+      const br = avgColor(width - sampleSize, height - sampleSize);
+      // Build box-shadow with multiple colored glows based on corner colors
+      const shadows = [tl, tr, bl, br].map(c => `0 0 30px 5px rgba(${c.r},${c.g},${c.b},0.6)`).join(',');
+      parent.style.boxShadow = shadows;
+    });
+  };
+  // Invoke backlight effect after window load to ensure images are ready
+  window.addEventListener('load', applyBacklight);
+
   // Speed up and reverse the letter columns when hovering over the design section
   const systemsSection = document.getElementById('systems');
   if (systemsSection) {

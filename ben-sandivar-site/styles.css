@@ -548,6 +548,21 @@ p {
   filter: invert(100%);
 }
 
+/* Track title input styling for music cards */
+.music-card input.track-title {
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  font-family: 'Geologica', sans-serif;
+  margin: 0;
+  padding: 0 0 0.5rem 0;
+  width: 100%;
+}
+.music-card input.track-title:focus {
+  outline: none;
+}
+
 /* Project cards are no longer links, so disable pointer cursor */
 .project-card {
   cursor: default;
