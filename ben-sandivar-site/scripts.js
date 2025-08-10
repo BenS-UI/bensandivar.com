@@ -130,22 +130,96 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize VanillaTilt with glare on project cards and gallery items
   const tiltTargets = document.querySelectorAll('.project-card, #gallery .grid-item');
   if (typeof VanillaTilt !== 'undefined' && tiltTargets.length) {
-    // Configure tilt options. Reverse direction so cards tilt away from the cursor.
+    // Configure tilt options to create a smooth, repelling effect. Increase max a bit and
+    // slow down the movement for desktop; on mobile reduce the intensity to avoid jitter.
     const tiltOptions = {
-      max: 10,
-      speed: 800,
-      reverse: true,
+      max: 10,         // Slightly lower tilt for smoother, repelling effect
+      speed: 800,      // Increase duration for slower movement
+      reverse: true,   // Repel the corners away from the cursor
       glare: true,
       'max-glare': 0.35,
-      gyroscope: true
+      gyroscope: false
     };
-    // On smaller screens, reduce the tilt intensity and speed to avoid jitter on touch devices
+    // On mobile, reduce tilt intensity and speed to avoid jitter
     if (window.matchMedia('(max-width: 768px)').matches) {
       tiltOptions.max = 6;
-      tiltOptions.speed = 300;
+      tiltOptions.speed = 500;
     }
     VanillaTilt.init(tiltTargets, tiltOptions);
   }
+
+  // Ensure only one audio track plays at a time in the music player. When a track starts
+  // playing, pause all other tracks. This prevents multiple songs from playing simultaneously.
+  const audioPlayers = document.querySelectorAll('.music-card audio');
+  if (audioPlayers.length > 1) {
+    audioPlayers.forEach(player => {
+      player.addEventListener('play', () => {
+        audioPlayers.forEach(other => {
+          if (other !== player) {
+            other.pause();
+          }
+        });
+      });
+    });
+  }
+
+  // Equalizer animation for music cards
+  const eqIntervals = new Map();
+  audioPlayers.forEach(player => {
+    const card = player.closest('.music-card');
+    const bars = card ? card.querySelectorAll('.eq-bar') : null;
+    // Helper to start updating the bar heights randomly
+    const startEq = () => {
+      if (!bars) return;
+      // Clear any existing interval for this player
+      if (eqIntervals.has(player)) {
+        clearInterval(eqIntervals.get(player));
+      }
+      const intervalId = setInterval(() => {
+        bars.forEach(bar => {
+          // Generate a random height between 20% and 100%
+          const randomHeight = Math.random() * 0.8 + 0.2;
+          bar.style.height = `${randomHeight * 1}rem`;
+        });
+      }, 200);
+      eqIntervals.set(player, intervalId);
+    };
+    // Helper to stop the equalizer animation
+    const stopEq = () => {
+      if (!bars) return;
+      const id = eqIntervals.get(player);
+      if (id) {
+        clearInterval(id);
+        eqIntervals.delete(player);
+      }
+      // Reset bars to minimal height
+      bars.forEach(bar => {
+        bar.style.height = '0.2rem';
+      });
+    };
+    player.addEventListener('play', () => {
+      // Pause other players and stop their equalizers
+      audioPlayers.forEach(other => {
+        if (other !== player) {
+          other.pause();
+          // Stop EQ for the other
+          const id = eqIntervals.get(other);
+          if (id) {
+            clearInterval(id);
+            eqIntervals.delete(other);
+            const otherCard = other.closest('.music-card');
+            const otherBars = otherCard ? otherCard.querySelectorAll('.eq-bar') : null;
+            if (otherBars) {
+              otherBars.forEach(bar => bar.style.height = '0.2rem');
+            }
+          }
+        }
+      });
+      startEq();
+    });
+    player.addEventListener('pause', stopEq);
+    player.addEventListener('ended', stopEq);
+  });
 
   // Apply dynamic backlight effect to gallery images by sampling colors along the image edges.
   const applyBacklight = () => {
@@ -173,8 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // If drawImage fails due to security restrictions, skip
         return;
       }
-      // Sample a square region at each corner (15% of the smaller dimension)
-      const sampleSize = Math.floor(Math.min(width, height) * 0.15);
+      // Sample a square region at each corner (~10% of the smaller dimension). This
+      // focuses on a border of roughly 2–3rem on typical screens, capturing the
+      // most representative edge colors for the backlight.
+      const sampleSize = Math.floor(Math.min(width, height) * 0.1);
       const avgColor = (x, y) => {
         const data = ctx.getImageData(x, y, sampleSize, sampleSize).data;
         let r = 0, g = 0, b = 0;
