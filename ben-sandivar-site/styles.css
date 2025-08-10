@@ -487,10 +487,12 @@ p {
 }
 
 .music-card {
-  background: var(--color-secondary);
+  /* Glassmorphic card with subtle gradient and blur */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(8px);
   border-radius: var(--radius);
   box-shadow: 0 8px 32px var(--color-shadow);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -509,7 +511,7 @@ p {
   transform-origin: center;
   width: 80%;
   height: 4px;
-  background: var(--color-accent);
+  background: linear-gradient(90deg, var(--color-accent), transparent);
   transition: transform 0.3s ease;
 }
 .music-card:hover::after {
@@ -546,6 +548,23 @@ p {
   outline: none;
   /* Invert the default audio controls for better contrast on dark cards */
   filter: invert(100%);
+}
+
+/* Equalizer bars within music cards */
+.eq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  height: 1rem;
+  margin-top: 0.5rem;
+}
+
+.eq-bar {
+  width: 4px;
+  height: 0.2rem;
+  background: var(--color-accent);
+  border-radius: 2px;
+  transition: height 0.2s ease;
 }
 
 /* Track title input styling for music cards */

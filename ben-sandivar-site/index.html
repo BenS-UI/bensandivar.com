@@ -253,48 +253,68 @@
         <div class="music-grid">
             <!-- Each music-card holds an album cover, a track title input, and an audio element. Tracks will be placed in assets/tracks -->
             <div class="music-card">
-                <img src="assets/tracks/Musings.jpg" alt="Track 1 Album Cover" />
+                <img src="https://via.placeholder.com/600x600?text=Track+1+Cover" alt="Track 1 Album Cover" />
                 <div class="music-content">
-                    <input type="text" class="track-title" value="Rain" />
+                    <input type="text" class="track-title" value="Starlight Journey" />
                     <audio controls preload="metadata">
                         <source src="assets/tracks/Track 1.mp3" type="audio/mpeg" />
                     </audio>
+                    <!-- Equalizer bars for visual interest -->
+                    <div class="eq-bars">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                    </div>
                 </div>
             </div>
             <div class="music-card">
-                <img src="assets/tracks/Musings.jpg" alt="Track 2 Album Cover" />
+                <img src="https://via.placeholder.com/600x600?text=Track+2+Cover" alt="Track 2 Album Cover" />
                 <div class="music-content">
-                    <input type="text" class="track-title" value="Sonata" />
+                    <input type="text" class="track-title" value="Ocean Whisper" />
                     <audio controls preload="metadata">
                         <source src="assets/tracks/Track 2.mp3" type="audio/mpeg" />
                     </audio>
+                    <div class="eq-bars">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                    </div>
                 </div>
             </div>
             <div class="music-card">
-                <img src="assets/tracks/Musings.jpg" alt="Track 3 Album Cover" />
+                <img src="https://via.placeholder.com/600x600?text=Track+3+Cover" alt="Track 3 Album Cover" />
                 <div class="music-content">
-                    <input type="text" class="track-title" value="Munhausen" />
+                    <input type="text" class="track-title" value="Electric Dream" />
                     <audio controls preload="metadata">
                         <source src="assets/tracks/Track 3.mp3" type="audio/mpeg" />
                     </audio>
+                    <div class="eq-bars">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                    </div>
                 </div>
             </div>
             <div class="music-card">
-                <img src="assets/tracks/Musings.jpg" alt="Track 4 Album Cover" />
+                <img src="https://via.placeholder.com/600x600?text=Track+4+Cover" alt="Track 4 Album Cover" />
                 <div class="music-content">
-                    <input type="text" class="track-title" value="Growing Old" />
+                    <input type="text" class="track-title" value="Golden Horizon" />
                     <audio controls preload="metadata">
                         <source src="assets/tracks/Track 4.mp3" type="audio/mpeg" />
                     </audio>
-                </div>
-            </div>
-            <div class="music-card">
-                <img src="assets/tracks/Musings.jpg" alt="Track 5 Album Cover" />
-                <div class="music-content">
-                    <input type="text" class="track-title" value="The Adventure Begins" />
-                    <audio controls preload="metadata">
-                        <source src="assets/tracks/Track 5.mp3" type="audio/mpeg" />
-                    </audio>
+                    <div class="eq-bars">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -316,11 +336,7 @@
                     <div class="intro-text">
                         <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
                         <div class="about-bio">
-<<<<<<< HEAD
-                            <p>Raised across continents, I am a polyglot with a broad cultural perspective. As an artist and a professional in language teaching, I've spent the past 13+ years shaping ideas that blend these perspectives and cultures into experiences across mediums. From branding systems to interactive tools, my work offers a fresh look with a strong sense of beauty.</p> 
-                            <p>Based in Galicia, Spain, I’ve had the privilege of working professionally with clients such as Inditex and Norvento Enerxía, as well as professionals from Repsol, Siemens Gamesa, Abanca, La Voz de Galicia, Estrella Galicia and other professionals and students from across multiple fields including the medical, pharmaceutical, legal, artistic and automotive industries.</p>
-                            <p>Beyond my professional work as a language coach and teacher, I’m driven by curiosity, exploring linguistics, learning software, psychological and neurological insights, and the intersection of classical culture, art, sience and technology to discover new points of synthesis and smarter ways to work, design and build new solutions.</p> 
-                            <p>I am also a proliphic artist, writer, performer, musician, music producer, poet and lyricist. All the artistic skills I have acquired over the years have shaped my vision and the way I approach problem-solving and how I face the future. My cultural awareness, multidisciplinary historical, philosophical and spiritual insights, along with my interest in current trends and upcomming technologies help me have an edge and a reliable understanding of the times.</p>
+                            <p>Raised in Virginia, USA, I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value. Based in Galicia, Spain, I’ve had the privilege of working with clients such as Inditex, Norvento Enerxía, Abanca, La Voz de Galicia, and Estrella Galicia. Beyond the screen, I’m driven by curiosity, exploring linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
                         </div>
                     </div>
                 </div>
@@ -547,32 +563,48 @@
         });
         const shape = new THREE.Mesh(geometry, material);
         scene.add(shape);
-        document.addEventListener('mousemove', (e) => {
+        // Restrict mouse interactions to the hero section. When the mouse leaves the hero, the Klein
+        // animation returns to its default floating state. This prevents the animation from reacting
+        // to cursor movement elsewhere on the page.
+        const heroEl = document.querySelector('.hero');
+        function handleHeroMouseMove(e) {
+            // Normalize mouse coordinates
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            // Animate camera position based on mouse with a gentle damping
             gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
+            // Pass the mouse position into the shader
             material.uniforms.mouse.value.set(mouse.x, mouse.y);
+            // Accelerate the scrolling letters based on vertical offset
             const speed = Math.abs(mouse.y) * 40 + 20;
             const columns = document.querySelectorAll('.letters-column');
             columns.forEach((column, i) => {
                 const direction = i % 2 === 0 ? 'normal' : 'reverse';
                 column.style.animation = `scroll-letters ${speed}s linear infinite ${direction}`;
             });
-        });
-        document.addEventListener('touchmove', (e) => {
+        }
+        function handleHeroTouchMove(e) {
             const touch = e.touches[0];
             mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
             gsap.to(camera.position, { x: mouse.x * 3, y: mouse.y * 3, duration: 2 });
             material.uniforms.mouse.value.set(mouse.x, mouse.y);
-        }, { passive: true });
-        document.addEventListener('mouseleave', () => {
-            const columns = document.querySelectorAll('.letters-column');
-            columns.forEach((column, i) => {
-                const direction = i % 2 === 0 ? 'normal' : 'reverse';
-                column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
+        }
+        if (heroEl) {
+            heroEl.addEventListener('mousemove', handleHeroMouseMove);
+            heroEl.addEventListener('touchmove', handleHeroTouchMove, { passive: true });
+            heroEl.addEventListener('mouseleave', () => {
+                // When leaving the hero, slowly return the object and camera to center
+                gsap.to(camera.position, { x: 0, y: 0, duration: 3 });
+                material.uniforms.mouse.value.set(0, 0);
+                // Reset the letter scroll speed
+                const columns = document.querySelectorAll('.letters-column');
+                columns.forEach((column, i) => {
+                    const direction = i % 2 === 0 ? 'normal' : 'reverse';
+                    column.style.animation = `scroll-letters 60s linear infinite ${direction}`;
+                });
             });
-        });
+        }
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
