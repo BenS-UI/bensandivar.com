@@ -133,16 +133,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configure tilt options to create a smooth, repelling effect. Increase max a bit and
     // slow down the movement for desktop; on mobile reduce the intensity to avoid jitter.
     const tiltOptions = {
-      max: 10,         // Slightly lower tilt for smoother, repelling effect
-      speed: 800,      // Increase duration for slower movement
-      reverse: true,   // Repel the corners away from the cursor
+      max: 15,                // Stronger tilt to emphasise repelling motion
+      speed: 800,             // Smooth yet responsive movement
+      reverse: true,          // Pushes corners away from the cursor
       glare: true,
-      'max-glare': 0.35,
-      gyroscope: false
+      'max-glare': 0.4,
+      gyroscope: false,
+      easing: 'cubic-bezier(.17,.67,.83,.67)',
+      perspective: 900
     };
     // On mobile, reduce tilt intensity and speed to avoid jitter
     if (window.matchMedia('(max-width: 768px)').matches) {
-      tiltOptions.max = 6;
+      tiltOptions.max = 8;
       tiltOptions.speed = 500;
     }
     VanillaTilt.init(tiltTargets, tiltOptions);
@@ -302,4 +304,48 @@ document.addEventListener('DOMContentLoaded', () => {
       adjustLetterAnimation(false, 60);
     });
   }
+
+  // Create and animate floating glass and colour blocks behind the content. This adds
+  // a subtle prismatic and reeded-glass effect reminiscent of modern award‑winning
+  // websites. When the user hovers over a block, it will briefly move aside to
+  // allow a clearer view of the content beneath.
+  initFloatingBlocks();
 });
+
+// Initialize floating glass, prismatic and coloured blocks that drift across the screen
+// and gently move aside when hovered. The blocks are inserted into a fixed container
+// (#floating-blocks) appended to the body. Each block receives a random size,
+// position, colour effect and animation duration for an organic feel.
+function initFloatingBlocks() {
+  const container = document.getElementById('floating-blocks');
+  if (!container) return;
+  // Avoid reinitialising if blocks already exist
+  if (container.children.length) return;
+  const types = ['reeded-block', 'prismatic-block', 'color-block', 'glass-block'];
+  const blockCount = 8;
+  for (let i = 0; i < blockCount; i++) {
+    const block = document.createElement('div');
+    block.className = 'floating-block ' + types[Math.floor(Math.random() * types.length)];
+    // Randomize size between 150px and 350px
+    const size = 150 + Math.random() * 200;
+    block.style.width = `${size}px`;
+    block.style.height = `${size}px`;
+    // Random initial position within viewport
+    block.style.top = `${Math.random() * 90}%`;
+    block.style.left = `${Math.random() * 90}%`;
+    // Random animation duration (40–80s) and delay (0–20s)
+    block.style.animationDuration = `${40 + Math.random() * 40}s`;
+    block.style.animationDelay = `${Math.random() * 20}s`;
+    // When user hovers over the block, move it away briefly
+    block.addEventListener('mouseenter', () => {
+      const dx = (Math.random() - 0.5) * 300;
+      const dy = (Math.random() - 0.5) * 300;
+      block.style.transition = 'transform 0.5s ease';
+      block.style.transform = `translate(${dx}px, ${dy}px)`;
+      setTimeout(() => {
+        block.style.transform = '';
+      }, 1000);
+    });
+    container.appendChild(block);
+  }
+}

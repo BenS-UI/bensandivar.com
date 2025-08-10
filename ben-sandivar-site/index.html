@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ben Sandivar — Transforming Thought into Form</title>
-    <link rel="icon" type="image/svg+xml" href="https://via.placeholder.com/40?text=B" />
+    <!-- Use the site favicon instead of the placeholder. The favicon is stored in the assets folder -->
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="shortcut icon" href="assets/favicon.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
@@ -34,6 +36,8 @@
             </ul>
         </div>
     </nav>
+    <!-- Container for floating glass, prismatic and color blocks that animate behind the content -->
+    <div id="floating-blocks"></div>
     <!-- Hero Section with Klein Bottle -->
     <div class="hero" id="hero">
         <canvas id="bg"></canvas>
@@ -99,7 +103,7 @@
             </div>
 
             <div class="project-card" data-tilt>
-                <img src="assets/projects/Cabi.jpg" alt="Cover Art Design Thumbnail" />
+                <img src="assets/projects/Cabi.jpg" alt="Cover Art Thumbnail" />
                 <div class="card-content">
                     <h4>Cover Art</h4>
                     <p>Collage-style cover art inspired by David Carson’s bold graphic design.</p>
@@ -131,7 +135,7 @@
             </div>
 
             <div class="project-card" data-tilt>
-                <img src="assets/projects/ZENread.png" alt="Zen Meditation App Thumbnail" />
+                <img src="assets/projects/ZENread.png" alt="ZENread App Thumbnail" />
                 <div class="card-content">
                     <h4>ZENread App</h4>
                     <p>Reading app turning dense text into manageable, engaging, task-based segments.</p>
@@ -227,7 +231,7 @@
             </div>
 
             <div class="project-card" data-tilt>
-                <img src="assets/projects/blackhat.jpg" alt="BlackHat, WhiteHat Thumbnail" />
+                <img src="assets/projects/blackhat.jpg" alt="Black Hat Thumbnail" />
                 <div class="card-content">
                     <h4>Black Hat</h4>
                     <p>Futuristic manga exploring VR, AR, hacking, and biohacking in a corporate dystopia through a young hacker’s journey.</p>
@@ -336,7 +340,9 @@
                     <div class="intro-text">
                         <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
                         <div class="about-bio">
-                            <p>Raised in Virginia, USA, I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value. Based in Galicia, Spain, I’ve had the privilege of working with clients such as Inditex, Norvento Enerxía, Abanca, La Voz de Galicia, and Estrella Galicia. Beyond the screen, I’m driven by curiosity, exploring linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
+                            <!-- Restored long-form biography with two distinct paragraphs -->
+                            <p>I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value.</p>
+                            <p>Beyond the screen, I’m driven by curiosity. I explore linguistics, learning models, cognitive frameworks, and the intersection of art and technology to discover new points of synthesis and smarter ways to design.</p>
                         </div>
                     </div>
                 </div>

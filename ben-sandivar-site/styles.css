@@ -18,27 +18,31 @@ html, body {
 
 /* Theme Variables */
 :root {
-  --color-primary-light: #1A1A1A;
-  --color-secondary-light: #f4f4f4;
-  --color-accent-light: #A5D8FF;
-  --color-border-light: #e7e7e7;
-  --color-shadow-light: rgba(0,0,0,0.1);
-  --color-text-light: #6B7280;
-  --color-body-bg-light: #FFF;
-  --color-navbar-bg-light: rgba(255, 255, 255, 0.1);
-  --color-navbar-hover-bg-light: rgba(255, 255, 255, 0.5);
-  --color-blob-light: #A0C4FF;
+  /* Updated light theme colours inspired by the site's logo (turquoise and purple) */
+  /* Refreshed light theme colours inspired by the site logo's turquoise and purple gradient */
+  --color-primary-light: #111b2c;
+  --color-secondary-light: #f3f4f7;
+  --color-accent-light: #00b6e2;
+  --color-border-light: #e2e5ed;
+  --color-shadow-light: rgba(0, 0, 0, 0.08);
+  --color-text-light: #53657c;
+  --color-body-bg-light: #ffffff;
+  --color-navbar-bg-light: rgba(255, 255, 255, 0.12);
+  --color-navbar-hover-bg-light: rgba(255, 255, 255, 0.35);
+  --color-blob-light: #7e6cff;
 
-  --color-primary-dark: #F4F4F4;
-  --color-secondary-dark: #2A2A2A;
-  --color-accent-dark: #6C8EE0;
-  --color-border-dark: #333;
-  --color-shadow-dark: rgba(0,0,0,0.3);
-  --color-text-dark: #B0B0B0;
-  --color-body-bg-dark: #1A1A1A;
-  --color-navbar-bg-dark: rgba(26, 26, 26, 0.1);
-  --color-navbar-hover-bg-dark: rgba(26, 26, 26, 0.5);
-  --color-blob-dark: #4A5777;
+  /* Updated dark theme colours matching the accent palette */
+  /* Dark theme colours tuned to complement the refreshed palette */
+  --color-primary-dark: #e6e7eb;
+  --color-secondary-dark: #152036;
+  --color-accent-dark: #835af1;
+  --color-border-dark: #37456b;
+  --color-shadow-dark: rgba(0, 0, 0, 0.5);
+  --color-text-dark: #a8b2d2;
+  --color-body-bg-dark: #0e1423;
+  --color-navbar-bg-dark: rgba(14, 20, 35, 0.5);
+  --color-navbar-hover-bg-dark: rgba(14, 20, 35, 0.8);
+  --color-blob-dark: #2f235a;
 
   --color-primary: var(--color-primary-light);
   --color-secondary: var(--color-secondary-light);
@@ -548,6 +552,71 @@ p {
   outline: none;
   /* Invert the default audio controls for better contrast on dark cards */
   filter: invert(100%);
+}
+
+/* Increase spacing between the contact section and footer */
+/* Increase negative space before the footer */
+#contact {
+  padding-bottom: 12rem;
+}
+
+/* Floating glass / prismatic / color blocks container and styles */
+#floating-blocks {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+#floating-blocks .floating-block {
+  position: absolute;
+  border-radius: 1rem;
+  animation: float 60s ease-in-out infinite;
+  pointer-events: auto;
+  mix-blend-mode: screen;
+}
+
+/* Reeded glass block: vertical lines and blur for reeded effect */
+.floating-block.reeded-block {
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0 4px, rgba(255, 255, 255, 0.05) 4px 8px);
+  backdrop-filter: blur(8px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Prismatic block: multi-hue gradient with blur for shimmering effect */
+.floating-block.prismatic-block {
+  background: linear-gradient(45deg, rgba(255, 0, 150, 0.35), rgba(0, 200, 255, 0.35), rgba(255, 255, 0, 0.35));
+  backdrop-filter: blur(15px) brightness(1.1);
+}
+
+/* Color block: soft gradient blur for coloured glow */
+.floating-block.color-block {
+  background: linear-gradient(180deg, rgba(34, 139, 230, 0.4), rgba(136, 51, 255, 0.4));
+  filter: blur(25px);
+}
+
+/* Glass block: translucent panel with subtle border and shadow */
+.floating-block.glass-block {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(5vw, -5vh) rotate(180deg);
+  }
+  100% {
+    transform: translate(-5vw, 5vh) rotate(360deg);
+  }
 }
 
 /* Equalizer bars within music cards */
