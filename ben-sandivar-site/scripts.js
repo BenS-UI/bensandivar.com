@@ -306,7 +306,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Initialize the ElectricBlue hero background (swirling particles) for the hero section.
-  initElectricBlueHero();
+  // Disabled: This call is commented out in favor of the WebGL2 swirl effect from test.html.
+  // initElectricBlueHero();
+
+  // If a blog canvas is present, initialize a smaller swirling effect for the blog page.
+  if (document.getElementById('blog-gl')) {
+    // Disabled: The ElectricBlue blog swirl initialization is handled inline in blog.html.
+    // initElectricBlueBlog();
+  }
 
 
   // Create the scrolling letters background for the "I Design" section. This generates
@@ -453,6 +460,108 @@ function initElectricBlueHero() {
     });
   }, { threshold: 0.1 });
   observer.observe(heroSection);
+}
+
+// Initialise a smaller ElectricBlue swirling background for the blog coming soon page.
+// This function mirrors the hero effect but targets a specific canvas (#blog-gl)
+// and uses fewer particles so the animation performs well at a reduced scale.
+function initElectricBlueBlog() {
+  const canvas = document.getElementById('blog-gl');
+  if (!canvas || typeof THREE === 'undefined') return;
+  const scene = new THREE.Scene();
+  // Use square aspect for the small canvas
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+  camera.position.z = 8;
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  // Set size based on current canvas dimensions and update on resize
+  function setSize() {
+    const width = canvas.clientWidth || 300;
+    const height = canvas.clientHeight || 300;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  }
+  setSize();
+  window.addEventListener('resize', setSize);
+  const particleCount = 800;
+  const positions = new Float32Array(particleCount * 3);
+  const originPositions = new Float32Array(particleCount * 3);
+  for (let i = 0; i < particleCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.sqrt(Math.random()) * 3;
+    const y = (Math.random() - 0.5) * 2;
+    const x = radius * Math.cos(angle);
+    const z = radius * Math.sin(angle);
+    positions[i * 3] = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
+    originPositions[i * 3] = x;
+    originPositions[i * 3 + 1] = y;
+    originPositions[i * 3 + 2] = z;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const material = new THREE.PointsMaterial({
+    color: new THREE.Color(0x00A8E8),
+    size: 0.06,
+    transparent: true,
+    opacity: 0.8,
+    depthWrite: false
+  });
+  const points = new THREE.Points(geometry, material);
+  scene.add(points);
+  let swirlSpeed = 0.006;
+  let isPaused = false;
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!isPaused) {
+      points.rotation.y += swirlSpeed;
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      isPaused = !entry.isIntersecting;
+    });
+  }, { threshold: 0.1 });
+  observer.observe(canvas);
+  canvas.addEventListener('mouseenter', () => {
+    swirlSpeed = 0.02;
+  });
+  canvas.addEventListener('mousemove', () => {
+    swirlSpeed = 0.02;
+  });
+  canvas.addEventListener('mouseleave', () => {
+    swirlSpeed = 0.006;
+  });
+  canvas.addEventListener('click', () => {
+    const pos = geometry.attributes.position.array;
+    const startPositions = new Float32Array(pos.length);
+    for (let i = 0; i < pos.length; i++) {
+      startPositions[i] = pos[i];
+      pos[i] = (Math.random() - 0.5) * 20;
+    }
+    geometry.attributes.position.needsUpdate = true;
+    swirlSpeed = 0.006;
+    setTimeout(() => {
+      const duration = 4000;
+      const startTime = performance.now();
+      function returnAnim(now) {
+        const elapsed = now - startTime;
+        const ratio = Math.min(elapsed / duration, 1);
+        for (let i = 0; i < pos.length; i++) {
+          pos[i] = startPositions[i] + (originPositions[i] - startPositions[i]) * ratio;
+        }
+        geometry.attributes.position.needsUpdate = true;
+        if (ratio < 1) {
+          requestAnimationFrame(returnAnim);
+        }
+      }
+      requestAnimationFrame(returnAnim);
+    }, 5000);
+  });
 }
 
 // Initialise floating reeded, prismatic, colour and glass blocks. These blocks

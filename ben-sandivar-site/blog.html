@@ -28,16 +28,24 @@
       width: 100%;
       overflow: hidden; /* Prevent clipping */
     }
-    #mini-klein-canvas {
+    /* Style for the swirling blog canvas. This canvas sits behind the coming
+       soon content and is much smaller than the hero effect on the home page. */
+    #blog-gl {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 100vw;
-      height: 100vh;
+      width: 500px;
+      height: 500px;
       z-index: 0;
-      opacity: 1;
-      overflow: visible;
+      pointer-events: none;
+    }
+    /* On mobile, reduce the size to keep the effect subtle */
+    @media (max-width: 768px) {
+      #blog-gl {
+        width: 300px !important;
+        height: 300px !important;
+      }
     }
     .coming-soon-content {
       position: relative;
@@ -136,7 +144,7 @@
 
   <!-- Coming Soon Section -->
   <section class="coming-soon-container">
-    <canvas id="mini-klein-canvas"></canvas>
+    <canvas id="blog-gl"></canvas>
     <div class="coming-soon-content">
       <h1>Blog Coming Soon</h1>
       <p>Stay tuned for insights on design, technology, and creative expression.</p>
@@ -152,209 +160,87 @@
   </div>
 
   <script src="scripts.js"></script>
+
+  <!-- WebGL2 Nebula-Klein swirl effect for the blog page. This is a smaller version of the
+       hero animation. The canvas with id "blog-gl" is sized via CSS. -->
   <script>
-    // Lenis smooth scroll
-    const lenis = new Lenis({
-      duration: 1.4,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      smoothTouch: true,
-      touchMultiplier: 1.5,
-      normalizeWheel: true,
-      wheelMultiplier: 0.5,
-      lerp: 0.15,
-      syncTouch: true
-    });
-
-    // Synced RAF for Lenis and Three.js
-    let time = 0;
-    const mouse = { x: 0, y: 0 };
-    function raf(currentTime) {
-      lenis.raf(currentTime);
-      material.uniforms.time.value = time;
-      shape.rotation.x += 0.001;
-      shape.rotation.y += 0.005;
-      shape.rotation.z += 0.001;
-      renderer.render(scene, camera);
-      time += 0.016;
-      requestAnimationFrame(raf);
+  (() => {
+    const DPR = Math.min(2, window.devicePixelRatio || 1);
+    const canvas = document.getElementById('blog-gl');
+    const gl = canvas.getContext('webgl2', { antialias:true, alpha:true, premultipliedAlpha:false });
+    if (!gl) { canvas.parentNode.innerHTML = '<div style="padding:20px;font:14px system-ui;color:#fff;background:#000">WebGL2 required</div>'; return; }
+    function resize(){
+      const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
+      canvas.width = Math.floor(w*DPR); canvas.height = Math.floor(h*DPR);
+      gl.viewport(0,0,canvas.width,canvas.height);
     }
-    requestAnimationFrame(raf);
-
-    // Scroll to sections
-    document.querySelectorAll('.scroll-to').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = link.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          lenis.scrollTo(targetElement, { duration: 1.4, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), offset: 0 });
-        } else {
-          window.location.href = targetId; // Fallback for external pages
-        }
-      });
-    });
-
-    // Three.js Klein Bottle
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, 500 / 500, 0.1, 1000);
-    const light = new THREE.AmbientLight(0xffffff, 10);
-    const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#mini-klein-canvas'), alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize (window.innerWidth,window.innerHeight);
-    camera.position.setZ(11);
-    camera.aspect = 1;
-    camera.updateProjectionMatrix();
-    scene.add(light);
-
-    class ParametricGeometry extends THREE.BufferGeometry {
-      constructor(func = (u, v, dest) => dest.set(u, v, Math.cos(u) * Math.sin(v)), slices = 96, stacks = 96) {
-        super();
-        this.type = 'ParametricGeometry';
-        this.parameters = { func, slices, stacks };
-        const indices = [];
-        const vertices = [];
-        const normals = [];
-        const uvs = [];
-        const eps = 0.00001;
-        const normal = new THREE.Vector3();
-        let p0 = new THREE.Vector3(), p1 = new THREE.Vector3();
-        let pu = new THREE.Vector3(), pv = new THREE.Vector3();
-        for (let i = 0; i <= slices; i++) {
-          const u = i / slices;
-          for (let j = 0; j <= stacks; j++) {
-            const v = j / stacks;
-            func(u, v, p0);
-            vertices.push(p0.x, p0.y, p0.z);
-            func(u + eps, v, p1);
-            pu.subVectors(p1, p0).normalize();
-            func(u, v + eps, p1);
-            pv.subVectors(p1, p0).normalize();
-            normal.crossVectors(pu, pv).normalize();
-            normals.push(normal.x, normal.y, normal.z);
-            uvs.push(u, v);
-          }
-        }
-        for (let i = 0; i < slices; i++) {
-          for (let j = 0; j < stacks; j++) {
-            const a = i * (stacks + 1) + (j + 1);
-            const b = i * (stacks + 1) + j;
-            const c = (i + 1) * (stacks + 1) + j;
-            const d = (i + 1) * (stacks + 1) + (j + 1);
-            indices.push(a, b, d);
-            indices.push(b, c, d);
-          }
-        }
-        this.setIndex(indices);
-        this.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        this.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-        this.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    new ResizeObserver(resize).observe(canvas); resize();
+    const GRID = 100; // reduced for blog (~10k points)
+    const COUNT = GRID*GRID;
+    const pointSize = 100.0 * DPR;
+    function klein(u,v,m){ const cu=Math.cos(u), su=Math.sin(u); const c2=Math.cos(u*0.9), s2=Math.sin(u*0.2); const sv=Math.sin(v), s2v=Math.sin(2.3*v); let x=(2.0 + c2*sv - s2*s2v)*cu; let y=(2.0 + c2*sv - s2*s2v)*su; let z=s2*sv + c2*s2v; const R=2.5, r=0.85; const xt=(R + r*Math.cos(v))*Math.cos(u); const yt=(R + r*Math.cos(v))*Math.sin(u); const zt=r*Math.sin(v); return [x*(1.0-m)+xt*m, y*(1.0-m)+yt*m, z*(1.0-m)+zt*m]; }
+    const pos = new Float32Array(COUNT*3); const vel = new Float32Array(COUNT*3); const uv  = new Float32Array(COUNT*2);
+    let i=0; const TWO_PI = Math.PI*2.0; const morph0 = 0.6;
+    for (let y=0; y<GRID; y++){
+      for (let x=0; x<GRID; x++){
+        const u = (x+0.5)/GRID, v = (y+0.5)/GRID;
+        uv[i*2] = u; uv[i*2+1] = v;
+        const U=u*TWO_PI, V=v*TWO_PI;
+        const p = klein(U, V, morph0);
+        pos[i*3] = p[0]*2.0; pos[i*3+1] = p[1]*2.0; pos[i*3+2] = p[2]*2.0;
+        i++;
       }
     }
-
-    const klein = function (v, u, target) {
-      if (target === undefined) target = new THREE.Vector3();
-      u *= Math.PI;
-      v *= 2 * Math.PI;
-      u = u * 2;
-      let x, y, z;
-      if (u < Math.PI) {
-        x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(u) * Math.cos(v);
-        z = -8 * Math.sin(u) - 2 * (1 - Math.cos(u) / 2) * Math.sin(u) * Math.cos(v);
-      } else {
-        x = 3 * Math.cos(u) * (1 + Math.sin(u)) + (2 * (1 - Math.cos(u) / 2)) * Math.cos(v + Math.PI);
-        z = -8 * Math.sin(u);
-      }
-      y = -2 * (1 - Math.cos(u) / 2) * Math.sin(v);
-      target.set(x, y, z).multiplyScalar(0.3);
-    };
-
-    const geometry = new ParametricGeometry(klein, 32, 32);
-    const material = new THREE.ShaderMaterial({
-      wireframe: true,
-      uniforms: {
-        time: { value: 0 },
-        mouse: { value: new THREE.Vector2() }
-      },
-      vertexShader: `
-        uniform float time;
-        uniform vec2 mouse;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        varying vec3 vNormal;
-        void main() {
-          vUv = uv;
-          vec3 pos = position;
-          vNormal = normal;
-          float distX = abs(pos.x - mouse.x * 2.0);
-          float distY = abs(pos.y - mouse.y * 2.0);
-          float dist = sqrt(distX * distX + distY * distY);
-          float wave = sin(time * 0.5 + dist * 2.0 + pos.z * 0.5) * 0.3;
-          pos += vNormal * wave;
-          float projectInfluence = sin(time * 0.2 + vUv.x * 2.0 + mouse.x) * 0.05;
-          pos.x += sin(time * 0.3 + pos.y * 1.0 + mouse.x * 0.5 + projectInfluence) * 0.1;
-          pos.y += cos(time * 0.3 + pos.z * 1.0 + mouse.y * 0.5 + projectInfluence) * 0.1;
-          pos.z += sin(time * 0.3 + pos.x * 1.0 + length(mouse) + projectInfluence) * 0.1;
-          vPosition = pos;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float time;
-        uniform vec2 mouse;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        void main() {
-          float gradientFactor = (sin(vPosition.y * 2.0 + time * 0.5) + 1.0) / 2.0;
-          vec3 color1 = vec3(0.647, 0.847, 1.0); // Base blue (#A5D8FF)
-          vec3 color2 = vec3(0.0, 1.0, 1.0); // Cyan
-          vec3 color3 = vec3(0.2, 0.8, 1.0); // Light blue
-          float colorMix = sin(time * 0.3) * 0.5 + 0.5;
-          vec3 baseColor = mix(mix(color1, color2, gradientFactor), color3, colorMix);
-          float mouseInfluence = length(mouse) * 0.5 + 0.5;
-          baseColor = mix(baseColor, color3, mouseInfluence * 0.3);
-          vec3 mouse3D = vec3(mouse.x * 4.0, mouse.y * 4.0, 0.0);
-          vec3 baseCenter = vec3(sin(time * 0.2) * 2.0, cos(time * 0.2) * 1.0, sin(time * 0.3) * 2.0);
-          vec3 neonCenter = baseCenter + mouse3D * 0.5;
-          float dist = length(vPosition - neonCenter);
-          float radius = 2.0 + sin(time * 0.4 + mouseInfluence * 0.5) * 0.5;
-          float fadeWidth = 1.5;
-          float neonFactor = 1.0 - smoothstep(radius - fadeWidth, radius, dist);
-          float neonIntensity = (1.0 - smoothstep(radius - fadeWidth, radius, dist)) * 0.8 * (1.0 + mouseInfluence * 0.5);
-          vec3 neonColor1 = vec3(0.5, 1.0, 1.0); // Neon cyan
-          vec3 neonColor2 = vec3(1.0, 0.843, 0.0); // Neon gold (#FFD700)
-          vec3 neonColor = mix(neonColor1, neonColor2, sin(time * 0.5) * 0.5 + 0.5);
-          vec3 finalColor = baseColor + neonColor * neonFactor * neonIntensity * 2.0;
-          gl_FragColor = vec4(finalColor, 1.0);
-        }
-      `,
-      side: THREE.DoubleSide
-    });
-    const shape = new THREE.Mesh(geometry, material);
-    scene.add(shape);
-
-    document.addEventListener('mousemove', (e) => {
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      gsap.to(camera.position, { x: mouse.x * 2, y: mouse.y * 2, duration: 2 });
-      material.uniforms.mouse.value.set(mouse.x, mouse.y);
-    });
-
-    document.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
-      gsap.to(camera.position, { x: mouse.x * 2, y: mouse.y * 2, duration: 2 });
-      material.uniforms.mouse.value.set(mouse.x, mouse.y);
-    }, { passive: false });
-
-    window.addEventListener('resize', () => {
-      const width = window.innerWidth <= 768 ? 300 : 500;
-      camera.aspect = 1; // Fixed aspect ratio
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, width);
-    });
+    const bufPos = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bufPos); gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW);
+    const bufUV  = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bufUV ); gl.bufferData(gl.ARRAY_BUFFER, uv , gl.STATIC_DRAW);
+    const vert = `#version 300 es
+    precision highp float;
+    layout(location=0) in vec3 a_pos;
+    layout(location=1) in vec2 a_uv;
+    uniform mat4 u_proj, u_view;
+    uniform float u_point;
+    uniform float u_time;
+    out vec3 v_col;
+    out float v_depth;
+    out float v_soft;
+    vec3 palette(float t){ vec3 indigo = vec3(0.03, 0.00, 0.45); vec3 eblue  = vec3(0.15, 0.30, 0.9); vec3 aqua   = vec3(0.00, 0.58, 0.7); return (t < 0.5) ? mix(indigo, eblue, t*2.0) : mix(eblue, aqua, (t-0.5)*2.0); }
+    void main(){ vec4 wp = u_view * vec4(a_pos, 1.0); gl_Position = u_proj * wp; float depth = max(0.0001, -wp.z); gl_PointSize = clamp((u_point / depth) * 16.0, 1.0, 3.0); float base = fract(a_uv.x*0.33 + a_uv.y*0.77); float shift = 0.22 * sin(u_time*0.20 + base*6.2831); float t = fract(base + shift); v_col = normalize(palette(t) + vec3(0.04)); v_depth = depth; v_soft = 0.06; }`;
+    const frag = `#version 300 es
+    precision highp float;
+    in vec3 v_col;
+    in float v_depth;
+    in float v_soft;
+    out vec4 o;
+    void main(){ vec2 uv = gl_PointCoord * 2.0 - 1.0; float r2 = dot(uv, uv); if (r2 > 1.0) discard; float core = 1.0 - smoothstep(0.0, 0.85, r2); float glow = smoothstep(0.65, 1.0, r2) * v_soft; float a = clamp(core*0.95 + glow*0.05, 0.0, 0.95); float dim = clamp(1.0 / (1.0 + v_depth*0.25), 0.75, 1.0); vec3 col = v_col * dim; o = vec4(col, a); }`;
+    function makeShader(src, type){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+    function makeProgram(vs, fs){ const p=gl.createProgram(); gl.attachShader(p,makeShader(vs,gl.VERTEX_SHADER)); gl.attachShader(p,makeShader(fs,gl.FRAGMENT_SHADER)); gl.linkProgram(p); if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; }
+    const prog = makeProgram(vert, frag);
+    gl.useProgram(prog);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.clearColor(0,0,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufPos); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0,3,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufUV ); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1,2,gl.FLOAT,false,0,0);
+    const uni = { proj : gl.getUniformLocation(prog,'u_proj'), view : gl.getUniformLocation(prog,'u_view'), point: gl.getUniformLocation(prog,'u_point'), time : gl.getUniformLocation(prog,'u_time') };
+    const projBuf = new Float32Array(16), viewBuf = new Float32Array(16);
+    function perspective(fovy, aspect, near, far){ const f = 1/Math.tan(fovy/2), nf = 1/(near-far); projBuf.set([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,(2*far*near)*nf,0]); return projBuf; }
+    function lookAt(eye,center,up){ const ex=eye[0],ey=eye[1],ez=eye[2]; let fx=center[0]-ex, fy=center[1]-ey, fz=center[2]-ez; let rl=1/Math.hypot(fx,fy,fz); fx*=rl; fy*=rl; fz*=rl; let sx=fy*up[2]-fz*up[1], sy=fz*up[0]-fx*up[2], sz=fx*up[1]-fy*up[0]; rl=1/Math.hypot(sx,sy,sz); sx*=rl; sy*=rl; sz*=rl; const ux=sy*fz-sz*fy, uy=sz*fx-sx*fz, uz=sx*fy-sy*fx; viewBuf.set([ sx,ux,-fx,0, sy,uy,-fy,0, sz,uz,-fz,0, -(sx*ex+sy*ey+sz*ez), -(ux*ex+uy*ey+uz*ez), (fx*ex+fy*ey+fz*ez), 1 ]); return viewBuf; }
+    const eye = [0,0,6.0];
+    function ndcFromEvent(e){ const r=canvas.getBoundingClientRect(); const x=((e.clientX-r.left)/r.width)*2 - 1; const y=-(((e.clientY-r.top)/r.height)*2 - 1); return [x,y]; }
+    function z0World(ndc){ const aspect = canvas.width/canvas.height; const fovy = 60*Math.PI/180; const tanF = Math.tan(fovy/2); const rx = ndc[0]*aspect*tanF; const ry = ndc[1]*tanF; const origin = [0,0,eye[2]]; const dir = [rx,ry,-1]; const t = (0-origin[2])/dir[2]; return [origin[0]+dir[0]*t, origin[1]+dir[1]*t, 0]; }
+    let mouse=[999,999,0], mouseSm=[999,999,0], mouseIn=false, prevMouse=[999,999,0];
+    canvas.addEventListener('mousemove', e => { prevMouse = mouse.slice(0); mouse = z0World(ndcFromEvent(e)); mouseIn=true; }, {passive:true});
+    canvas.addEventListener('mouseleave', () => { mouse=[999,999,0]; mouseIn=false; }, {passive:true});
+    canvas.addEventListener('touchmove', e => { const t=e.changedTouches[0], r=canvas.getBoundingClientRect(); const nd=[((t.clientX-r.left)/r.width)*2-1, -(((t.clientY-r.top)/r.height)*2-1)]; prevMouse = mouse.slice(0); mouse = z0World(nd); mouseIn=true; }, {passive:true});
+    canvas.addEventListener('touchend', ()=>{ mouse=[999,999,0]; mouseIn=false; }, {passive:true});
+    function basis3(x,y,z,t){ const a = Math.sin(0.61*x + 1.21*y + 0.77*z + 0.19*t); const b = Math.sin(1.23*x - 0.97*y + 0.45*z + 0.27*t); const c = Math.sin(-0.73*x + 0.51*y - 1.33*z + 0.31*t); const d = Math.cos(0.89*x - 1.41*y + 0.37*z - 0.17*t); const e = Math.cos(-1.11*x + 0.67*y + 0.91*z + 0.23*t); const f = Math.cos(0.39*x + 0.83*y - 0.59*z - 0.29*t); return [a+d, b+e, c+f]; }
+    function curlNoise(px,py,pz,t){ const eps = 0.0015; const f1 = basis3(px, py+eps, pz, t); const f2 = basis3(px, py-eps, pz, t); const f3 = basis3(px, py, pz+eps, t); const f4 = basis3(px, py, pz-eps, t); const f5 = basis3(px+eps, py, pz, t); const f6 = basis3(px-eps, py, pz, t); const dZdy = (f3[2]-f4[2])/(2*eps); const dYdz = (f1[1]-f2[1])/(2*eps); const dXdz = (f3[0]-f4[0])/(2*eps); const dZdx = (f5[2]-f6[2])/(2*eps); const dYdx = (f5[1]-f6[1])/(2*eps); const dXdy = (f1[0]-f2[0])/(2*eps); return [ dZdy - dYdz, dXdz - dZdx, dYdx - dXdy ]; }
+    const damp = 0.80; const flowStrength = 1.3; const springK = 2.2; const autopilotSpin = [0.00010*2*Math.PI, 0.000045*2*Math.PI]; const dispersion = 0.3; const mouseVortex = 85.0; const mousePull = 1.0; const mouseRadius = 1.1;
+    function rand(i){ const x=Math.sin((i+1)*12.9898)*43758.5453; return (x-Math.floor(x))*2.0-1.0; }
+    let prev = performance.now();
+    function frame(now){ const dt = Math.min(0.05, (now - prev)/1000); prev = now; const time = now*0.001; gl.useProgram(prog); gl.uniform1f(uni.time, time); const k = 1 - Math.exp(-dt*10.0); mouseSm[0] += (mouse[0]-mouseSm[0])*k; mouseSm[1] += (mouse[1]-mouseSm[1])*k; mouseSm[2] += (mouse[2]-mouseSm[2])*k; const rotY = now*autopilotSpin[0], rotX = now*autopilotSpin[1]; const cy=Math.cos(rotY), sy=Math.sin(rotY); const cx=Math.cos(rotX), sx=Math.sin(rotX); const mvx = (mouseSm[0]-prevMouse[0]) / Math.max(1e-6, dt); const mvy = (mouseSm[1]-prevMouse[1]) / Math.max(1e-6, dt); prevMouse = mouseSm.slice(0); const T = now*0.45; for (let j=0; j<COUNT; j++){ let px = pos[j*3], py = pos[j*3+1], pz = pos[j*3+2]; const u = uv[j*2]*TWO_PI + 0.15*Math.sin(time*0.2); const v = uv[j*2+1]*TWO_PI + 0.12*Math.cos(time*0.17); const morph = 0.55 + 0.45*Math.sin(time*0.07); let tPos = klein(u, v, morph); tPos[0] *= 2.0; tPos[1] *= 2.0; tPos[2] *= 2.0; const rx1 = tPos[0]; const ry1 = tPos[1]*cx - tPos[2]*sx; const rz1 = tPos[1]*sx + tPos[2]*cx; const tx2 = rx1*cy + rz1*sy; const ty2 = ry1; const tz2 = -rx1*sy + rz1*cy; let fx = (tx2 - px)*springK; let fy = (ty2 - py)*springK; let fz = (tz2 - pz)*springK; const c = curlNoise(px*0.2, py*0.2, pz*0.2, T); fx += c[0]*flowStrength; fy += c[1]*flowStrength; fz += c[2]*flowStrength; if (mouseIn){ const dx = mouseSm[0]-px, dy = mouseSm[1]-py, dz = mouseSm[2]-pz; const r2 = dx*dx + dy*dy + dz*dz + 1e-6; const r = Math.sqrt(r2); const falloff = Math.exp(- (r*r) / (mouseRadius*mouseRadius)); const tx = -dy, ty = dx; const swirl = mouseVortex * falloff; fx += tx * swirl * (0.6 + 0.4*Math.tanh(0.002*(mvx*dx + mvy*dy))); fy += ty * swirl * (0.6 + 0.4*Math.tanh(0.002*(mvx*dx + mvy*dy))); fx += dx * mousePull * falloff * 0.35; fy += dy * mousePull * falloff * 0.35; fz += dz * mousePull * falloff * 0.25; } vel[j*3  ] += fx*dt; vel[j*3+1] += fy*dt; vel[j*3+2] += fz*dt; const dj = 0.5*dispersion*dt; vel[j*3  ] += dj * (Math.sin(0.007*j + 1.9*T) + 0.6*rand(j)); vel[j*3+1] += dj * (Math.sin(0.011*j + 2.3*T) + 0.6*rand(j+17)); vel[j*3+2] += dj * (Math.sin(0.013*j + 2.9*T) + 0.6*rand(j+31)); const dampPow = Math.pow(damp, dt*60); vel[j*3  ] *= dampPow; vel[j*3+1] *= dampPow; vel[j*3+2] *= dampPow; pos[j*3  ] = px + vel[j*3  ]*dt; pos[j*3+1] = py + vel[j*3+1]*dt; pos[j*3+2] = pz + vel[j*3+2]*dt; }
+      gl.clear(gl.COLOR_BUFFER_BIT); const proj = perspective(60*Math.PI/180, canvas.width/canvas.height, 0.1, 100.0); const view = lookAt(eye, [0,0,0], [0,1,0]); gl.uniformMatrix4fv(uni.proj, false, proj); gl.uniformMatrix4fv(uni.view, false, view); gl.uniform1f(uni.point, pointSize); gl.bindBuffer(gl.ARRAY_BUFFER, bufPos); gl.bufferSubData(gl.ARRAY_BUFFER, 0, pos); gl.drawArrays(gl.POINTS, 0, COUNT); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+  })();
   </script>
 </body>
 </html>
