@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>WebGL Hero • Klein–Möbius Morph (Fluid Hover)</title>
+<style>
+html, body { height: 100%; margin: 0; background: transparent; }
+body { overflow:hidden; }
+canvas { display:block; width:100vw; height:100vh; background: transparent; }
+#fallback { position:fixed; inset:0; display:none; place-items:center; color:#6aa3ff; font:14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; background:transparent; text-align:center; padding:24px; white-space:pre-wrap; }
+#debug { position:fixed; right:8px; bottom:8px; min-width:220px; max-width:38vw; background:rgba(10,10,20,0.55); color:#cfe5ff; font:12px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Arial; border:1px solid rgba(120,160,255,0.35); border-radius:10px; padding:10px 12px; backdrop-filter: blur(4px); pointer-events:none; user-select:none; white-space:pre; }
+#fallback.show { display:grid; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="fallback"></div>
+<div id="debug"></div>
+<script>
+(()=>{
+const DPR=Math.min(2,window.devicePixelRatio||1);
+const MAX_PARTICLES=100000, MIN_PARTICLES=50000, START_PARTICLES=80000;
+const BASE_POINT_SIZE=2.0;
+const CLICK_OUT_DUR=4.0, CLICK_HOLD=10.0, CLICK_RETURN_TAU=3.0, CLICK_DELAY_SPREAD=0.3;
+const HOVER_RADIUS=5.0, FLOW_DRIFT=0.55, MORPH_RATE=0.10;
+const ROTATE_RATE=[0.06,0.045,0.03];
+const CAMERA_DIST=12.8;
+// --- Fluid hover params ---
+const MAX_VORTICES=12;                 // number of lingering eddies
+const VORTEX_DECAY=0.75;               // seconds time-constant (lower = faster fade)
+const VORTEX_STRENGTH=2.2;             // base swirl strength
+const VORTEX_SCALE=0.085;              // influence scale applied to particle pos
+const VISCOSITY=0.002;                 // tiny diffusion on strength per frame
+
+const glCanvas=document.getElementById('gl');
+const debugEl=document.getElementById('debug');
+const fallbackEl=document.getElementById('fallback');
+function showFallback(msg){ fallbackEl.textContent=msg||'Fallback active'; fallbackEl.classList.add('show'); }
+
+let gl=null; try{ gl=glCanvas.getContext('webgl2',{antialias:true,alpha:true,premultipliedAlpha:false,preserveDrawingBuffer:false,powerPreference:'high-performance'});}catch(e){ gl=null; }
+if(!gl){
+  const ctx=glCanvas.getContext('2d'); if(!ctx){ showFallback('No WebGL2 or Canvas support.'); return; }
+  showFallback('WebGL2 not available. Showing 2D fallback.');
+  let w=glCanvas.width=glCanvas.clientWidth*DPR, h=glCanvas.height=glCanvas.clientHeight*DPR;
+  const N=4800, pts=new Float32Array(N*2);
+  for(let i=0;i<N;i++){ pts[i*2]=Math.random()*w; pts[i*2+1]=Math.random()*h; }
+  function loop(now){ if(glCanvas.width!==glCanvas.clientWidth*DPR||glCanvas.height!==glCanvas.clientHeight*DPR){ w=glCanvas.width=glCanvas.clientWidth*DPR; h=glCanvas.height=glCanvas.clientHeight*DPR; }
+    ctx.clearRect(0,0,w,h);
+    for(let i=0;i<N;i++){
+      let x=pts[i*2], y=pts[i*2+1];
+      x += (Math.sin((i*13.1+now*0.0004))*0.3+0.10);
+      y += (Math.cos((i*9.7-now*0.00035))*0.3-0.10);
+      if(x<0)x+=w; if(x>=w)x-=w; if(y<0)y+=h; if(y>=h)y-=h;
+      pts[i*2]=x; pts[i*2+1]=y;
+      const r=0.8*DPR; ctx.fillStyle='rgba(120,200,255,0.5)'; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop); return;
+}
+
+function resize(){ const w=Math.max(1,glCanvas.clientWidth), h=Math.max(1,glCanvas.clientHeight); glCanvas.width=Math.floor(w*DPR); glCanvas.height=Math.floor(h*DPR); gl.viewport(0,0,glCanvas.width,glCanvas.height); }
+window.addEventListener('resize', resize, { passive:true });
+resize();
+
+const cores=navigator.hardwareConcurrency||4; const mem=navigator.deviceMemory||4;
+let particleCount=Math.floor(START_PARTICLES*Math.min(1,(cores/8)*0.8+(mem/8)*0.2));
+particleCount=Math.max(MIN_PARTICLES,Math.min(MAX_PARTICLES,particleCount));
+
+const seed=new Float32Array(particleCount*2);
+for(let i=0;i<particleCount;i++){
+  const u=i/particleCount; const v=((i*16807)%particleCount)/particleCount;
+  seed[i*2]=(u+(Math.random()*0.5/particleCount))%1; seed[i*2+1]=(v+(Math.random()*0.5/particleCount))%1;
+}
+
+const vao=gl.createVertexArray(); gl.bindVertexArray(vao);
+const seedBuf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,seedBuf); gl.bufferData(gl.ARRAY_BUFFER,seed,gl.STATIC_DRAW);
+
+const S={ vM:MORPH_RATE.toFixed(3), rX:ROTATE_RATE[1].toFixed(3), rY:ROTATE_RATE[0].toFixed(3), rZ:ROTATE_RATE[2].toFixed(3), flow:FLOW_DRIFT.toFixed(3), hR:HOVER_RADIUS.toFixed(3), outDur:CLICK_OUT_DUR.toFixed(3), retTau:CLICK_RETURN_TAU.toFixed(3), delaySpread:CLICK_DELAY_SPREAD.toFixed(3), hold:CLICK_HOLD.toFixed(3), pSize:(BASE_POINT_SIZE*DPR).toFixed(2) };
+
+const vert=`#version 300 es
+precision highp float;
+layout(location=0) in vec2 a_uv;
+uniform float u_time; uniform vec2 u_res; uniform vec2 u_mouse; uniform vec2 u_mouseVel; uniform float u_follow; uniform float u_spread; uniform vec3 u_burstCenter; uniform float u_burstT; uniform float u_holdExtend; uniform float u_idleW; uniform float u_pointBase; uniform mat4 u_proj,u_view; 
+// Fluid field
+uniform int   u_vCount; 
+uniform vec2  u_vPos[${MAX_VORTICES}];
+uniform float u_vStr[${MAX_VORTICES}];
+
+out vec3 v_col; out float v_depth; out float v_soft;
+
+float n21(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} 
+float smoothNoise(vec3 p){vec3 i=floor(p);vec3 f=fract(p);float n000=n21(i.xy+vec2(0.0,0.0));float n100=n21(i.xy+vec2(1.0,0.0));float n010=n21(i.xy+vec2(0.0,1.0));float n110=n21(i.xy+vec2(1.0,1.0));vec2 u=f.xy*f.xy*(3.0-2.0*f.xy);float nxy=mix(mix(n000,n100,u.x),mix(n010,n110,u.x),u.y);return nxy;} 
+vec3 klein(float u,float v){float r=2.0;float cu=cos(u),su=sin(u);float c2=cos(u*0.5),s2=sin(u*0.5);float sv=sin(v),s2v=sin(2.0*v);float x=(r+c2*sv-s2*s2v)*cu;float y=(r+c2*sv-s2*s2v)*su;float z=s2*sv+c2*s2v;return vec3(x,y,z)*2.2;}  
+vec3 mobius(float u,float v){float R=4.6;float wH=1.35;float a=v*2.0-1.0;a*=wH;float cu=cos(u),su=sin(u);float c2=cos(u*0.5),s2=sin(u*0.5);float x=(R+a*c2)*cu;float y=(R+a*c2)*su;float z=a*s2;return vec3(x,y,z);}  
+vec3 rand3(vec2 h){float a=fract(sin(dot(h,vec2(12.9898,78.233)))*43758.5453);float b=fract(sin(a*19.19)*937.97);return normalize(vec3(cos(6.2831*a),sin(6.2831*a),cos(6.2831*b)));}
+vec3 paletteMain(float t){ vec3 i1=vec3(0.10,0.22,0.55); vec3 i2=vec3(0.04,0.00,0.18); vec3 a1=vec3(0.00,0.95,0.86); vec3 b1=vec3(0.12,0.60,1.00); vec3 m1=mix(i1,i2,smoothstep(0.0,0.33,t)); vec3 m2=mix(i2,b1,smoothstep(0.33,0.66,t)); vec3 m3=mix(b1,a1,smoothstep(0.66,1.0,t)); return (t<0.33)?m1:((t<0.66)?m2:m3);} 
+mat3 rotX(float a){float c=cos(a),s=sin(a);return mat3(1.0,0.0,0.0, 0.0,c,-s, 0.0,s,c);} 
+mat3 rotY(float a){float c=cos(a),s=sin(a);return mat3(c,0.0,s, 0.0,1.0,0.0, -s,0.0,c);} 
+mat3 rotZ(float a){float c=cos(a),s=sin(a);return mat3(c,-s,0.0, s,c,0.0, 0.0,0.0,1.0);} 
+
+void main(){
+  float tf=u_time; float U=a_uv.x*6.28318530718; float V=a_uv.y*6.28318530718; 
+  vec3 pK=klein(U,V); vec3 pM=mobius(U,fract(V/6.28318530718));
+  float morph=0.5+0.5*sin(tf*${S.vM}*mix(0.25,1.0,u_idleW));
+  vec3 p=mix(pK,pM,morph);
+  p=rotY(tf*${S.rY}*mix(0.25,1.0,u_idleW))*rotX(tf*${S.rX}*mix(0.25,1.0,u_idleW))*rotZ(tf*${S.rZ}*mix(0.25,1.0,u_idleW))*p;
+  float nf=smoothNoise(vec3(p*0.35+tf*0.07));
+  p+=normalize(vec3(sin(3.1*p.x+tf*0.20),sin(3.7*p.y-tf*0.16),sin(2.9*p.z+tf*0.14)))*(nf-0.5)*${S.flow}*u_idleW;
+  p+=rand3(a_uv+vec2(0.17,0.73))*u_spread*0.9; 
+
+  // --- Incompressible-like swirl from vortices (Biot–Savart in 2D) ---
+  vec2 swirl=vec2(0.0);
+  for(int i=0;i<${MAX_VORTICES};i++){
+    if(i>=u_vCount) break; 
+    vec2 r = p.xy - u_vPos[i];
+    float r2 = max(0.0006, dot(r,r));
+    vec2 tang = vec2(-r.y, r.x); // perpendicular
+    swirl += (u_vStr[i] / r2) * tang; // decays with r^2
+  }
+  p.xy += swirl * ${VORTEX_SCALE};
+
+  // Legacy mouse attraction kept subtle
+  vec3 mpos=vec3(u_mouse.x*4.2,u_mouse.y*2.6,0.0);
+  vec3 d=mpos-p; float r2=dot(d.xy,d.xy); float r0=${S.hR}*${S.hR}; float grav = u_follow * (1.0/(1.0 + (r2/(r0+0.001)))); p.xy += d.xy * grav * 0.35; // reduced
+
+  float h=n21(a_uv+vec2(0.37,0.83));
+  float delay=${S.delaySpread}*h; float tt=u_burstT - delay;
+  float outAmt=clamp(tt/${S.outDur},0.0,1.0); outAmt = smoothstep(0.0,1.0,outAmt);
+  float backAmt = tt>(${S.outDur}+(${S.hold}+u_holdExtend)) ? exp(-(tt-(${S.outDur}+(${S.hold}+u_holdExtend)))/${S.retTau}) : 1.0;
+  vec3 sprayDir=normalize(rand3(a_uv+vec2(0.41,0.19))*0.8 + normalize(p - u_burstCenter)*0.6);
+  p += sprayDir * 2.2 * outAmt * backAmt;
+
+  vec4 wp=u_view*vec4(p,1.0); vec4 cp=u_proj*wp; gl_Position=cp; 
+  float depth=max(0.0001,-wp.z);
+  gl_PointSize=clamp((u_pointBase/depth)*18.0,1.5,3.0);
+  float hue=fract(0.10 + U*0.07 + morph*0.25);
+  v_col=paletteMain(hue); v_depth=depth; v_soft=0.12; }`;
+
+const frag=`#version 300 es
+precision highp float; in vec3 v_col; in float v_depth; in float v_soft; out vec4 o;
+void main(){ vec2 uv=gl_PointCoord*2.0-1.0; float r2=dot(uv,uv); if(r2>1.0) discard; float core=1.0-smoothstep(0.0,0.82,r2); float rim=smoothstep(0.55,1.0,r2); float a=clamp(core*0.90 + rim*0.10*v_soft, 0.0, 0.95); vec3 neon=normalize(v_col+vec3(0.05,0.05,0.05)); float dim=clamp(1.0/(1.0+v_depth*0.28),0.70,1.0); vec3 col=neon*dim; o=vec4(col,a); }`;
+
+function makeShader(src,type){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){ const info=gl.getShaderInfoLog(s)||'shader error'; showFallback('Shader compile failed:\n'+info); throw new Error(info); } return s; }
+function makeProgram(vsSrc,fsSrc){ const p=gl.createProgram(); const vs=makeShader(vsSrc,gl.VERTEX_SHADER), fs=makeShader(fsSrc,gl.FRAGMENT_SHADER); gl.attachShader(p,vs); gl.attachShader(p,fs); gl.linkProgram(p); if(!gl.getProgramParameter(p,gl.LINK_STATUS)){ const info=gl.getProgramInfoLog(p)||'link error'; showFallback('Program link failed:\n'+info); throw new Error(info); } return p; }
+
+const prog=makeProgram(vert,frag); gl.useProgram(prog);
+gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+gl.clearColor(0,0,0,0);
+
+gl.bindBuffer(gl.ARRAY_BUFFER, seedBuf); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+
+const uni={ time:gl.getUniformLocation(prog,'u_time'), res:gl.getUniformLocation(prog,'u_res'), mouse:gl.getUniformLocation(prog,'u_mouse'), mouseVel:gl.getUniformLocation(prog,'u_mouseVel'), follow:gl.getUniformLocation(prog,'u_follow'), spread:gl.getUniformLocation(prog,'u_spread'), burstCenter:gl.getUniformLocation(prog,'u_burstCenter'), burstT:gl.getUniformLocation(prog,'u_burstT'), holdExtend:gl.getUniformLocation(prog,'u_holdExtend'), idleW:gl.getUniformLocation(prog,'u_idleW'), pointBase:gl.getUniformLocation(prog,'u_pointBase'), proj:gl.getUniformLocation(prog,'u_proj'), view:gl.getUniformLocation(prog,'u_view'), vCount:gl.getUniformLocation(prog,'u_vCount'), vPos:gl.getUniformLocation(prog,'u_vPos[0]'), vStr:gl.getUniformLocation(prog,'u_vStr[0]') };
+
+// --- Vortex state ---
+const vortices=[]; // {x,y,str,life}
+let sign=1;
+function addVortex(x,y,str){ if(vortices.length>=MAX_VORTICES) vortices.shift(); vortices.push({x,y,str,life:1}); }
+function worldFromNDC(ndc){ const aspect=glCanvas.width/glCanvas.height; const fovy=60*Math.PI/180; const tanF=Math.tan(fovy/2); const rx=ndc.x*aspect*tanF; const ry=ndc.y*tanF; const origin=[0,0,CAMERA_DIST]; const dir=[rx,ry,-1]; const t=(0-origin[2])/dir[2]; return {x:origin[0]+dir[0]*t, y:origin[1]+dir[1]*t}; }
+
+let mouseNDC={x:9.0,y:9.0}, mouseSm={x:9.0,y:9.0}, mouseVel={x:0.0,y:0.0}, mouseVelSm={x:0.0,y:0.0};
+let burstCenter=new Float32Array([0.0,0.0,0.0]); let burstStartAt=-1.0; let holdExtend=0.0; let burstT=0.0;
+let follow=0.0; let movingTime=0.0; const baseFactor=0.20; const accelPerSec=0.01; let lastPointerT=performance.now()/1000; let idleW=1.0; let idleTimer=0.0;
+
+function setPointer(e){ const rect=glCanvas.getBoundingClientRect(); const x=((e.clientX-rect.left)/rect.width)*2-1; const y=-(((e.clientY-rect.top)/rect.height)*2-1); mouseNDC.x=x; mouseNDC.y=y; }
+
+glCanvas.addEventListener('mousemove',e=>{
+  const px=mouseNDC.x, py=mouseNDC.y; setPointer(e);
+  const vx=mouseNDC.x-px, vy=mouseNDC.y-py; mouseVel.x=vx; mouseVel.y=vy; lastPointerT=performance.now()/1000;
+  // Spawn alternating-signed vortices along the path
+  const speed=Math.hypot(vx,vy);
+  if(speed>0.0004){
+    const w=worldFromNDC(mouseNDC); // center
+    const strength = VORTEX_STRENGTH * speed * 60; // frame-rate agnostic-ish
+    addVortex(w.x, w.y, sign*strength);
+    // paired dipole slightly behind for more fluid feel
+    const back=worldFromNDC({x:mouseNDC.x-vx*0.5,y:mouseNDC.y-vy*0.5});
+    addVortex(back.x, back.y, -sign*strength*0.7);
+    sign*=-1;
+  }
+},{passive:true});
+
+glCanvas.addEventListener('mouseenter',e=>setPointer(e),{passive:true});
+glCanvas.addEventListener('mouseleave',()=>{mouseNDC.x=9.0;mouseNDC.y=9.0},{passive:true});
+
+glCanvas.addEventListener('mousedown',e=>{ setPointer(e); triggerBurst(); });
+glCanvas.addEventListener('click',()=>{ triggerBurst(); });
+
+glCanvas.addEventListener('touchstart',e=>{const t=e.changedTouches[0]; setPointer(t); triggerBurst();},{passive:true});
+glCanvas.addEventListener('touchmove',e=>{const t=e.changedTouches[0]; const px=mouseNDC.x, py=mouseNDC.y; setPointer(t); mouseVel.x=mouseNDC.x-px; mouseVel.y=mouseNDC.y-py; lastPointerT=performance.now()/1000;},{passive:true});
+
+function triggerBurst(){ const p=worldFromNDC(mouseSm); burstCenter[0]=p.x; burstCenter[1]=p.y; burstCenter[2]=0.0; const now=performance.now()/1000; if(burstStartAt<0.0){ burstStartAt=now; } else { holdExtend=Math.min(holdExtend+parseFloat(S.hold), 60.0); } }
+
+let fpsSamples=[]; function recordFPS(dt){ fpsSamples.push(1.0/dt); if(fpsSamples.length>32) fpsSamples.shift(); }
+function fpsAvg(){ if(!fpsSamples.length) return 0; const s=fpsSamples.reduce((a,b)=>a+b,0); return s/fpsSamples.length; }
+
+let prev=performance.now(); let spread=1.10, spreadTarget=1.10;
+function frame(nowMs){
+  const now=nowMs/1000; const dt=Math.min(0.05,(nowMs-prev)/1000); prev=nowMs;
+
+  const kvVel = 1.0-Math.exp(-dt*20.0);
+  mouseVelSm.x += (mouseVel.x - mouseVelSm.x)*kvVel;
+  mouseVelSm.y += (mouseVel.y - mouseVelSm.y)*kvVel;
+  const mv=Math.hypot(mouseVelSm.x,mouseVelSm.y);
+  if(mv>0.0003){ movingTime+=dt; }
+  const factor=(movingTime>=0.5)? Math.min(1.0, baseFactor + accelPerSec*(movingTime-0.5)) : 0.0;
+  follow = factor * mv * 60.0;
+
+  const k=1.0-Math.exp(-dt*2.0);
+  mouseSm.x += (mouseNDC.x-mouseSm.x)*k; mouseSm.y += (mouseNDC.y-mouseSm.y)*k;
+
+  const idle = (burstStartAt<0.0) || (now - burstStartAt) > (parseFloat(S.outDur)+parseFloat(S.hold)+holdExtend+1.0);
+  spreadTarget = idle ? 0.70 : 1.40; spread += (spreadTarget-spread)*(1.0-Math.exp(-dt*1.5));
+
+  // Evolve vortex list (exponential decay + slight diffusion)
+  for(let i=vortices.length-1;i>=0;i--){
+    const v=vortices[i];
+    v.str *= Math.exp(-dt/VORTEX_DECAY) - VISCOSITY*dt; // decay/diffuse
+    v.life -= dt/VORTEX_DECAY;
+    if(Math.abs(v.str)<0.0001 || v.life<=0) vortices.splice(i,1);
+  }
+
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  const aspect=glCanvas.width/glCanvas.height; const proj=perspective(60*Math.PI/180,aspect,0.1,100.0); const eye=[0,0,CAMERA_DIST]; const view=lookAt(eye,[0,0,0],[0,1,0]);
+  gl.useProgram(prog);
+  gl.uniform1f(uni.time, now);
+  gl.uniform2f(uni.res, glCanvas.width, glCanvas.height);
+  gl.uniform2f(uni.mouse, mouseSm.x, mouseSm.y);
+  gl.uniform2f(uni.mouseVel, mouseVel.x, mouseVel.y);
+  gl.uniform1f(uni.follow, follow);
+
+  const elapsed=(burstStartAt>0.0)?(now-burstStartAt):0.0; burstT=elapsed;
+  gl.uniform3fv(uni.burstCenter, burstCenter);
+  gl.uniform1f(uni.burstT, burstT);
+  gl.uniform1f(uni.holdExtend, holdExtend);
+  const idleSecs = now - lastPointerT; if(idleSecs < 0.5){ idleTimer = 0.0; } else { idleTimer += dt; } const targetIdleW = (idleSecs < 0.5) ? 0.35 : 1.0; const kIdle = 1.0 - Math.exp(-dt*2.0); idleW += (targetIdleW - idleW) * kIdle; gl.uniform1f(uni.idleW, idleW);
+  gl.uniform1f(uni.spread, spread);
+  gl.uniform1f(uni.pointBase, Number(S.pSize));
+
+  const w=Math.max(1,glCanvas.clientWidth), h=Math.max(1,glCanvas.clientHeight); if(glCanvas.width!==Math.floor(w*DPR)||glCanvas.height!==Math.floor(h*DPR)){ resize(); }
+  gl.uniformMatrix4fv(uni.proj,false,proj); gl.uniformMatrix4fv(uni.view,false,view);
+
+  // Upload vortex uniforms
+  const vCount=Math.min(vortices.length, MAX_VORTICES);
+  const posArr=new Float32Array(MAX_VORTICES*2); const strArr=new Float32Array(MAX_VORTICES);
+  for(let i=0;i<vCount;i++){ posArr[i*2]=vortices[i].x; posArr[i*2+1]=vortices[i].y; strArr[i]=vortices[i].str; }
+  gl.uniform1i(uni.vCount, vCount);
+  gl.uniform2fv(uni.vPos, posArr);
+  gl.uniform1fv(uni.vStr, strArr);
+
+  gl.bindVertexArray(vao);
+  gl.drawArrays(gl.POINTS,0,particleCount);
+
+  if(burstStartAt>0.0 && (now - burstStartAt) > (parseFloat(S.outDur)+parseFloat(S.hold)+holdExtend+5.0)) { burstStartAt=-1.0; holdExtend=0.0; }
+
+  recordFPS(dt);
+  const morphPhase = 0.5+0.5*Math.sin(now*parseFloat(S.vM)*(0.25+0.75*idleW));
+  const stageDurOut=parseFloat(S.outDur), stageHold=parseFloat(S.hold)+holdExtend, stageRet=parseFloat(S.retTau);
+  const stage = (burstStartAt<0.0)? 'idle' : (burstT<stageDurOut? 'expanding' : (burstT<(stageDurOut+stageHold)? 'holding' : 'returning'));
+  debugEl.textContent = `fps ${fpsAvg().toFixed(1)}\nparticles ${particleCount}\nstage ${stage}  t=${burstT.toFixed(2)}\nfollow ${follow.toFixed(3)}  vortices ${vCount}\npriority ${(1.0-idleW).toFixed(2)}  morph=${morphPhase.toFixed(2)}\nspread ${spread.toFixed(2)}\nmouse ${mouseSm.x.toFixed(2)},${mouseSm.y.toFixed(2)}`;
+
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+
+// --- Math helpers ---
+function perspective(fovy, aspect, near, far){ const f = 1/Math.tan(fovy/2); const nf = 1/(near - far); const out = new Float32Array(16); out[0] = f / aspect; out[1] = 0; out[2] = 0; out[3] = 0; out[4] = 0; out[5] = f; out[6] = 0; out[7] = 0; out[8] = 0; out[9] = 0; out[10] = (far + near) * nf; out[11] = -1; out[12] = 0; out[13] = 0; out[14] = (2 * far * near) * nf; out[15] = 0; return out; }
+function lookAt(eye, center, up){ const ex=eye[0], ey=eye[1], ez=eye[2]; let fx=center[0]-ex, fy=center[1]-ey, fz=center[2]-ez; let rl=1/Math.hypot(fx,fy,fz); fx*=rl; fy*=rl; fz*=rl; let sx=fy*up[2]-fz*up[1], sy=fz*up[0]-fx*up[2], sz=fx*up[1]-fy*up[0]; rl=1/Math.hypot(sx,sy,sz); sx*=rl; sy*=rl; sz*=rl; const ux=sy*fz - sz*fy, uy=sz*fx - sx*fz, uz=sx*fy - sy*fx; const out=new Float32Array(16); out[0]=sx; out[1]=ux; out[2]=-fx; out[3]=0; out[4]=sy; out[5]=uy; out[6]=-fy; out[7]=0; out[8]=sz; out[9]=uz; out[10]=-fz; out[11]=0; out[12]=-(sx*ex+sy*ey+sz*ez); out[13]=-(ux*ex+uy*ey+uz*ez); out[14]=(fx*ex+fy*ey+fz*ez); out[15]=1; return out; }
+})();
+</script>
+</body>
+</html>
