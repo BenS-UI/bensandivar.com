@@ -81,7 +81,7 @@
 
   // Indigo → electric blue → neon aquamarine
   vec3 palette(float t){
-    vec3 indigo = vec3(0.04, 0.00, 0.25);
+    vec3 indigo = vec3(0.03, 0.00, 0.45);
     vec3 eblue  = vec3(0.15, 0.30, 0.9);
     vec3 aqua   = vec3(0.00, 0.58, 0.7);
     return (t < 0.5) ? mix(indigo, eblue, t*2.0)
@@ -173,7 +173,7 @@
     ]);
     return viewBuf;
   }
-  const eye = [0,0,13.0];
+  const eye = [0,0,6.0];
 
   // ---------- Mouse (z=0 plane) ----------
   function ndcFromEvent(e){
@@ -228,14 +228,14 @@
   }
 
   // ---------- Dynamics ----------
-  const damp = 0.90;
+  const damp = 0.80;
   const flowStrength = 1.3;  // fluid field strength
   const springK = 2.2;        // always on — already organized
   const autopilotSpin = [0.00010*2*Math.PI, 0.000045*2*Math.PI]; // Y, X spin
   const dispersion = 0.3;    // tiny diffusion
   const mouseVortex = 85.0;    // swirl strength near cursor
   const mousePull = 1.0;      // mild attraction
-  const mouseRadius = 2.2;    // influence radius
+  const mouseRadius = 1.1;    // influence radius
 
   function rand(i){ const x=Math.sin((i+1)*12.9898)*43758.5453; return (x-Math.floor(x))*2.0-1.0; }
 
