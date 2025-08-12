@@ -1131,5 +1131,14 @@ footer {
 @media (max-width: 768px) {
     footer {
         padding: 1rem 2rem;
-    }
+  
+    
+    .album-header {
+  grid-column: 1 / -1;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+}
 }
