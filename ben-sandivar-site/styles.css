@@ -1122,6 +1122,9 @@ footer {
 /* Central content area width constraint */
 .nav-container,
 .hero-content,
+  .featured-projects,
+  .music-player,
+  .about-skills,
 .page-header,
 .photo-grid,
 .projects-grid,
