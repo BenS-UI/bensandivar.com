@@ -59,7 +59,7 @@ html, body {
   --spacing: 0.5rem;
 
   /* width */
-   --content-max: min(75vw, 1200px);
+  --content-max: min(75vw, 1200px);
 }
 
 /* Dark Theme */
@@ -181,7 +181,7 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 0 4rem;
 }
@@ -252,7 +252,7 @@ p {
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 800px;
+  max-width: var(--content-max);
   padding: 0 2rem;
   display: flex;
   flex-direction: column;
@@ -563,8 +563,6 @@ p {
   padding-bottom: 14rem;
 }
 
-
-
 /* Equalizer bars within music cards */
 .eq-bars {
   display: flex;
@@ -864,7 +862,7 @@ p {
   gap: 2rem;
   margin: 3rem auto;
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--content-max);
   justify-content: center;
 }
 
@@ -924,6 +922,10 @@ footer {
   display: flex;
   justify-content: center;
   text-align: center;
+  max-width: var(--content-max);
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Theme Toggle */
@@ -983,8 +985,9 @@ footer {
   }
 
   .contact-item {
-    max-width: 400px;
-    margin: 0 auto;
+    max-width: none;
+    width: 100%;
+    margin: 0;
   }
 
   h1 {
