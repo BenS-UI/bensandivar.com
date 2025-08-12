@@ -1180,3 +1180,173 @@ section, .hero, .photo-grid, footer {
   margin-bottom: 2rem;
 }
 
+
+/* === Layout and Centering === */
+.hero,
+#systems,
+#contact {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: inherit;
+  text-align: center;
+}
+
+.about-intro {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+}
+
+/* Reset extra padding on contact section */
+#contact { padding-bottom: 0; }
+
+/* Footer pinned to bottom and styled */
+html, body { min-height: 100%; }
+body { display: flex; flex-direction: column; }
+footer { margin-top: auto; }
+.footer-text {
+  font-size: 0.7rem;
+  margin: 3rem 0 1rem;
+}
+
+/* === Card proportions === */
+.project-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.project-card .card-content { min-height: 0; }
+
+.music-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+/* === Grid counts desktop === */
+.projects-grid {
+  grid-template-columns: repeat(3, minmax(300px, 1fr));
+}
+.music-grid {
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+}
+
+/* ensure consistent max width for central content */
+.page-header,
+.photo-grid,
+.projects-grid,
+.music-grid,
+.about-intro,
+.skills-grid,
+.contact-grid,
+.footer-text,
+.nav-container,
+.hero-content,
+.intro-content,
+.about-bio,
+.featured-projects,
+.music-player,
+.about-skills {
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* === Skills grid tidy === */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+/* === Bucket hero section === */
+.bucket-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0;
+  overflow: hidden;
+}
+.bucket-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('assets/landscape-placeholder.jpg') center/cover no-repeat;
+  filter: grayscale(0.1);
+  opacity: 0.9;
+}
+.bucket-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.15));
+}
+.bucket-hero .bucket-inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+.bucket-hero h2 { margin-bottom: 0.75rem; }
+.bucket-hero p { margin-bottom: 1.25rem; }
+.bucket-cta {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-accent);
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+.bucket-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--color-shadow);
+}
+
+/* === Responsive tablet === */
+@media (max-width: 992px) {
+  .projects-grid { grid-template-columns: repeat(2, minmax(260px, 1fr)); }
+  .music-grid { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
+}
+
+/* === Responsive mobile === */
+@media (max-width: 768px) {
+  :root { --content-max: 92vw; }
+
+  #gallery .gallery-masonry { column-count: 2; }
+
+  .projects-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .music-grid { grid-template-columns: repeat(3, 1fr); }
+
+  .skills-grid {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+  .skills-grid span {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  .hero, #systems, #contact, .about-intro { min-height: 100vh; }
+}
+
