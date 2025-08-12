@@ -1349,4 +1349,57 @@ footer { margin-top: auto; }
 
   .hero, #systems, #contact, .about-intro { min-height: 100vh; }
 }
+    /* Hero pointer events fix */
+    .hero-content {
+      pointer-events: none;
+    }
+    .hero-content a,
+    .hero-content button {
+      pointer-events: auto;
+    }
+
+    /* Skills grid adjustments: make skills single-line and responsive two columns on mobile */
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .skills-grid span {
+      white-space: nowrap;
+      padding: 0.5rem 1.5rem;
+      font-size: 1rem;
+    }
+    @media (max-width: 768px) {
+      .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+    }
+
+    /* Music grid: 3 tracks per row on all devices */
+    .music-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: 768px) {
+      .music-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Footer text positioning and styling */
+    .footer-text {
+      font-size: 0.7rem;
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Adjust contact section padding to remove bottom gap */
+    #contact {
+      padding-bottom: 8vh;
+    }
+
 
