@@ -555,7 +555,7 @@ p {
 /* Increase spacing between the contact section and footer */
 /* Increase negative space before the footer */
 #contact {
-  padding-bottom: 14rem;
+  padding-bottom: 10rem;
 }
 
 
@@ -855,6 +855,7 @@ p {
   display: grid;
   grid-template-columns: repeat(3, minmax(300px, 1fr));
   gap: 2rem;
+      grid-auto-rows: 1fr;
   margin: 3rem auto;
   width: 100%;
   max-width: 1200px;
@@ -866,6 +867,7 @@ p {
   backdrop-filter: blur(10px);
   border-radius: var(--radius);
   padding: 2rem;
+      height: 100%;
   box-shadow: 0 4px 16px var(--color-shadow);
   text-align: center;
   transition: var(--transition);
@@ -877,6 +879,11 @@ p {
   box-shadow: 0 8px 24px var(--color-shadow);
 }
 
+
+    
+        
+    }
+}
 .contact-item .icon {
   width: 2rem;
   height: 2rem;
@@ -902,7 +909,10 @@ p {
 
 /* Footer */
 footer {
-  padding: 10vh 8vw;
+  margin-top: auto;
+      display: flex;
+    align-items: center;
+    padding: 2rem 4rem;
   background: transparent;
   color: var(--color-primary);
   border-top: none;
@@ -967,6 +977,8 @@ footer {
     max-width: 400px;
   }
 
+      
+  
   .projects-grid {
     grid-template-columns: 1fr;
   }
@@ -1106,4 +1118,18 @@ footer {
     text-align: center;
     max-width: 90%;
   }
+}
+
+@media (min-width: 769px) {
+    body {
+        transform: scale(0.8);
+        transform-origin: top left;
+        width: 125%;
+    }
+}
+
+@media (max-width: 768px) {
+    footer {
+        padding: 1rem 2rem;
+    }
 }
