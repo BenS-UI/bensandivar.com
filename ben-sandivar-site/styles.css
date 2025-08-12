@@ -415,7 +415,7 @@ p {
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 3rem;
   margin: 0 auto;
   width: 100%;
@@ -483,11 +483,10 @@ p {
 .music-player .page-header {
   text-align: center;
 }
-
 .music-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 3rem;
+  
+  
+  grid-template-columns: repeat(3, 1fr);
   width: 100%;
   margin: 0 auto;
   max-width: var(--content-max);
@@ -561,7 +560,7 @@ p {
 /* Increase spacing between the contact section and footer */
 /* Increase negative space before the footer */
 #contact {
-  padding-bottom: 14rem;
+  padding-bottom: 8vh;
 }
 
 /* Equalizer bars within music cards */
@@ -916,7 +915,7 @@ footer {
 }
 
 .footer-text {
-  font-size: 1rem;
+  font-size: 0.7rem;
   line-height: 1.2;
   padding: 0;
   margin: 3rem 0 0;
@@ -978,7 +977,7 @@ footer {
   }
 
   .projects-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .contact-grid {
@@ -1134,6 +1133,10 @@ footer {
 .skills-grid,
 .about-bio,
 .contact-grid,
+
+    .expression,
+
+.expression-content,
 .footer-text {
   max-width: var(--content-max);
   margin-left: auto;
@@ -1143,5 +1146,37 @@ footer {
 /* Ensure consistent section side padding */
 section, .hero, .photo-grid, footer {
   padding: 10vh 8vw;
+}
+
+
+/* Grid columns - ensure card sizes not oversized */
+.projects-grid,
+.music-grid {
+  grid-template-columns: repeat(3, minmax(300px, 1fr));
+}
+
+/* Mobile columns - two per row */
+@media (max-width: 768px) {
+  .projects-grid,
+  .music-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Center hero, expression, and contact sections vertically */
+.expression {
+  justify-content: center;
+  align-items: center;
+}
+.hero,
+#contact {
+  justify-content: center;
+}
+
+/* Footer text size and spacing */
+.footer-text {
+  font-size: 0.7rem;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
 }
 
