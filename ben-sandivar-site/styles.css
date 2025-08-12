@@ -77,8 +77,6 @@ body[data-theme="dark"] {
 section, .hero, .photo-grid, footer {
   width: 100%;
   min-height: 100vh;
-  max-width: 75%;
-  alignment: center;
   padding: 10vh 10vw;
   display: flex;
   flex-direction: column;
