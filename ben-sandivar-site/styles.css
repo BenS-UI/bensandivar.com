@@ -80,8 +80,8 @@ body[data-theme="dark"] {
 section, .hero, .photo-grid, footer {
   width: 100%;
   min-height: 100vh;
-  padding: 10vh 10vw;
-  display: flex;
+ padding: 10vh 8vw;
+  
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -183,7 +183,7 @@ p {
   align-items: center;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: 0 4rem;
+  padding 0;
 }
 
 .logo img {
@@ -253,7 +253,8 @@ p {
   position: relative;
   z-index: 2;
   max-width: var(--content-max);
-  padding: 0 2rem;
+  padding: 0;
+  
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1117,3 +1118,27 @@ footer {
     max-width: 90%;
   }
 }
+
+/* Central content area width constraint */
+.nav-container,
+.hero-content,
+.page-header,
+.photo-grid,
+.projects-grid,
+.music-grid,
+.about-intro,
+.intro-content,
+.skills-grid,
+.about-bio,
+.contact-grid,
+.footer-text {
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Ensure consistent section side padding */
+section, .hero, .photo-grid, footer {
+  padding: 10vh 8vw;
+}
+
