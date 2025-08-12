@@ -1403,3 +1403,21 @@ footer { margin-top: auto; }
     }
 
 
+/* Music grid spacing: add gap for track cards */
+.music-grid {
+    gap: 2rem;
+}
+
+/* Footer sizing and positioning */
+footer {
+    min-height: auto;
+    margin-top: auto;
+    padding: 8vh 8vw;
+}
+
+/* Footer text styling override */
+.footer-text {
+    font-size: 0.7rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
