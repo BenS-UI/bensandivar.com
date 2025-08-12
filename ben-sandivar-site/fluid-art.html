@@ -17,7 +17,7 @@ body {
   margin:0;
   padding:0;
   overflow:hidden;
-  background:#020c1f;
+  background:#020c1f; /* dark background reminiscent of reference image */
   color:#fff;
 }
 #toolbar {
@@ -60,19 +60,23 @@ body {
   display:flex;
   gap:4px;
 }
+/* Colour selector ring: a conic gradient ring with a swatch inside */
 #colorSelector {
-  width:34px;
-  height:34px;
+  width:44px;
+  height:44px;
   border-radius:50%;
   position:relative;
   overflow:hidden;
-  border:2px solid rgba(255,255,255,0.5);
   cursor:pointer;
+  padding:4px; /* space for ring */
+  background:conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
 }
 #colorSelector .swatch {
   position:absolute;
-  inset:0;
+  inset:4px;
   border-radius:50%;
+  background:#00aaff;
+  box-shadow:0 0 0 2px rgba(255,255,255,0.5);
 }
 #colorSelector input[type="color"] {
   position:absolute;
@@ -140,93 +144,154 @@ body {
   pointer-events:none;
 }
 
-/* Harmonize dropdowns and number inputs with glassmorphic theme */
-.panel-content select,
-.panel-content input[type="number"] {
-  width:100%;
-  appearance:none;
-  -webkit-appearance: none;
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:10px;
-  padding:8px 10px;
-  margin-top:4px;
-  background:rgba(255,255,255,0.1);
-  color:#fff;
-  backdrop-filter:blur(6px);
-  font-family:inherit;
-  font-size:14px;
-  cursor:pointer;
-}
-.panel-content select {
-  background-image:url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='%23ffffff' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 10px center;
-  background-size:14px 14px;
-  padding-right:34px;
-}
-.panel-content select:focus,
-.panel-content input[type="number"]:focus {
-  outline:none;
-  box-shadow:0 0 0 2px rgba(143,211,255,0.5);
-}
+    /* Harmonize dropdowns and number inputs with glassmorphic theme */
+    .panel-content select,
+    .panel-content input[type="number"] {
+      width:100%;
+      appearance:none;
+      -webkit-appearance: none;
+      border:1px solid rgba(255,255,255,0.3);
+      border-radius:10px;
+      padding:8px 10px;
+      margin-top:4px;
+      background:rgba(255,255,255,0.1);
+      color:#fff;
+      backdrop-filter:blur(6px);
+      font-family:inherit;
+      font-size:14px;
+      cursor:pointer;
+    }
+    .panel-content select {
+      background-image:url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='%23ffffff' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 10px center;
+      background-size:14px 14px;
+      padding-right:34px;
+    }
+    .panel-content select:focus,
+    .panel-content input[type="number"]:focus {
+      outline:none;
+      box-shadow:0 0 0 2px rgba(143,211,255,0.5);
+    }
 
-/* Hide legacy tip element */
-#tip {
-  display: none !important;
-}
+    /* Hide legacy tip element */
+    #tip {
+      display: none !important;
+    }
 
-/* Tooltip styling */
-#tooltip {
-  position: fixed;
-  pointer-events: none;
-  background: rgba(0,0,0,0.65);
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  opacity: 0;
-  transform: translate(-50%, -150%);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 999;
-}
-#tooltip.show {
-  opacity: 1;
-  transform: translate(-50%, -170%);
-}
+    /* Tooltip styling */
+    #tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      transform: translate(-50%, -150%);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 999;
+    }
+    #tooltip.show {
+      opacity: 1;
+      transform: translate(-50%, -170%);
+    }
 
-/* Welcome overlay styling */
-#welcomeOverlay {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 16px;
-  padding: 20px;
-  color: #fff;
-  width: 320px;
-  z-index: 120;
-  text-align: center;
-  display: none;
-}
-#welcomeOverlay p {
-  margin-top: 10px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-#welcomeOverlay h3 {
-  margin: 0;
-  font-size: 20px;
-}
-#welcomeOverlay button {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-}
+    /* Welcome overlay styling */
+    #welcomeOverlay {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 16px;
+      padding: 20px;
+      color: #fff;
+      width: 320px;
+      z-index: 120;
+      text-align: center;
+      display: none;
+    }
+    #welcomeOverlay p {
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    #welcomeOverlay h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+    #welcomeOverlay button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* New artwork colour inputs */
+    #newColorInputs {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:8px;
+    }
+    #newColorInputs .color-input {
+      position:relative;
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      padding:3px;
+      background:conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+      cursor:pointer;
+    }
+    #newColorInputs .color-input .inner {
+      position:absolute;
+      inset:3px;
+      border-radius:50%;
+      background:#ffffff;
+      box-shadow:0 0 0 2px rgba(255,255,255,0.5);
+    }
+    #newColorInputs .color-input input[type="color"] {
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }
+
+    /* Dropdown tool menus */
+    .tool-dropdown {
+      position: relative;
+      display:flex;
+      align-items:center;
+    }
+    .tool-dropdown .group-btn {
+      /* ensure group button fills its area and is clickable */
+      display:flex;
+      align-items:center;
+      gap:4px;
+    }
+    .tool-dropdown .tool-options {
+      position:absolute;
+      bottom:100%;
+      left:0;
+      transform:translateY(-8px);
+      display:none;
+      flex-direction:column;
+      gap:4px;
+      padding:6px;
+      background:rgba(255,255,255,0.15);
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.3);
+      border-radius:12px;
+      z-index:50;
+    }
+    .tool-dropdown.open .tool-options {
+      display:flex;
+    }
 </style>
 </head>
 <body>
@@ -251,45 +316,58 @@ body {
 </nav>
 <canvas id="fluid"></canvas>
 <div id="toolbar">
-  <div id="colorSelector" data-name="Colour Picker" data-desc="Select your base colour">
+  <div id="colorSelector">
     <input id="colorInput" type="color" value="#00aaff">
     <div class="swatch" style="background:#00aaff"></div>
   </div>
-  <div class="tool-group" id="colorTools">
-    <button class="tool-btn" data-tool="bucket" data-name="Bucket" data-desc="Hold to pour colour and gradually fill an area"><span class="material-symbols-outlined">format_color_fill</span></button>
-    <button class="tool-btn" data-tool="splatter" data-name="Splatter" data-desc="Hold to throw random drops; higher speed increases spin"><span class="material-symbols-outlined">ink_drop</span></button>
-    <button class="tool-btn" data-tool="spray" data-name="Spray" data-desc="Hold to spray a fine mist of colour"><span class="material-symbols-outlined">sprinkler</span></button>
-    <button class="tool-btn" data-tool="glitter" data-name="Glitter" data-desc="Hold to sprinkle shimmering speckles"><span class="material-symbols-outlined">auto_awesome</span></button>
+  <div class="tool-dropdown" id="colorDropdown">
+    <!-- Colour tool group button toggles the drop-up. Clicking anywhere on the button opens/closes the menu -->
+    <button class="tool-btn group-btn" data-name="Colour Tools" data-desc="Choose a colouring tool">
+      <span class="material-symbols-outlined">palette</span>
+    </button>
+    <div class="tool-options">
+      <button class="tool-btn" data-tool="bucket" data-name="Bucket" data-desc="Hold to pour colour and gradually fill an area"><span class="material-symbols-outlined">format_color_fill</span></button>
+      <button class="tool-btn" data-tool="splatter" data-name="Splatter" data-desc="Hold to throw random drops; higher speed increases spin"><span class="material-symbols-outlined">water_drop</span></button>
+      <button class="tool-btn" data-tool="spray" data-name="Spray" data-desc="Hold to spray a fine mist of colour"><span class="material-symbols-outlined">sprinkler</span></button>
+      <button class="tool-btn" data-tool="glitter" data-name="Glitter" data-desc="Hold to sprinkle shimmering speckles"><span class="material-symbols-outlined">auto_awesome</span></button>
+    </div>
   </div>
-  <div class="tool-group" id="blendTools">
-    <button class="tool-btn" data-tool="blender" data-name="Blender" data-desc="Hold to spin the paint; left click spins clockwise, right click anticlockwise"><span class="material-symbols-outlined">autorenew</span></button>
-    <button class="tool-btn" data-tool="smudge" data-name="Smudge" data-desc="Hold and drag to smear paint like your finger"><span class="material-symbols-outlined">gesture</span></button>
-    <button class="tool-btn" data-tool="push" data-name="Push" data-desc="Hold and drag to push paint away from your pointer"><span class="material-symbols-outlined">open_with</span></button>
-    <button class="tool-btn" data-tool="pinch" data-name="Pinch" data-desc="Hold and drag to pinch inward or outward depending on click"><span class="material-symbols-outlined">center_focus_strong</span></button>
-    <button class="tool-btn" data-tool="ripple" data-name="Ripple" data-desc="Hold to create expanding waves in the paint"><span class="material-symbols-outlined">waves</span></button>
+  <div class="tool-dropdown" id="blendDropdown">
+    <!-- Blending tool group button toggles the drop-up. Clicking anywhere opens/closes the menu -->
+    <button class="tool-btn group-btn" data-name="Blend Tools" data-desc="Choose a blending tool">
+      <span class="material-symbols-outlined">tune</span>
+    </button>
+    <div class="tool-options">
+      <button class="tool-btn" data-tool="blender" data-name="Blender" data-desc="Hold to spin the paint; left click spins clockwise, right click anticlockwise"><span class="material-symbols-outlined">autorenew</span></button>
+      <button class="tool-btn" data-tool="smudge" data-name="Smudge" data-desc="Hold and drag to smear paint like your finger"><span class="material-symbols-outlined">gesture</span></button>
+      <button class="tool-btn" data-tool="push" data-name="Push" data-desc="Hold and drag to push paint away from your pointer"><span class="material-symbols-outlined">open_with</span></button>
+      <button class="tool-btn" data-tool="pinch" data-name="Pinch" data-desc="Hold to pinch inward or outward depending on click"><span class="material-symbols-outlined">center_focus_strong</span></button>
+      <button class="tool-btn" data-tool="ripple" data-name="Ripple" data-desc="Hold to create expanding waves in the paint"><span class="material-symbols-outlined">waves</span></button>
+    </div>
   </div>
     <button class="tool-btn" id="newBtn" data-name="New Artwork" data-desc="Start a new piece with fresh colours and layout"><span class="material-symbols-outlined">fiber_new</span></button>
     <button class="tool-btn" id="undoBtn" data-name="Undo" data-desc="Undo the last change"><span class="material-symbols-outlined">undo</span></button>
     <button class="tool-btn" id="redoBtn" data-name="Redo" data-desc="Redo the undone change"><span class="material-symbols-outlined">redo</span></button>
     <button class="tool-btn" id="exportBtn" data-name="Export" data-desc="Export your artwork to an image"><span class="material-symbols-outlined">download</span></button>
     <button class="tool-btn" id="cameraBtn" data-name="Snapshot" data-desc="Quickly capture and save a snapshot"><span class="material-symbols-outlined">photo_camera</span></button>
+    <!-- Removed Tutorial button: tooltips handle guidance -->
 </div>
 <!-- Settings panel -->
 <div id="settingsPanel">
   <div class="panel-header"><h3>Settings</h3><button class="close-btn">&times;</button></div>
   <div class="panel-content">
-    <label data-name="Speed" data-desc="Controls how fast the simulation evolves">Speed <input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"></label>
-    <label data-name="Strength" data-desc="Controls the strength of the tool effect">Strength <input id="strength" type="range" min="0" max="60" step="0.1" value="24"></label>
-    <label data-name="Size" data-desc="Adjusts the radius of your tool">Size <input id="size" type="range" min="10" max="300" step="1" value="120"></label>
-    <label data-name="Viscosity" data-desc="Higher values make the fluid thicker and move slower">Viscosity <input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"></label>
-    <label data-name="Diffusion" data-desc="Controls how quickly colours blend into the surroundings">Diffusion <input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"></label>
+        <label data-name="Speed" data-desc="Controls how fast the simulation evolves">Speed <input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"></label>
+        <label data-name="Strength" data-desc="Controls the strength of the tool effect">Strength <input id="strength" type="range" min="0" max="60" step="0.1" value="24"></label>
+        <label data-name="Size" data-desc="Adjusts the radius of your tool">Size <input id="size" type="range" min="10" max="300" step="1" value="120"></label>
+        <label data-name="Viscosity" data-desc="Higher values make the fluid thicker and move slower">Viscosity <input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"></label>
+        <label data-name="Diffusion" data-desc="Controls how quickly colours blend into the surroundings">Diffusion <input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"></label>
   </div>
 </div>
 <!-- New layout panel -->
 <div id="newPanel">
   <div class="panel-header"><h3>New Artwork</h3><button class="close-btn">&times;</button></div>
   <div class="panel-content">
-    <label>Number of Colours
+    <label>Number of Colors
       <select id="newColors">
         <option value="1">1</option>
         <option value="2">2</option>
@@ -313,7 +391,8 @@ body {
         <option value="random">Random</option>
       </select>
     </label>
-    <button class="tool-btn" id="newCreate" data-name="Create" data-desc="Generate a new layout with your chosen colours">Create</button>
+    <div id="newColorInputs"></div>
+    <button class="tool-btn" id="newCreate">Create</button>
   </div>
 </div>
 <!-- Export panel -->
@@ -330,7 +409,7 @@ body {
     <label>Width <input id="exportWidth" type="number" value="1920" min="100" max="4096"></label>
     <label>Height <input id="exportHeight" type="number" value="1080" min="100" max="4096"></label>
     <label>Quality (JPEG/WEBP) <input id="exportQuality" type="range" min="0.1" max="1" step="0.01" value="0.92"></label>
-    <button class="tool-btn" id="exportDownload" data-name="Download" data-desc="Save your image with the chosen settings">Download</button>
+    <button class="tool-btn" id="exportDownload">Download</button>
   </div>
 </div>
 <div id="tip" class="tip"></div>
@@ -349,10 +428,10 @@ body {
   let holdStart = 0;
   let cursorX = 0, cursorY = 0, prevX = 0, prevY = 0;
   let currentTool = 'bucket';
-  let pourColor = [0, 170, 255];
+  let pourColor = [0, 170, 255]; // default electric blue
   const undoStack = [];
   const redoStack = [];
-  let tipsEnabled = false; // legacy placeholder
+  let tipsEnabled = false; // disable built-in tips; replaced by tooltips
   const tipsSeen = JSON.parse(localStorage.getItem('fluidTips') || '{}');
 
   function alloc() {
@@ -367,9 +446,11 @@ body {
     dR.fill(0); dG.fill(0); dB.fill(0);
   }
   function seedBlueStream() {
+    // Fill grid with gradient and noise reminiscent of reference image
     for (let j=1; j<=N; j++) {
       for (let i=1; i<=N; i++) {
         const p = j / N;
+        // gradient from electric blue to neon aquamarine
         const r = 0 + (0-0) * p;
         const g = 170 + (255-170) * p;
         const b = 255 + (209-255) * p;
@@ -454,6 +535,7 @@ body {
         }
       }
     } else if (layout === 'blotches') {
+      // random seeds and Voronoi
       const seeds = [];
       for (let i=0; i<m; i++) {
         seeds.push({
@@ -512,6 +594,7 @@ body {
     }
   }
   function pushUndo() {
+    // copy current dye to stack
     const snapshotR = new Float32Array(dR);
     const snapshotG = new Float32Array(dG);
     const snapshotB = new Float32Array(dB);
@@ -542,7 +625,27 @@ body {
       tipEl.style.opacity = '0';
     }, 4000 + message.length * 20);
   }
-  function maybeTip() {}
+  function maybeTip(tool) {
+    if (!tipsEnabled) return;
+    if (tipsSeen[tool]) return;
+    const messages = {
+      bucket: "Bucket: hold to pour clean color.",
+      splatter: "Splatter: hold to drop random paint with spin.",
+      spray: "Spray: hold to spray fine mist of color.",
+      glitter: "Glitter: hold to sprinkle shimmering paint.",
+      blender: "Blender: hold to spin paint; right-click reverses spin.",
+      smudge: "Smudge: hold and drag to smear paint.",
+      push: "Push: hold and drag to push paint outward.",
+      pinch: "Pinch: hold and drag to pinch paint inward.",
+      ripple: "Ripple: hold to create rippling waves."
+    };
+    if (messages[tool]) {
+      showTip(messages[tool]);
+      tipsSeen[tool] = true;
+      localStorage.setItem('fluidTips', JSON.stringify(tipsSeen));
+    }
+  }
+  // Fluid solver functions
   let iter = 20;
   function set_bnd(b, x) {
     for(let i=1;i<=N;i++){
@@ -610,6 +713,7 @@ body {
     set_bnd(1,u); set_bnd(2,v);
   }
   function vel_step(u,v,u0,v0,visc,dt) {
+    // Add velocities
     for(let i=0;i<u.length;i++) { u[i] += u0[i]; v[i] += v0[i]; u0[i] = 0; v0[i] = 0; }
     diffuse(1,u0,u,visc,dt); diffuse(2,v0,v,visc,dt);
     project(u0,v0,u,v);
@@ -620,10 +724,237 @@ body {
     diffuse(0,r0,r,diff,dt); diffuse(0,g0,g,diff,dt); diffuse(0,b0,b,diff,dt);
     advect(0,r,r0,u,v,dt); advect(0,g,g0,u,v,dt); advect(0,b,b0,u,v,dt);
   }
-  // Tool implementations (omitted here for brevity — they remain unchanged)
-  // ...
-  // (All tool functions — Bucket, Splatter, Spray, Glitter, Blender, Smudge, Push, Pinch, Ripple — from the earlier version remain intact)
-  
+  // Tool implementations
+  function addBucketPaint(dt) {
+    const radius = +sizeEl.value * DPR;
+    const rate = Math.min(2, 40*dt);
+    const [cx,cy] = gridFromPx(cursorX, cursorY);
+    const rG = radius * (N / Math.max(W, H));
+    const r2 = rG*rG;
+    const [rC,gC,bC] = pourColor;
+    for(let j=1;j<=N;j++){
+      for(let i=1;i<=N;i++){
+        const dx = i - cx;
+        const dy = j - cy;
+        const dist2 = dx*dx + dy*dy;
+        if(dist2 > r2) continue;
+        const w = 1 - dist2/r2;
+        const id = IX(i,j);
+        dR[id] += (rC - dR[id]) * w * rate;
+        dG[id] += (gC - dG[id]) * w * rate;
+        dB[id] += (bC - dB[id]) * w * rate;
+      }
+    }
+  }
+  let splatterCarry = 0;
+  function addSplatter(dt) {
+    const radius = +sizeEl.value * DPR;
+    const spinStrength = +strengthEl.value;
+    const speed = +speedEl.value;
+    let rate = 40 * speed * dt + splatterCarry;
+    let drops = Math.floor(rate);
+    splatterCarry = rate - drops;
+    const [cx,cy] = gridFromPx(cursorX, cursorY);
+    for(let n=0;n<drops;n++){
+      const ang = Math.random() * Math.PI * 2;
+      const dist = Math.random() * radius;
+      const gx = clamp((cx + (dist * Math.cos(ang))*(N/Math.max(W,H)))|0,1,N);
+      const gy = clamp((cy + (dist * Math.sin(ang))*(N/Math.max(W,H)))|0,1,N);
+      const dropR = (0.1 + Math.random()*0.9) * radius*(N/Math.max(W,H));
+      const r2 = dropR * dropR;
+      for(let j=(gy-dropR)|0;j<=(gy+dropR)|0;j++){
+        if(j<1||j>N) continue;
+        for(let i=(gx-dropR)|0;i<=(gx+dropR)|0;i++){
+          if(i<1||i>N) continue;
+          const dx = i-gx;
+          const dy = j-gy;
+          const d2 = dx*dx + dy*dy;
+          if(d2>r2) continue;
+          const w = 1 - d2/r2;
+          const id = IX(i,j);
+          dR[id] += (pourColor[0] - dR[id]) * w;
+          dG[id] += (pourColor[1] - dG[id]) * w;
+          dB[id] += (pourColor[2] - dB[id]) * w;
+          if (spinStrength > 0.1) {
+            const dist1 = Math.sqrt(d2) + 1e-6;
+            const tx = -dy / dist1;
+            const ty = dx / dist1;
+            const f = dt * spinStrength * 0.3 * (1 - d2/r2) * (holdButton === 2 ? -1 : 1);
+            u0[IX(i,j)] += tx * f;
+            v0[IX(i,j)] += ty * f;
+          }
+        }
+      }
+    }
+  }
+  let sprayCarry = 0;
+  function addSpray(dt) {
+    const radius = +sizeEl.value * DPR;
+    const [cx, cy] = [cursorX, cursorY];
+    let rate = 200 * dt + sprayCarry;
+    const count = Math.floor(rate);
+    sprayCarry = rate - count;
+    for(let i=0; i<count; i++){
+      const ang = Math.random() * 2 * Math.PI;
+      const dist = Math.random() * radius;
+      const px = cx + dist * Math.cos(ang);
+      const py = cy + dist * Math.sin(ang);
+      const [gx,gy] = gridFromPx(px, py);
+      const id = IX(gx|0, gy|0);
+      const noise = Math.random()*0.3+0.7;
+      dR[id] = dR[id] + (pourColor[0]*noise - dR[id]) * 0.5;
+      dG[id] = dG[id] + (pourColor[1]*noise - dG[id]) * 0.5;
+      dB[id] = dB[id] + (pourColor[2]*noise - dB[id]) * 0.5;
+    }
+  }
+  let glitterCarry = 0;
+  function addGlitter(dt) {
+    const radius = +sizeEl.value * DPR;
+    let rate = 150 * dt + glitterCarry;
+    const count = Math.floor(rate);
+    glitterCarry = rate - count;
+    for(let i=0; i<count; i++){
+      const ang = Math.random() * 2 * Math.PI;
+      const dist = Math.random() * radius;
+      const px = cursorX + dist * Math.cos(ang);
+      const py = cursorY + dist * Math.sin(ang);
+      const [gx,gy] = gridFromPx(px, py);
+      const id = IX(gx|0, gy|0);
+      const brightness = (Math.random()*0.8 + 0.3);
+      dR[id] = dR[id] + (pourColor[0]*brightness - dR[id]) * 0.7;
+      dG[id] = dG[id] + (pourColor[1]*brightness - dG[id]) * 0.7;
+      dB[id] = dB[id] + (pourColor[2]*brightness - dB[id]) * 0.7;
+    }
+  }
+  function addBlender(dt) {
+    const radius = +sizeEl.value * DPR;
+    const [cx,cy] = gridFromPx(cursorX, cursorY);
+    const rG = radius * (N / Math.max(W,H));
+    const r2 = rG*rG;
+    const str = +strengthEl.value;
+    const dir = holdButton === 2 ? -1 : 1;
+    for(let j=1;j<=N;j++){
+      for(let i=1;i<=N;i++){
+        const dx = i - cx;
+        const dy = j - cy;
+        const dist2 = dx*dx + dy*dy;
+        if(dist2>r2) continue;
+        const dist = Math.sqrt(dist2) + 1e-6;
+        const tx = -dy / dist;
+        const ty = dx / dist;
+        const w = 1 - dist2/r2;
+        const f = dt * +speedEl.value * str * w * dir;
+        u0[IX(i,j)] += tx * f;
+        v0[IX(i,j)] += ty * f;
+      }
+    }
+  }
+  function addSmudge(dt) {
+    if (isNaN(prevX)) return;
+    const radius = +sizeEl.value * DPR;
+    const [cx,cy] = gridFromPx(cursorX, cursorY);
+    const [pcx,pcy] = gridFromPx(prevX, prevY);
+    const mvx = cx - pcx, mvy = cy - pcy;
+    const len = Math.hypot(mvx, mvy) + 1e-6;
+    const sx = mvx / len, sy = mvy / len;
+    const rG = radius * (N/Math.max(W,H));
+    const r2 = rG * rG;
+    const pull = +strengthEl.value * 0.6 * (1 + +speedEl.value*0.2);
+    for(let j=1;j<=N;j++){
+      for(let i=1;i<=N;i++){
+        const dx = i - cx;
+        const dy = j - cy;
+        const dist2 = dx*dx + dy*dy;
+        if(dist2>r2) continue;
+        const w = 1 - dist2/r2;
+        const id = IX(i,j);
+        const srcX = clamp((i - sx * 3)|0,1,N);
+        const srcY = clamp((j - sy * 3)|0,1,N);
+        const sid = IX(srcX, srcY);
+        const a = w * pull * dt;
+        dR[id] += (dR[sid] - dR[id]) * a;
+        dG[id] += (dG[sid] - dG[id]) * a;
+        dB[id] += (dB[sid] - dB[id]) * a;
+      }
+    }
+  }
+  function addPush(dt) {
+    if (isNaN(prevX)) return;
+    const radius = +sizeEl.value * DPR;
+    const [cx,cy] = gridFromPx(cursorX, cursorY);
+    const [pcx,pcy] = gridFromPx(prevX, prevY);
+    const mvx = cx - pcx, mvy = cy - pcy;
+    const len = Math.hypot(mvx, mvy) + 1e-6;
+    const vx = mvx / len, vy = mvy / len;
+    const rG = radius * (N/Math.max(W,H));
+    const r2v = rG*rG;
+    const force = +strengthEl.value * 0.5;
+    for(let j=1;j<=N;j++){
+      for(let i=1;i<=N;i++){
+        const dx = i - cx;
+        const dy = j - cy;
+        const dist2 = dx*dx + dy*dy;
+        if(dist2>r2v) continue;
+        const w = 1 - dist2/r2v;
+        const id = IX(i,j);
+        u0[id] += vx * w * force * dt;
+        v0[id] += vy * w * force * dt;
+      }
+    }
+  }
+  function addPinch(dt) {
+    if (isNaN(prevX)) return;
+    const radius = +sizeEl.value * DPR;
+    const [cx,cy] = gridFromPx(cursorX, cursorY);
+    const [pcx,pcy] = gridFromPx(prevX, prevY);
+    const mvx = cx - pcx, mvy = cy - pcy;
+    const len = Math.hypot(mvx, mvy) + 1e-6;
+    const vx = mvx / len, vy = mvy / len;
+    const rG = radius * (N/Math.max(W,H));
+    const r2v = rG*rG;
+    const force = +strengthEl.value * 0.5;
+    for(let j=1;j<=N;j++){
+      for(let i=1;i<=N;i++){
+        const dx = i - cx;
+        const dy = j - cy;
+        const dist2 = dx*dx + dy*dy;
+        if(dist2>r2v) continue;
+        const w = 1 - dist2/r2v;
+        const id = IX(i,j);
+        u0[id] -= vx * w * force * dt;
+        v0[id] -= vy * w * force * dt;
+      }
+    }
+  }
+  let ripplePhase = 0;
+  function addRipple(dt) {
+    const radius = +sizeEl.value * DPR;
+    const [cx,cy] = gridFromPx(cursorX, cursorY);
+    const rG = radius * (N/Math.max(W,H));
+    const r2v = rG*rG;
+    ripplePhase += dt * 4;
+    const amp0 = +strengthEl.value * 0.1;
+    for(let j=1;j<=N;j++){
+      for(let i=1;i<=N;i++){
+        const dx = i - cx;
+        const dy = j - cy;
+        const dist2 = dx*dx + dy*dy;
+        if(dist2>r2v) continue;
+        const dist = Math.sqrt(dist2)+1e-6;
+        const w = 1 - dist2/r2v;
+        const amp = Math.sin((dist / rG) * Math.PI * 4 - ripplePhase) * amp0 * w;
+        const id = IX(i,j);
+        u0[id] += (dx/dist) * amp * dt;
+        v0[id] += (dy/dist) * amp * dt;
+      }
+    }
+  }
+  function clamp(v,a,b){ return v < a ? a : (v > b ? b : v); }
+  function gridFromPx(px, py) {
+    const x = clamp(((px / W) * (N+2)), 1, N);
+    const y = clamp(((py / H) * (N+2)), 1, N);
+    return [x,y];
+  }
   function ensureCanvas() {
     DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     W = Math.floor(window.innerWidth * DPR);
@@ -632,9 +963,11 @@ body {
     canvas.height = H;
     canvas.style.width = '100vw';
     canvas.style.height = '100vh';
-    const area = window.innerWidth * window.innerHeight;
-    const target = Math.sqrt(area / 100000);
-    N = clamp(Math.floor(200 * target), 128, 384);
+    // choose grid size based on screen
+        const area = window.innerWidth * window.innerHeight;
+        // increase grid resolution for crisper rendering (reduce pixelation)
+        const target = Math.sqrt(area / 100000);
+        N = clamp(Math.floor(200 * target), 128, 384);
     alloc();
     seedBlueStream();
   }
@@ -649,6 +982,13 @@ body {
   const colorSwatch = document.querySelector('#colorSelector .swatch');
   const toolbar = document.getElementById('toolbar');
 
+  // Dropdown elements for colour and blend tools
+  const colorDropdown = document.getElementById('colorDropdown');
+  const blendDropdown = document.getElementById('blendDropdown');
+  // New artwork colour controls
+  const newColorsEl = document.getElementById('newColors');
+  const newColorInputs = document.getElementById('newColorInputs');
+
   // Show toolbar when the cursor is near the bottom of the screen
   document.addEventListener('mousemove', (e) => {
     if (e.clientY > window.innerHeight * 0.8) {
@@ -657,17 +997,74 @@ body {
       toolbar.classList.remove('show');
     }
   });
-  // Buttons
-  document.querySelectorAll('#colorTools .tool-btn, #blendTools .tool-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#colorTools .tool-btn, #blendTools .tool-btn').forEach(b => b.classList.remove('active'));
+  // Dropdown toggling for colour and blend tool menus
+  function closeDropdowns() {
+    colorDropdown.classList.remove('open');
+    blendDropdown.classList.remove('open');
+  }
+  colorDropdown.querySelector('.group-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = colorDropdown.classList.contains('open');
+    closeDropdowns();
+    if (!open) colorDropdown.classList.add('open');
+  });
+  blendDropdown.querySelector('.group-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = blendDropdown.classList.contains('open');
+    closeDropdowns();
+    if (!open) blendDropdown.classList.add('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (!colorDropdown.contains(e.target) && !blendDropdown.contains(e.target)) {
+      closeDropdowns();
+    }
+  });
+  // Tool selection handler for both colour and blend tool options
+  document.querySelectorAll('.tool-options .tool-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.tool-options .tool-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentTool = btn.dataset.tool;
       maybeTip(currentTool);
+      closeDropdowns();
+      e.stopPropagation();
     });
   });
+  // Update dynamic colour inputs for New Artwork panel
+  function updateNewColorInputs() {
+    if (!newColorInputs) return;
+    const count = parseInt(newColorsEl.value);
+    newColorInputs.innerHTML = '';
+    for (let i=0; i<count; i++) {
+      // create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'color-input';
+      const inner = document.createElement('div');
+      inner.className = 'inner';
+      const input = document.createElement('input');
+      input.type = 'color';
+      // random colour default
+      const r = Math.floor(50+Math.random()*205);
+      const g = Math.floor(50+Math.random()*205);
+      const b = Math.floor(50+Math.random()*205);
+      const hex = '#' + ((1<<24) + (r<<16) + (g<<8) + b).toString(16).slice(1);
+      input.value = hex;
+      inner.style.background = hex;
+      input.addEventListener('input', () => {
+        inner.style.background = input.value;
+      });
+      wrapper.appendChild(inner);
+      wrapper.appendChild(input);
+      newColorInputs.appendChild(wrapper);
+    }
+  }
+  if (newColorsEl) {
+    newColorsEl.addEventListener('change', updateNewColorInputs);
+    updateNewColorInputs();
+  }
   document.getElementById('undoBtn').addEventListener('click', () => { undo(); });
   document.getElementById('redoBtn').addEventListener('click', () => { redo(); });
+  // removed tutorial toggle; tooltips provide guidance
   // New
   document.getElementById('newBtn').addEventListener('click', () => {
     openPanel(newPanel);
@@ -675,13 +1072,21 @@ body {
   document.getElementById('newCreate').addEventListener('click', () => {
     const count = parseInt(document.getElementById('newColors').value);
     const layout = document.getElementById('newLayout').value;
-    // generate random colours
+    // gather selected colours from inputs if available
     const cols = [];
-    for(let i=0; i<count; i++){
-      const r = Math.floor(50+Math.random()*205);
-      const g = Math.floor(50+Math.random()*205);
-      const b = Math.floor(50+Math.random()*205);
-      cols.push('#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1));
+    if (newColorInputs && newColorInputs.children.length > 0) {
+      newColorInputs.querySelectorAll('input[type="color"]').forEach((inp) => {
+        cols.push(inp.value);
+      });
+    }
+    // If no colors selected (fallback), generate random colours
+    if (cols.length === 0) {
+      for(let i=0; i<count; i++){
+        const r = Math.floor(50+Math.random()*205);
+        const g = Math.floor(50+Math.random()*205);
+        const b = Math.floor(50+Math.random()*205);
+        cols.push('#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1));
+      }
     }
     seedLayout(layout, cols);
     pushUndo();
@@ -729,6 +1134,8 @@ body {
     }
   }
   // Tooltip and welcome overlay logic
+  // Stub for legacy maybeTip function; no-op to preserve calls
+  function maybeTip() {}
   const tooltipEl = document.getElementById('tooltip');
   let descTimeout;
   function positionTooltip(e) {
@@ -798,7 +1205,7 @@ body {
       document.removeEventListener('mouseup', stop);
     }
   });
-  // Colour input
+  // Color input
   colorInput.addEventListener('input', () => {
     const hex = colorInput.value.toLowerCase();
     colorSwatch.style.background = hex;
@@ -808,16 +1215,178 @@ body {
   document.getElementById('colorSelector').addEventListener('click', () => {
     colorInput.showPicker && colorInput.showPicker();
   });
+  // Settings from right-click
+  canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    // open settings only if not holding
+    if(!holding) {
+      openPanel(settingsPanel);
+    }
+  });
+  // Input events
+  canvas.addEventListener('mousedown', (e) => {
+    if (e.button === 0 || e.button === 2) {
+      holding = true;
+      holdButton = e.button;
+      holdStart = performance.now();
+      cursorX = e.offsetX * DPR;
+      cursorY = e.offsetY * DPR;
+      prevX = cursorX; prevY = cursorY;
+      maybeTip(currentTool);
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (holding && (e.button === holdButton)) {
+      const duration = performance.now() - holdStart;
+      holding = false;
+      if (holdButton === 2 && duration < 200) {
+        // quick right click -> open settings
+        openPanel(settingsPanel);
+      } else {
+        pushUndo();
+      }
+    }
+  });
+  canvas.addEventListener('mousemove', (e) => {
+    const x = e.offsetX * DPR;
+    const y = e.offsetY * DPR;
+    if (holding) {
+      prevX = cursorX;
+      prevY = cursorY;
+    }
+    cursorX = x; cursorY = y;
+  });
+  canvas.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    holding = true;
+    holdButton = 0;
+    cursorX = (t.clientX - rect.left) * DPR;
+    cursorY = (t.clientY - rect.top) * DPR;
+    prevX = cursorX; prevY = cursorY;
+    maybeTip(currentTool);
+    e.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    prevX = cursorX;
+    prevY = cursorY;
+    cursorX = (t.clientX - rect.left) * DPR;
+    cursorY = (t.clientY - rect.top) * DPR;
+    e.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener('touchend', () => {
+    holding = false;
+    pushUndo();
+  }, {passive:true});
+  // Keyboard shortcuts
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      e.preventDefault();
+      if (e.shiftKey) { redo(); } else { undo(); }
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+      e.preventDefault();
+      redo();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+      e.preventDefault();
+      exportImage('jpeg', W, H, 0.92);
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      openPanel(exportPanel);
+    }
+  });
+  function exportImage(format, width, height, quality) {
+    // copy canvas to offscreen at new resolution
+    const off = document.createElement('canvas');
+    off.width = width;
+    off.height = height;
+    const offCtx = off.getContext('2d');
+    // draw scaled image
+    offCtx.drawImage(canvas, 0, 0, width, height);
+    const mime = format === 'png' ? 'image/png' :
+                 format === 'jpeg' ? 'image/jpeg' : 'image/webp';
+    off.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const date = new Date().toISOString().replace(/[:.]/g,'-');
+      a.download = 'fluid-art-' + date + '.' + format;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, mime, quality);
+    closePanel(exportPanel);
+  }
+  // Render
+  let img, pixels;
+  function ensureImage() {
+    if (!img || img.width !== W || img.height !== H) {
+      img = ctx.createImageData(W, H);
+      pixels = img.data;
+    }
+  }
+  function draw() {
+    ensureImage();
+    const sx = N / W;
+    const sy = N / H;
+    let p = 0;
+    for(let y=0; y<H; y++){
+      const gy = clamp((y*sy+1)|0, 1, N);
+      for(let x=0; x<W; x++){
+        const gx = clamp((x*sx+1)|0, 1, N);
+        const id = IX(gx, gy);
+        pixels[p++] = clamp(dR[id], 0, 255)|0;
+        pixels[p++] = clamp(dG[id], 0, 255)|0;
+        pixels[p++] = clamp(dB[id], 0, 255)|0;
+        pixels[p++] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  // Main loop
+  let lastT = performance.now();
+  function step(now) {
+    const dt = Math.min(0.033, (now - lastT) / 1000) * +speedEl.value;
+    lastT = now;
+    // Tools
+    if (holding) {
+      if (currentTool === 'bucket') addBucketPaint(dt);
+      else if (currentTool === 'splatter') addSplatter(dt);
+      else if (currentTool === 'spray') addSpray(dt);
+      else if (currentTool === 'glitter') addGlitter(dt);
+      else if (currentTool === 'blender') addBlender(dt);
+      else if (currentTool === 'smudge') addSmudge(dt);
+      else if (currentTool === 'push') addPush(dt);
+      else if (currentTool === 'pinch') addPinch(dt);
+      else if (currentTool === 'ripple') addRipple(dt);
+    }
+    // Fluid simulation
+    vel_step(u, v, u0, v0, +viscEl.value, dt);
+    // fade dyes slightly
+    for(let i=0;i<dR0.length;i++){
+      dR0[i] = dR[i] * 0.999;
+      dG0[i] = dG[i] * 0.999;
+      dB0[i] = dB[i] * 0.999;
+    }
+    dens_step(dR, dG, dB, dR0, dG0, dB0, +diffEl.value, dt);
+    draw();
+    requestAnimationFrame(step);
+  }
   ensureCanvas();
-  // Start the simulation loop (call to step omitted for brevity)
-  // ...
+  requestAnimationFrame(step);
 })();
 </script>
 
-<!-- Welcome overlay -->
-<div id="welcomeOverlay">
-  <div class="panel-header"><h3>Welcome to Bucket</h3><button id="welcomeClose">&times;</button></div>
-  <p>Hover near the bottom of the page to reveal the toolbar. Right‑click anywhere on the canvas to adjust your brush and fluid settings. Have fun creating your art!</p>
-</div>
+  <!-- Welcome overlay -->
+  <div id="welcomeOverlay">
+    <div class="panel-header"><h3>Welcome to Bucket</h3><button id="welcomeClose">&times;</button></div>
+    <p>Hover near the bottom of the page to reveal the toolbar. Right‑click anywhere on the canvas to adjust your brush and fluid settings. Have fun creating your art!</p>
+  </div>
 </body>
 </html>
