@@ -57,6 +57,9 @@ html, body {
   --radius: 50px;
   --transition: all 0.3s ease;
   --spacing: 0.5rem;
+
+  /* width */
+   --content-max: min(75vw, 1200px);
 }
 
 /* Dark Theme */
@@ -314,7 +317,7 @@ p {
 /* Photo Grid (Masonry Columns) */
 .photo-grid {
   padding: 10vh 8vw;
-  max-width: 1400px;
+  max-width: var(--content-max);
   margin: 0 auto;
   background: var(--color-body-bg);
 }
@@ -392,7 +395,8 @@ p {
 .page-header {
   text-align: center;
   margin-bottom: 3rem;
-  max-width: 1200px;
+  margin: 0 auto;
+  max-width: var(--content-max);
 }
 
 .page-header h2::after {
@@ -415,7 +419,7 @@ p {
   gap: 3rem;
   margin-top: 3rem;
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--content-max);
 }
 
 .project-card {
@@ -485,7 +489,7 @@ p {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 3rem;
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin-top: 3rem;
 }
 
@@ -631,7 +635,7 @@ p {
   gap: 2rem;
   justify-content: center;
   margin-bottom: 2rem;
-  max-width: 1200px;
+  max-width: var(--content-max);
 }
 
 .intro-content {
@@ -640,7 +644,7 @@ p {
   gap: 4rem;
   justify-content: flex-start;
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--content-max);
   align-items: center;
 }
 
@@ -675,7 +679,7 @@ p {
 }
 
 .about-bio {
-  max-width: 1200px;
+  max-width: var(--content-max);
 }
 
 .about-bio p {
@@ -704,7 +708,7 @@ p {
   justify-content: center;
   gap: 1rem;
   margin-top: 2rem;
-  max-width: 1200px;
+  max-width: var(--content-max);
 }
 
 .skills-grid span {
