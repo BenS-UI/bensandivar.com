@@ -1351,7 +1351,7 @@ footer { margin-top: auto; }
 }
     /* Hero pointer events fix */
     .hero-content {
-      pointer-events: none;
+      pointer-events: auto;
     }
     .hero-content a,
     .hero-content button {
