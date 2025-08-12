@@ -372,7 +372,7 @@ function initElectricBlueHero() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  const particleCount = 1500;
+  const particleCount = window.innerWidth < 768 ? 600 : 1500;
   const positions = new Float32Array(particleCount * 3);
   const originPositions = new Float32Array(particleCount * 3);
   for (let i = 0; i < particleCount; i++) {
@@ -566,6 +566,83 @@ function initElectricBlueBlog() {
 
 // Initialise floating reeded, prismatic, colour and glass blocks. These blocks
 // drift gently across the viewport, simulating prismatic refraction and
-// translucent glass. On hover, a block temporarily moves aside to reveal
-// underlying content. This enhances the site with an Awwwards-like layered
 // aesthetic while remaining performant.
+
+window.addEventListener('DOMContentLoaded', function() {
+  const descriptionMap = {
+    LEAP: "Language Learning method blending a communicative approach with spaced repetition and comprehensible input.",
+    SLIDES: "Visual vocabulary-building tool with 4000+ carefully curated assets, including photos and videos.",
+    "Personal Branding": "Custom logo and color system reflecting my vision, values, and identity.",
+    "Cover Art": "Collage-style cover art inspired by David Carson's bold graphic design.",
+    "Concert Poster Design": "Debut concert poster with bold colors that would later influence the single's visual identity.",
+    Emma: "Artificial Human prototype with full persona, history, relationships, and professional life.",
+    Iceberg: "AI knowledge navigation system inspired by the Library of Babel project, fractals, and tesseracts.",
+    "ZENread App": "Reading app that turns dense text into manageable, engaging presentations, and with a distraction-free, focus reading mode for speed-readers, learners, and for increased accessibility.",
+    VISE: "Soft-AI project that simulates human visual focus and attention with motion-tracking plus human heuristics.",
+    Cabin: "Authors' writing project management app inspired by the creative retreat 'cabin in the woods' experience.",
+    Pearl: "Voice-controlled, low UI approach to photo editing with natural language and professional jargon for an intuitive experience for both pros and non-pros.",
+    "Gente Como Tú": "An original indie rock, pop rock song that celebrates individuality and addresses themes of self-acceptance and resilience.",
+    Underneath: "A multi-genre, motivational song that addresses freedom from habit and hive-mind thinking, celebrating independence and strength with a powerful beat that ranges from cinematic orchestral, through jazz and hip-hop, all the way to symphonic metal.",
+    "AʟᴍA": "La Alfombra Mágica is a Spanish indie rock & Americana rock band with introspective lyrics, harmonious melodies, and careful, delicate, dreamy arrangements.",
+    "Black Rose": "A metal band exploring social themes like addiction, loneliness, betrayal, and hardship through a powerful, dynamic, and intensely rhythmic blend of nu metal, hardcore, folk, and country rock.",
+    Siberia: "Siberia was a bilingual indie rock and alternative rock experiment with raw, energetic songs featuring cryptic lyrics in both English and Spanish, setting the stage for the AʟᴍA project.",
+    "The Arcane": "A low fantasy novel for young adults, exploring fate, political philosophy, and mythology in a highly developed and sophisticated multicultural world.",
+    "A Dark Place": "Psychological space opera, sci-fi manga exploring advanced physics and themes of planetary fate, existentialism, and human dignity.",
+    Downfall: "Western duel animation short film, subverting the genre's cliches with a comic-book-inspired aesthetic and blending Western art with Japanese 2D animation standards.",
+    "Black Hat": "Written in the early 2010s, Black Hat was an ahead-of-its-time futuristic sci-fi manga centered on VR, AR, hacking, and biohacking within a corporate dystopia, through the journey of a young hacker."
+  };
+
+  // update featured projects descriptions
+  document.querySelectorAll('#featured-projects h3, #featured-projects h4').forEach(function(heading) {
+    var title = heading.textContent.trim();
+    if (descriptionMap[title]) {
+      var p = heading.nextElementSibling;
+      if (p && p.tagName.toLowerCase() === 'p') {
+        p.textContent = descriptionMap[title];
+      }
+    }
+  });
+
+  // group music cards by album
+  var musicGrid = document.querySelector('.music-grid');
+  if (musicGrid) {
+    var cards = Array.from(musicGrid.querySelectorAll('.music-card'));
+    var albumMap = {};
+    var singles = [];
+    cards.forEach(function(card) {
+      var album = card.dataset.album;
+      if (album) {
+        if (!albumMap[album]) albumMap[album] = [];
+        albumMap[album].push(card);
+      } else {
+        singles.push(card);
+      }
+    });
+    musicGrid.innerHTML = '';
+    var sorted = Object.entries(albumMap).sort(function(a, b) {
+      var diff = b[1].length - a[1].length;
+      if (diff !== 0) return diff;
+      return a[0].localeCompare(b[0]);
+    });
+    sorted.forEach(function(entry) {
+      var albumName = entry[0];
+      var albumCards = entry[1];
+      var header = document.createElement('div');
+      header.className = 'album-header';
+      header.textContent = albumName;
+      musicGrid.appendChild(header);
+      albumCards.forEach(function(card) {
+        musicGrid.appendChild(card);
+      });
+    });
+    if (singles.length > 0) {
+      var header2 = document.createElement('div');
+      header2.className = 'album-header';
+      header2.textContent = 'Singles';
+      musicGrid.appendChild(header2);
+      singles.forEach(function(card) {
+        musicGrid.appendChild(card);
+      });
+    }
+  }
+});
