@@ -15,112 +15,97 @@
   <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
 
-  <!-- Libs your sections may rely on -->
+  <!-- Core libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js" defer></script>
 
-  <!-- Your site-wide CSS + JS -->
+  <!-- Site styles -->
   <link rel="stylesheet" href="styles.css" />
-  <script src="scripts.js" defer></script>
-
-  <style>
-    /* Minimal layout scaffolding */
-    body { margin: 0; font-family: 'Geologica', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    main { display:block }
-  </style>
 </head>
 <body>
-  <!-- Mount points (kept empty; content is injected below) -->
-  <div id="mount-navbar"></div>
-  <main id="mount-main" role="main"></main>
-  <div id="mount-contact"></div>
+  <!-- Slots for fetched sections -->
+  <div id="navbar-slot"></div>
+  <div id="hero-slot"></div>
+  <div id="bucket-slot"></div>
+  <div id="gallery-slot"></div>
+  <div id="projects-slot"></div>
+  <div id="music-slot"></div>
+  <div id="about-slot"></div>
+  <div id="skills-slot"></div>
+  <div id="iwrite-slot"></div>
+  <div id="contact-slot"></div>
 
+  <!-- Anything not extracted stays here -->
+  <div class="theme-toggle-container">
+    <button id="theme-toggle">
+      <span class="material-symbols-outlined theme-icon">dark_mode</span>
+    </button>
+  </div>
+
+  <!-- Vendor util + site script -->
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js" defer></script>
+  <script src="scripts.js" defer></script>
+
+  <!-- Fragment loader: fetches HTML and executes any inline scripts inside it -->
   <script>
-    // --- tiny loader that fetches HTML, injects it, and executes inline scripts ---
-    async function fetchText(url) {
-      const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-      return res.text();
-    }
+    (function () {
+      const parts = [
+        { slot: '#navbar-slot',  path: 'homesplits/navbar.html' },
+        { slot: '#hero-slot',    path: 'homesplits/hero.html' },
+        { slot: '#bucket-slot',  path: 'homesplits/bucket-hero.html' },
+        { slot: '#gallery-slot', path: 'homesplits/photo-gallery.html' },
+        { slot: '#projects-slot',path: 'homesplits/projects-grid.html' },
+        { slot: '#music-slot',   path: 'homesplits/music-grid.html' },
+        { slot: '#about-slot',   path: 'homesplits/about-me.html' },
+        { slot: '#skills-slot',  path: 'homesplits/skills-tools.html' },
+        { slot: '#iwrite-slot',  path: 'homesplits/iwrite.html' },
+        { slot: '#contact-slot', path: 'homesplits/contact.html' }
+      ];
 
-    function executeScripts(root, baseURL) {
-      const scripts = root.querySelectorAll('script');
-      scripts.forEach((old) => {
-        const s = document.createElement('script');
-        // copy attributes and fix relative src
-        for (const { name, value } of Array.from(old.attributes)) {
-          if (name === 'src') {
-            try { s.src = new URL(value, baseURL).href; }
-            catch { s.src = value; }
-          } else {
-            s.setAttribute(name, value);
+      const fetchText = (url) => fetch(url, { cache: 'no-store' }).then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
+        return r.text();
+      });
+
+      function injectWithScripts(targetEl, html, baseURL) {
+        const tpl = document.createElement('template');
+        tpl.innerHTML = html;
+
+        // Execute scripts found in fragment (inline or with src)
+        const scripts = tpl.content.querySelectorAll('script');
+        scripts.forEach(old => {
+          const s = document.createElement('script');
+          // Copy attributes and fix relative src to fragment base
+          for (const { name, value } of Array.from(old.attributes)) {
+            if (name === 'src') {
+              try { s.src = new URL(value, baseURL).href; } catch { s.src = value; }
+            } else {
+              s.setAttribute(name, value);
+            }
           }
+          if (old.textContent) s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+
+        targetEl.innerHTML = '';
+        targetEl.appendChild(tpl.content.cloneNode(true));
+      }
+
+      Promise.all(parts.map(async ({ slot, path }) => {
+        const host = document.querySelector(slot);
+        if (!host) return;
+        try {
+          const base = new URL(path, window.location.href);
+          const html = await fetchText(base);
+          injectWithScripts(host, html, base);
+        } catch (err) {
+          console.error('Failed to load', path, err);
         }
-        // inline code
-        if (old.textContent) s.textContent = old.textContent;
-        old.replaceWith(s);
+      })).then(() => {
+        // Signal that all fragments are mounted (useful if scripts.js wants to hook)
+        window.dispatchEvent(new Event('components:mounted'));
       });
-    }
-
-    async function loadSplit(file, targetSelector) {
-      const target = document.querySelector(targetSelector);
-      if (!target) return;
-
-      // clear target before injecting to avoid duplicates on reload
-      target.innerHTML = '';
-
-      const baseURL = new URL(file, window.location.href);
-      const html = await fetchText(baseURL);
-
-      const tpl = document.createElement('template');
-      tpl.innerHTML = html.trim();
-
-      // fix any <link rel="stylesheet"> inside a split (if present)
-      tpl.content.querySelectorAll('link[rel="stylesheet"][href]').forEach(link => {
-        try { link.href = new URL(link.getAttribute('href'), baseURL).href; } catch {}
-      });
-
-      // inject
-      const frag = tpl.content.cloneNode(true);
-      target.appendChild(frag);
-
-      // run scripts (needed for hero nebula)
-      executeScripts(target, baseURL);
-
-      // (re)init VanillaTilt for newly added nodes
-      if (window.VanillaTilt) {
-        try { window.VanillaTilt.init(target.querySelectorAll('[data-tilt]'), { glare: true, "max-glare": 0.2 }); } catch {}
-      }
-    }
-
-    // Order matters (top-to-bottom on the page)
-    const splits = [
-      { file: 'homesplits/navbar.html',  target: '#mount-navbar' },
-      { file: 'homesplits/hero.html',    target: '#mount-main'   },
-      { file: 'homesplits/bucket.html',  target: '#mount-main'   },
-      { file: 'homesplits/gallery.html', target: '#mount-main'   },
-      { file: 'homesplits/projects.html',target: '#mount-main'   },
-      { file: 'homesplits/music.html',   target: '#mount-main'   },
-      { file: 'homesplits/about.html',   target: '#mount-main'   },
-      { file: 'homesplits/skills.html',  target: '#mount-main'   },
-      { file: 'homesplits/contact.html', target: '#mount-contact'}
-    ];
-
-    (async () => {
-      for (const s of splits) {
-        try { await loadSplit(s.file, s.target); }
-        catch (err) { console.error('Split failed:', s.file, err); }
-      }
     })();
-
-    // Optional: simple theme toggle relay if your navbar has a #theme-toggle button
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('#theme-toggle');
-      if (!btn) return;
-      const isDark = document.body.getAttribute('data-theme') === 'dark';
-      document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    });
   </script>
 </body>
 </html>
