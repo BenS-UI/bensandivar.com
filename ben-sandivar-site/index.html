@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ben Sandivar</title>
 
-  <!-- Point the loader to the build inside /index -->
+  <!-- Where build.json lives (relative to this HTML file) -->
   <script>window.BUILD_JSON_PATH = 'build.json';</script>
 
   <!-- Favicons -->
@@ -19,10 +19,108 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
 
   <!-- Core libs available globally -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
 
-  <!-- Site styles: use root-relative path so it works from any folder -->
+  <!-- GLOBAL THEME + BASE CSS (keep this minimal; components carry their own CSS) -->
+  <style id="global-css">
+    /* RESET */
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    /* HTML/BODY */
+    html, body {
+      font-family: 'Geologica', sans-serif;
+      min-height: 100vh;
+      background: var(--color-body-bg);
+      color: var(--color-primary);
+      overflow-x: hidden;
+    }
+
+    /* Variables (light + dark) */
+    :root {
+      --color-primary-light:#14213d;
+      --color-secondary-light:#f6f8fa;
+      --color-accent-light:#0c7b93;
+      --color-border-light:#d9dee8;
+      --color-shadow-light:rgba(0,0,0,0.08);
+      --color-text-light:#425066;
+      --color-body-bg-light:#ffffff;
+      --color-navbar-bg-light:rgba(255,255,255,0.15);
+      --color-navbar-hover-bg-light:rgba(255,255,255,0.35);
+      --color-blob-light:#5f41a7;
+
+      --color-primary-dark:#d8dee9;
+      --color-secondary-dark:#1e2748;
+      --color-accent-dark:#6f78ff;
+      --color-border-dark:#37456b;
+      --color-shadow-dark:rgba(0,0,0,0.5);
+      --color-text-dark:#a8b2d2;
+      --color-body-bg-dark:#0e1423;
+      --color-navbar-bg-dark:rgba(14,20,35,0.5);
+      --color-navbar-hover-bg-dark:rgba(14,20,35,0.8);
+      --color-blob-dark:#2f235a;
+
+      /* active theme tokens */
+      --color-primary: var(--color-primary-light);
+      --color-secondary: var(--color-secondary-light);
+      --color-accent: var(--color-accent-light);
+      --color-border: var(--color-border-light);
+      --color-shadow: var(--color-shadow-light);
+      --color-text: var(--color-text-light);
+      --color-body-bg: var(--color-body-bg-light);
+      --color-navbar-bg: var(--color-navbar-bg-light);
+      --color-navbar-hover-bg: var(--color-navbar-hover-bg-light);
+      --color-blob: var(--color-blob-light);
+
+      --font-heading: 'Gabarito', sans-serif;
+      --radius: 50px;
+      --transition: all .3s ease;
+      --spacing: .5rem;
+
+      --content-max: min(75vw, 1200px);
+    }
+
+    /* Dark Theme switch */
+    body[data-theme="dark"] {
+      --color-primary: var(--color-primary-dark);
+      --color-secondary: var(--color-secondary-dark);
+      --color-accent: var(--color-accent-dark);
+      --color-border: var(--color-border-dark);
+      --color-shadow: var(--color-shadow-dark);
+      --color-text: var(--color-text-dark);
+      --color-body-bg: var(--color-body-bg-dark);
+      --color-navbar-bg: var(--color-navbar-bg-dark);
+      --color-navbar-hover-bg: var(--color-navbar-hover-bg-dark);
+      --color-blob: var(--color-blob-dark);
+    }
+
+    /* Base type only (components can override sizes) */
+    h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--color-primary); }
+    h1 { font-weight: 900; line-height: 1.2; }
+    h2 { font-weight: 900; line-height: 1.3; }
+    h3 { font-weight: 700; }
+    h4 { font-weight: 700; }
+    p  { color: var(--color-text); line-height: 1.8; }
+
+    /* Optional helper to keep inner content centered */
+    .container,
+    .page-header,
+    .footer-text,
+    .nav-container,
+    .hero-content,
+    .projects-grid,
+    .music-grid,
+    .about-intro,
+    .skills-grid,
+    .about-bio,
+    .contact-grid {
+      max-width: var(--content-max);
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+
+  <!-- Site-wide stylesheet (optional extras beyond globals) -->
   <link rel="stylesheet" href="/ben-sandivar-site/styles.css" />
 </head>
 <body>
@@ -34,51 +132,92 @@
   <footer id="footer" data-mount="footer"></footer>
 
   <!-- Theme Toggle -->
-  <div class="theme-toggle-container">
-    <button id="theme-toggle"><span class="material-symbols-outlined theme-icon">dark_mode</span></button>
+  <div class="theme-toggle-container" style="position:fixed;bottom:2rem;right:2rem;z-index:2000">
+    <button id="theme-toggle" style="width:50px;height:50px;border-radius:50%;border:1px solid var(--color-border);background:var(--color-secondary);color:var(--color-primary);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px var(--color-shadow);cursor:pointer">
+      <span class="material-symbols-outlined theme-icon">dark_mode</span>
+    </button>
   </div>
 
   <!-- Vendor util available to components -->
-  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js" defer></script>
 
-  <!-- Site scripts: root-relative so it works from any folder -->
-  <script src="/ben-sandivar-site/scripts.js"></script>
+  <!-- Site scripts -->
+  <script src="/ben-sandivar-site/scripts.js" defer></script>
 
-  <!-- Component loader (resolves component files RELATIVE TO build.json path) -->
+  <!-- Component loader -->
   <script>
   (async function mountComponents(){
     const buildHref = window.BUILD_JSON_PATH || 'build.json';
+    // Resolve build.json relative to this HTML file's directory
+    const basePath = new URL('./', window.location.href);
+
+    // tiny helper to fetch text with no cache
+    const fetchText = (url) => fetch(url, { cache: 'no-store' }).then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
+      return r.text();
+    });
+
     try {
-      // Resolve build.json relative to this HTML file's directory
-      const basePath = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
       const buildURL = new URL(buildHref, basePath);
-
-      const res = await fetch(buildURL, { cache: 'no-store' });
-      if (!res.ok) throw new Error('build.json not found');
-
-      const build = await res.json();
+      const buildRaw = await fetchText(buildURL);
+      const build = JSON.parse(buildRaw);
       const order = Array.isArray(build.order) ? build.order : [];
       const byId = new Map((build.components || []).map(c => [c.id, c]));
 
       for (const id of order){
         const conf = byId.get(id);
         if (!conf || conf.active !== true) continue;
+
         const mountSel = conf.mount || 'main';
         const region = document.querySelector(`[data-mount="${mountSel}"]`) || document.querySelector('#main');
         if (!region) continue;
+
         const filePath = (conf.file || '').trim();
         if (!filePath) continue;
+
         try {
           const compURL = new URL(filePath, buildURL);
-          const html = await (await fetch(compURL, { cache: 'no-store' })).text();
-          const wrapper = document.createElement('section');
+          const html = await fetchText(compURL);
+
+          // Parse component HTML into a template to allow URL fixing & script execution
+          const tpl = document.createElement('template');
+          tpl.innerHTML = html;
+
+          // Fix relative <link rel="stylesheet"> hrefs to be relative to component file
+          const links = tpl.content.querySelectorAll('link[rel="stylesheet"][href]');
+          links.forEach(link => {
+            try { link.href = new URL(link.getAttribute('href'), compURL).href; } catch (_) {}
+          });
+
+          // Upgrade scripts so they execute AND fix relative src
+          const oldScripts = tpl.content.querySelectorAll('script');
+          oldScripts.forEach(old => {
+            const s = document.createElement('script');
+            // copy attributes, fixing src if present
+            for (const { name, value } of Array.from(old.attributes)) {
+              if (name === 'src') {
+                try { s.setAttribute('src', new URL(value, compURL).href); }
+                catch (_) { s.setAttribute('src', value); }
+              } else {
+                s.setAttribute(name, value);
+              }
+            }
+            // preserve inline code
+            if (old.textContent) s.textContent = old.textContent;
+            // replace in DOM tree
+            old.replaceWith(s);
+          });
+
+          // Wrap for data-component attribution and append
+          const wrapper = document.createElement('div');
           wrapper.setAttribute('data-component', id);
-          wrapper.innerHTML = html;
+          wrapper.appendChild(tpl.content.cloneNode(true));
           region.appendChild(wrapper);
         } catch (err) {
+          console.error('Component failed:', id, err);
           const fallback = document.createElement('section');
           fallback.setAttribute('data-component', id);
-          fallback.innerHTML = `<!-- Failed to load ${id}: ${conf.file} -->`;
+          fallback.innerHTML = `<!-- Failed to load ${id}: ${(conf && conf.file) || 'unknown'} -->`;
           region.appendChild(fallback);
         }
       }
@@ -88,6 +227,15 @@
       if (main) main.innerHTML = '<div style="padding:1rem">build.json missing or invalid.</div>';
     }
   })();
+
+  // Simple theme toggle hookup (kept here so it works even if site script changes)
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#theme-toggle');
+    if (!btn) return;
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  });
   </script>
 </body>
 </html>
+```
