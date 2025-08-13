@@ -22,8 +22,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 
-  <!-- Site styles  ➜ if you moved CSS into /index/, change to href="index/styles.css" -->
-  <link rel="stylesheet" href="ben-sandivar-site/styles.css" />
+  <!-- Site styles: use root-relative path so it works from any folder -->
+  <link rel="stylesheet" href="/ben-sandivar-site/styles.css" />
 </head>
 <body>
   <!-- Mount regions -->
@@ -41,15 +41,15 @@
   <!-- Vendor util available to components -->
   <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
 
-  <!-- Site scripts  ➜ if you moved JS into /index/, change to src="index/scripts.js" -->
-  <script src="ben-sandivar-site/scripts.js"></script>
+  <!-- Site scripts: root-relative so it works from any folder -->
+  <script src="/ben-sandivar-site/scripts.js"></script>
 
   <!-- Component loader (resolves component files RELATIVE TO build.json path) -->
   <script>
   (async function mountComponents(){
     const buildHref = window.BUILD_JSON_PATH || 'build.json';
     try {
-      // FIX: resolve relative to this HTML file's directory
+      // Resolve build.json relative to this HTML file's directory
       const basePath = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
       const buildURL = new URL(buildHref, basePath);
 
@@ -69,7 +69,7 @@
         const filePath = (conf.file || '').trim();
         if (!filePath) continue;
         try {
-          const compURL = new URL(filePath, basePath);
+          const compURL = new URL(filePath, buildURL);
           const html = await (await fetch(compURL, { cache: 'no-store' })).text();
           const wrapper = document.createElement('section');
           wrapper.setAttribute('data-component', id);
