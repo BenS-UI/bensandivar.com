@@ -483,10 +483,11 @@ p {
 .music-player .page-header {
   text-align: center;
 }
+
 .music-grid {
-  
-  
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
   width: 100%;
   margin: 0 auto;
   max-width: var(--content-max);
