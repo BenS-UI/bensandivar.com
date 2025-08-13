@@ -4,7 +4,7 @@
     "project": "bensandivar.com",
     "generated": "2025-08-13"
   },
-  "layout": { "file": "layout.html" },
+  "layout": { "file": "index.html" },
   "settings": {
     "paths": { "components": "index/", "assets": "assets/" },
     "default_extension": ".html",

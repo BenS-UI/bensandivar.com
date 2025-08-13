@@ -49,12 +49,16 @@
   (async function mountComponents(){
     const buildHref = window.BUILD_JSON_PATH || 'build.json';
     try {
-      const buildURL = new URL(buildHref, location.href);
+      // FIX: resolve relative to this HTML file's directory
+      const basePath = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+      const buildURL = new URL(buildHref, basePath);
+
       const res = await fetch(buildURL, { cache: 'no-store' });
       if (!res.ok) throw new Error('build.json not found');
+
       const build = await res.json();
       const order = Array.isArray(build.order) ? build.order : [];
-      const byId = new Map((build.components||[]).map(c => [c.id, c]));
+      const byId = new Map((build.components || []).map(c => [c.id, c]));
 
       for (const id of order){
         const conf = byId.get(id);
@@ -65,8 +69,8 @@
         const filePath = (conf.file || '').trim();
         if (!filePath) continue;
         try {
-          const compURL = new URL(filePath, buildURL);
-          const html = await (await fetch(compURL, { cache:'no-store' })).text();
+          const compURL = new URL(filePath, basePath);
+          const html = await (await fetch(compURL, { cache: 'no-store' })).text();
           const wrapper = document.createElement('section');
           wrapper.setAttribute('data-component', id);
           wrapper.innerHTML = html;
