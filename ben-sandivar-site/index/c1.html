@@ -1,17 +1,97 @@
-<!-- c1 — Hero section -->
+<!-- c1 — Hero section with inline, self-contained CSS and full WebGL2 script -->
 <section class="hero" id="hero" data-component="c1">
+  <style>
+    /* Scope everything to this component to avoid leakage */
+    section.hero[data-component="c1"] { 
+      position: relative; 
+      min-height: 100vh; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      text-align: center; 
+      overflow: hidden; 
+      padding: 0; /* hero fills viewport; global section padding not needed here */
+      color: var(--color-primary);
+      background: transparent;
+    }
+
+    section.hero[data-component="c1"] #gl { 
+      position: absolute; 
+      inset: 0; 
+      width: 100%; 
+      height: 100%; 
+      z-index: 1; 
+      /* keep events for interaction */
+      pointer-events: auto; 
+    }
+
+    section.hero[data-component="c1"] .hero-content { 
+      position: relative; 
+      z-index: 2; 
+      max-width: var(--content-max);
+      margin: 0 auto; 
+      padding: 0 2rem; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      min-height: 100vh; 
+      text-align: center; 
+      pointer-events: auto; /* allow links/buttons to be clickable over WebGL */
+    }
+
+    section.hero[data-component="c1"] h1 { 
+      font-family: var(--font-heading, 'Gabarito', sans-serif); 
+      font-weight: 900; 
+      line-height: 1.1; 
+      margin: 0 0 1rem; 
+      font-size: clamp(2.25rem, 5vw, 4rem); 
+      color: var(--color-primary);
+      text-shadow: 0 2px 12px var(--color-shadow);
+    }
+
+    section.hero[data-component="c1"] p { 
+      font-family: 'Geologica', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; 
+      font-size: clamp(1rem, 2.3vw, 1.5rem); 
+      margin: 0 0 2rem; 
+      color: var(--color-primary);
+      opacity: 0.9; 
+    }
+
+    section.hero[data-component="c1"] .scroll-arrow { 
+      display: inline-block; 
+      font-size: 1rem; 
+      text-decoration: none; 
+      color: var(--color-primary); 
+      padding: 0.75rem 1.5rem; 
+      border-radius: 9999px; 
+      border: 2px solid rgba(255,255,255,0.35); 
+      backdrop-filter: blur(10px); 
+      transition: transform .2s ease, background .2s ease, border-color .2s ease; 
+    }
+
+    section.hero[data-component="c1"] .scroll-arrow:hover { 
+      transform: translateY(-2px); 
+      background: rgba(255,255,255,0.1); 
+      border-color: rgba(255,255,255,0.6); 
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 768px) {
+      section.hero[data-component="c1"] .hero-content { padding: 0 1rem; }
+    }
+  </style>
+
   <!-- Swirling Klein animation canvas. ID is 'gl' -->
   <canvas id="gl"></canvas>
+
   <div class="hero-content">
     <h1>Ben Sandivar</h1>
     <p>Transforming ideas into stunning digital solutions.</p>
     <a href="#projects" class="scroll-arrow">→ View My Work</a>
   </div>
 
-  <!-- WebGL2 Nebula-Klein swirl effect ported from test.html. This script creates a
-       self-morphing Klein nebula on the canvas with id "gl". The animation runs
-       behind the hero text, morphs colors from indigo to electric blue to aquamarine,
-       and reacts to mouse movement. -->
+  <!-- Full WebGL2 Nebula-Klein swirl effect (unaltered) -->
   <script>
   (() => {
     const DPR = Math.min(2, window.devicePixelRatio || 1);
