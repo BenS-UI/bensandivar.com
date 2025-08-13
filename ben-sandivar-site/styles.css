@@ -415,11 +415,12 @@ p {
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 400px));
   gap: 3rem;
   margin: 0 auto;
   width: 100%;
   max-width: var(--content-max);
+  justify-content: center;
 }
 
 .project-card {
@@ -1151,7 +1152,7 @@ section, .hero, .photo-grid, footer {
 
 
 /* Grid columns - ensure card sizes not oversized */
-.projects-grid,
+
 .music-grid {
   grid-template-columns: repeat(3, minmax(300px, 1fr));
 }
@@ -1239,7 +1240,8 @@ footer { margin-top: auto; }
 
 /* === Grid counts desktop === */
 .projects-grid {
-  grid-template-columns: repeat(3, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 400px));
+  justify-content: center;
 }
 .music-grid {
   grid-template-columns: repeat(3, minmax(220px, 1fr));
