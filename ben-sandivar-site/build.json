@@ -11,7 +11,7 @@
     "mount_points": ["head", "header", "nav", "main", "aside", "footer"]
   },
   "components": [
-    { "id": "c",   "label": "Navbar",            "active": true,  "file": "index/c.html",   "mount": "header" },
+    { "id": "c",   "label": "Navbar",            "active": true,  "file": "index/c.html",   "mount": "nav" },
 
     { "id": "c1",  "label": "Hero",              "active": true,  "file": "index/c1.html",  "mount": "main" },
     { "id": "c2",  "label": "Bucket",            "active": true,  "file": "index/c2.html",  "mount": "main" },
