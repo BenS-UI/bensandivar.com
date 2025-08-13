@@ -1,0 +1,116 @@
+<!-- homesplits/gallery.html -->
+<section class="photo-grid" id="gallery" data-split="gallery">
+  <style>
+    /* Scoped fallback styles so this renders even without global CSS */
+    section.photo-grid[data-split="gallery"] {
+      --bg: #ffffff;
+      --fg: #14213d;
+      --muted: #425066;
+      --shadow: 0 6px 22px rgba(0,0,0,.08);
+
+      background: var(--bg);
+      color: var(--fg);
+      padding: 4rem 1.25rem;
+    }
+    body[data-theme="dark"] section.photo-grid[data-split="gallery"] {
+      --bg: #0e1423;
+      --fg: #d8dee9;
+      --muted: #a8b2d2;
+      --shadow: 0 10px 28px rgba(0,0,0,.45);
+    }
+
+    section.photo-grid[data-split="gallery"] .page-header {
+      max-width: var(--content-max, min(75vw, 1200px));
+      margin: 0 auto 1.75rem;
+      text-align: center;
+    }
+    section.photo-grid[data-split="gallery"] .page-header h2 {
+      font-family: 'Gabarito', system-ui, sans-serif;
+      font-weight: 900;
+      margin: 0 0 .5rem;
+      line-height: 1.2;
+      font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+      color: var(--fg);
+    }
+    section.photo-grid[data-split="gallery"] .page-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    /* Masonry-style layout via CSS columns (simple, widely supported) */
+    section.photo-grid[data-split="gallery"] .gallery-masonry {
+      max-width: var(--content-max, min(75vw, 1200px));
+      margin: 1.5rem auto 0;
+      column-count: 4;
+      column-gap: 1rem;
+    }
+    @media (max-width: 1200px) {
+      section.photo-grid[data-split="gallery"] .gallery-masonry { column-count: 3; }
+    }
+    @media (max-width: 900px) {
+      section.photo-grid[data-split="gallery"] .gallery-masonry { column-count: 2; }
+    }
+    @media (max-width: 600px) {
+      section.photo-grid[data-split="gallery"] .gallery-masonry { column-count: 1; }
+    }
+
+    section.photo-grid[data-split="gallery"] .grid-item {
+      break-inside: avoid;
+      margin: 0 0 1rem;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transform: translateZ(0); /* helps with tilt perf */
+    }
+    section.photo-grid[data-split="gallery"] .grid-item img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+  </style>
+
+  <div class="page-header">
+    <h2>Photo Gallery</h2>
+    <p>A collection of snapshots and moments.</p>
+  </div>
+
+  <div class="gallery-masonry" id="gallery-container">
+    <!-- Gallery items populated with available 'ben' images from the assets folder -->
+    <div class="grid-item" data-tilt><img src="assets/ben%20(0).png" alt="Ben 0" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(1).webp" alt="Ben 1" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(2).jpg" alt="Ben 2 JPG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(2).png" alt="Ben 2 PNG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(3).jpg" alt="Ben 3 JPG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(3).png" alt="Ben 3 PNG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(4).png" alt="Ben 4" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(5).png" alt="Ben 5" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(6).png" alt="Ben 6" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(7).png" alt="Ben 7" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(8).png" alt="Ben 8" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(10).png" alt="Ben 10" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben.png" alt="Ben" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(4).jpg" alt="Ben 4" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(9).png" alt="Ben 9" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben.jpg" alt="Ben" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+  </div>
+
+  <script>
+    // If VanillaTilt is available globally, init it for these items.
+    (function () {
+      if (!window.VanillaTilt) return;
+      const items = document.querySelectorAll('section.photo-grid[data-split="gallery"] .grid-item[data-tilt]');
+      if (items.length) {
+        window.VanillaTilt.init(items, {
+          max: 8,
+          speed: 400,
+          glare: true,
+          "max-glare": 0.12
+        });
+      }
+    })();
+  </script>
+</section>

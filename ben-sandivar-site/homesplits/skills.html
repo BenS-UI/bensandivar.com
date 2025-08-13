@@ -1,0 +1,98 @@
+<!-- homesplits/skills.html -->
+<section id="skills" class="about-skills fade-in" data-split="skills">
+  <style>
+    /* Scoped fallback styles (won’t clash with global CSS) */
+    section.about-skills[data-split="skills"] {
+      --bg: #ffffff;
+      --fg: #14213d;
+      --muted: #425066;
+      --chip-bg: rgba(12, 123, 147, 0.08);
+      --chip-fg: #0c7b93;
+      --chip-border: rgba(12, 123, 147, 0.25);
+
+      position: relative;
+      padding: 4rem 1.25rem;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    body[data-theme="dark"] section.about-skills[data-split="skills"] {
+      --bg: #0e1423;
+      --fg: #d8dee9;
+      --muted: #a8b2d2;
+      --chip-bg: rgba(111, 120, 255, 0.12);
+      --chip-fg: #d8dee9;
+      --chip-border: rgba(216, 222, 233, 0.2);
+    }
+    section.about-skills[data-split="skills"] .page-header {
+      max-width: min(75vw, 1200px);
+      margin: 0 auto 1.75rem;
+      text-align: center;
+    }
+    section.about-skills[data-split="skills"] .page-header h2 {
+      font-family: 'Gabarito', system-ui, sans-serif;
+      font-weight: 900;
+      margin: 0 0 .5rem;
+      line-height: 1.2;
+      font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+      color: var(--fg);
+    }
+    section.about-skills[data-split="skills"] .page-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+    section.about-skills[data-split="skills"] .skills-grid {
+      max-width: min(75vw, 1200px);
+      margin: 1.5rem auto 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: .75rem;
+    }
+    section.about-skills[data-split="skills"] .skills-grid span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: .65rem .9rem;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      color: var(--chip-fg);
+      border: 1px solid var(--chip-border);
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div class="page-header">
+    <h2>Skills and Tools</h2>
+    <p>A multidisciplinary toolkit honed over years of practice, blending creativity with technical precision.</p>
+  </div>
+
+  <div class="skills-grid">
+    <span>Speed Learning</span>
+    <span>Teaching</span>
+    <span>Mnemonics</span>
+    <span>Graphic Design</span>
+    <span>Concept Art</span>
+    <span>Character Creation</span>
+    <span>Photo & Video Editing</span>
+    <span>Logo Creation</span>
+    <span>Branding</span>
+    <span>App Concept Creation</span>
+    <span>AI Prompt Engineering</span>
+    <span>Creative Writing</span>
+    <span>Songwriting & Poetry</span>
+    <span>Audio Engineering</span>
+    <span>Music Production</span>
+    <span>Cinematic Composition</span>
+    <span>Concept Design</span>
+    <span>Systems Thinking</span>
+    <span>Linguistics & Sociology</span>
+    <span>Semiotics & Symbols</span>
+    <span>Public Speaking & Communication</span>
+    <span>Project Management</span>
+    <span>Cinematography</span>
+  </div>
+</section>

@@ -1,0 +1,145 @@
+<!-- homesplits/contact.html -->
+<section id="contact" class="contact-page fade-in" data-split="contact">
+  <style>
+    /* Scoped fallback styles (safe to keep even with global CSS) */
+    section.contact-page[data-split="contact"] {
+      --bg: #ffffff;
+      --fg: #14213d;
+      --muted: #425066;
+      --border: rgba(0,0,0,.12);
+      --accent: #0c7b93;
+      --btn-fg: #ffffff;
+      --btn-bg: #0c7b93;
+
+      position: relative;
+      padding: 4rem 1.25rem;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    body[data-theme="dark"] section.contact-page[data-split="contact"] {
+      --bg: #0e1423;
+      --fg: #d8dee9;
+      --muted: #a8b2d2;
+      --border: rgba(255,255,255,.18);
+      --accent: #6f78ff;
+      --btn-fg: #0e1423;
+      --btn-bg: #d8dee9;
+    }
+    section.contact-page[data-split="contact"] .page-header {
+      max-width: min(75vw, 1200px);
+      margin: 0 auto 2rem;
+      text-align: center;
+    }
+    section.contact-page[data-split="contact"] .page-header h2 {
+      font-family: 'Gabarito', system-ui, sans-serif;
+      font-weight: 900;
+      margin: 0 0 .5rem;
+      line-height: 1.2;
+      font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+      color: var(--fg);
+    }
+    section.contact-page[data-split="contact"] .page-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+    section.contact-page[data-split="contact"] .contact-grid {
+      max-width: min(75vw, 1200px);
+      margin: 2rem auto 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 1rem;
+    }
+    @media (max-width: 900px) {
+      section.contact-page[data-split="contact"] .contact-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    section.contact-page[data-split="contact"] .contact-item {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+    }
+    section.contact-page[data-split="contact"] .contact-item .icon {
+      font-size: 1.4rem;
+      vertical-align: middle;
+      margin-right: .35rem;
+    }
+    section.contact-page[data-split="contact"] .contact-item h4 {
+      margin: .25rem 0 .25rem;
+      font-weight: 700;
+      font-family: 'Gabarito', system-ui, sans-serif;
+      color: var(--fg);
+    }
+    section.contact-page[data-split="contact"] .contact-item p {
+      margin: 0;
+      color: var(--muted);
+    }
+    section.contact-page[data-split="contact"] .contact-item a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    section.contact-page[data-split="contact"] .contact-item a:hover {
+      text-decoration: underline;
+    }
+    section.contact-page[data-split="contact"] .contact-cta {
+      max-width: min(75vw, 1200px);
+      margin: 2rem auto 0;
+      text-align: center;
+    }
+    section.contact-page[data-split="contact"] .contact-button {
+      display: inline-block;
+      padding: .85rem 1.4rem;
+      border-radius: 999px;
+      border: 0;
+      background: var(--btn-bg);
+      color: var(--btn-fg);
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+    section.contact-page[data-split="contact"] .contact-button:hover {
+      transform: translateY(-1px);
+      opacity: .95;
+    }
+    section.contact-page[data-split="contact"] .footer-text {
+      max-width: min(75vw, 1200px);
+      margin: 1.5rem auto 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+  </style>
+
+  <div class="page-header">
+    <h2>Get in Touch</h2>
+    <p>Have a project in mind? Let’s work together.</p>
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-item">
+      <span class="material-symbols-outlined icon">mail</span>
+      <h4>Email</h4>
+      <p><a href="mailto:contact@bensandivar.com">contact@bensandivar.com</a></p>
+    </div>
+    <div class="contact-item">
+      <span class="material-symbols-outlined icon">phone</span>
+      <h4>Phone</h4>
+      <p>667 321 265</p>
+    </div>
+    <div class="contact-item">
+      <span class="material-symbols-outlined icon">link</span>
+      <h4>LinkedIn</h4>
+      <p><a href="https://www.linkedin.com/in/ben-sandivar-public/">LinkedIn Profile</a></p>
+    </div>
+  </div>
+
+  <div class="contact-cta">
+    <a href="mailto:contact@bensandivar.com" class="contact-button">Send an Email</a>
+  </div>
+
+  <div class="footer-text">© 2025 Ben Sandivar</div>
+</section>
