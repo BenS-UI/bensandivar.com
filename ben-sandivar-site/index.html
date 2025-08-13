@@ -22,7 +22,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
 
-  <!-- GLOBAL THEME + BASE CSS (keep this minimal; components carry their own CSS) -->
+  <!-- GLOBAL THEME + BASE CSS (keep minimal; components carry their own CSS) -->
   <style id="global-css">
     /* RESET */
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -102,7 +102,7 @@
     h4 { font-weight: 700; }
     p  { color: var(--color-text); line-height: 1.8; }
 
-    /* Optional helper to keep inner content centered */
+    /* Keep common inner widths centered */
     .container,
     .page-header,
     .footer-text,
@@ -118,9 +118,12 @@
       margin-left: auto;
       margin-right: auto;
     }
+
+    /* Ensure the nav layer is on top of hero canvases etc. */
+    nav[data-mount="nav"] { position: relative; z-index: 1500; }
   </style>
 
-  <!-- Site-wide stylesheet (optional extras beyond globals) -->
+  <!-- Optional extra site-wide stylesheet -->
   <link rel="stylesheet" href="/ben-sandivar-site/styles.css" />
 </head>
 <body>
@@ -147,15 +150,56 @@
   <!-- Component loader -->
   <script>
   (async function mountComponents(){
+    if (window.__COMPONENT_LOADER_RAN__) return; // guard against double-run
+    window.__COMPONENT_LOADER_RAN__ = true;
+
     const buildHref = window.BUILD_JSON_PATH || 'build.json';
-    // Resolve build.json relative to this HTML file's directory
     const basePath = new URL('./', window.location.href);
 
-    // tiny helper to fetch text with no cache
     const fetchText = (url) => fetch(url, { cache: 'no-store' }).then(r => {
       if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
       return r.text();
     });
+
+    // Remove any previously mounted components (prevents duplicates on hot-reload)
+    document.querySelectorAll('[data-mount]').forEach(region => {
+      region.querySelectorAll('[data-component]').forEach(n => n.remove());
+    });
+
+    // Fix relative URLs inside a fragment (href, src, srcset, poster, inline CSS url(...))
+    function fixRelativeURLs(root, compURL) {
+      const ABS = (u) => { try { return new URL(u, compURL).href; } catch(_) { return u; } };
+
+      root.querySelectorAll('[src]').forEach(el => { el.src = ABS(el.getAttribute('src')); });
+      root.querySelectorAll('[href]').forEach(el => {
+        const tag = el.tagName.toLowerCase();
+        // don’t absolutize fragment-only links
+        const href = el.getAttribute('href');
+        if (href && !href.startsWith('#')) el.setAttribute('href', ABS(href));
+      });
+      root.querySelectorAll('[poster]').forEach(el => { el.poster = ABS(el.getAttribute('poster')); });
+      root.querySelectorAll('[data-src]').forEach(el => { el.setAttribute('data-src', ABS(el.getAttribute('data-src'))); });
+
+      // srcset handling
+      root.querySelectorAll('[srcset]').forEach(el => {
+        const raw = el.getAttribute('srcset') || '';
+        const fixed = raw.split(',').map(part => {
+          const [url, w] = part.trim().split(/\s+/, 2);
+          return url ? [ABS(url), w].filter(Boolean).join(' ') : '';
+        }).filter(Boolean).join(', ');
+        el.setAttribute('srcset', fixed);
+      });
+
+      // inline <style> url(...) rewriting
+      root.querySelectorAll('style').forEach(styleEl => {
+        const css = styleEl.textContent;
+        const rewritten = css.replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/g, (m, q, url) => {
+          if (/^(data:|blob:|http:|https:|#)/i.test(url)) return m;
+          return `url("${ABS(url)}")`;
+        });
+        if (rewritten !== css) styleEl.textContent = rewritten;
+      });
+    }
 
     try {
       const buildURL = new URL(buildHref, basePath);
@@ -163,10 +207,12 @@
       const build = JSON.parse(buildRaw);
       const order = Array.isArray(build.order) ? build.order : [];
       const byId = new Map((build.components || []).map(c => [c.id, c]));
+      const mountedIds = new Set();
 
-      for (const id of order){
+      for (const id of order) {
         const conf = byId.get(id);
         if (!conf || conf.active !== true) continue;
+        if (mountedIds.has(id)) continue; // safety
 
         const mountSel = conf.mount || 'main';
         const region = document.querySelector(`[data-mount="${mountSel}"]`) || document.querySelector('#main');
@@ -179,21 +225,22 @@
           const compURL = new URL(filePath, buildURL);
           const html = await fetchText(compURL);
 
-          // Parse component HTML into a template to allow URL fixing & script execution
+          // Parse into template
           const tpl = document.createElement('template');
           tpl.innerHTML = html;
 
-          // Fix relative <link rel="stylesheet"> hrefs to be relative to component file
-          const links = tpl.content.querySelectorAll('link[rel="stylesheet"][href]');
-          links.forEach(link => {
+          // Ensure stylesheets resolve correctly
+          tpl.content.querySelectorAll('link[rel="stylesheet"][href]').forEach(link => {
             try { link.href = new URL(link.getAttribute('href'), compURL).href; } catch (_) {}
           });
 
-          // Upgrade scripts so they execute AND fix relative src
-          const oldScripts = tpl.content.querySelectorAll('script');
-          oldScripts.forEach(old => {
+          // Fix all other relative URLs and inline CSS url(...)
+          fixRelativeURLs(tpl.content, compURL);
+
+          // Extract scripts so they actually execute after insertion
+          const scriptNodes = Array.from(tpl.content.querySelectorAll('script'));
+          const scripts = scriptNodes.map(old => {
             const s = document.createElement('script');
-            // copy attributes, fixing src if present
             for (const { name, value } of Array.from(old.attributes)) {
               if (name === 'src') {
                 try { s.setAttribute('src', new URL(value, compURL).href); }
@@ -202,17 +249,30 @@
                 s.setAttribute(name, value);
               }
             }
-            // preserve inline code
+            if (!s.hasAttribute('defer') && !s.hasAttribute('async')) {
+              // inline scripts should run immediately after we append them
+            }
             if (old.textContent) s.textContent = old.textContent;
-            // replace in DOM tree
-            old.replaceWith(s);
+            old.remove();
+            return s;
           });
 
-          // Wrap for data-component attribution and append
+          // Wrap & append DOM
           const wrapper = document.createElement('div');
           wrapper.setAttribute('data-component', id);
           wrapper.appendChild(tpl.content.cloneNode(true));
           region.appendChild(wrapper);
+
+          // Now append scripts so they execute
+          for (const s of scripts) {
+            // Force inline scripts to re-evaluate by creating fresh nodes
+            const fresh = document.createElement('script');
+            for (const { name, value } of Array.from(s.attributes)) fresh.setAttribute(name, value);
+            if (s.textContent) fresh.textContent = s.textContent;
+            wrapper.appendChild(fresh);
+          }
+
+          mountedIds.add(id);
         } catch (err) {
           console.error('Component failed:', id, err);
           const fallback = document.createElement('section');
@@ -228,7 +288,7 @@
     }
   })();
 
-  // Simple theme toggle hookup (kept here so it works even if site script changes)
+  // Simple theme toggle
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('#theme-toggle');
     if (!btn) return;
@@ -238,4 +298,3 @@
   </script>
 </body>
 </html>
-```
