@@ -16,27 +16,19 @@
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <!-- Navbar -->
-        <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="logo">
-                <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Ben Sandivar Logo" />
-            </a>
-            <button class="more-btn" aria-label="Toggle Menu">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
-            <ul class="nav-links">
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#projects">Work</a></li>
-                <!-- Added Music link to navigate to the restored music player section -->
-                <li><a href="#music">Music</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="/fluid-art.html">Playground</a></li>
-                <li><a href="/blog.html">Blog</a></li>
-            </ul>
-        </div>
-    </nav>
+    <!-- Navbar (loaded from /homesplits/navbar.html) -->
+    <div id="navbar-slot"></div>
+    <script>
+      (function(){
+        fetch('homesplits/navbar.html', { cache: 'no-store' })
+          .then(r => {
+            if (!r.ok) throw new Error('Failed to load navbar: ' + r.status);
+            return r.text();
+          })
+          .then(html => { document.getElementById('navbar-slot').innerHTML = html; })
+          .catch(err => console.error(err));
+      })();
+    </script>
 
     <!-- Hero Section with Klein Bottle -->
     <div class="hero" id="hero">
@@ -150,7 +142,7 @@
             <div class="project-card" data-tilt>
                 <img src="assets/projects/ZENread.png" alt="ZENread App Thumbnail" />
                 <div class="card-content">
-                    <h4>ZENread App</h4>
+                    <h4>ZENread</h4>
                     <p>Reading app turning dense text into manageable, engaging, task-based segments.</p>
                 </div>
             </div>
