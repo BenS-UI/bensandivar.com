@@ -2,13 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ben Sandivar</title>
-
-  <!-- Point the loader to the build inside /index -->
-  <script>window.BUILD_JSON_PATH = 'index/build.json';</script>
-
-  <!-- Favicons -->
+  <!-- Favicons (can be swapped to local paths later) -->
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" />
   <link rel="shortcut icon" href="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" type="image/png" />
 
@@ -22,35 +18,36 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 
-  <!-- Site styles  ➜ if you moved CSS into /index/, change to href="index/styles.css" -->
+  <!-- Site styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Mount regions -->
+  <!-- Global header/nav/footer shells. Components mount into these regions. -->
   <header id="header" data-mount="header"></header>
   <nav id="nav" data-mount="nav"></nav>
   <main id="main" data-mount="main"></main>
   <aside id="aside" data-mount="aside"></aside>
   <footer id="footer" data-mount="footer"></footer>
 
-  <!-- Theme Toggle -->
+  <!-- Theme Toggle lives at layout level so it’s always available -->
   <div class="theme-toggle-container">
-    <button id="theme-toggle"><span class="material-symbols-outlined theme-icon">dark_mode</span></button>
+    <button id="theme-toggle">
+      <span class="material-symbols-outlined theme-icon">dark_mode</span>
+    </button>
   </div>
 
   <!-- Vendor util available to components -->
   <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
 
-  <!-- Site scripts  ➜ if you moved JS into /index/, change to src="index/scripts.js" -->
+  <!-- Site scripts (can host shared behaviors; component scripts should live with components) -->
   <script src="scripts.js"></script>
 
-  <!-- Component loader (resolves component files RELATIVE TO build.json path) -->
+  <!-- Lightweight runtime that reads build.json and mounts active components in order. -->
   <script>
   (async function mountComponents(){
     const buildHref = window.BUILD_JSON_PATH || 'build.json';
     try {
-      const buildURL = new URL(buildHref, location.href);
-      const res = await fetch(buildURL, { cache: 'no-store' });
+      const res = await fetch(buildHref, {cache: 'no-store'});
       if (!res.ok) throw new Error('build.json not found');
       const build = await res.json();
       const order = Array.isArray(build.order) ? build.order : [];
@@ -62,11 +59,10 @@
         const mountSel = conf.mount || 'main';
         const region = document.querySelector(`[data-mount="${mountSel}"]`) || document.querySelector('#main');
         if (!region) continue;
-        const filePath = (conf.file || '').trim();
-        if (!filePath) continue;
+        const url = (conf.file || '').trim();
+        if (!url) continue;
         try {
-          const compURL = new URL(filePath, buildURL);
-          const html = await (await fetch(compURL, { cache:'no-store' })).text();
+          const html = await (await fetch(url, {cache:'no-store'})).text();
           const wrapper = document.createElement('section');
           wrapper.setAttribute('data-component', id);
           wrapper.innerHTML = html;

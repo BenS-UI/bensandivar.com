@@ -1,0 +1,60 @@
+<!-- c — Navbar section -->
+<nav id="navbar" class="site-navbar" data-component="c">
+  <div class="navbar-container">
+    <a href="#hero" class="logo">Ben Sandivar</a>
+    <ul class="nav-links">
+      <li><a href="#bucket">Bucket</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#music">Music</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#i-write">I Write</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+
+  <style>
+    .site-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    .navbar-container {
+      max-width: 1200px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+    }
+    .logo {
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-decoration: none;
+      color: #222;
+    }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links li {
+      margin-left: 1rem;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #222;
+      font-size: 0.95rem;
+    }
+    .nav-links a:hover {
+      color: #0077cc;
+    }
+  </style>
+</nav>
