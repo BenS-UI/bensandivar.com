@@ -4,6 +4,12 @@
     "project": "bensandivar.com",
     "generated": "2025-08-13"
   },
+  "layout": { "file": "index.html" },
+  "settings": {
+    "paths": { "components": "index/", "assets": "assets/" },
+    "default_extension": ".html",
+    "mount_points": ["head", "header", "nav", "main", "aside", "footer"]
+  },
   "components": [
     { "id": "c",   "label": "Navbar",            "active": true,  "file": "index/c.html",   "mount": "nav" },
 
