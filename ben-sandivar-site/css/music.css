@@ -63,9 +63,15 @@ section.bucket-hero{ position:relative; z-index:2; } /* your hero stays on top *
 /* LAYERS (z-index order) */
 .views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; z-index:1; }
 .views-wrap.no-scroll{ overflow:hidden; }
-.aurora-layer{ position:absolute; inset:0; z-index:3; pointer-events:none; border-radius:inherit; opacity:0; transition:opacity 4s ease; }
+
+/* Aurora sits above list, below art + player */
+.aurora-layer{
+  position:absolute; inset:0; z-index:3; pointer-events:none;
+  border-radius:inherit; opacity:0; transition:opacity 4s ease;
+}
 .aurora-layer.on{ opacity:1; }
 .aurora-layer canvas{ width:100%; height:100%; display:block; }
+
 .track-stage .stage-art-wrap{ z-index:4; position:relative; }
 
 /* LIST VIEW */
@@ -89,7 +95,10 @@ section.bucket-hero{ position:relative; z-index:2; } /* your hero stays on top *
   backdrop-filter: blur(6px);
 }
 .track-list{ list-style:none; margin:0; padding:0; display:grid; gap:.3rem; }
-.track-row{ display:grid; grid-template-columns:1fr auto; align-items:center; padding:.45rem .6rem; border-radius:10px; transition:background .2s ease; }
+.track-row{
+  display:grid; grid-template-columns:1fr auto; align-items:center;
+  padding:.45rem .6rem; border-radius:10px; transition:background .2s ease;
+}
 .track-row:hover{ background: rgba(255,255,255,.05); }
 .track-row.active .t-title{ font-weight:700; }
 .t-title{ text-align:left; }
