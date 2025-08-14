@@ -33,45 +33,62 @@
 
 .grid-item {
   position: relative;
-  overflow: hidden;
-  border-radius: 12px;
+  overflow: visible;              /* let the backlight bleed out */
+  border-radius: 12px;            /* visual radius; image gets the clip */
   box-shadow: 0 4px 8px var(--color-shadow);
   transition: box-shadow var(--transition);
   border: 1px solid var(--color-border);
   transform-style: preserve-3d;
   will-change: transform;
+  /* backlight defaults */
+  --r: 255; --g: 255; --b: 255;
+  --bx: 50%; --by: 50%;
+  --backlight-o: 0;
 }
 
+/* image keeps rounded corners; parent can overflow */
 .grid-item img {
   width: 100%;
   height: auto;
   display: block;
   object-fit: cover;
   position: relative;
-  z-index: 2; /* image above glow */
+  z-index: 2;
+  border-radius: 12px;
 }
 
-/* Neon backlight overlay (on top, blended) */
-.glow-layer {
+/* LED backlight BEHIND the image (pseudo-element) */
+.grid-item::before {
+  content: "";
   position: absolute;
-  inset: -8%;                 /* extend a bit past edges for fuller glow */
+  inset: -16%;                    /* extend outside card */
+  border-radius: 18px;
+  z-index: 0;                     /* behind the image */
   pointer-events: none;
-  z-index: 3;                 /* above image so the glow is visible */
-  opacity: 0;
-  transition: opacity 200ms ease;
-  filter: blur(26px);
-  mix-blend-mode: screen;     /* makes glow lighten the image nicely */
+  opacity: var(--backlight-o, 0);
+  transition: opacity 220ms ease;
+  filter: blur(40px) saturate(1.8) brightness(1.15);
+  background:
+    radial-gradient(70% 70% at var(--bx) var(--by),
+      rgba(var(--r), var(--g), var(--b), 0.85) 0%,
+      rgba(var(--r), var(--g), var(--b), 0.45) 45%,
+      rgba(var(--r), var(--g), var(--b), 0.00) 85%);
+}
 
-  /* Smooth radial glow that follows the mouse */
-  --r: 255; --g: 255; --b: 255; /* fallback color */
-  --mx: 50%; --my: 50%;
-  background: radial-gradient(
-    circle at var(--mx) var(--my),
-    rgba(var(--r), var(--g), var(--b), 0.85) 0%,
-    rgba(var(--r), var(--g), var(--b), 0.55) 18%,
-    rgba(var(--r), var(--g), var(--b), 0.24) 40%,
-    rgba(var(--r), var(--g), var(--b), 0.0) 60%
-  );
+/* optional faint edge bias-light always on (very subtle) */
+.grid-item::after {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  border-radius: 16px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: calc(var(--backlight-o) * 0.4);
+  filter: blur(30px) saturate(1.6) brightness(1.1);
+  background:
+    radial-gradient(120% 120% at 50% 50%,
+      rgba(var(--r), var(--g), var(--b), 0.28) 10%,
+      rgba(var(--r), var(--g), var(--b), 0.00) 70%);
 }
 
 .grid-caption {
@@ -88,12 +105,10 @@
   font-weight: 400;
 }
 
-/* No jump on hover; keep subtle depth change */
-.grid-item:hover {
-  box-shadow: 0 8px 16px var(--color-shadow);
-}
+/* No jump on hover */
+.grid-item:hover { box-shadow: 0 8px 16px var(--color-shadow); }
 
-/* Gallery specifics */
+/* Reflection kept as you had it */
 #gallery .grid-item img {
   pointer-events: none;
   user-select: none;

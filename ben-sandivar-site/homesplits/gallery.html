@@ -26,7 +26,7 @@
   </div>
 
   <script>
-    // Keep your tilt, inverted and smoother
+    /* VanillaTilt (invert + smoother) */
     (function () {
       if (!window.VanillaTilt) return;
       const items = document.querySelectorAll('#gallery .grid-item[data-tilt]');
@@ -41,108 +41,119 @@
       }
     })();
 
-    // Neon backlight (color-matched to pixel under cursor)
+    /* LED-style backlight behind each image (color-matched, neon, smooth) */
     (function () {
-      const cards = document.querySelectorAll('#gallery .grid-item');
+      const LERP = 0.12;          // smoothing (lower = smoother)
+      const RADIUS = 0.75;        // glow size relative to card
+      const BRIGHT_BUMP = 0.08;   // slight brightness lift
+      const SAT_MULT = 2.2;       // neon saturation
 
-      cards.forEach(card => {
+      document.querySelectorAll('#gallery .grid-item').forEach(card => {
         const img = card.querySelector('img');
 
-        // Overlay that renders the glow (stays on top with screen blend)
-        const glow = document.createElement('div');
-        glow.className = 'glow-layer';
-        card.appendChild(glow);
+        // hidden canvas for color sampling (off-DOM keeps layout clean)
+        const cvs = document.createElement('canvas');
+        const ctx = cvs.getContext('2d', { willReadFrequently: true });
 
-        // Off-DOM canvas for color sampling
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-        function initCanvas() {
+        let hasData = false;
+        function paint() {
           if (!img.naturalWidth || !img.naturalHeight) return;
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
+          cvs.width = img.naturalWidth;
+          cvs.height = img.naturalHeight;
           try {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          } catch (e) {
-            // If CORS-tainted (shouldn’t be, same-origin), fall back to white glow
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
+            hasData = true;
+          } catch(e){ hasData = false; }
+        }
+        if (img.complete) paint();
+        else img.addEventListener('load', paint);
+
+        // smoothed state
+        let cx = 0.5, cy = 0.5;          // position (0..1)
+        let tx = 0.5, ty = 0.5;          // target
+        let cr = 255, cg = 255, cb = 255;
+        let tr = 255, tg = 255, tb = 255;
+        let active = false;
+
+        function toHSL(r,g,b){
+          r/=255; g/=255; b/=255;
+          const max=Math.max(r,g,b), min=Math.min(r,g,b);
+          let h=0,s=0,l=(max+min)/2;
+          if(max!==min){
+            const d=max-min;
+            s=l>0.5? d/(2-max-min) : d/(max+min);
+            switch(max){
+              case r: h=(g-b)/d + (g<b?6:0); break;
+              case g: h=(b-r)/d + 2; break;
+              default: h=(r-g)/d + 4;
+            }
+            h/=6;
           }
+          return [h,s,l];
+        }
+        function toRGB(h,s,l){
+          let r,g,b;
+          if(s===0){ r=g=b=l; }
+          else{
+            const hue2rgb=(p,q,t)=>{
+              if(t<0) t+=1; if(t>1) t-=1;
+              if(t<1/6) return p+(q-p)*6*t;
+              if(t<1/2) return q;
+              if(t<2/3) return p+(q-p)*(2/3 - t)*6;
+              return p;
+            };
+            const q=l<0.5 ? l*(1+s) : l + s - l*s;
+            const p=2*l-q;
+            r=hue2rgb(p,q,h+1/3); g=hue2rgb(p,q,h); b=hue2rgb(p,q,h-1/3);
+          }
+          return [Math.round(r*255),Math.round(g*255),Math.round(b*255)];
         }
 
-        if (img.complete) initCanvas();
-        else img.addEventListener('load', initCanvas);
+        function sampleColor(px, py, rect){
+          if(!hasData) return [255,255,255];
+          const ix = Math.max(0, Math.min(cvs.width-1, Math.floor(px * (cvs.width / rect.width))));
+          const iy = Math.max(0, Math.min(cvs.height-1, Math.floor(py * (cvs.height / rect.height))));
+          const d = ctx.getImageData(ix, iy, 1, 1).data;
+          let [h,s,l] = toHSL(d[0], d[1], d[2]);
+          s = Math.min(1, s * SAT_MULT);   // neon saturation
+          l = Math.min(1, Math.max(0, l + BRIGHT_BUMP));
+          return toRGB(h,s,l);
+        }
 
         card.addEventListener('mousemove', e => {
           const rect = img.getBoundingClientRect();
-          const relX = e.clientX - rect.left;
-          const relY = e.clientY - rect.top;
-
-          glow.style.setProperty('--mx', relX + 'px');
-          glow.style.setProperty('--my', relY + 'px');
-
-          // Sample image pixel → boost saturation → set CSS vars
-          if (canvas.width && canvas.height) {
-            const ix = Math.max(0, Math.min(canvas.width - 1, Math.floor(relX * (canvas.width / rect.width))));
-            const iy = Math.max(0, Math.min(canvas.height - 1, Math.floor(relY * (canvas.height / rect.height))));
-            try {
-              const d = ctx.getImageData(ix, iy, 1, 1).data;
-              let r = d[0], g = d[1], b = d[2];
-
-              // Boost saturation by ~80%
-              function rgbToHsl(r,g,b){ r/=255; g/=255; b/=255;
-                const max=Math.max(r,g,b), min=Math.min(r,g,b);
-                let h=0, s=0, l=(max+min)/2;
-                if (max!==min) {
-                  const d=max-min;
-                  s=l>0.5 ? d/(2-max-min) : d/(max+min);
-                  switch(max){
-                    case r: h=(g-b)/d + (g<b?6:0); break;
-                    case g: h=(b-r)/d + 2; break;
-                    default: h=(r-g)/d + 4;
-                  }
-                  h/=6;
-                }
-                return [h,s,l];
-              }
-              function hslToRgb(h,s,l){
-                let r,g,b;
-                if (s===0){ r=g=b=l; }
-                else{
-                  const hue2rgb=(p,q,t)=>{
-                    if (t<0) t+=1;
-                    if (t>1) t-=1;
-                    if (t<1/6) return p+(q-p)*6*t;
-                    if (t<1/2) return q;
-                    if (t<2/3) return p+(q-p)*(2/3 - t)*6;
-                    return p;
-                  }
-                  const q = l<0.5 ? l*(1+s) : l + s - l*s;
-                  const p = 2*l - q;
-                  r = hue2rgb(p,q,h+1/3);
-                  g = hue2rgb(p,q,h);
-                  b = hue2rgb(p,q,h-1/3);
-                }
-                return [Math.round(r*255), Math.round(g*255), Math.round(b*255)];
-              }
-
-              let [h,s,l] = rgbToHsl(r,g,b);
-              s = Math.min(1, s * 1.8);
-              [r,g,b] = hslToRgb(h,s,l);
-
-              glow.style.setProperty('--r', r);
-              glow.style.setProperty('--g', g);
-              glow.style.setProperty('--b', b);
-            } catch (err) {
-              // ignore; keep previous color
-            }
-          }
-
-          glow.style.opacity = '1';
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          tx = x / rect.width;
+          ty = y / rect.height;
+          [tr, tg, tb] = sampleColor(x, y, rect);
+          active = true;
+          card.style.setProperty('--backlight-o', '1');
         });
 
         card.addEventListener('mouseleave', () => {
-          glow.style.opacity = '0';
+          active = false;
+          card.style.setProperty('--backlight-o', '0');
         });
+
+        function tick(){
+          // smooth position & color
+          cx += (tx - cx) * LERP;
+          cy += (ty - cy) * LERP;
+          cr += (tr - cr) * LERP;
+          cg += (tg - cg) * LERP;
+          cb += (tb - cb) * LERP;
+
+          // update CSS vars (behind the image)
+          card.style.setProperty('--bx', (cx * 100) + '%');
+          card.style.setProperty('--by', (cy * 100) + '%');
+          card.style.setProperty('--r', Math.round(cr));
+          card.style.setProperty('--g', Math.round(cg));
+          card.style.setProperty('--b', Math.round(cb));
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
       });
     })();
   </script>
