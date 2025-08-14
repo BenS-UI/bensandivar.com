@@ -1,102 +1,127 @@
-<!-- homesplits/music.html -->
 <section id="music" class="music-player fade-in" data-split="music">
   <div class="page-header">
-    <h2>Featured Tracks</h2>
-    <p>Listen to my latest audio projects.</p>
-  </div>
-
-  <div class="music-grid">
-    <div class="music-card">
-      <img src="assets/tracks/Musings.jpg" alt="Track 1 Album Cover" />
-      <div class="music-content">
-        <input type="text" class="track-title" value="Rain" />
-        <audio controls preload="metadata">
-          <source src="assets/tracks/Track 1.mp3" type="audio/mpeg" />
-        </audio>
-        <div class="eq-bars">
-          <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="music-card">
-      <img src="assets/tracks/Musings.jpg" alt="Track 2 Album Cover" />
-      <div class="music-content">
-        <input type="text" class="track-title" value="Sonata" />
-        <audio controls preload="metadata">
-          <source src="assets/tracks/Track 2.mp3" type="audio/mpeg" />
-        </audio>
-        <div class="eq-bars">
-          <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="music-card">
-      <img src="assets/tracks/Musings.jpg" alt="Track 3 Album Cover" />
-      <div class="music-content">
-        <input type="text" class="track-title" value="Münchhausen" />
-        <audio controls preload="metadata">
-          <source src="assets/tracks/Track 3.mp3" type="audio/mpeg" />
-        </audio>
-        <div class="eq-bars">
-          <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="music-card">
-      <img src="assets/tracks/Musings.jpg" alt="Track 4 Album Cover" />
-      <div class="music-content">
-        <input type="text" class="track-title" value="Growing Old" />
-        <audio controls preload="metadata">
-          <source src="assets/tracks/Track 4.mp3" type="audio/mpeg" />
-        </audio>
-        <div class="eq-bars">
-          <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="music-card">
-      <img src="assets/tracks/Musings.jpg" alt="Track 5 Album Cover" />
-      <div class="music-content">
-        <input type="text" class="track-title" value="The Adventure Begins" />
-        <audio controls preload="metadata">
-          <source src="assets/tracks/Track 5.mp3" type="audio/mpeg" />
-        </audio>
-        <div class="eq-bars">
-          <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-        </div>
-      </div>
+    <h2>Music Player</h2>
+    <p>Browse albums or focus on the current track.</p>
+    <div class="player-mode-toggle">
+      <button id="list-mode-btn" class="active">List Mode</button>
+      <button id="track-mode-btn">Track Mode</button>
     </div>
   </div>
 
-  <script>
-    (function () {
-      const section = document.querySelector('section.music-player[data-split="music"]');
-      if (!section) return;
-
-      const cards  = Array.from(section.querySelectorAll('.music-card'));
-      const audios = Array.from(section.querySelectorAll('audio'));
-
-      // Pause all others when one starts
-      audios.forEach((a) => {
-        a.addEventListener('play', () => {
-          audios.forEach(b => { if (b !== a) b.pause(); });
-          cards.forEach(c => c.classList.remove('playing'));
-          const card = a.closest('.music-card');
-          if (card) card.classList.add('playing');
-        });
-        a.addEventListener('pause', () => {
-          const card = a.closest('.music-card');
-          if (card) card.classList.remove('playing');
-        });
-        a.addEventListener('ended', () => {
-          const card = a.closest('.music-card');
-          if (card) card.classList.remove('playing');
-        });
-      });
-    })();
-  </script>
+  <div id="music-container" class="list-mode">
+    <!-- JS will render albums and tracks here -->
+  </div>
 </section>
+
+<script>
+(function () {
+  const tracks = [
+    { title: "Rain", src: "assets/tracks/Track 1.mp3", album: "Musings", art: "assets/tracks/Musings.jpg" },
+    { title: "Sonata", src: "assets/tracks/Track 2.mp3", album: "Musings", art: "assets/tracks/Musings.jpg" },
+    { title: "Münchhausen", src: "assets/tracks/Track 3.mp3", album: "Musings", art: "assets/tracks/Musings.jpg" },
+    { title: "Growing Old", src: "assets/tracks/Track 4.mp3", album: "Musings", art: "assets/tracks/Musings.jpg" },
+    { title: "The Adventure Begins", src: "assets/tracks/Track 5.mp3", album: "The Adventure Begins", art: "assets/tracks/adventure.jpg" }
+  ];
+
+  // Group tracks by album
+  const albumsMap = {};
+  tracks.forEach(t => {
+    if (!albumsMap[t.album]) albumsMap[t.album] = { art: t.art, tracks: [] };
+    albumsMap[t.album].tracks.push(t);
+  });
+
+  // Sort albums by number of tracks (desc)
+  const albums = Object.entries(albumsMap)
+    .sort((a, b) => b[1].tracks.length - a[1].tracks.length);
+
+  const container = document.getElementById('music-container');
+  const renderListMode = () => {
+    container.className = 'list-mode';
+    container.innerHTML = albums.map(([albumName, albumData]) => `
+      <div class="album">
+        <div class="album-header">
+          <img src="${albumData.art}" alt="${albumName} Album Art" class="album-art" />
+          <div>
+            <h3>${albumName}</h3>
+            <p>${albumData.tracks.length} Track${albumData.tracks.length > 1 ? 's' : ''}</p>
+          </div>
+        </div>
+        <ul class="track-list">
+          ${albumData.tracks.map(track => `
+            <li class="track-item" data-src="${track.src}">
+              ${track.title}
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `).join('');
+  };
+
+  const renderTrackMode = (track, album) => {
+    container.className = 'track-mode';
+    container.innerHTML = `
+      <div class="track-mode-content">
+        <div class="album-art-container">
+          <img src="${album.art}" alt="${album.name} Album Art" class="album-art-glow" />
+        </div>
+        <h3>${track.title}</h3>
+        <audio id="track-audio" controls>
+          <source src="${track.src}" type="audio/mpeg">
+        </audio>
+      </div>
+    `;
+
+    // Set background from dominant album art color (approximation)
+    const img = container.querySelector('.album-art-glow');
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let r=0, g=0, b=0, count=0;
+      for (let i = 0; i < data.length; i += 4) {
+        const [rr, gg, bb] = [data[i], data[i+1], data[i+2]];
+        if (rr > 40 || gg > 40 || bb > 40) { // skip near-black
+          r += rr; g += gg; b += bb;
+          count++;
+        }
+      }
+      if (count > 0) {
+        r = Math.round(r/count);
+        g = Math.round(g/count);
+        b = Math.round(b/count);
+        container.style.background = `rgb(${r},${g},${b})`;
+      }
+    };
+  };
+
+  // Initial render
+  renderListMode();
+
+  // Event listeners
+  container.addEventListener('click', e => {
+    if (e.target.classList.contains('track-item')) {
+      const src = e.target.dataset.src;
+      const track = tracks.find(t => t.src === src);
+      const albumData = albumsMap[track.album];
+      renderTrackMode(track, { name: track.album, art: albumData.art });
+    }
+  });
+
+  document.getElementById('list-mode-btn').addEventListener('click', () => {
+    renderListMode();
+    document.getElementById('list-mode-btn').classList.add('active');
+    document.getElementById('track-mode-btn').classList.remove('active');
+  });
+
+  document.getElementById('track-mode-btn').addEventListener('click', () => {
+    // Default to first track in biggest album
+    const [albumName, albumData] = albums[0];
+    renderTrackMode(albumData.tracks[0], { name: albumName, art: albumData.art });
+    document.getElementById('track-mode-btn').classList.add('active');
+    document.getElementById('list-mode-btn').classList.remove('active');
+  });
+})();
+</script>

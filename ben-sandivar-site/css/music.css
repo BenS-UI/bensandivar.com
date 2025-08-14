@@ -1,147 +1,81 @@
-/* ===========================
-   MUSIC PLAYER / TRACK CARDS
-   =========================== */
-
 .music-player {
   padding: 10vh 8vw;
-  background: var(--color-body-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.music-player .page-header {
-  text-align: center;
+.player-mode-toggle {
+  margin-top: 1rem;
 }
-
-.music-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3rem;
-  width: 100%;
-  margin: 0 auto;
-  max-width: var(--content-max);
-  margin-top: 3rem;
-}
-
-.music-card {
-  /* Glassmorphic card with subtle gradient and blur */
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  backdrop-filter: blur(8px);
-  border-radius: var(--radius);
-  box-shadow: 0 8px 32px var(--color-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  /* Flatten the card to remove 3D tilt; smooth transitions for lift effect */
-  transition: var(--transition), box-shadow 0.3s ease, transform 0.3s ease;
-  position: relative;
-}
-
-/* Add a subtle neon underline that grows on hover */
-.music-card::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%) scaleX(0);
-  transform-origin: center;
-  width: 80%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-accent), transparent);
-  transition: transform 0.3s ease;
-}
-.music-card:hover::after {
-  transform: translateX(-50%) scaleX(1);
-}
-
-.music-card:hover {
-  /* Subtle lift and glow on hover for improved usability */
-  transform: translateY(-2px);
-  box-shadow: 0 12px 36px var(--color-shadow), 0 0 12px var(--color-accent);
-}
-
-.music-card img {
-  width: 100%;
-  height: 300px;
-  object-fit: cover;
-}
-
-.music-content {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  flex-grow: 1;
-}
-
-.music-card h4 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.music-card audio {
-  width: 100%;
-  outline: none;
-  /* Invert the default audio controls for better contrast on dark cards */
-  filter: invert(100%);
-}
-
-/* Increase spacing between the contact section and footer */
-#contact {
-  padding-bottom: 8vh;
-}
-
-/* Equalizer bars within music cards */
-.eq-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.25rem;
-  height: 1rem;
-  margin-top: 0.5rem;
-}
-
-.eq-bar {
-  width: 4px;
-  height: 0.2rem;
-  background: var(--color-accent);
-  border-radius: 2px;
-  transition: height 0.2s ease;
-}
-
-/* Track title input styling for music cards */
-.music-card input.track-title {
+.player-mode-toggle button {
+  background: rgba(255,255,255,0.1);
   border: none;
-  background: transparent;
-  color: var(--color-primary);
-  font-size: 1.1rem;
-  font-family: 'Geologica', sans-serif;
-  margin: 0;
-  padding: 0 0 0.5rem 0;
-  width: 100%;
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
 }
-.music-card input.track-title:focus {
-  outline: none;
+.player-mode-toggle button.active {
+  background: rgba(0, 150, 255, 0.3);
 }
 
-/* Ensure card sizes not oversized (initial) */
-.music-grid {
-  grid-template-columns: repeat(3, minmax(300px, 1fr));
+.album {
+  margin-bottom: 3rem;
+}
+.album-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.album-art {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.track-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+}
+.track-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.track-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+.track-item.active {
+  background: rgba(0, 150, 255, 0.2);
+  box-shadow: 0 0 10px #00f6ff, 0 0 20px #00f6ff;
 }
 
-/* Grid counts desktop (final override) */
-.music-grid {
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
-}
-
-/* Square artwork */
-.music-card img {
+/* Track Mode */
+.track-mode {
   width: 100%;
   height: auto;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
+  display: flex;
+  justify-content: center;
 }
-
-/* Tighten card spacing from the base 3rem to 2rem */
-.music-grid { gap: 2rem; }
+.track-mode-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.album-art-container {
+  width: 40%;
+  position: relative;
+}
+.album-art-glow {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px #00f6ff, 0 0 40px #00f6ff;
+}
+.track-mode audio {
+  width: 80%;
+  margin-top: 1rem;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+}
