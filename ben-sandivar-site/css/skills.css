@@ -4,30 +4,31 @@
 
 .about-skills {
   padding: 10vh 8vw;
-  --neon: #3e0fff; /* deep electric neon */
+  --neon: #1e90ff; /* lightsaber blue */
 }
 
-/* Lock ALL section content (text + buttons) to 75% width */
+/* Cap ALL section content (text + buttons) to 75% */
 .about-skills > * {
   width: 75%;
   max-width: 75%;
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box;
-  overflow: clip; /* keep hover glow inside the 75% box */
   text-align: center;
+  overflow: visible; /* let glow/pop show outside the box */
 }
 
 /* Centered, wrapping row of variable-width chips */
 .skills-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;        /* center each line */
+  justify-content: center;     /* center each line */
   gap: 0.75rem 1rem;
   margin-top: 2rem;
+  overflow: visible;           /* never clip hover effects */
 }
 
-/* Modern rounded chips — no text wrap, never exceed container */
+/* Modern rounded chips — no text wrap */
 .skills-grid span {
   display: inline-flex;
   align-items: center;
@@ -36,70 +37,78 @@
   user-select: none;
 
   padding: 0.55rem 1.1rem;
-  border-radius: 9999px;              /* pill */
-  border: 1px solid var(--color-accent);
+  border-radius: 9999px;                  /* pill */
+  border: 1px solid rgba(30, 144, 255, .45);
 
-  font-size: 0.92rem;                 /* smaller to reduce wraps */
+  font-size: 0.92rem;                     /* smaller to prevent wrapping */
   line-height: 1;
-  white-space: nowrap;                /* never wrap inside */
-  max-width: 100%;                    /* respect row width */
-  overflow: hidden;                   /* clamp very long labels */
+  white-space: nowrap;                    /* never wrap inside */
+  max-width: 100%;                        /* never exceed 75% container */
+  overflow: hidden;                       /* clamp very long labels */
   text-overflow: ellipsis;
 
   color: var(--color-primary);
-  background: rgba(59, 130, 246, 0.10);
+  background: rgba(255, 255, 255, 0.06);
 
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.18),
-    inset 0 0 0 1px rgba(59, 130, 246, 0.25);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 
+  transform-origin: center;
+  will-change: transform, box-shadow, filter, background-color;
   transition:
-    transform 180ms cubic-bezier(.2,.8,.2,1),
-    box-shadow 260ms ease,
-    background-color 200ms ease,
-    color 200ms ease;
-  will-change: transform;
+    transform 360ms cubic-bezier(.2,.7,0,1),
+    box-shadow 520ms cubic-bezier(.2,.7,0,1),
+    filter 520ms cubic-bezier(.2,.7,0,1),
+    background-color 280ms ease;
 }
 
-/* Float + neon glow without changing width */
+/* Smooth float + refined neon glow (no layout shift) */
 .skills-grid span:hover,
 .skills-grid span:focus-visible {
-  transform: translateY(-4px); /* no scale => no overflow */
-  background: rgba(62, 15, 255, 0.15);
+  transform: translateY(-6px) scale(1.03);
+  background: rgba(30, 144, 255, 0.12);
   box-shadow:
-    0 10px 22px rgba(0, 0, 0, 0.28),
+    0 12px 26px rgba(0, 0, 0, 0.28),
     0 0 10px var(--neon),
-    0 0 20px rgba(62, 15, 255, 0.9),
-    0 0 40px rgba(62, 15, 255, 0.75);
-  text-shadow: 0 0 6px rgba(62, 15, 255, 0.7);
+    0 0 22px rgba(30, 144, 255, 0.9),
+    0 0 46px rgba(30, 144, 255, 0.65);
+  filter:
+    drop-shadow(0 0 8px var(--neon))
+    drop-shadow(0 0 18px rgba(30, 144, 255, 0.9));
   outline: none;
+  text-shadow: 0 0 6px rgba(30, 144, 255, 0.7);
 }
 
-/* Pressed state */
+/* Pressed state (keeps it elegant) */
 .skills-grid span:active {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.02);
   box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.28),
+    0 8px 18px rgba(0, 0, 0, 0.26),
     0 0 8px var(--neon),
-    0 0 16px rgba(62, 15, 255, 0.85);
+    0 0 18px rgba(30, 144, 255, 0.85);
 }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .skills-grid span {
-    transition: box-shadow 200ms ease, background-color 200ms ease, color 200ms ease;
+    transition: box-shadow 300ms ease, background-color 300ms ease;
   }
   .skills-grid span:hover,
   .skills-grid span:focus-visible,
   .skills-grid span:active {
     transform: none;
+    filter: none;
   }
 }
 
-/* Mobile: full width container, still centered */
+/* Mobile: container can go full width, still centered */
 @media (max-width: 768px) {
   .about-skills > * {
     width: 100%;
     max-width: 100%;
+  }
+  .skills-grid span {
+    font-size: 0.9rem;
   }
 }
