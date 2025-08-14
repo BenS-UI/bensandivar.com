@@ -31,71 +31,73 @@
   }
 }
 
+.masonry-container { display: flex; gap: 20px; justify-content: center; }
+.masonry-column { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 280px; max-width: 300px; }
+
 .grid-item {
   position: relative;
-  overflow: visible;              /* let the backlight bleed out */
-  border-radius: 12px;            /* visual radius; image gets the clip */
+  overflow: visible;              /* let backlight bleed out */
+  border-radius: 12px;            /* visual radius; image has clip */
   box-shadow: 0 4px 8px var(--color-shadow);
   transition: box-shadow var(--transition);
   border: 1px solid var(--color-border);
   transform-style: preserve-3d;
   will-change: transform;
   /* backlight defaults */
-  --r: 255; --g: 255; --b: 255;
+  --r: 255; --g: 200; --b: 120;
   --bx: 50%; --by: 50%;
   --backlight-o: 0;
 }
 
-/* image keeps rounded corners; parent can overflow */
 .grid-item img {
   width: 100%;
   height: auto;
   display: block;
   object-fit: cover;
   position: relative;
-  z-index: 2;
+  z-index: 2;                    /* image above backlight */
   border-radius: 12px;
+  pointer-events: none;          /* keep tilt/glow tracking clean */
+  user-select: none;
 }
 
-/* LED backlight BEHIND the image (pseudo-element) */
+/* LED backlight BEHIND the image (tighter) */
 .grid-item::before {
   content: "";
   position: absolute;
-  inset: -16%;                    /* extend outside card */
-  border-radius: 18px;
-  z-index: 0;                     /* behind the image */
+  inset: -8%;                    /* tighter than before */
+  border-radius: 16px;
+  z-index: 0;                    /* behind image */
   pointer-events: none;
   opacity: var(--backlight-o, 0);
   transition: opacity 220ms ease;
-  filter: blur(40px) saturate(1.8) brightness(1.15);
+  filter: blur(28px) saturate(2.5) brightness(1.15);
   background:
-    radial-gradient(70% 70% at var(--bx) var(--by),
-      rgba(var(--r), var(--g), var(--b), 0.85) 0%,
-      rgba(var(--r), var(--g), var(--b), 0.45) 45%,
-      rgba(var(--r), var(--g), var(--b), 0.00) 85%);
+    radial-gradient(55% 55% at var(--bx) var(--by),
+      rgba(var(--r), var(--g), var(--b), 0.95) 0%,
+      rgba(var(--r), var(--g), var(--b), 0.55) 38%,
+      rgba(var(--r), var(--g), var(--b), 0.00) 70%);
 }
 
-/* optional faint edge bias-light always on (very subtle) */
+/* Optional faint ambient edge glow that scales with intensity */
 .grid-item::after {
   content: "";
   position: absolute;
-  inset: -10%;
-  border-radius: 16px;
+  inset: -6%;
+  border-radius: 14px;
   z-index: 0;
   pointer-events: none;
-  opacity: calc(var(--backlight-o) * 0.4);
-  filter: blur(30px) saturate(1.6) brightness(1.1);
+  opacity: calc(var(--backlight-o) * 0.35);
+  filter: blur(22px) saturate(2.0) brightness(1.1);
   background:
-    radial-gradient(120% 120% at 50% 50%,
-      rgba(var(--r), var(--g), var(--b), 0.28) 10%,
-      rgba(var(--r), var(--g), var(--b), 0.00) 70%);
+    radial-gradient(85% 85% at 50% 50%,
+      rgba(var(--r), var(--g), var(--b), 0.28) 15%,
+      rgba(var(--r), var(--g), var(--b), 0.00) 75%);
 }
 
 .grid-caption {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0; left: 0; right: 0;
   background: rgba(0, 0, 0, 0.7);
   color: var(--color-primary);
   padding: 10px;
@@ -108,13 +110,4 @@
 /* No jump on hover */
 .grid-item:hover { box-shadow: 0 8px 16px var(--color-shadow); }
 
-/* Reflection kept as you had it */
-#gallery .grid-item img {
-  pointer-events: none;
-  user-select: none;
-  -webkit-box-reflect: below 0.25rem
-    linear-gradient(transparent, rgba(255, 255, 255, 0.1));
-}
-
-#gallery .grid-item { cursor: default; }
-#gallery .grid-caption { display: none; }
+/* Removed reflection entirely */
