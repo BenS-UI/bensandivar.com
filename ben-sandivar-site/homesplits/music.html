@@ -9,23 +9,24 @@
     <div class="mode-lights" role="group" aria-label="View switch">
       <button id="light-list" class="light on" aria-label="List view"></button>
       <button id="light-track" class="light" aria-label="Track view"></button>
-
-      <!-- tiny floating hint -->
       <div class="hint" role="note">Tap a dot to switch views</div>
     </div>
 
-    <!-- LIST VIEW -->
-    <div id="albums-view" class="albums-view" aria-live="polite"></div>
+    <!-- scrollable views wrapper -->
+    <div class="views-wrap">
+      <!-- LIST VIEW -->
+      <div id="albums-view" class="albums-view" aria-live="polite"></div>
 
-    <!-- TRACK VIEW (mutually exclusive) -->
-    <div id="track-view" class="track-view" hidden>
-      <div class="track-stage">
-        <div class="stage-art-wrap">
-          <img id="stage-art" src="" alt="Album art">
-        </div>
-        <div class="stage-meta">
-          <h3 id="stage-title">—</h3>
-          <p id="stage-album">—</p>
+      <!-- TRACK VIEW (mutually exclusive) -->
+      <div id="track-view" class="track-view hidden">
+        <div class="track-stage">
+          <div class="stage-art-wrap">
+            <img id="stage-art" src="" alt="Album art">
+          </div>
+          <div class="stage-meta">
+            <h3 id="stage-title">—</h3>
+            <p id="stage-album">—</p>
+          </div>
         </div>
       </div>
     </div>
@@ -97,20 +98,21 @@
 
     // Elements
     const shell      = document.querySelector('.music-shell');
+    const viewsWrap  = document.querySelector('.views-wrap');
     const albumsView = document.getElementById('albums-view');
     const trackView  = document.getElementById('track-view');
     const lightList  = document.getElementById('light-list');
     const lightTrack = document.getElementById('light-track');
 
-    const audio = document.getElementById('audio');
-    const playBtn  = document.getElementById('playPauseBtn');
-    const iconPlay = document.getElementById('iconPlay');
-    const iconPause= document.getElementById('iconPause');
-    const prevBtn  = document.getElementById('prevBtn');
-    const nextBtn  = document.getElementById('nextBtn');
+    const audio   = document.getElementById('audio');
+    const playBtn = document.getElementById('playPauseBtn');
+    const iconPlay  = document.getElementById('iconPlay');
+    const iconPause = document.getElementById('iconPause');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
     const playAllBtn = document.getElementById('playAllBtn');
-    const seek     = document.getElementById('seek');
-    const neon     = document.querySelector('.bar .neon');
+    const seek   = document.getElementById('seek');
+    const neon   = document.querySelector('.bar .neon');
     const currTime = document.getElementById('currTime');
     const durTime  = document.getElementById('durTime');
     const nowArt   = document.getElementById('nowArt');
@@ -122,7 +124,7 @@
     const stageAlbum = document.getElementById('stage-album');
     const trackStage = document.querySelector('.track-stage');
 
-    // Render list view (art container and playlist side-by-side)
+    // Render list view (art + playlist side-by-side)
     function renderAlbums(){
       albumsView.innerHTML = albums.map(([name, data])=>{
         const items = data.tracks.map(t => `
@@ -168,10 +170,8 @@
     let queue = [];             // current queue
     let index = 0;              // current index in queue
 
-    // Build global queue
     const allQueue = albums.flatMap(([n,d]) => d.tracks.map(t=>t));
 
-    // Load queue from an album
     function setAlbumQueue(albumName){
       scope='album';
       queue = albumsMap[albumName].tracks.slice();
@@ -179,14 +179,12 @@
       updateActiveAlbum(albumName);
     }
 
-    // UI highlight for album scope
     function updateActiveAlbum(name){
       document.querySelectorAll('.album-row').forEach(row=>{
         row.classList.toggle('active', row.dataset.album===name);
       });
     }
 
-    // Load + UI bind
     function loadTrackBySrc(src){
       index = queue.findIndex(t => t.src===src);
       if (index<0) index = 0;
@@ -202,7 +200,6 @@
       stageAlbum.textContent = t.album;
       setTimeout(()=> dominantToStage(stageArt, trackStage), 0);
 
-      // list highlight (bold, no glow)
       document.querySelectorAll('.track-row').forEach(r=>{
         r.classList.toggle('active', r.dataset.src===t.src);
       });
@@ -210,14 +207,8 @@
 
     function play(){ audio.play(); iconPlay.hidden=true; iconPause.hidden=false; }
     function pause(){ audio.pause(); iconPlay.hidden=false; iconPause.hidden=true; }
-    function next(){
-      index = (index+1) % queue.length;
-      loadTrackBySrc(queue[index].src); play();
-    }
-    function prev(){
-      index = (index-1+queue.length) % queue.length;
-      loadTrackBySrc(queue[index].src); play();
-    }
+    function next(){ index=(index+1)%queue.length; loadTrackBySrc(queue[index].src); play(); }
+    function prev(){ index=(index-1+queue.length)%queue.length; loadTrackBySrc(queue[index].src); play(); }
 
     // List interactions
     albumsView.addEventListener('click', e=>{
@@ -231,7 +222,6 @@
         play();
         return;
       }
-
       if (row){
         if (scope!=='album' || queue.length===0 || (queue[0].album !== row.dataset.album)){
           setAlbumQueue(row.dataset.album);
@@ -249,8 +239,8 @@
       updateActiveAlbum('');
       loadTrackBySrc(queue[0].src);
       play();
-      playAllBtn.classList.toggle('active', true);
-      setTimeout(()=> playAllBtn.classList.remove('active'), 400);
+      playAllBtn.classList.add('active');
+      setTimeout(()=> playAllBtn.classList.remove('active'), 350);
     });
 
     // Transport
@@ -277,13 +267,17 @@
     // Modes (mutually exclusive)
     function setMode(list){
       if (list){
-        albumsView.hidden=false; trackView.hidden=true;
+        albumsView.classList.remove('hidden');
+        trackView.classList.add('hidden');
         lightList.classList.add('on'); lightTrack.classList.remove('on');
         shell.classList.remove('track-bg');
+        viewsWrap.scrollTop = 0;
       } else {
-        albumsView.hidden=true; trackView.hidden=false;
+        albumsView.classList.add('hidden');
+        trackView.classList.remove('hidden');
         lightTrack.classList.add('on'); lightList.classList.remove('on');
         shell.classList.add('track-bg');
+        viewsWrap.scrollTop = 0;
       }
     }
     lightList.addEventListener('click', ()=> setMode(true));
@@ -310,15 +304,15 @@
         bins.forEach((v,k)=>{ if(v>count){count=v;best=k;} });
         if(best){
           const [R,G,B]=best.split(',').map(n=>parseInt(n,10)*16+8);
-          host.style.setProperty('--stage-bg', `radial-gradient(120% 140% at 50% 25%, rgba(${R},${G},${B},.35), rgba(0,0,0,.9))`);
+          host.style.setProperty('--stage-bg', `radial-gradient(120% 140% at 50% 25%, rgba(${R},${G},${B},.28), rgba(0,0,0,.9))`);
         }
       }catch(e){}
     }
 
     // Boot
-    setAlbumQueue(albums[0][0]);         // start with biggest album
-    loadTrackBySrc(queue[0].src);        // load first
-    setMode(true);                        // list first
+    setAlbumQueue(albums[0][0]);
+    loadTrackBySrc(albumsMap[albums[0][0]].tracks[0].src);
+    setMode(true);
   })();
   </script>
 </section>
