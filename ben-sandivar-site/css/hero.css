@@ -1,0 +1,66 @@
+/* ===========================
+   HERO & NEBULA CANVAS
+   =========================== */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+}
+
+#gl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: var(--content-max);
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--color-primary);
+}
+
+.hero-content p {
+  font-size: 1.5rem;
+  margin: 1rem 0;
+  color: var(--color-primary);
+  opacity: 0.9;
+}
+
+.scroll-arrow {
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: var(--transition);
+  display: inline-block;
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+}
+
+.scroll-arrow:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.hero-content { pointer-events: auto; }
+.hero-content a,
+.hero-content button { pointer-events: auto; }

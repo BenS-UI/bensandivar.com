@@ -1,0 +1,57 @@
+/* ===========================
+   BUCKET HERO
+   =========================== */
+
+.bucket-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+.bucket-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('assets/landscape-placeholder.jpg') center/cover no-repeat;
+  filter: grayscale(0.1);
+  opacity: 0.9;
+}
+
+.bucket-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.15));
+}
+
+.bucket-hero .bucket-inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.bucket-hero h2 { margin-bottom: 0.75rem; }
+.bucket-hero p  { margin-bottom: 1.25rem; }
+
+.bucket-cta {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-accent);
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+.bucket-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--color-shadow);
+}

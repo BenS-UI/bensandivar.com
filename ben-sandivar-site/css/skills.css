@@ -1,0 +1,40 @@
+/* ===========================
+   SKILLS SECTION
+   =========================== */
+
+.about-skills {
+  padding: 10vh 8vw;
+}
+
+.skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.skills-grid span {
+  font-size: 1rem;
+  color: var(--color-primary);
+  text-align: center;
+  padding: 0.5rem 1.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-accent);
+  transition: var(--transition);
+}
+
+.skills-grid span:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px var(--color-accent);
+}
+
+/* Final layout: grid with auto-fit columns */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}

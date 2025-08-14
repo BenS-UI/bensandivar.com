@@ -1,0 +1,40 @@
+/* ===========================
+   ≤ 992px
+   =========================== */
+@media (max-width: 992px) {
+  .nav-container { padding: 0 2rem; }
+
+  .more-btn { display: block; }
+
+  .nav-links { display: none; }
+  .nav-links.active {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    right: 2rem;
+    background: var(--color-secondary);
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px var(--color-shadow);
+    z-index: 1000;
+    border: 1px solid var(--color-border);
+  }
+
+  .intro-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .profile-container {
+    width: clamp(30%, -5.8594vw + 88.125%, 60%);
+    flex-basis: auto;
+  }
+
+  .text-container {
+    text-align: center;
+    max-width: 90%;
+  }
+}

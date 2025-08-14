@@ -1,0 +1,55 @@
+/* ===========================
+   ≤ 768px
+   =========================== */
+@media (max-width: 768px) {
+  section, .hero, .photo-grid, footer { padding: 10vh 5vw; }
+
+  .masonry-container { flex-direction: column; align-items: center; }
+  .masonry-column { min-width: 100%; max-width: 400px; }
+
+  .projects-grid { grid-template-columns: repeat(2, 1fr); }
+  .contact-grid { grid-template-columns: 1fr; }
+
+  .contact-item { max-width: none; width: 100%; margin: 0; }
+
+  h1 { font-size: 3rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1rem; }
+  p  { font-size: 0.8rem; }
+
+  .contact-item .icon { width: 1.5rem; height: 1.5rem; }
+  .contact-item h4 { font-size: 1rem; }
+  .contact-item p   { font-size: 0.9rem; }
+
+  .contact-button { padding: 0.5rem 1rem; font-size: 0.8rem; }
+
+  .intro-content { flex-direction: column; align-items: center; gap: 2rem; }
+  .profile-container { padding-left: 0; }
+  .text-container { text-align: center; max-width: 90%; }
+
+  .expression { flex-direction: column; align-items: center; }
+
+  .video-placeholder {
+    width: 100%;
+    height: 50vh;
+    border-right: none;
+    border-bottom: 2px solid var(--color-accent);
+  }
+
+  .expression-content {
+    width: 100%;
+    padding: 2rem 0;
+    align-items: center;
+    text-align: center;
+  }
+
+  .expression-content h2 { font-size: 2rem; }
+
+  .letters-column { flex: 0 0 8%; font-size: 2rem; }
+
+  /* Mobile columns - two per row */
+  .projects-grid, .music-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

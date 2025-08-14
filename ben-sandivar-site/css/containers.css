@@ -1,0 +1,53 @@
+/* ===========================
+   CONTAINER WIDTHS / SECTION PADDING
+   =========================== */
+
+/* Central content area width constraint */
+.nav-container,
+.hero-content,
+.featured-projects,
+.music-player,
+.about-skills,
+.page-header,
+.photo-grid,
+.projects-grid,
+.music-grid,
+.about-intro,
+.intro-content,
+.skills-grid,
+.about-bio,
+.contact-grid,
+.expression,
+.expression-content,
+.footer-text {
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Ensure consistent section side padding */
+section, .hero, .photo-grid, footer {
+  padding: 10vh 8vw;
+}
+
+/* Center hero, expression, and contact sections vertically */
+.expression { justify-content: center; align-items: center; }
+.hero, #contact { justify-content: center; }
+
+/* Reset extra padding on contact section */
+#contact { padding-bottom: 0; }
+
+/* Global layout helpers */
+.hero, #systems, #contact {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Footer text size (additional general rule before final override in footer.css) */
+.footer-text {
+  font-size: 0.7rem;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+}
