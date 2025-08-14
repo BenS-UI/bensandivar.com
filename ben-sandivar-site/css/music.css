@@ -2,22 +2,35 @@
 [hidden]{display:none!important;}
 .hidden{display:none!important;}
 
-/* Shell + fixed height + 75% width */
-.music-player{ padding:10vh 8vw; display:flex; flex-direction:column; align-items:center; }
+/* keep section in flow below hero */
+.music-player{
+  margin-top: clamp(24px, 8vh, 120px);
+  margin-bottom: 10vh;
+  padding: 0 8vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Shell: tighter shadow, never clips */
 .music-shell{
-  width:100%; margin:0 auto; border-radius:28px; position:relative;
+  width:100%;
+  margin:0 auto;
+  border-radius:28px;
+  position:relative;
   background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.04), rgba(0,0,0,.45));
   border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 20px 80px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
-  display:flex; flex-direction:column;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25); /* tighter */
+  display:flex;
+  flex-direction:column;
   height: clamp(560px, 72vh, 860px);
   padding:2.25rem 2rem 1.25rem;
-  overflow:hidden; /* keep overlay clipped to rounded corners */
+  overflow:hidden; /* rounds + overlay clip */
 }
 @media (min-width:1024px){ .music-shell{ width:75%; } }
-.page-header{ text-align:center; }
+.page-header{ text-align:center; margin-bottom: 2rem; }
 
-/* Sound-reactive layer (behind everything) */
+/* Aurora (behind all content) */
 .aurora-layer{
   position:absolute; inset:0; z-index:0; pointer-events:none;
   border-radius:inherit; overflow:hidden;
@@ -26,7 +39,7 @@
 .aurora-layer.on{ opacity:1; }
 .aurora-layer canvas{ width:100%; height:100%; display:block; }
 
-/* Mode lights (float above art) */
+/* Mode lights above art/hints */
 .mode-lights{ position:absolute; top:.6rem; left:50%; transform:translateX(-50%); display:flex; gap:.5rem; align-items:center; z-index:5; }
 .mode-lights .light{
   width:12px; height:12px; border-radius:999px; border:0; cursor:pointer;
@@ -47,15 +60,16 @@
 }
 .mode-lights:hover .hint{ opacity:1; }
 
-/* Views area */
+/* Views */
 .views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; z-index:1; }
-.views-wrap.no-scroll{ overflow:hidden; } /* track mode: no scroll */
+.views-wrap.no-scroll{ overflow:hidden; }
 
-/* List view: art + playlist */
+/* List view */
 .albums-view{ display:grid; gap:1.75rem; }
 .album-row{
   display:grid; grid-template-columns:140px 1fr; gap:1rem;
-  background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
   border-radius:18px; padding:1rem;
 }
 @media (max-width:720px){ .album-row{ grid-template-columns:100px 1fr; } }
@@ -66,7 +80,6 @@
 .playlist-col{ display:flex; flex-direction:column; gap:.6rem; }
 .playlist-head{ display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
 .playlist-head h3{ margin:0; font-size:1.1rem; }
-
 .icon-btn.play-all{
   width:34px; height:34px; border-radius:10px;
   border:1px solid rgba(255,255,255,.14);
@@ -90,12 +103,12 @@
   background: var(--stage-bg, radial-gradient(120% 140% at 50% 25%, rgba(0,0,0,.36), rgba(0,0,0,.9)));
 }
 .track-view{ border-radius:22px; padding:2rem 1.25rem; }
-.track-stage{ display:grid; gap:1rem; justify-items:center; z-index:1; position:relative; }
+.track-stage{ display:grid; gap:1rem; justify-items:center; z-index:1; position:relative; padding-bottom:3.2rem; } /* room for reflection fade */
 .stage-art-wrap{
   width:min(42%, 440px); aspect-ratio:1/1; position:relative; border-radius:18px; z-index:1;
   box-shadow: 0 14px 32px rgba(0,0,0,.35);
-  -webkit-box-reflect: below 18px
-    linear-gradient(transparent, rgba(0,0,0,.08) 30%, rgba(0,0,0,.35) 70%, rgba(0,0,0,.9));
+  -webkit-box-reflect: below 24px
+    linear-gradient(transparent, rgba(0,0,0,.08) 35%, rgba(0,0,0,.25) 60%, rgba(0,0,0,0) 95%); /* smooth fade under bar */
 }
 #stage-art{ width:100%; height:100%; object-fit:cover; border-radius:18px; display:block; }
 .stage-meta{ text-align:center; }
@@ -108,7 +121,7 @@
   display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:center;
   padding:.85rem 1rem; border-radius:16px; border:1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.06); backdrop-filter: blur(10px);
-  position:relative; z-index:1;
+  position:relative; z-index:2;
 }
 @media (min-width:760px){ .player-bar{ grid-template-columns:auto auto 1fr; } }
 
@@ -128,7 +141,7 @@
 .icon-btn.primary{ width:42px; height:42px; color:#fff; background: rgba(0,110,255,.18); border-color: rgba(0,110,255,.55); }
 .icon-btn.active{ box-shadow: 0 0 16px rgba(47,132,255,.6); }
 
-/* Progress (center the neon strictly in the track) */
+/* Progress: neon centered inside track */
 .progress{ display:grid; grid-template-columns:auto 1fr auto; gap:.6rem; align-items:center; }
 .time{ font-variant-numeric: tabular-nums; opacity:.85; min-width:3ch; text-align:right; }
 
@@ -141,7 +154,7 @@
   --pct:0;
   position:absolute; left:0; height:6px; width: calc(var(--pct) * 1%); border-radius:999px;
   background: linear-gradient(90deg, #0a5bff, #2f84ff);
-  box-shadow: 0 0 18px #2f84ff, 0 0 36px rgba(47,132,255,.65);
+  box-shadow: 0 0 18px #2f84ff, 0 0 36px rgba(47,132,255,.5);
 }
 #seek{
   -webkit-appearance:none; appearance:none; width:100%; height:18px; margin:0; background:transparent; position:relative; z-index:1;
@@ -150,16 +163,16 @@
 #seek::-moz-range-track{ height:18px; background:transparent; }
 #seek::-webkit-slider-thumb{
   -webkit-appearance:none; width:16px; height:16px; border-radius:50%; margin-top:1px;
-  background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.98);
+  background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.9);
 }
 #seek::-moz-range-thumb{
   width:16px; height:16px; border-radius:50%;
-  background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.98);
+  background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.9);
 }
 
-/* --- Dark theme readiness */
+/* Dark theme ready */
 body[data-theme="dark"] .music-shell{
-  background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.02), rgba(0,0,0,.75));
+  background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.02), rgba(0,0,0,.78));
   border-color: rgba(255,255,255,.07);
 }
 body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
