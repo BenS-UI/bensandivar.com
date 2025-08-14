@@ -12,7 +12,7 @@
   display:flex; flex-direction:column;
   height: clamp(560px, 72vh, 860px);
   padding:2.25rem 2rem 1.25rem;
-  overflow:hidden; /* keep overlay rounded */
+  overflow:hidden; /* keep overlay clipped to rounded corners */
 }
 @media (min-width:1024px){ .music-shell{ width:75%; } }
 .page-header{ text-align:center; }
@@ -20,8 +20,8 @@
 /* Sound-reactive layer */
 .aurora-layer{
   position:absolute; inset:0; z-index:0; pointer-events:none;
-  border-radius: inherit; overflow:hidden;
-  opacity:0; transition: opacity 5s ease;
+  border-radius:inherit; overflow:hidden;
+  opacity:0; transition: opacity 5s ease; /* smooth fade */
 }
 .aurora-layer.on{ opacity:1; }
 .aurora-layer canvas{ width:100%; height:100%; display:block; }
@@ -60,10 +60,7 @@
 }
 @media (max-width:720px){ .album-row{ grid-template-columns:100px 1fr; } }
 .album-art-col{ display:flex; align-items:flex-start; justify-content:center; }
-.album-art{
-  width:120px; height:120px; border-radius:12px; object-fit:cover;
-  box-shadow:0 8px 18px rgba(0,0,0,.28);
-}
+.album-art{ width:120px; height:120px; border-radius:12px; object-fit:cover; box-shadow:0 8px 18px rgba(0,0,0,.28); }
 @media (max-width:720px){ .album-art{ width:90px; height:90px; } }
 
 .playlist-col{ display:flex; flex-direction:column; gap:.6rem; }
@@ -84,7 +81,7 @@
   padding:.45rem .6rem; border-radius:10px; transition:background .2s ease;
 }
 .track-row:hover{ background: rgba(255,255,255,.05); }
-.track-row.active .t-title{ font-weight:700; } /* bold when active */
+.track-row.active .t-title{ font-weight:700; }
 .t-title{ text-align:left; }
 .t-time{ text-align:right; opacity:.82; min-width:3.2rem; }
 
@@ -96,9 +93,9 @@
 .track-stage{ display:grid; gap:1rem; justify-items:center; }
 .stage-art-wrap{
   width:min(42%, 440px); aspect-ratio:1/1; position:relative; border-radius:18px;
-  box-shadow: 0 14px 32px rgba(0,0,0,.35);                 /* subtle lift */
-  -webkit-box-reflect: below 18px                           /* reflection */
-    linear-gradient(transparent, rgba(0,0,0,.08) 30%, rgba(0,0,0,.35) 70%, rgba(0,0,0,.9));
+  box-shadow: 0 14px 32px rgba(0,0,0,.35); /* subtle lift */
+  -webkit-box-reflect: below 18px
+    linear-gradient(transparent, rgba(0,0,0,.08) 30%, rgba(0,0,0,.35) 70%, rgba(0,0,0,.9)); /* reflection */
 }
 #stage-art{ width:100%; height:100%; object-fit:cover; border-radius:18px; display:block; }
 .stage-meta{ text-align:center; }
@@ -146,7 +143,6 @@
   width:16px; height:16px; border-radius:50%;
   background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.98);
 }
-/* deeper electric blue */
 .bar .neon{
   --pct:0;
   position:absolute; left:0; top:50%; transform:translateY(-50%);
