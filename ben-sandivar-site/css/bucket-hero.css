@@ -6,10 +6,10 @@
   position: relative;
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-end; /* move content to bottom */
   justify-content: center;
   text-align: center;
-  padding: 0;
+  padding: 0 0 4rem; /* add bottom space */
   overflow: hidden;
 }
 
@@ -24,7 +24,8 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.15));
+  /* remove or make faint to keep image bright */
+  background: linear-gradient(0deg, rgba(0,0,0,0.05), rgba(0,0,0,0.02));
 }
 
 .bucket-hero .bucket-inner {
@@ -35,11 +36,7 @@
   padding: 0 2rem;
 }
 
-.bucket-hero h2 { 
-  margin-bottom: 0.75rem; 
-}
-
-.bucket-hero p  { 
+.bucket-hero p { 
   margin-bottom: 1.25rem; 
 }
 
