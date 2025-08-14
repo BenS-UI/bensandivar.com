@@ -10,7 +10,7 @@
 /* Smooth parallax */
 const hero = document.querySelector('.bucket-hero');
 function updateParallax() {
-  const offset = window.scrollY * 0.15; // more visible than 0.1
+  const offset = window.scrollY * 0.35;
   hero.style.setProperty('--bg-shift', `${offset}px`);
   requestAnimationFrame(updateParallax);
 }

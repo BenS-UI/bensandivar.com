@@ -9,12 +9,11 @@ html, body {
    =========================== */
 .bucket-hero {
   position: relative;
-  height: 100vh; /* exact viewport height */
+  height: 100vh;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   text-align: center;
-  padding-bottom: 3rem; /* slightly reduced */
   overflow: hidden;
   color: white;
 }
@@ -29,25 +28,25 @@ html, body {
   will-change: background-position;
 }
 
-/* Content wrapper */
+/* Content wrapper — no padding */
 .bucket-hero .bucket-inner {
   position: relative;
   z-index: 1;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0;
 }
 
-/* Logo */
+/* Logo — no extra margin */
 .bucket-logo {
   max-width: 300px;
   display: block;
-  margin: 0 auto 0.5rem; /* reduced spacing under logo */
+  margin: 0 auto;
 }
 
-/* Paragraph wrapping */
+/* Paragraph — no padding, small gap under logo */
 .bucket-hero p {
-  margin: 0.5rem auto 1rem; /* reduced spacing */
+  margin: 0.25rem auto 0.5rem;
   max-width: 40ch;
   line-height: 1.4;
 }
@@ -91,7 +90,7 @@ html, body {
 
 .bucket-cta:hover::before {
   opacity: 1;
-  animation: rainbowFlow 14s ease-in-out infinite; /* slower, smoother */
+  animation: rainbowFlow 14s ease-in-out infinite;
 }
 
 @keyframes rainbowFlow {
