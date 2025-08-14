@@ -26,16 +26,16 @@
   </div>
 
   <script>
-    // If VanillaTilt is available globally, init it for these items.
     (function () {
       if (!window.VanillaTilt) return;
       const items = document.querySelectorAll('section.photo-grid[data-split="gallery"] .grid-item[data-tilt]');
       if (items.length) {
         window.VanillaTilt.init(items, {
           max: 8,
-          speed: 400,
+          speed: 800,        // smoother & slower
           glare: true,
-          "max-glare": 0.12
+          "max-glare": 0.12,
+          reverse: true      // invert tilt direction
         });
       }
     })();

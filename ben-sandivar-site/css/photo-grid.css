@@ -4,8 +4,8 @@
 
 #gallery .gallery-masonry {
   display: block;
-  width: 75%;            /* fixed width */
-  margin: 0 auto;        /* center it */
+  width: 75%;
+  margin: 0 auto;
   column-gap: 15px;
   column-count: 4;
 }
@@ -22,7 +22,6 @@
   background: var(--color-body-bg);
 }
 
-/* Override on desktop so wrapper doesn't restrict gallery width */
 @media (min-width: 1024px) {
   .photo-grid {
     max-width: none;
@@ -51,9 +50,10 @@
   overflow: hidden;
   border-radius: 12px;
   box-shadow: 0 4px 8px var(--color-shadow);
-  transition: var(--transition);
+  transition: box-shadow var(--transition);
   border: 1px solid var(--color-border);
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .grid-item img {
@@ -77,12 +77,11 @@
   font-weight: 400;
 }
 
+/* Remove jump on hover */
 .grid-item:hover {
-  transform: translateY(-5px);
   box-shadow: 0 8px 16px var(--color-shadow);
 }
 
-/* Gallery specifics */
 #gallery .grid-item img {
   pointer-events: none;
   user-select: none;
@@ -97,5 +96,3 @@
 #gallery .grid-caption {
   display: none;
 }
-
-/* If you use the CSS-column layout for gallery elsewhere, keep those rules in your responsive file */
