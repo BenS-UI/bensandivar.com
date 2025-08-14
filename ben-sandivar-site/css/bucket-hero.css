@@ -14,7 +14,7 @@ html, body {
   align-items: flex-end;
   justify-content: center;
   text-align: center;
-  padding-bottom: 4rem;
+  padding-bottom: 3rem; /* slightly reduced */
   overflow: hidden;
   color: white;
 }
@@ -42,12 +42,12 @@ html, body {
 .bucket-logo {
   max-width: 300px;
   display: block;
-  margin: 0 auto 1rem;
+  margin: 0 auto 0.5rem; /* reduced spacing under logo */
 }
 
 /* Paragraph wrapping */
 .bucket-hero p {
-  margin: 1rem auto 1.5rem;
+  margin: 0.5rem auto 1rem; /* reduced spacing */
   max-width: 40ch;
   line-height: 1.4;
 }
@@ -91,7 +91,7 @@ html, body {
 
 .bucket-cta:hover::before {
   opacity: 1;
-  animation: rainbowFlow 12s ease-in-out infinite;
+  animation: rainbowFlow 14s ease-in-out infinite; /* slower, smoother */
 }
 
 @keyframes rainbowFlow {

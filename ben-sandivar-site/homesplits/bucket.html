@@ -10,11 +10,11 @@
 /* Smooth parallax */
 const hero = document.querySelector('.bucket-hero');
 function updateParallax() {
-  const offset = window.scrollY * 0.1; // gentle shift
+  const offset = window.scrollY * 0.15; // more visible than 0.1
   hero.style.setProperty('--bg-shift', `${offset}px`);
   requestAnimationFrame(updateParallax);
 }
-requestAnimationFrame(updateParallax);
+updateParallax();
 
 /* Mouse-follow for CTA */
 const cta = document.querySelector('.bucket-cta');
