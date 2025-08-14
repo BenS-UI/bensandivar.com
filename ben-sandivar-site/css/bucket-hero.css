@@ -33,16 +33,18 @@
   padding: 0 2rem;
 }
 
-/* Logo styling */
+/* Logo */
 .bucket-logo {
   max-width: 300px;
   display: block;
   margin: 0 auto 1rem;
 }
 
-/* Paragraph styling */
+/* Paragraph — wrap lines */
 .bucket-hero p {
-  margin: 1rem 0 1.5rem;
+  margin: 1rem auto 1.5rem;
+  max-width: 40ch; /* keeps it from being one long line */
+  line-height: 1.4;
 }
 
 /* Glassmorphic CTA idle */
@@ -60,20 +62,23 @@
   overflow: hidden;
 }
 
-/* Warm animated blotchy gradient hover */
+/* Smooth rainbow gradient hover */
 .bucket-cta::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: conic-gradient(
-    from 0deg at var(--x, 50%) var(--y, 50%),
-    #ff4d4d,
-    #ff944d,
-    #ffd24d,
-    #ff4d4d,
-    #ff944d
+  background: linear-gradient(
+    270deg,
+    red,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet,
+    red
   );
-  background-size: 200% 200%;
+  background-size: 400% 400%;
   opacity: 0;
   transition: opacity 0.2s ease;
   z-index: -1;
@@ -81,10 +86,10 @@
 
 .bucket-cta:hover::before {
   opacity: 1;
-  animation: warmFlow 6s ease-in-out infinite;
+  animation: rainbowFlow 12s ease-in-out infinite;
 }
 
-@keyframes warmFlow {
+@keyframes rainbowFlow {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
