@@ -12,14 +12,14 @@
   align-items: center;
 }
 
-/* Content container: 75% max width on larger screens */
+/* Main content container */
 #contact .content-wrap {
   width: 100%;
-  max-width: 75%;
+  max-width: 75%;   /* cap to 75% */
   margin: 0 auto;
 }
 
-/* Header */
+/* Header inside content */
 #contact .page-header {
   text-align: center;
   margin-bottom: 2.25rem;
@@ -32,12 +32,14 @@
   margin: 0;
 }
 
-/* Grid */
+/* Grid (cards) — also capped at 75% */
 #contact .contact-grid {
   display: grid;
   gap: 1.25rem;
   grid-template-columns: 1fr;
   width: 100%;
+  max-width: 75%;   /* keep cards within same width as header */
+  margin: 0 auto;
 }
 @media (min-width: 720px) {
   #contact .contact-grid {
@@ -98,10 +100,13 @@
   border-color: currentColor;
 }
 
-/* CTA */
+/* CTA (button container) — also capped at 75% */
 #contact .contact-cta {
   margin-top: 2rem;
   width: 100%;
+  max-width: 75%;
+  margin-left: auto;
+  margin-right: auto;
   display: grid;
   place-items: center;
 }
@@ -134,7 +139,7 @@
   text-align: center;
 }
 
-/* Focus states (keyboard) */
+/* Focus states */
 #contact .contact-item:focus-within,
 #contact .contact-button:focus {
   outline: none;
@@ -144,7 +149,7 @@
   border-color: rgba(0,110,255,.65);
 }
 
-/* Dark theme ready */
+/* Dark theme */
 body[data-theme="dark"] #contact .contact-item {
   background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
   border-color: rgba(255,255,255,.10);
@@ -154,7 +159,7 @@ body[data-theme="dark"] #contact .contact-button {
   border-color: rgba(255,255,255,.14);
 }
 
-/* Motion safe */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   #contact .contact-item,
   #contact .contact-button { transition: none; }
