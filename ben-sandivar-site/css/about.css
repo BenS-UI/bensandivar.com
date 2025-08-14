@@ -2,18 +2,13 @@
    ABOUT SECTION
    =========================== */
 
-:root {
-  /* Set global content width to 75% of the viewport */
-  --content-max: 75vw;
-}
-
 .about-intro {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
   justify-content: center;
   margin: 0 auto 2rem;
-  max-width: var(--content-max);
+  max-width: 75%;
 }
 
 .intro-content {
@@ -22,7 +17,7 @@
   gap: 4rem;
   justify-content: flex-start;
   width: 100%;
-  max-width: var(--content-max);
+  max-width: 75%;
   margin: 0 auto;
   align-items: center;
 }
@@ -58,7 +53,7 @@
 }
 
 .about-bio {
-  max-width: var(--content-max);
+  max-width: 75%;
   margin: 0 auto;
 }
 
@@ -72,4 +67,13 @@
   .about-intro .text-container { text-align: left; }
   .about-intro .intro-text .tagline,
   .about-intro .about-bio p { text-align: left; }
+}
+
+/* Mobile: let content span full width */
+@media (max-width: 768px) {
+  .about-intro,
+  .intro-content,
+  .about-bio {
+    max-width: 100%;
+  }
 }
