@@ -9,8 +9,6 @@
 <script>
 /* Smooth parallax */
 const hero = document.querySelector('.bucket-hero');
-let lastScroll = 0;
-
 function updateParallax() {
   const offset = window.scrollY * 0.1; // gentle shift
   hero.style.setProperty('--bg-shift', `${offset}px`);
@@ -18,7 +16,7 @@ function updateParallax() {
 }
 requestAnimationFrame(updateParallax);
 
-/* Mouse-follow for rainbow CTA */
+/* Mouse-follow for CTA */
 const cta = document.querySelector('.bucket-cta');
 cta.addEventListener('mousemove', e => {
   const rect = cta.getBoundingClientRect();

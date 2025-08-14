@@ -1,10 +1,15 @@
+/* Reset */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
 /* ===========================
    BUCKET HERO
    =========================== */
-
 .bucket-hero {
   position: relative;
-  min-height: 100vh;
+  height: 100vh; /* exact viewport height */
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -40,10 +45,10 @@
   margin: 0 auto 1rem;
 }
 
-/* Paragraph — wrap lines */
+/* Paragraph wrapping */
 .bucket-hero p {
   margin: 1rem auto 1.5rem;
-  max-width: 40ch; /* keeps it from being one long line */
+  max-width: 40ch;
   line-height: 1.4;
 }
 
