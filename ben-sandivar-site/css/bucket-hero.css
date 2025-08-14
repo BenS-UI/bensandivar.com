@@ -18,9 +18,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: url('../assets/bucket-bg.jpg') center/cover no-repeat;
-  transform: translateY(var(--bg-shift, 0)); /* parallax shift */
-  will-change: transform;
+  background: url('../assets/bucket-bg.jpg') center/110% no-repeat;
+  background-size: cover;
+  background-position: center calc(50% + var(--bg-shift, 0px));
+  will-change: background-position;
 }
 
 /* Content wrapper */
@@ -32,13 +33,16 @@
   padding: 0 2rem;
 }
 
-/* Logo image + alt text fallback styling */
+/* Logo image styling */
 .bucket-logo {
   max-width: 300px;
+  display: block;
+  margin: 0 auto 1rem;
 }
-.bucket-logo[alt] {
-  font-weight: bold;
-  font-size: 2.5rem;
+
+/* Paragraph styling */
+.bucket-hero p {
+  margin: 1rem 0 1.5rem;
 }
 
 /* Glassmorphic CTA idle */
@@ -56,7 +60,7 @@
   overflow: hidden;
 }
 
-/* Dynamic rainbow layer for hover */
+/* Rainbow layer for hover */
 .bucket-cta::before {
   content: "";
   position: absolute;
