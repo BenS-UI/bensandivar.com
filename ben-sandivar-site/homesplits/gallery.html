@@ -6,7 +6,7 @@
   </div>
 
   <div class="gallery-masonry" id="gallery-container">
-    <!-- Gallery items -->
+    <!-- Gallery items populated with available 'ben' images from the assets folder -->
     <div class="grid-item" data-tilt><img src="assets/ben%20(0).png" alt="Ben 0" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
     <div class="grid-item" data-tilt><img src="assets/ben%20(1).webp" alt="Ben 1" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
     <div class="grid-item" data-tilt><img src="assets/ben%20(2).jpg" alt="Ben 2 JPG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
@@ -26,7 +26,7 @@
   </div>
 
   <script>
-    // VanillaTilt init
+    // Keep your tilt, inverted and smoother
     (function () {
       if (!window.VanillaTilt) return;
       const items = document.querySelectorAll('#gallery .grid-item[data-tilt]');
@@ -41,26 +41,109 @@
       }
     })();
 
-    // Backlight glow effect
-    document.querySelectorAll('#gallery .grid-item').forEach(item => {
-      const img = item.querySelector('img');
-      const glow = document.createElement('div');
-      glow.className = 'glow-layer';
-      glow.style.backgroundImage = `url('${img.src}')`;
-      item.appendChild(glow);
+    // Neon backlight (color-matched to pixel under cursor)
+    (function () {
+      const cards = document.querySelectorAll('#gallery .grid-item');
 
-      item.addEventListener('mousemove', e => {
-        const rect = item.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        glow.style.setProperty('--mx', `${x}px`);
-        glow.style.setProperty('--my', `${y}px`);
-        glow.style.opacity = '1';
-      });
+      cards.forEach(card => {
+        const img = card.querySelector('img');
 
-      item.addEventListener('mouseleave', () => {
-        glow.style.opacity = '0';
+        // Overlay that renders the glow (stays on top with screen blend)
+        const glow = document.createElement('div');
+        glow.className = 'glow-layer';
+        card.appendChild(glow);
+
+        // Off-DOM canvas for color sampling
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+        function initCanvas() {
+          if (!img.naturalWidth || !img.naturalHeight) return;
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          try {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          } catch (e) {
+            // If CORS-tainted (shouldn’t be, same-origin), fall back to white glow
+          }
+        }
+
+        if (img.complete) initCanvas();
+        else img.addEventListener('load', initCanvas);
+
+        card.addEventListener('mousemove', e => {
+          const rect = img.getBoundingClientRect();
+          const relX = e.clientX - rect.left;
+          const relY = e.clientY - rect.top;
+
+          glow.style.setProperty('--mx', relX + 'px');
+          glow.style.setProperty('--my', relY + 'px');
+
+          // Sample image pixel → boost saturation → set CSS vars
+          if (canvas.width && canvas.height) {
+            const ix = Math.max(0, Math.min(canvas.width - 1, Math.floor(relX * (canvas.width / rect.width))));
+            const iy = Math.max(0, Math.min(canvas.height - 1, Math.floor(relY * (canvas.height / rect.height))));
+            try {
+              const d = ctx.getImageData(ix, iy, 1, 1).data;
+              let r = d[0], g = d[1], b = d[2];
+
+              // Boost saturation by ~80%
+              function rgbToHsl(r,g,b){ r/=255; g/=255; b/=255;
+                const max=Math.max(r,g,b), min=Math.min(r,g,b);
+                let h=0, s=0, l=(max+min)/2;
+                if (max!==min) {
+                  const d=max-min;
+                  s=l>0.5 ? d/(2-max-min) : d/(max+min);
+                  switch(max){
+                    case r: h=(g-b)/d + (g<b?6:0); break;
+                    case g: h=(b-r)/d + 2; break;
+                    default: h=(r-g)/d + 4;
+                  }
+                  h/=6;
+                }
+                return [h,s,l];
+              }
+              function hslToRgb(h,s,l){
+                let r,g,b;
+                if (s===0){ r=g=b=l; }
+                else{
+                  const hue2rgb=(p,q,t)=>{
+                    if (t<0) t+=1;
+                    if (t>1) t-=1;
+                    if (t<1/6) return p+(q-p)*6*t;
+                    if (t<1/2) return q;
+                    if (t<2/3) return p+(q-p)*(2/3 - t)*6;
+                    return p;
+                  }
+                  const q = l<0.5 ? l*(1+s) : l + s - l*s;
+                  const p = 2*l - q;
+                  r = hue2rgb(p,q,h+1/3);
+                  g = hue2rgb(p,q,h);
+                  b = hue2rgb(p,q,h-1/3);
+                }
+                return [Math.round(r*255), Math.round(g*255), Math.round(b*255)];
+              }
+
+              let [h,s,l] = rgbToHsl(r,g,b);
+              s = Math.min(1, s * 1.8);
+              [r,g,b] = hslToRgb(h,s,l);
+
+              glow.style.setProperty('--r', r);
+              glow.style.setProperty('--g', g);
+              glow.style.setProperty('--b', b);
+            } catch (err) {
+              // ignore; keep previous color
+            }
+          }
+
+          glow.style.opacity = '1';
+        });
+
+        card.addEventListener('mouseleave', () => {
+          glow.style.opacity = '0';
+        });
       });
-    });
+    })();
   </script>
 </section>

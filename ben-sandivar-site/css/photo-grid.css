@@ -1,4 +1,7 @@
-/* Base masonry layout */
+/* ===========================
+   PHOTO GRID / MASONRY
+   =========================== */
+
 #gallery .gallery-masonry {
   display: block;
   width: 75%;
@@ -13,49 +16,90 @@
   position: relative;
 }
 
+.photo-grid {
+  padding: 10vh 8vw;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  background: var(--color-body-bg);
+}
+
+@media (min-width: 1024px) {
+  .photo-grid {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 .grid-item {
   position: relative;
   overflow: hidden;
   border-radius: 12px;
   box-shadow: 0 4px 8px var(--color-shadow);
+  transition: box-shadow var(--transition);
   border: 1px solid var(--color-border);
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .grid-item img {
   width: 100%;
+  height: auto;
   display: block;
-  z-index: 2;
+  object-fit: cover;
   position: relative;
+  z-index: 2; /* image above glow */
 }
 
-/* Glow layer */
+/* Neon backlight overlay (on top, blended) */
 .glow-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 105%;
-  height: 105%;
-  background-size: cover;
-  background-position: center;
-  filter: blur(25px) saturate(1.8);
-  transform: translate(-2.5%, -2.5%);
-  opacity: 0;
+  inset: -8%;                 /* extend a bit past edges for fuller glow */
   pointer-events: none;
-  z-index: 1;
-  transition: opacity 0.3s ease;
-  mask-image: radial-gradient(circle 120px at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
-  -webkit-mask-image: radial-gradient(circle 120px at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
+  z-index: 3;                 /* above image so the glow is visible */
+  opacity: 0;
+  transition: opacity 200ms ease;
+  filter: blur(26px);
+  mix-blend-mode: screen;     /* makes glow lighten the image nicely */
+
+  /* Smooth radial glow that follows the mouse */
+  --r: 255; --g: 255; --b: 255; /* fallback color */
+  --mx: 50%; --my: 50%;
+  background: radial-gradient(
+    circle at var(--mx) var(--my),
+    rgba(var(--r), var(--g), var(--b), 0.85) 0%,
+    rgba(var(--r), var(--g), var(--b), 0.55) 18%,
+    rgba(var(--r), var(--g), var(--b), 0.24) 40%,
+    rgba(var(--r), var(--g), var(--b), 0.0) 60%
+  );
 }
 
-.photo-grid {
-  padding: 10vh 8vw;
-  background: var(--color-body-bg);
+.grid-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--color-primary);
+  padding: 10px;
+  text-align: center;
+  font-family: 'Geologica', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
 }
 
+/* No jump on hover; keep subtle depth change */
+.grid-item:hover {
+  box-shadow: 0 8px 16px var(--color-shadow);
+}
+
+/* Gallery specifics */
 #gallery .grid-item img {
   pointer-events: none;
   user-select: none;
+  -webkit-box-reflect: below 0.25rem
+    linear-gradient(transparent, rgba(255, 255, 255, 0.1));
 }
+
+#gallery .grid-item { cursor: default; }
+#gallery .grid-caption { display: none; }
