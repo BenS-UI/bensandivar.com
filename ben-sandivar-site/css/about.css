@@ -7,19 +7,18 @@
   flex-wrap: wrap;
   gap: 2rem;
   justify-content: center;
-  margin: 0 auto 2rem;
-  max-width: 75%;
+  margin-bottom: 2rem;
 }
 
+/* The combined row (image + text) is capped at 75% */
 .intro-content {
   display: flex;
   flex-wrap: nowrap;
   gap: 4rem;
-  justify-content: flex-start;
-  width: 100%;
+  align-items: center;
+  flex: 0 1 75%;
   max-width: 75%;
   margin: 0 auto;
-  align-items: center;
 }
 
 .profile-container {
@@ -52,7 +51,9 @@
   margin-bottom: 1rem;
 }
 
+/* Bio block also capped at 75% */
 .about-bio {
+  flex: 0 1 75%;
   max-width: 75%;
   margin: 0 auto;
 }
@@ -71,9 +72,9 @@
 
 /* Mobile: let content span full width */
 @media (max-width: 768px) {
-  .about-intro,
   .intro-content,
   .about-bio {
+    flex-basis: 100%;
     max-width: 100%;
   }
 }

@@ -5,19 +5,19 @@
   </div>
 
   <div class="music-shell">
-    <!-- aurora (always behind content) -->
+    <!-- aurora background (always behind content) -->
     <div class="aurora-layer" aria-hidden="true">
       <canvas id="aurora"></canvas>
     </div>
 
-    <!-- mode lights -->
+    <!-- two dots toggle (mutually exclusive views) -->
     <div class="mode-lights" role="group" aria-label="View switch">
       <button id="light-list" class="light on" aria-label="List view"></button>
       <button id="light-track" class="light" aria-label="Track view"></button>
       <div class="hint" role="note">Tap a dot to switch views</div>
     </div>
 
-    <!-- list scrolls; track doesn’t -->
+    <!-- list scrolls; track view does not -->
     <div class="views-wrap" id="viewsWrap">
       <!-- LIST VIEW -->
       <div id="albums-view" class="albums-view" aria-live="polite"></div>
@@ -28,10 +28,7 @@
           <div class="stage-art-wrap">
             <img id="stage-art" src="" alt="Album art">
           </div>
-          <div class="stage-meta">
-            <h3 id="stage-title">—</h3>
-            <p id="stage-album">—</p>
-          </div>
+          <!-- no titles here by request -->
         </div>
       </div>
     </div>
@@ -58,6 +55,7 @@
           <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6v12M18 6l-8 6 8 6V6z" fill="currentColor"/></svg>
         </button>
 
+        <!-- PLAY / PAUSE (single button, icon swaps) -->
         <button class="icon-btn primary" id="playPauseBtn" title="Play / Pause" aria-pressed="false">
           <svg id="iconPlay" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
           <svg id="iconPause" viewBox="0 0 24 24" width="20" height="20" hidden><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>
@@ -93,7 +91,7 @@
       { title:"The Adventure Begins", src:"assets/tracks/Track 5.mp3", album:"The Adventure Begins", art:"assets/tracks/Musings.jpg" }
     ];
 
-    // group + sort
+    // group + sort by track count
     const albumsMap = {};
     tracks.forEach(t => {
       if (!albumsMap[t.album]) albumsMap[t.album] = { art:t.art, tracks:[] };
@@ -125,9 +123,6 @@
     const nowAlbum = document.getElementById('nowAlbum');
 
     const stageArt   = document.getElementById('stage-art');
-    const stageTitle = document.getElementById('stage-title');
-    const stageAlbum = document.getElementById('stage-album');
-    const trackStage = document.querySelector('.track-stage');
 
     const auroraCanvas = document.getElementById('aurora');
     const auroraCtx    = auroraCanvas.getContext('2d');
@@ -193,14 +188,11 @@
       nowAlbum.textContent = t.album;
 
       stageArt.src = albumsMap[t.album].art;
-      stageTitle.textContent = t.title;
-      stageAlbum.textContent = t.album;
-      setTimeout(()=> dominantToStage(stageArt, trackStage), 0);
 
       document.querySelectorAll('.track-row').forEach(r=> r.classList.toggle('active', r.dataset.src===t.src));
     }
 
-    // play state UI
+    // play state UI (ROBUST)
     function setPlayState(on){
       iconPlay.hidden = on;
       iconPause.hidden = !on;
@@ -255,8 +247,9 @@
     nextBtn.addEventListener('click', ()=> next(false));
     prevBtn.addEventListener('click', prev);
 
-    audio.addEventListener('play',  ()=> setPlayState(true));
-    audio.addEventListener('pause', ()=> setPlayState(false));
+    // audio -> UI (guarantee icon swap)
+    ["play","playing"].forEach(ev=> audio.addEventListener(ev, ()=>setPlayState(true)));
+    ["pause","ended","abort","emptied","suspend","waiting"].forEach(ev=> audio.addEventListener(ev, ()=>setPlayState(!audio.paused)));
 
     // progress
     audio.addEventListener('timeupdate', ()=>{
@@ -287,32 +280,7 @@
     lightList.addEventListener('click', ()=> setMode(true));
     lightTrack.addEventListener('click', ()=> setMode(false));
 
-    // dominant color → track bg
-    function dominantToStage(img, host){
-      const c=document.createElement('canvas'), ctx=c.getContext('2d',{willReadFrequently:true});
-      const w=48,h=48; c.width=w; c.height=h;
-      try{
-        ctx.drawImage(img,0,0,w,h);
-        const data=ctx.getImageData(0,0,w,h).data;
-        const bins=new Map();
-        for(let i=0;i<data.length;i+=4){
-          const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
-          if(a<200) continue;
-          const max=Math.max(r,g,b), min=Math.min(r,g,b);
-          if(max<40 || (max-min)<12) continue;
-          const key=(r>>4)+','+(g>>4)+','+(b>>4);
-          bins.set(key,(bins.get(key)||0)+1);
-        }
-        let best=null,count=0;
-        bins.forEach((v,k)=>{ if(v>count){count=v;best=k;} });
-        if(best){
-          const [R,G,B]=best.split(',').map(n=>parseInt(n,10)*16+8);
-          host.style.setProperty('--stage-bg', `radial-gradient(120% 140% at 50% 25%, rgba(${R},${G},${B},.18), rgba(0,0,0,.93))`);
-        }
-      }catch(e){}
-    }
-
-    // ------- AURORA (vertical, soft, no jumps)
+    // ------- AURORA (vertical, crisp, seamless 120s loop)
     let acx, srcNode, analyser;
     let rafId=null, showTimer=null, hoverTimer=null, silenceTimer=null;
     let overlayOn=false, overlaySuppressed=false;
@@ -323,7 +291,7 @@
       srcNode = acx.createMediaElementSource(audio);
       analyser = acx.createAnalyser();
       analyser.fftSize = 2048;
-      analyser.smoothingTimeConstant = 0.95; // ultra smooth
+      analyser.smoothingTimeConstant = 0.96; // very smooth energy
       srcNode.connect(analyser); analyser.connect(acx.destination);
     }
 
@@ -334,20 +302,20 @@
     }
     sizeCanvas(); addEventListener('resize', sizeCanvas);
 
-    // Continuous palette drift (no resets → no jumps)
-    const N = 6;
-    const palette = Array.from({length:N}, ()=>({
-      h: Math.random()*360, s: 58+Math.random()*16, l: 46+Math.random()*8
-    }));
-    const lerp = (a,b,t)=> a+(b-a)*t;
-    const hsl = (c,a=1)=> `hsla(${c.h.toFixed(1)} ${c.s.toFixed(1)}% ${c.l.toFixed(1)}% / ${a})`;
+    // Deterministic colors that LOOP exactly at LOOP_S, no jumps.
+    const LOOP_S = 120; // 2-minute perfect loop
+    let t0 = performance.now();
 
-    function driftPalette(){
-      for (const c of palette){
-        c.h = (c.h + 0.06) % 360;                       // slow hue drift
-        c.s = lerp(c.s, 60+Math.sin(c.h*0.02)*10, 0.02); // gentle sat drift
-        c.l = lerp(c.l, 50+Math.cos(c.h*0.018)*6, 0.02); // gentle lightness
-      }
+    function loopT(){ // 0..1
+      const dt = (performance.now() - t0) / 1000;
+      return (dt % LOOP_S) / LOOP_S;
+    }
+
+    // fixed base hues; we modulate each with sin/cos so start=end
+    const baseHues = [210, 270, 330, 30, 90, 150]; // cool-to-warm spread
+    function hueAt(i, t){ // smooth hue oscillation
+      const phase = i*0.6;
+      return (baseHues[i % baseHues.length] + 18*Math.sin(2*Math.PI*(t+phase))) % 360;
     }
 
     function startAurora(immediate=false){
@@ -355,7 +323,7 @@
       overlayOn = true; overlaySuppressed=false;
       auroraLayer.classList.add('on');
       if (!acx) ensureAudioGraph();
-      animateFire();
+      animateAurora();
     }
     function stopAurora(){ overlayOn=false; auroraLayer.classList.remove('on'); if (rafId){cancelAnimationFrame(rafId); rafId=null;} }
     function scheduleShow(){
@@ -388,68 +356,67 @@
       return { avg, buf };
     }
 
-    // energy smoothing
     const smooth = { bass:0, mid:0, treb:0 };
-    function smoothTo(key, val){ smooth[key] = lerp(smooth[key], val, 0.06); }
+    const lerp = (a,b,t)=> a+(b-a)*t;
 
-    // render
-    let t=0;
-    function animateFire(){
+    function animateAurora(){
       if (!overlayOn) return;
-      rafId = requestAnimationFrame(animateFire);
-      sizeCanvas(); driftPalette();
+      rafId = requestAnimationFrame(animateAurora);
+      sizeCanvas();
 
       const w = auroraCanvas.width, h = auroraCanvas.height;
       auroraCtx.clearRect(0,0,w,h);
 
       const { buf } = checkSilence();
       const bands = buf ? getBands(buf) : {bass:0, mid:0, treb:0};
-      smoothTo('bass', bands.bass/255);
-      smoothTo('mid',  bands.mid/255);
-      smoothTo('treb', bands.treb/255);
+      smooth.bass = lerp(smooth.bass, bands.bass/255, 0.06);
+      smooth.mid  = lerp(smooth.mid,  bands.mid/255,  0.06);
+      smooth.treb = lerp(smooth.treb, bands.treb/255, 0.06);
+
+      const t = loopT(); // 0..1 looped
+      const angle = Math.sin(t*2*Math.PI)*0.1; // micro-rotation
 
       auroraCtx.save();
       auroraCtx.globalCompositeOperation = 'screen';
-
-      // tiny oscillation to rotate vertical mix slowly
-      const angle = Math.sin(t*0.02)*0.12;
       auroraCtx.translate(w/2, h);
       auroraCtx.rotate(angle);
       auroraCtx.translate(-w/2, -h);
 
-      t += 0.0055;
-
-      const layers = 5;                  // fixed, calmer
-      const steps  = 84;
+      const layers = 5;
+      const steps  = 88;
       const baseAmp = h*(0.10 + 0.20*smooth.bass);
+      const kx = 2*Math.PI / Math.max(360, w);
+
       for (let L=0; L<layers; L++){
-        const c = palette[(L*2) % palette.length];
-        const alpha = 0.14 + 0.18*(L+1)/layers;     // softer, no white blowouts
-        const amp   = baseAmp*(0.8 + L*0.12);
+        const hue = hueAt(L, t);
+        const col = `hsla(${hue} 68% 54% / ${0.16 + 0.18*(L+1)/layers})`;
+
+        const amp   = baseAmp*(0.85 + L*0.12);
         const baseY = h*(0.10 + L*0.055);
-        const kx    = 2*Math.PI / Math.max(320, w);
-        const ph    = t*(0.7 + L*0.08);
+        const ph    = (t*2*Math.PI)*(0.7 + L*0.08);
 
-        auroraCtx.beginPath();
-        auroraCtx.moveTo(0, h);
-        for (let i=0;i<=steps;i++){
-          const x = (i/steps)*w;
-          const yWave =
-            Math.sin(kx*x + ph) * 0.50 +
-            Math.sin(kx*1.6*x + ph*1.2) * 0.30 +
-            Math.sin(kx*3.1*x + ph*0.8) * 0.20;
+        // one crisper pass + one softer pass (keeps gradients smooth without lava-white)
+        for (const blur of [10,18]){
+          auroraCtx.beginPath();
+          auroraCtx.moveTo(0, h);
+          for (let i=0;i<=steps;i++){
+            const x = (i/steps)*w;
+            const yWave =
+              Math.sin(kx*x + ph) * 0.50 +
+              Math.sin(kx*1.6*x + ph*1.2) * 0.30 +
+              Math.sin(kx*3.1*x + ph*0.8) * 0.20;
 
-          const energy = 0.55*smooth.bass + 0.35*smooth.mid + 0.10*smooth.treb;
-          const y = h - (baseY + amp*(0.5+0.5*yWave)*(0.6+0.6*energy));
-          auroraCtx.lineTo(x, y);
+            const energy = 0.55*smooth.bass + 0.35*smooth.mid + 0.10*smooth.treb;
+            const y = h - (baseY + amp*(0.5+0.5*yWave)*(0.6+0.6*energy));
+            auroraCtx.lineTo(x, y);
+          }
+          auroraCtx.lineTo(w, h); auroraCtx.closePath();
+          auroraCtx.save();
+          auroraCtx.filter = `blur(${blur}px)`;
+          auroraCtx.fillStyle = col;
+          auroraCtx.fill();
+          auroraCtx.restore();
         }
-        auroraCtx.lineTo(w, h); auroraCtx.closePath();
-
-        auroraCtx.save();
-        auroraCtx.filter = 'blur(30px)';            // very soft
-        auroraCtx.fillStyle = hsl(c, alpha);
-        auroraCtx.fill();
-        auroraCtx.restore();
       }
       auroraCtx.restore();
     }
@@ -464,7 +431,8 @@
     // boot
     setAlbumQueue(albums[0][0]);
     loadTrackBySrc(albumsMap[albums[0][0]].tracks[0].src);
-    setMode(true);
+    setMode(true); // start in list view
+    setPlayState(false); // show Play icon initially
   })();
 
   function formatTime(t){ const m=Math.floor(t/60); const s=Math.floor(t%60).toString().padStart(2,'0'); return `${m}:${s}`; }
