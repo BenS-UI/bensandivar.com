@@ -2,12 +2,17 @@
    ABOUT SECTION
    =========================== */
 
+:root {
+  /* Set global content width to 75% of the viewport */
+  --content-max: 75vw;
+}
+
 .about-intro {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem;
   max-width: var(--content-max);
 }
 
@@ -54,6 +59,7 @@
 
 .about-bio {
   max-width: var(--content-max);
+  margin: 0 auto;
 }
 
 .about-bio p {
