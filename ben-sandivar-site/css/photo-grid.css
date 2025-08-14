@@ -4,9 +4,9 @@
 
 #gallery .gallery-masonry {
   display: block;
-  width: 75%%;
+  width: 70%%;
   column-gap: 15px;
-  column-count: 3;
+  column-count: 4;
 }
 
 #gallery .gallery-masonry .grid-item {
