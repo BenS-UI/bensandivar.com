@@ -4,20 +4,26 @@
 
 .about-skills {
   padding: 10vh 8vw;
-  /* Local neon color for hover glow */
-  --neon: #00e6ff;
+  --neon: #3e0fff; /* deep electric neon */
 }
 
-/* Content container capped at 75% width */
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
+/* Cap ALL section content (text + buttons) to 75% */
+.about-skills > * {
   max-width: 75%;
-  margin: 2rem auto 0;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* Modern rounded "button" chips */
+/* Button grid: centered rows with variable-width chips */
+.skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;   /* center each line */
+  gap: 0.75rem 1rem;
+  margin-top: 2rem;
+}
+
+/* Modern rounded chips, no wrapping */
 .skills-grid span {
   display: inline-flex;
   align-items: center;
@@ -25,15 +31,19 @@
   cursor: pointer;
   user-select: none;
 
-  padding: 0.6rem 1.2rem;
-  border-radius: 9999px; /* pill */
+  padding: 0.55rem 1.1rem;
+  border-radius: 9999px;              /* pill */
   border: 1px solid var(--color-accent);
+
+  font-size: 0.95rem;                 /* smaller to reduce wraps */
+  line-height: 1;
+  white-space: nowrap;                /* never wrap */
 
   color: var(--color-primary);
   background: rgba(59, 130, 246, 0.10);
 
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.18),
     inset 0 0 0 1px rgba(59, 130, 246, 0.25);
 
   transition:
@@ -44,30 +54,30 @@
   will-change: transform;
 }
 
-/* Float + deep electric neon glow on hover/focus */
+/* Float + neon glow */
 .skills-grid span:hover,
 .skills-grid span:focus-visible {
   transform: translateY(-4px) scale(1.03);
-  background: rgba(59, 130, 246, 0.16);
+  background: rgba(62, 15, 255, 0.15);
   box-shadow:
-    0 10px 22px rgba(0, 0, 0, 0.25),
+    0 10px 22px rgba(0, 0, 0, 0.28),
     0 0 10px var(--neon),
-    0 0 20px rgba(0, 230, 255, 0.9),
-    0 0 38px rgba(0, 230, 255, 0.75);
+    0 0 20px rgba(62, 15, 255, 0.9),
+    0 0 40px rgba(62, 15, 255, 0.75);
+  text-shadow: 0 0 6px rgba(62, 15, 255, 0.7);
   outline: none;
-  text-shadow: 0 0 6px rgba(0, 230, 255, 0.7);
 }
 
 /* Pressed state */
 .skills-grid span:active {
   transform: translateY(-2px) scale(1.02);
   box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.25),
+    0 6px 14px rgba(0, 0, 0, 0.28),
     0 0 8px var(--neon),
-    0 0 16px rgba(0, 230, 255, 0.8);
+    0 0 16px rgba(62, 15, 255, 0.85);
 }
 
-/* Respect reduced motion */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .skills-grid span {
     transition: box-shadow 200ms ease, background-color 200ms ease, color 200ms ease;
@@ -76,12 +86,5 @@
   .skills-grid span:focus-visible,
   .skills-grid span:active {
     transform: none;
-  }
-}
-
-/* Mobile: let the grid span full width */
-@media (max-width: 768px) {
-  .skills-grid {
-    max-width: 100%;
   }
 }
