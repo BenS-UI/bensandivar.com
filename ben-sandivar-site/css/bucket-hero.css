@@ -37,16 +37,16 @@ html, body {
   padding: 0;
 }
 
-/* Logo — no extra margin */
+/* Logo — no extra margin below */
 .bucket-logo {
   max-width: 300px;
   display: block;
   margin: 0 auto;
 }
 
-/* Paragraph — no padding, small gap under logo */
+/* Paragraph — flush with logo, gap below before CTA */
 .bucket-hero p {
-  margin: 0.25rem auto 0.5rem;
+  margin: 0 auto 1rem; /* 1rem gap below before CTA */
   max-width: 40ch;
   line-height: 1.4;
 }
