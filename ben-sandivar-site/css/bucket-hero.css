@@ -11,24 +11,19 @@
   text-align: center;
   padding-bottom: 4rem;
   overflow: hidden;
-  color: white; /* make all text white */
+  color: white; /* all text white */
 }
 
 .bucket-hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url('../assets/bucket.png') center/cover no-repeat;
+  background: url('../assets/bucket-bg.jpg') center/cover no-repeat;
+  transform: translateY(var(--bg-shift, 0)); /* parallax shift */
+  will-change: transform;
 }
 
-.bucket-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  /* very faint overlay to keep image bright */
-  background: linear-gradient(0deg, rgba(0,0,0,0.05), rgba(0,0,0,0.02));
-}
-
+/* Content wrapper */
 .bucket-hero .bucket-inner {
   position: relative;
   z-index: 1;
@@ -37,7 +32,7 @@
   padding: 0 2rem;
 }
 
-/* Logo image with alt text styling */
+/* Logo image + alt text fallback styling */
 .bucket-logo {
   max-width: 300px;
 }
@@ -46,12 +41,7 @@
   font-size: 2.5rem;
 }
 
-/* Copy styling */
-.bucket-hero p {
-  margin: 1rem 0 1.5rem;
-}
-
-/* Glassmorphic button idle */
+/* Glassmorphic CTA idle */
 .bucket-cta {
   position: relative;
   display: inline-block;
@@ -63,42 +53,26 @@
   color: white;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
 }
 
-/* Rainbow neon hover effect */
+/* Dynamic rainbow layer for hover */
 .bucket-cta::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    red,
-    orange,
-    yellow,
-    green,
-    cyan,
-    blue,
-    violet
-  );
-  background-size: 400%;
+  background: radial-gradient(circle at var(--x, 50%) var(--y, 50%),
+    rgba(255,255,255,0.8),
+    rgba(255,0,255,0.7),
+    rgba(0,255,255,0.6),
+    rgba(255,255,0,0.5),
+    transparent 60%);
+  background-size: 300% 300%;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
   z-index: -1;
 }
 
 .bucket-cta:hover::before {
   opacity: 1;
-  animation: rainbowShift 4s linear infinite;
-}
-
-.bucket-cta:hover {
-  color: white;
-  box-shadow: 0 0 20px rgba(255,255,255,0.5);
-}
-
-@keyframes rainbowShift {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 400% 50%; }
 }

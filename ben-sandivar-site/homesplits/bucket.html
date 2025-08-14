@@ -1,7 +1,17 @@
 <!-- homesplits/bucket.html -->
 <section class="bucket-hero" data-split="bucket">
   <div class="bucket-inner">
+    <img src="../assets/bucket-logo.png" alt="Hearing" class="bucket-logo">
+    <h1>Bucket</h1>
     <p>Discover my abstract art generator and turn your ideas into a unique digital painting.</p>
     <a href="#" class="bucket-cta">Create</a>
   </div>
 </section>
+
+<script>
+const hero = document.querySelector('.bucket-hero');
+window.addEventListener('scroll', () => {
+  const offset = window.scrollY * 0.4; // smaller = slower
+  hero.style.setProperty('--bg-shift', `${offset}px`);
+});
+</script>
