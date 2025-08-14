@@ -64,7 +64,7 @@ section.bucket-hero{ position:relative; z-index:2; }
 .views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; z-index:1; }
 .views-wrap.no-scroll{ overflow:hidden; }
 /* aurora behind album art, above list */
-.aurora-layer{ position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit; opacity:1; }
+.aurora-layer{ position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit; }
 .aurora-layer canvas{ width:100%; height:100%; display:block; }
 .track-stage .stage-art-wrap{ z-index:3; position:relative; }
 /* player bar at top of stack */
