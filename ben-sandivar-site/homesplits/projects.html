@@ -175,21 +175,20 @@
     </div>
   </div>
 
-  <script>
-    // Initialize VanillaTilt if available (safe no-op if not loaded)
-    (function () {
-      if (!window.VanillaTilt) return;
-      const cards = document.querySelectorAll(
-        'section.featured-projects[data-split="projects"] .project-card[data-tilt]'
-      );
-      if (cards.length) {
-        window.VanillaTilt.init(cards, {
-          max: 8,
-          speed: 400,
-          glare: true,
-          "max-glare": 0.12
-        });
-      }
-    })();
-  </script>
+<script>
+(function () {
+  if (!window.VanillaTilt) return;
+  const cards = document.querySelectorAll('.featured-projects .project-card');
+  if (cards.length) {
+    window.VanillaTilt.init(cards, {
+      max: 8,
+      speed: 800,
+      reverse: true,      // tilt away from cursor
+      glare: false,
+      perspective: 1000,
+      scale: 1.0
+    });
+  }
+})();
+</script>
 </section>

@@ -12,69 +12,83 @@
   gap: 2rem;
   margin: 0 auto;
   width: 100%;
-  max-width: var(--content-max);
-  grid-template-columns: 1fr; /* mobile: 1 */
+  grid-template-columns: 1fr; /* mobile */
   justify-content: center;
 }
 
-/* tablet: 2 cols */
+/* Tablet: 2 cols */
 @media (min-width: 768px) {
   .projects-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* desktop: 3 cols + 75% width like gallery */
+/* Desktop: 3 cols + 75% width cap */
 @media (min-width: 1024px) {
-  .featured-projects {
-    padding-left: 0;
-    padding-right: 0;
-  }
   .projects-grid {
-    width: 75%;
+    max-width: 75vw;       /* cap at 75% of screen */
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* Card */
 .project-card {
-  background: var(--color-secondary);
-  border-radius: var(--radius);
-  box-shadow: 0 8px 32px var(--color-shadow);
+  background: var(--color-secondary);      /* light surface */
+  border-radius: 12px;                     /* match gallery */
   border: 1px solid var(--color-border);
+  box-shadow:
+    0 2px 10px rgba(0,0,0,0.08),
+    0 1px 0 rgba(255,255,255,0.02) inset;  /* soft lift */
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
   transform-style: preserve-3d;
   will-change: transform;
-  transition: box-shadow 0.3s ease, opacity 0.3s ease; /* no translate jump */
-  cursor: default; /* not a link */
+  transition: box-shadow 0.25s ease;
+  cursor: default;
 }
 
-/* Hover: deepen shadow only (no translate) */
+/* Hover: deepen shadow (no jump) */
 .project-card:hover {
-  box-shadow: 0 16px 48px var(--color-shadow), 0 0 12px var(--color-accent);
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.16),
+    0 1px 0 rgba(255,255,255,0.03) inset;
 }
 
-/* Media */
+/* Media (16:9), rounded top corners */
 .project-card img {
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
   object-fit: cover;
   display: block;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
 /* Content */
 .card-content {
-  padding: 1.5rem; /* a bit tighter */
+  padding: 1.25rem;                 /* tighter */
   display: flex;
   flex-direction: column;
   min-height: 0;
   flex-grow: 1;
+  font-size: 0.95rem;               /* tighter text */
+  line-height: 1.45;
 }
 
+.card-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;                /* compact heading */
+  line-height: 1.25;
+}
+
+.card-content p {
+  margin: 0 0 0.75rem 0;
+}
+
+/* Link */
 .card-content a {
   color: var(--color-accent);
   font-size: 0.9rem;
