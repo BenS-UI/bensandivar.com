@@ -1,16 +1,14 @@
 <section id="music" class="music-player fade-in" data-split="music">
   <div class="page-header">
     <h2>Music</h2>
-    <p>Albums and tracks with a minimal player.</p>
+    <p>Albums and tracks. Minimal player.</p>
 
-    <div class="player-mode-toggle">
-      <button id="mode-list" class="ui-btn active" aria-pressed="true" title="List mode">
-        <!-- list icon -->
+    <div class="mode-toggle">
+      <button id="btn-list" class="ui-btn active" aria-pressed="true" title="List mode">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
         List
       </button>
-      <button id="mode-track" class="ui-btn" aria-pressed="false" title="Track mode">
-        <!-- disc icon -->
+      <button id="btn-track" class="ui-btn" aria-pressed="false" title="Track mode">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
         Track
       </button>
@@ -18,6 +16,12 @@
   </div>
 
   <div class="music-shell">
+    <!-- status lights -->
+    <div class="status-lights" aria-hidden="true">
+      <span class="dot cyan"></span>
+      <span class="dot magenta"></span>
+    </div>
+
     <!-- LIST MODE -->
     <div id="albums-view" class="albums-view" aria-live="polite"></div>
 
@@ -25,7 +29,7 @@
     <div id="track-view" class="track-view" hidden>
       <div class="track-stage">
         <div class="stage-art-wrap">
-          <img id="stage-art" src="" alt="Album art" />
+          <img id="stage-art" src="" alt="Album art">
         </div>
         <div class="stage-meta">
           <h3 id="stage-title">—</h3>
@@ -34,42 +38,42 @@
       </div>
     </div>
 
-    <!-- GLOBAL PLAYER (visible in both modes; sits at bottom) -->
+    <!-- GLOBAL PLAYER -->
     <div class="player-bar glass">
+      <div class="now">
+        <img id="nowArt" src="" alt="" class="now-art">
+        <div class="now-meta">
+          <span id="nowTitle">—</span>
+          <small id="nowAlbum">—</small>
+        </div>
+      </div>
+
       <div class="controls">
+        <button class="icon-btn" id="shuffleBtn" title="Shuffle">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 7h2.5L14 17h6M20 7h-6l-2 2M4 17h6l2-2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </button>
         <button class="icon-btn" id="prevBtn" title="Previous">
-          <!-- prev -->
           <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6v12M18 6l-8 6 8 6V6z" fill="currentColor"/></svg>
         </button>
         <button class="icon-btn primary" id="playPauseBtn" title="Play / Pause">
-          <!-- play -->
           <svg id="iconPlay" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-          <!-- pause -->
           <svg id="iconPause" viewBox="0 0 24 24" width="20" height="20" hidden><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>
         </button>
         <button class="icon-btn" id="nextBtn" title="Next">
-          <!-- next -->
           <svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 6v12M6 6l8 6-8 6V6z" fill="currentColor"/></svg>
+        </button>
+        <button class="icon-btn" id="repeatBtn" title="Repeat">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M7 7h9a3 3 0 0 1 0 6H7l3 3M17 17H8a3 3 0 0 1 0-6h9l-3-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
         </button>
       </div>
 
       <div class="progress">
         <span id="currTime" class="time">0:00</span>
         <div class="bar">
-          <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek"/>
+          <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek">
           <div class="neon"></div>
         </div>
         <span id="durTime" class="time">0:00</span>
-      </div>
-
-      <div class="now">
-        <div class="now-art">
-          <img id="nowArt" src="" alt="Now playing art" />
-        </div>
-        <div class="now-meta">
-          <span id="nowTitle">—</span>
-          <small id="nowAlbum">—</small>
-        </div>
       </div>
 
       <audio id="audio" preload="metadata"></audio>
@@ -78,37 +82,40 @@
 
   <script>
   (function(){
-    // Data
+    const ELECTRIC = '#00e5ff';
+
     const tracks = [
-      { title: "Rain",               src: "assets/tracks/Track 1.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
-      { title: "Sonata",             src: "assets/tracks/Track 2.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
-      { title: "Münchhausen",        src: "assets/tracks/Track 3.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
-      { title: "Growing Old",        src: "assets/tracks/Track 4.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
-      { title: "The Adventure Begins", src: "assets/tracks/Track 5.mp3", album: "The Adventure Begins", art: "assets/tracks/Musings.jpg" } // replace art later
+      { title: "Rain",                src: "assets/tracks/Track 1.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
+      { title: "Sonata",              src: "assets/tracks/Track 2.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
+      { title: "Münchhausen",         src: "assets/tracks/Track 3.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
+      { title: "Growing Old",         src: "assets/tracks/Track 4.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
+      { title: "The Adventure Begins",src: "assets/tracks/Track 5.mp3", album: "The Adventure Begins",  art: "assets/tracks/Musings.jpg" } // replace art later
     ];
 
-    // Group by album, sort by track count desc
+    // Group by album
     const albumsMap = {};
-    for (const t of tracks) {
+    tracks.forEach(t => {
       if (!albumsMap[t.album]) albumsMap[t.album] = { art: t.art, tracks: [] };
       albumsMap[t.album].tracks.push(t);
-    }
+    });
+    // Sort albums by track count desc
     const albums = Object.entries(albumsMap).sort((a,b)=> b[1].tracks.length - a[1].tracks.length);
 
-    // Elements
-    const shell = document.querySelector('.music-shell');
     const albumsView = document.getElementById('albums-view');
     const trackView  = document.getElementById('track-view');
-    const modeListBtn  = document.getElementById('mode-list');
-    const modeTrackBtn = document.getElementById('mode-track');
+    const btnList  = document.getElementById('btn-list');
+    const btnTrack = document.getElementById('btn-track');
 
     const audio = document.getElementById('audio');
     const playBtn = document.getElementById('playPauseBtn');
-    const iconPlay  = document.getElementById('iconPlay');
-    const iconPause = document.getElementById('iconPause');
+    const iconPlay = document.getElementById('iconPlay');
+    const iconPause= document.getElementById('iconPause');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const repeatBtn = document.getElementById('repeatBtn');
+    const shuffleBtn= document.getElementById('shuffleBtn');
     const seek = document.getElementById('seek');
+    const neon = document.querySelector('.bar .neon');
     const currTime = document.getElementById('currTime');
     const durTime  = document.getElementById('durTime');
     const nowArt   = document.getElementById('nowArt');
@@ -119,19 +126,17 @@
     const stageTitle = document.getElementById('stage-title');
     const stageAlbum = document.getElementById('stage-album');
     const trackStage = document.querySelector('.track-stage');
+    const shell      = document.querySelector('.music-shell');
 
     // Render albums list
     function renderAlbums(){
-      albumsView.innerHTML = albums.map(([name, data]) => {
-        const list = data.tracks.map(t => `
+      albumsView.innerHTML = albums.map(([name, data])=>{
+        const items = data.tracks.map(t => `
           <li class="track-row" data-src="${t.src}" data-title="${t.title}" data-album="${name}" data-art="${data.art}">
-            <button class="track-btn" title="Play ${t.title}">
-              <!-- play-mini -->
-              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-            </button>
-            <span class="track-name">${t.title}</span>
+            <span class="bullet"></span>
+            <span class="t-title">${t.title}</span>
+            <span class="t-time" data-time="--:--">--:--</span>
           </li>`).join('');
-
         return `
           <article class="album">
             <header class="album-head">
@@ -141,140 +146,163 @@
                 <p>${data.tracks.length} track${data.tracks.length>1?'s':''}</p>
               </div>
             </header>
-            <ul class="track-list">${list}</ul>
+            <ul class="track-list">${items}</ul>
           </article>`;
       }).join('');
     }
-
     renderAlbums();
 
+    // Load durations
+    document.querySelectorAll('.track-row').forEach(li=>{
+      const src = li.dataset.src;
+      const a = new Audio();
+      a.src = src;
+      a.preload='metadata';
+      a.addEventListener('loadedmetadata', ()=>{
+        const t = formatTime(a.duration);
+        li.querySelector('.t-time').textContent = t;
+      });
+    });
+
     // Player state
-    let queue = tracks.slice(); // flat order
+    let queue = tracks.slice();
     let index = 0;
+    let shuffle = false;
+    let repeat = 'off'; // 'off' | 'all'
 
     function loadTrackBySrc(src){
-      index = queue.findIndex(t => t.src === src);
-      if (index < 0) index = 0;
+      index = queue.findIndex(t => t.src===src);
+      if (index<0) index=0;
       const t = queue[index];
       audio.src = t.src;
       nowArt.src = albumsMap[t.album].art;
       nowTitle.textContent = t.title;
       nowAlbum.textContent = t.album;
-      // highlight active
-      document.querySelectorAll('.track-row').forEach(li => li.classList.toggle('active', li.dataset.src===t.src));
-      // update track mode view too
+
+      // highlight in list
+      document.querySelectorAll('.track-row').forEach(row=>{
+        row.classList.toggle('active', row.dataset.src===t.src);
+      });
+
+      // track mode art/meta
       stageArt.src = albumsMap[t.album].art;
       stageTitle.textContent = t.title;
       stageAlbum.textContent = t.album;
-      // compute dominant color for track mode bg
-      setTimeout(()=>dominantToStage(stageArt, trackStage), 0);
+      setTimeout(()=> setStageBgFromArt(stageArt, trackStage), 0);
     }
 
     function play(){
       audio.play();
-      iconPlay.hidden = true;
-      iconPause.hidden = false;
+      iconPlay.hidden = true; iconPause.hidden = false;
     }
     function pause(){
       audio.pause();
-      iconPlay.hidden = false;
-      iconPause.hidden = true;
+      iconPlay.hidden = false; iconPause.hidden = true;
+    }
+    function next(){
+      index = (index + 1) % queue.length;
+      loadTrackBySrc(queue[index].src); play();
+    }
+    function prev(){
+      index = (index - 1 + queue.length) % queue.length;
+      loadTrackBySrc(queue[index].src); play();
     }
 
-    // Click on track row
-    albumsView.addEventListener('click', (e)=>{
-      const li = e.target.closest('.track-row');
-      if (!li) return;
-      loadTrackBySrc(li.dataset.src);
+    // events
+    albumsView.addEventListener('click', e=>{
+      const row = e.target.closest('.track-row');
+      if (!row) return;
+      loadTrackBySrc(row.dataset.src);
       play();
+    });
+    playBtn.addEventListener('click', ()=> audio.paused ? play() : pause());
+    nextBtn.addEventListener('click', next);
+    prevBtn.addEventListener('click', prev);
+    shuffleBtn.addEventListener('click', ()=>{
+      shuffle = !shuffle;
+      shuffleBtn.classList.toggle('active', shuffle);
+      queue = shuffle ? shuffleArray(queue) : tracks.slice();
+    });
+    repeatBtn.addEventListener('click', ()=>{
+      repeat = (repeat==='off') ? 'all' : 'off';
+      repeatBtn.classList.toggle('active', repeat==='all');
     });
 
-    // Controls
-    playBtn.addEventListener('click', ()=>{
-      if (audio.paused) play(); else pause();
-    });
-    prevBtn.addEventListener('click', ()=>{
-      index = (index - 1 + queue.length) % queue.length;
-      loadTrackBySrc(queue[index].src);
-      play();
-    });
-    nextBtn.addEventListener('click', ()=>{
-      index = (index + 1) % queue.length;
-      loadTrackBySrc(queue[index].src);
-      play();
+    audio.addEventListener('ended', ()=> {
+      if (repeat==='all') next(); else if (index < queue.length-1) next();
     });
 
-    // Progress
     audio.addEventListener('timeupdate', ()=>{
-      if (!isNaN(audio.duration)) {
-        seek.value = Math.floor(1000 * (audio.currentTime / audio.duration));
+      if (isFinite(audio.duration)){
+        seek.value = Math.floor(1000 * audio.currentTime / audio.duration);
+        neon.style.setProperty('--pct', (audio.currentTime / audio.duration) * 100);
         currTime.textContent = formatTime(audio.currentTime);
         durTime.textContent  = formatTime(audio.duration);
       }
     });
     seek.addEventListener('input', ()=>{
-      if (!isNaN(audio.duration)) {
+      if (isFinite(audio.duration)){
         audio.currentTime = (seek.value/1000) * audio.duration;
       }
     });
-    audio.addEventListener('ended', ()=> nextBtn.click());
-
-    function formatTime(t){
-      const m = Math.floor(t/60); const s = Math.floor(t%60).toString().padStart(2,'0');
-      return `${m}:${s}`;
-    }
 
     // Mode toggle
-    function setMode(listMode){
-      if (listMode) {
-        albumsView.hidden = false;
-        trackView.hidden  = true;
-        modeListBtn.classList.add('active');  modeListBtn.setAttribute('aria-pressed','true');
-        modeTrackBtn.classList.remove('active'); modeTrackBtn.setAttribute('aria-pressed','false');
-        shell.style.setProperty('--stage-bg', 'transparent');
+    btn-list.addEventListener('click', null);
+  })();
+  </script>
+  <script>
+  (function(){
+    const btnList  = document.getElementById('btn-list');
+    const btnTrack = document.getElementById('btn-track');
+    const albumsView = document.getElementById('albums-view');
+    const trackView  = document.getElementById('track-view');
+    const shell      = document.querySelector('.music-shell');
+
+    function setMode(list){
+      if (list){
+        albumsView.hidden = false; trackView.hidden = true;
+        btnList.classList.add('active'); btnList.setAttribute('aria-pressed','true');
+        btnTrack.classList.remove('active'); btnTrack.setAttribute('aria-pressed','false');
+        shell.classList.remove('track-bg');
       } else {
-        albumsView.hidden = true;
-        trackView.hidden  = false;
-        modeTrackBtn.classList.add('active'); modeTrackBtn.setAttribute('aria-pressed','true');
-        modeListBtn.classList.remove('active'); modeListBtn.setAttribute('aria-pressed','false');
+        albumsView.hidden = true; trackView.hidden = false;
+        btnTrack.classList.add('active'); btnTrack.setAttribute('aria-pressed','true');
+        btnList.classList.remove('active'); btnList.setAttribute('aria-pressed','false');
+        shell.classList.add('track-bg');
       }
     }
-    modeListBtn.addEventListener('click', ()=> setMode(true));
-    modeTrackBtn.addEventListener('click', ()=> setMode(false));
-
-    // Dominant color to stage background (simple quantize)
-    function dominantToStage(img, host){
-      const c = document.createElement('canvas');
-      const ctx = c.getContext('2d', { willReadFrequently: true });
-      c.width = 48; c.height = 48; // downsample
-      try {
-        ctx.drawImage(img, 0, 0, c.width, c.height);
-        const data = ctx.getImageData(0,0,c.width,c.height).data;
-        const bins = new Map();
-        for (let i=0;i<data.length;i+=4){
-          const r=data[i], g=data[i+1], b=data[i+2], a=data[i+3];
-          if (a<200) continue;
-          // skip near-black/near-gray to avoid muddy backgrounds
-          const max=Math.max(r,g,b), min=Math.min(r,g,b);
-          if (max<40 || (max-min)<10) continue;
-          const key = (r>>4)+','+(g>>4)+','+(b>>4);
-          bins.set(key, (bins.get(key)||0)+1);
-        }
-        let bestKey=null, bestCount=0;
-        bins.forEach((count,key)=>{ if (count>bestCount){bestCount=count;bestKey=key;} });
-        if (bestKey){
-          const [qr,qg,qb]=bestKey.split(',').map(n=>parseInt(n,10)*16+8);
-          host.style.setProperty('--stage-r', qr);
-          host.style.setProperty('--stage-g', qg);
-          host.style.setProperty('--stage-b', qb);
-          shell.style.setProperty('--stage-bg', `rgb(${qr},${qg},${qb})`);
-        }
-      } catch(e){}
-    }
-
-    // Init with first track
-    loadTrackBySrc(tracks[0].src);
-    setMode(true);
+    btnList.addEventListener('click', ()=> setMode(true));
+    btnTrack.addEventListener('click', ()=> setMode(false));
   })();
+
+  // helpers
+  function formatTime(t){ const m=Math.floor(t/60); const s=Math.floor(t%60).toString().padStart(2,'0'); return `${m}:${s}`; }
+  function shuffleArray(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+  // dominant color -> stage bg
+  function setStageBgFromArt(img, host){
+    const c=document.createElement('canvas'), ctx=c.getContext('2d',{willReadFrequently:true});
+    const w=48,h=48; c.width=w; c.height=h;
+    try{
+      ctx.drawImage(img,0,0,w,h);
+      const data=ctx.getImageData(0,0,w,h).data;
+      const bins=new Map();
+      for(let i=0;i<data.length;i+=4){
+        const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
+        if(a<200) continue;
+        const max=Math.max(r,g,b), min=Math.min(r,g,b);
+        if(max<40 || (max-min)<12) continue; // skip near-black/gray
+        const key=(r>>4)+','+(g>>4)+','+(b>>4);
+        bins.set(key,(bins.get(key)||0)+1);
+      }
+      let best=null,count=0;
+      bins.forEach((v,k)=>{ if(v>count){count=v;best=k;} });
+      if(best){
+        const [R,G,B]=best.split(',').map(n=>parseInt(n,10)*16+8);
+        const bg = `radial-gradient(100% 120% at 50% 30%, rgba(${R},${G},${B},.35), rgba(0,0,0,.9))`;
+        host.style.setProperty('--stage-bg', bg);
+      }
+    }catch(e){}
+  }
   </script>
 </section>
