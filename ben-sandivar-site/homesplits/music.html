@@ -5,32 +5,31 @@
   </div>
 
   <div class="music-shell">
-    <!-- aurora background (always behind content) -->
-    <div class="aurora-layer" aria-hidden="true">
-      <canvas id="aurora"></canvas>
-    </div>
-
-    <!-- two dots toggle (mutually exclusive views) -->
+    <!-- VIEW SWITCH (two dots) -->
     <div class="mode-lights" role="group" aria-label="View switch">
       <button id="light-list" class="light on" aria-label="List view"></button>
       <button id="light-track" class="light" aria-label="Track view"></button>
       <div class="hint" role="note">Tap a dot to switch views</div>
     </div>
 
-    <!-- list scrolls; track view does not -->
+    <!-- CONTENT -->
     <div class="views-wrap" id="viewsWrap">
       <!-- LIST VIEW -->
       <div id="albums-view" class="albums-view" aria-live="polite"></div>
 
-      <!-- TRACK VIEW -->
+      <!-- TRACK VIEW (art only) -->
       <div id="track-view" class="track-view hidden">
         <div class="track-stage">
           <div class="stage-art-wrap">
             <img id="stage-art" src="" alt="Album art">
           </div>
-          <!-- no titles here by request -->
         </div>
       </div>
+    </div>
+
+    <!-- AURORA OVERLAY: above list, below art & player -->
+    <div class="aurora-layer" aria-hidden="true">
+      <canvas id="aurora"></canvas>
     </div>
 
     <!-- PLAYER BAR -->
@@ -55,7 +54,7 @@
           <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6v12M18 6l-8 6 8 6V6z" fill="currentColor"/></svg>
         </button>
 
-        <!-- PLAY / PAUSE (single button, icon swaps) -->
+        <!-- PLAY / PAUSE (one button; icon toggles) -->
         <button class="icon-btn primary" id="playPauseBtn" title="Play / Pause" aria-pressed="false">
           <svg id="iconPlay" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
           <svg id="iconPause" viewBox="0 0 24 24" width="20" height="20" hidden><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>
@@ -82,7 +81,7 @@
 
   <script>
   (function(){
-    // ------- DATA
+    // ---------- DATA
     const tracks = [
       { title:"Rain",        src:"assets/tracks/Track 1.mp3", album:"Musings",              art:"assets/tracks/Musings.jpg" },
       { title:"Sonata",      src:"assets/tracks/Track 2.mp3", album:"Musings",              art:"assets/tracks/Musings.jpg" },
@@ -91,7 +90,7 @@
       { title:"The Adventure Begins", src:"assets/tracks/Track 5.mp3", album:"The Adventure Begins", art:"assets/tracks/Musings.jpg" }
     ];
 
-    // group + sort by track count
+    // group + sort by size
     const albumsMap = {};
     tracks.forEach(t => {
       if (!albumsMap[t.album]) albumsMap[t.album] = { art:t.art, tracks:[] };
@@ -99,7 +98,7 @@
     });
     const albums = Object.entries(albumsMap).sort((a,b)=> b[1].tracks.length - a[1].tracks.length);
 
-    // ------- ELTS
+    // ---------- ELTS
     const shell      = document.querySelector('.music-shell');
     const viewsWrap  = document.getElementById('viewsWrap');
     const albumsView = document.getElementById('albums-view');
@@ -122,13 +121,14 @@
     const nowTitle = document.getElementById('nowTitle');
     const nowAlbum = document.getElementById('nowAlbum');
 
-    const stageArt   = document.getElementById('stage-art');
+    const stageArt = document.getElementById('stage-art');
 
+    // Aurora
     const auroraCanvas = document.getElementById('aurora');
-    const auroraCtx    = auroraCanvas.getContext('2d');
+    const ctx          = auroraCanvas.getContext('2d');
     const auroraLayer  = document.querySelector('.aurora-layer');
 
-    // ------- RENDER LIST
+    // ---------- LIST RENDER
     function renderAlbums(){
       albumsView.innerHTML = albums.map(([name, data])=>{
         const items = data.tracks.map(t => `
@@ -136,12 +136,9 @@
             <span class="t-title">${t.title}</span>
             <span class="t-time">--:--</span>
           </li>`).join('');
-
         return `
           <article class="album-row" data-album="${name}">
-            <div class="album-art-col">
-              <img class="album-art" src="${data.art}" alt="${name} album art">
-            </div>
+            <div class="album-art-col"><img class="album-art" src="${data.art}" alt="${name} album art"></div>
             <div class="playlist-col">
               <header class="playlist-head">
                 <h3>${name}</h3>
@@ -159,31 +156,29 @@
     }
     renderAlbums();
 
-    // durations
+    // Fetch durations
     albumsView.querySelectorAll('.track-row').forEach(li=>{
       const a = new Audio(); a.src = li.dataset.src; a.preload='metadata';
       a.addEventListener('loadedmetadata', ()=>{ li.querySelector('.t-time').textContent = formatTime(a.duration); });
     });
 
-    // ------- STATE
-    let scope = 'album';
-    let queue = [], index = 0;
+    // ---------- PLAYER STATE
+    let scope='album', queue=[], index=0;
     const allQueue = albums.flatMap(([n,d]) => d.tracks.map(t=>t));
 
-    function setAlbumQueue(albumName){
-      scope='album'; queue = albumsMap[albumName].tracks.slice(); index=0;
-      document.querySelectorAll('.album-row').forEach(r=> r.classList.toggle('active', r.dataset.album===albumName));
+    function setAlbumQueue(name){
+      scope='album'; queue = albumsMap[name].tracks.slice(); index=0;
+      document.querySelectorAll('.album-row').forEach(r=> r.classList.toggle('active', r.dataset.album===name));
     }
 
     function loadTrackBySrc(src){
       index = queue.findIndex(t => t.src===src); if (index<0) index=0;
       const t = queue[index];
-
       audio.preload = 'auto';
       audio.src = t.src;
-      audio.load(); // quicker seeks
+      audio.load();
 
-      nowArt.src   = albumsMap[t.album].art;
+      nowArt.src = albumsMap[t.album].art;
       nowTitle.textContent = t.title;
       nowAlbum.textContent = t.album;
 
@@ -192,7 +187,7 @@
       document.querySelectorAll('.track-row').forEach(r=> r.classList.toggle('active', r.dataset.src===t.src));
     }
 
-    // play state UI (ROBUST)
+    // Play/Pause UI (guaranteed)
     function setPlayState(on){
       iconPlay.hidden = on;
       iconPause.hidden = !on;
@@ -201,10 +196,14 @@
     function play(){ audio.play().catch(()=>{}); setPlayState(true); }
     function pause(){ audio.pause(); setPlayState(false); }
 
+    playBtn.addEventListener('click', ()=> audio.paused ? play() : pause());
+    ["play","playing"].forEach(ev=> audio.addEventListener(ev, ()=>setPlayState(true)));
+    ["pause","ended","abort","emptied","suspend","waiting"].forEach(ev=> audio.addEventListener(ev, ()=>setPlayState(!audio.paused)));
+
     function next(auto=false){
       index = (index+1) % queue.length;
       loadTrackBySrc(queue[index].src);
-      if (auto) { overlaySuppressed=false; startAurora(true); } // instant on autoplay
+      if (auto) { overlaySuppressed=false; startAurora(true); }
       play();
     }
     function prev(){
@@ -213,7 +212,7 @@
       play();
     }
 
-    // list clicks
+    // list actions
     albumsView.addEventListener('click', e=>{
       const row = e.target.closest('.track-row');
       const playAll = e.target.closest('.play-all');
@@ -234,22 +233,17 @@
       }
     });
 
-    // global play all
+    // global play-all
     playAllBtn.addEventListener('click', ()=>{
       scope='all'; queue = allQueue.slice(); index=0;
       document.querySelectorAll('.album-row').forEach(r=> r.classList.remove('active'));
       loadTrackBySrc(queue[0].src); play(); scheduleShow();
-      playAllBtn.classList.add('active'); setTimeout(()=> playAllBtn.classList.remove('active'), 300);
+      playAllBtn.classList.add('active'); setTimeout(()=> playAllBtn.classList.remove('active'), 280);
     });
 
     // transport
-    playBtn.addEventListener('click', ()=> audio.paused ? play() : pause());
     nextBtn.addEventListener('click', ()=> next(false));
     prevBtn.addEventListener('click', prev);
-
-    // audio -> UI (guarantee icon swap)
-    ["play","playing"].forEach(ev=> audio.addEventListener(ev, ()=>setPlayState(true)));
-    ["pause","ended","abort","emptied","suspend","waiting"].forEach(ev=> audio.addEventListener(ev, ()=>setPlayState(!audio.paused)));
 
     // progress
     audio.addEventListener('timeupdate', ()=>{
@@ -260,13 +254,11 @@
       durTime.textContent  = formatTime(audio.duration);
     });
     seek.addEventListener('input', ()=>{
-      if (isFinite(audio.duration)){
-        audio.currentTime = (seek.value/1000) * audio.duration;
-      }
+      if (isFinite(audio.duration)) audio.currentTime = (seek.value/1000) * audio.duration;
     });
     audio.addEventListener('ended', ()=> { stopAurora(true); next(true); });
 
-    // modes
+    // modes (mutually exclusive)
     function setMode(list){
       const isList = !!list;
       albumsView.classList.toggle('hidden', !isList);
@@ -280,7 +272,7 @@
     lightList.addEventListener('click', ()=> setMode(true));
     lightTrack.addEventListener('click', ()=> setMode(false));
 
-    // ------- AURORA (vertical, crisp, seamless 120s loop)
+    // ---------- AURORA (crisp, bold, reactive, seamless 120s loop)
     let acx, srcNode, analyser;
     let rafId=null, showTimer=null, hoverTimer=null, silenceTimer=null;
     let overlayOn=false, overlaySuppressed=false;
@@ -290,149 +282,105 @@
       acx = new (window.AudioContext || window.webkitAudioContext)();
       srcNode = acx.createMediaElementSource(audio);
       analyser = acx.createAnalyser();
-      analyser.fftSize = 2048;
-      analyser.smoothingTimeConstant = 0.96; // very smooth energy
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.85; // reactive (less smoothing)
       srcNode.connect(analyser); analyser.connect(acx.destination);
     }
 
     function sizeCanvas(){
       const r = auroraLayer.getBoundingClientRect();
-      auroraCanvas.width = Math.max(1, r.width|0);
-      auroraCanvas.height= Math.max(1, r.height|0);
+      auroraCanvas.width  = Math.max(1, r.width|0);
+      auroraCanvas.height = Math.max(1, r.height|0);
     }
     sizeCanvas(); addEventListener('resize', sizeCanvas);
 
-    // Deterministic colors that LOOP exactly at LOOP_S, no jumps.
-    const LOOP_S = 120; // 2-minute perfect loop
-    let t0 = performance.now();
+    const LOOP_S = 120; let t0 = performance.now();
+    const baseHues = [210, 270, 330, 30, 90, 150]; // start=end
 
-    function loopT(){ // 0..1
-      const dt = (performance.now() - t0) / 1000;
-      return (dt % LOOP_S) / LOOP_S;
-    }
+    function loopT(){ const dt=(performance.now()-t0)/1000; return (dt%LOOP_S)/LOOP_S; }
+    function hueAt(i,t){ const phase=i*0.6; return (baseHues[i%baseHues.length] + 22*Math.sin(2*Math.PI*(t+phase)))%360; }
 
-    // fixed base hues; we modulate each with sin/cos so start=end
-    const baseHues = [210, 270, 330, 30, 90, 150]; // cool-to-warm spread
-    function hueAt(i, t){ // smooth hue oscillation
-      const phase = i*0.6;
-      return (baseHues[i % baseHues.length] + 18*Math.sin(2*Math.PI*(t+phase))) % 360;
-    }
+    function startAurora(){ if (overlayOn) return; overlayOn=true; overlaySuppressed=false; auroraLayer.classList.add('on'); ensureAudioGraph(); draw(); }
+    function stopAurora(){ overlayOn=false; auroraLayer.classList.remove('on'); if(rafId){cancelAnimationFrame(rafId); rafId=null;} }
+    function scheduleShow(){ if (overlayOn||overlaySuppressed) return; clearTimeout(showTimer); showTimer=setTimeout(()=>{ if(!audio.paused) startAurora(); },20000); }
 
-    function startAurora(immediate=false){
-      if (overlayOn) return;
-      overlayOn = true; overlaySuppressed=false;
-      auroraLayer.classList.add('on');
-      if (!acx) ensureAudioGraph();
-      animateAurora();
-    }
-    function stopAurora(){ overlayOn=false; auroraLayer.classList.remove('on'); if (rafId){cancelAnimationFrame(rafId); rafId=null;} }
-    function scheduleShow(){
-      if (overlayOn || overlaySuppressed) return;
-      clearTimeout(showTimer);
-      showTimer = setTimeout(()=>{ if (!audio.paused) startAurora(false); }, 20000);
-    }
-
-    shell.addEventListener('mouseenter', ()=>{
-      if (!overlayOn) return;
-      clearTimeout(hoverTimer);
-      hoverTimer = setTimeout(()=>{ overlaySuppressed=true; stopAurora(); }, 5000);
-    });
-    shell.addEventListener('mouseleave', ()=>{
-      clearTimeout(hoverTimer);
-      if (!audio.paused){ overlaySuppressed=false; scheduleShow(); }
-    });
+    shell.addEventListener('mouseenter', ()=>{ if(!overlayOn) return; clearTimeout(hoverTimer); hoverTimer=setTimeout(()=>{ overlaySuppressed=true; stopAurora(); },5000); });
+    shell.addEventListener('mouseleave', ()=>{ clearTimeout(hoverTimer); if(!audio.paused){ overlaySuppressed=false; scheduleShow(); } });
 
     audio.addEventListener('play', ()=>{ ensureAudioGraph(); scheduleShow(); });
     audio.addEventListener('pause', ()=>{ clearTimeout(showTimer); stopAurora(); });
 
-    function checkSilence(){
-      if (!analyser) return {avg:0, buf:null};
-      const buf = new Uint8Array(analyser.frequencyBinCount);
-      analyser.getByteFrequencyData(buf);
-      let sum=0; for (let i=0;i<buf.length;i++) sum+=buf[i];
-      const avg = sum / buf.length;
-      if (avg < 5){ if (!silenceTimer) silenceTimer = setTimeout(stopAurora, 2000); }
-      else { clearTimeout(silenceTimer); silenceTimer=null; }
-      return { avg, buf };
-    }
-
     const smooth = { bass:0, mid:0, treb:0 };
     const lerp = (a,b,t)=> a+(b-a)*t;
-
-    function animateAurora(){
-      if (!overlayOn) return;
-      rafId = requestAnimationFrame(animateAurora);
-      sizeCanvas();
-
-      const w = auroraCanvas.width, h = auroraCanvas.height;
-      auroraCtx.clearRect(0,0,w,h);
-
-      const { buf } = checkSilence();
-      const bands = buf ? getBands(buf) : {bass:0, mid:0, treb:0};
-      smooth.bass = lerp(smooth.bass, bands.bass/255, 0.06);
-      smooth.mid  = lerp(smooth.mid,  bands.mid/255,  0.06);
-      smooth.treb = lerp(smooth.treb, bands.treb/255, 0.06);
-
-      const t = loopT(); // 0..1 looped
-      const angle = Math.sin(t*2*Math.PI)*0.1; // micro-rotation
-
-      auroraCtx.save();
-      auroraCtx.globalCompositeOperation = 'screen';
-      auroraCtx.translate(w/2, h);
-      auroraCtx.rotate(angle);
-      auroraCtx.translate(-w/2, -h);
-
-      const layers = 5;
-      const steps  = 88;
-      const baseAmp = h*(0.10 + 0.20*smooth.bass);
-      const kx = 2*Math.PI / Math.max(360, w);
-
-      for (let L=0; L<layers; L++){
-        const hue = hueAt(L, t);
-        const col = `hsla(${hue} 68% 54% / ${0.16 + 0.18*(L+1)/layers})`;
-
-        const amp   = baseAmp*(0.85 + L*0.12);
-        const baseY = h*(0.10 + L*0.055);
-        const ph    = (t*2*Math.PI)*(0.7 + L*0.08);
-
-        // one crisper pass + one softer pass (keeps gradients smooth without lava-white)
-        for (const blur of [10,18]){
-          auroraCtx.beginPath();
-          auroraCtx.moveTo(0, h);
-          for (let i=0;i<=steps;i++){
-            const x = (i/steps)*w;
-            const yWave =
-              Math.sin(kx*x + ph) * 0.50 +
-              Math.sin(kx*1.6*x + ph*1.2) * 0.30 +
-              Math.sin(kx*3.1*x + ph*0.8) * 0.20;
-
-            const energy = 0.55*smooth.bass + 0.35*smooth.mid + 0.10*smooth.treb;
-            const y = h - (baseY + amp*(0.5+0.5*yWave)*(0.6+0.6*energy));
-            auroraCtx.lineTo(x, y);
-          }
-          auroraCtx.lineTo(w, h); auroraCtx.closePath();
-          auroraCtx.save();
-          auroraCtx.filter = `blur(${blur}px)`;
-          auroraCtx.fillStyle = col;
-          auroraCtx.fill();
-          auroraCtx.restore();
-        }
-      }
-      auroraCtx.restore();
-    }
-
-    function getBands(arr){
+    function bands(arr){
       const nyq = acx.sampleRate/2;
       const idx = hz => Math.min(arr.length-1, Math.max(0, Math.round(arr.length*(hz/nyq))));
-      const avg = (lo,hi) => { let s=0,c=0; for (let i=lo;i<=hi;i++){ s+=arr[i]; c++; } return c? s/c : 0; };
-      return { bass: avg(idx(20), idx(150)), mid: avg(idx(400), idx(2000)), treb: avg(idx(4000), idx(12000)) };
+      const avg = (lo,hi)=>{ let s=0,c=0; for(let i=lo;i<=hi;i++){s+=arr[i]; c++;} return c? s/c : 0; };
+      return { bass: avg(idx(20),idx(150)), mid: avg(idx(300),idx(2000)), treb: avg(idx(4000),idx(12000)) };
     }
 
-    // boot
+    function draw(){
+      if(!overlayOn) return;
+      rafId=requestAnimationFrame(draw);
+      sizeCanvas();
+
+      const w=auroraCanvas.width, h=auroraCanvas.height;
+      ctx.clearRect(0,0,w,h);
+
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(data);
+      const b = bands(data);
+      smooth.bass = lerp(smooth.bass, b.bass/255, 0.2);
+      smooth.mid  = lerp(smooth.mid,  b.mid/255,   0.2);
+      smooth.treb = lerp(smooth.treb, b.treb/255,  0.2);
+
+      const t = loopT(); // 0..1, seamless
+      const angle = Math.sin(t*2*Math.PI)*0.08;
+
+      ctx.save();
+      ctx.globalCompositeOperation='screen';
+      ctx.translate(w/2,h);
+      ctx.rotate(angle);
+      ctx.translate(-w/2,-h);
+
+      const layers=5, steps=96, kx=2*Math.PI/Math.max(360,w);
+      const baseAmp=h*(0.12 + 0.25*smooth.bass);
+
+      for(let L=0; L<layers; L++){
+        const hue=hueAt(L,t);
+        const color=`hsla(${hue} 72% 56% / ${0.22 - L*0.02})`; // bold, clear, not white
+
+        const amp=baseAmp*(0.85+L*0.15);
+        const baseY=h*(0.10 + L*0.055);
+        const ph=(t*2*Math.PI)*(0.7 + L*0.08);
+
+        // two passes: crisp + soft (small blur)
+        for(const blur of [6,12]){
+          ctx.beginPath();
+          ctx.moveTo(0,h);
+          for(let i=0;i<=steps;i++){
+            const x=(i/steps)*w;
+            const yWave=
+              Math.sin(kx*x + ph)*0.50 +
+              Math.sin(kx*1.6*x + ph*1.2)*0.30 +
+              Math.sin(kx*3.1*x + ph*0.8)*0.20;
+
+            const energy=0.55*smooth.bass + 0.35*smooth.mid + 0.10*smooth.treb;
+            const y=h-(baseY + amp*(0.5+0.5*yWave)*(0.65 + 0.55*energy));
+            ctx.lineTo(x,y);
+          }
+          ctx.lineTo(w,h); ctx.closePath();
+          ctx.save(); ctx.filter=`blur(${blur}px)`; ctx.fillStyle=color; ctx.fill(); ctx.restore();
+        }
+      }
+      ctx.restore();
+    }
+
+    // Boot
     setAlbumQueue(albums[0][0]);
     loadTrackBySrc(albumsMap[albums[0][0]].tracks[0].src);
-    setMode(true); // start in list view
-    setPlayState(false); // show Play icon initially
+    setMode(true);
+    setPlayState(false);
   })();
 
   function formatTime(t){ const m=Math.floor(t/60); const s=Math.floor(t%60).toString().padStart(2,'0'); return `${m}:${s}`; }
