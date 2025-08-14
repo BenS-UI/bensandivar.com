@@ -1,8 +1,9 @@
 /* utils */
 [hidden]{display:none!important;}
 .hidden{display:none!important;}
+.icon-btn svg[hidden]{display:none!important;} /* ensure icons swap */
 
-/* FORCE NORMAL FLOW — keep this section under the hero */
+/* keep music below hero */
 section.bucket-hero{ position:relative; z-index:2; }
 #music.music-player{
   position:relative !important;
@@ -41,7 +42,7 @@ section.bucket-hero{ position:relative; z-index:2; }
 
 .page-header{ text-align:center; margin-bottom: 2rem; }
 
-/* VIEW SWITCH */
+/* view switch */
 .mode-lights{ position:absolute; top:.6rem; left:50%; transform:translateX(-50%); display:flex; gap:.5rem; align-items:center; z-index:6; }
 .mode-lights .light{
   width:12px; height:12px; border-radius:999px; border:0; cursor:pointer;
@@ -60,17 +61,15 @@ section.bucket-hero{ position:relative; z-index:2; }
 }
 .mode-lights:hover .hint{ opacity:1; }
 
-/* LAYERS (z-index order) */
+/* layers */
 .views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; z-index:1; }
 .views-wrap.no-scroll{ overflow:hidden; }
-/* aurora behind album art, above list */
 .aurora-layer{ position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit; }
 .aurora-layer canvas{ width:100%; height:100%; display:block; }
 .track-stage .stage-art-wrap{ z-index:3; position:relative; }
-/* player bar at top of stack */
 .player-bar{ position:relative; z-index:4; }
 
-/* LIST VIEW */
+/* list view */
 .albums-view{ display:grid; gap:1.75rem; }
 .album-row{
   display:grid; grid-template-columns:140px 1fr; gap:1rem;
@@ -100,7 +99,7 @@ section.bucket-hero{ position:relative; z-index:2; }
 .t-title{ text-align:left; }
 .t-time{ text-align:right; opacity:.82; min-width:3.2rem; }
 
-/* TRACK VIEW (art only) */
+/* track view */
 .music-shell.track-bg{
   background: var(--stage-bg, radial-gradient(120% 140% at 50% 25%, rgba(0,0,0,.36), rgba(0,0,0,.9)));
 }
@@ -112,7 +111,7 @@ section.bucket-hero{ position:relative; z-index:2; }
 }
 #stage-art{ width:100%; height:100%; object-fit:cover; border-radius:18px; display:block; }
 
-/* PLAYER BAR */
+/* player bar */
 .player-bar{
   margin-top:1rem;
   display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:center;
@@ -137,7 +136,7 @@ section.bucket-hero{ position:relative; z-index:2; }
 .icon-btn.primary{ width:42px; height:42px; color:#fff; background: rgba(0,110,255,.18); border-color: rgba(0,110,255,.55); }
 .icon-btn.active{ box-shadow: 0 0 16px rgba(47,132,255,.6); }
 
-/* Progress */
+/* progress */
 .progress{ display:grid; grid-template-columns:auto 1fr auto; gap:.6rem; align-items:center; }
 .time{ font-variant-numeric: tabular-nums; opacity:.85; min-width:3ch; text-align:right; }
 .bar{ position:relative; height:18px; display:flex; align-items:center; }
@@ -162,7 +161,7 @@ section.bucket-hero{ position:relative; z-index:2; }
   background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.9);
 }
 
-/* Dark theme ready */
+/* dark theme ready */
 body[data-theme="dark"] .music-shell{
   background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.02), rgba(0,0,0,.78));
   border-color: rgba(255,255,255,.07);
