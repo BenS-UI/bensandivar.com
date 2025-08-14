@@ -1,41 +1,6 @@
-<!-- homesplits/skills.html -->
-<section id="skills" class="about-skills fade-in" data-split="skills">
-  <div class="page-header">
-    <h2>Skills and Tools</h2>
-    <p>A multidisciplinary toolkit honed over years of practice, blending creativity with technical precision.</p>
-  </div>
-
-  <div class="skills-grid">
-    <span>Speed Learning</span>
-    <span>Teaching</span>
-    <span>Mnemonics</span>
-    <span>Graphic Design</span>
-    <span>Concept Art</span>
-    <span>Character Creation</span>
-    <span>Photo & Video Editing</span>
-    <span>Logo Creation</span>
-    <span>Branding</span>
-    <span>App Concept Creation</span>
-    <span>AI Prompt Engineering</span>
-    <span>Creative Writing</span>
-    <span>Songwriting & Poetry</span>
-    <span>Audio Engineering</span>
-    <span>Music Production</span>
-    <span>Cinematic Composition</span>
-    <span>Concept Design</span>
-    <span>Systems Thinking</span>
-    <span>Linguistics & Sociology</span>
-    <span>Semiotics & Symbols</span>
-    <span>Public Speaking & Communication</span>
-    <span>Project Management</span>
-    <span>Cinematography</span>
-  </div>
-</section>
-
-<!-- Add this near the end of your HTML (after the skills markup) -->
 <script>
 (() => {
-  // Map notes in G major across 3 octaves, shuffled, unique first pass.
+  // ===== NOTE GENERATION =====
   const NOTES = ["G","A","B","C","D","E","F#"];
   const OCTAVES = [3,4,5];
 
@@ -45,7 +10,7 @@
     return 440 * Math.pow(2, (midi - 69) / 12);
   };
 
-  // Build and shuffle the pool
+  // Build and shuffle pool
   const pool = [];
   OCTAVES.forEach(o => NOTES.forEach(n => pool.push({ n, o, f: toFreq(n, o) })));
   for (let i = pool.length - 1; i > 0; i--) {
@@ -56,11 +21,9 @@
   const chips = document.querySelectorAll(".skills-grid span");
   if (!chips.length) return;
 
-  // Assign unique notes first; if more chips than notes, wrap the shuffled pool.
-  const assigned = [];
+  // Assign notes to chips
   chips.forEach((el, i) => {
     const pick = pool[i % pool.length];
-    assigned.push(pick);
     el.dataset.note = pick.n;
     el.dataset.octave = pick.o;
     el.dataset.freq = pick.f.toFixed(3);
@@ -68,18 +31,16 @@
     el.setAttribute("aria-label", `${pick.n}${pick.o}`);
   });
 
-  // Web Audio (created on first user gesture)
+  // ===== AUDIO SETUP =====
   let ctx = null;
   const getCtx = () => ctx || (ctx = new (window.AudioContext || window.webkitAudioContext)());
 
-  // Simple "piano-like" tone: two detuned sines + soft lowpass, 2.5s envelope
   const play = (freq) => {
     const audio = getCtx();
     const now = audio.currentTime;
 
     const gain = audio.createGain();
     gain.gain.setValueAtTime(0.0001, now);
-    // quick attack, smooth hold, gentle release at 2.5s
     gain.gain.exponentialRampToValueAtTime(0.6, now + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.55, now + 0.08);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
@@ -107,16 +68,21 @@
     o2.stop(now + 2.6);
   };
 
-  // Click to play. Keyboard users get Enter/Space too.
+  // ===== HOVER EVENTS =====
+  const lastPlayed = new WeakMap(); // debounce per button
+  const HOVER_DELAY = 500; // ms between replays for same button
+
   chips.forEach(el => {
-    el.tabIndex = 0;
-    const trigger = () => play(parseFloat(el.dataset.freq));
-    el.addEventListener("click", trigger);
-    el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        trigger();
-      }
+    el.addEventListener("mouseenter", () => {
+      // Resume context on first hover if needed
+      getCtx().resume().then(() => {
+        const now = Date.now();
+        const last = lastPlayed.get(el) || 0;
+        if (now - last >= HOVER_DELAY) {
+          play(parseFloat(el.dataset.freq));
+          lastPlayed.set(el, now);
+        }
+      });
     });
   });
 })();
