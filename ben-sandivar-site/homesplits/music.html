@@ -5,6 +5,11 @@
   </div>
 
   <div class="music-shell">
+    <!-- sound-reactive overlay (behind content) -->
+    <div class="aurora-layer" aria-hidden="true">
+      <canvas id="aurora"></canvas>
+    </div>
+
     <!-- mode lights (toggle views) -->
     <div class="mode-lights" role="group" aria-label="View switch">
       <button id="light-list" class="light on" aria-label="List view"></button>
@@ -12,8 +17,8 @@
       <div class="hint" role="note">Tap a dot to switch views</div>
     </div>
 
-    <!-- scrollable views wrapper -->
-    <div class="views-wrap">
+    <!-- scrollable area (list only) -->
+    <div class="views-wrap" id="viewsWrap">
       <!-- LIST VIEW -->
       <div id="albums-view" class="albums-view" aria-live="polite"></div>
 
@@ -79,7 +84,7 @@
 
   <script>
   (function(){
-    // Data
+    // -------- Data
     const tracks = [
       { title: "Rain",                src: "assets/tracks/Track 1.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
       { title: "Sonata",              src: "assets/tracks/Track 2.mp3", album: "Musings",               art: "assets/tracks/Musings.jpg" },
@@ -96,9 +101,9 @@
     });
     const albums = Object.entries(albumsMap).sort((a,b)=> b[1].tracks.length - a[1].tracks.length);
 
-    // Elements
+    // -------- Elements
     const shell      = document.querySelector('.music-shell');
-    const viewsWrap  = document.querySelector('.views-wrap');
+    const viewsWrap  = document.getElementById('viewsWrap');
     const albumsView = document.getElementById('albums-view');
     const trackView  = document.getElementById('track-view');
     const lightList  = document.getElementById('light-list');
@@ -124,7 +129,11 @@
     const stageAlbum = document.getElementById('stage-album');
     const trackStage = document.querySelector('.track-stage');
 
-    // Render list view (art + playlist side-by-side)
+    const auroraCanvas = document.getElementById('aurora');
+    const auroraCtx    = auroraCanvas.getContext('2d');
+    const auroraLayer  = document.querySelector('.aurora-layer');
+
+    // -------- Render list view
     function renderAlbums(){
       albumsView.innerHTML = albums.map(([name, data])=>{
         const items = data.tracks.map(t => `
@@ -165,7 +174,7 @@
       });
     });
 
-    // Player state
+    // -------- Player state
     let scope = 'album';        // 'album' | 'all'
     let queue = [];             // current queue
     let index = 0;              // current index in queue
@@ -207,6 +216,7 @@
 
     function play(){ audio.play(); iconPlay.hidden=true; iconPause.hidden=false; }
     function pause(){ audio.pause(); iconPlay.hidden=false; iconPause.hidden=true; }
+
     function next(){ index=(index+1)%queue.length; loadTrackBySrc(queue[index].src); play(); }
     function prev(){ index=(index-1+queue.length)%queue.length; loadTrackBySrc(queue[index].src); play(); }
 
@@ -262,29 +272,27 @@
         audio.currentTime = (seek.value/1000) * audio.duration;
       }
     });
-    audio.addEventListener('ended', next);
+    audio.addEventListener('ended', ()=> {
+      stopAurora(true); // fade out
+      next();
+    });
 
-    // Modes (mutually exclusive)
+    // -------- Mode switching (mutually exclusive) + scroll rule
     function setMode(list){
-      if (list){
-        albumsView.classList.remove('hidden');
-        trackView.classList.add('hidden');
-        lightList.classList.add('on'); lightTrack.classList.remove('on');
-        shell.classList.remove('track-bg');
-        viewsWrap.scrollTop = 0;
-      } else {
-        albumsView.classList.add('hidden');
-        trackView.classList.remove('hidden');
-        lightTrack.classList.add('on'); lightList.classList.remove('on');
-        shell.classList.add('track-bg');
-        viewsWrap.scrollTop = 0;
-      }
+      const isList = !!list;
+      albumsView.classList.toggle('hidden', !isList);
+      trackView.classList.toggle('hidden', isList);
+      lightList.classList.toggle('on', isList);
+      lightTrack.classList.toggle('on', !isList);
+      shell.classList.toggle('track-bg', !isList);
+      // list scrolls; track doesn't
+      viewsWrap.classList.toggle('no-scroll', !isList);
+      viewsWrap.scrollTop = 0;
     }
     lightList.addEventListener('click', ()=> setMode(true));
     lightTrack.addEventListener('click', ()=> setMode(false));
 
-    // Helpers
-    function formatTime(t){ const m=Math.floor(t/60); const s=Math.floor(t%60).toString().padStart(2,'0'); return `${m}:${s}`; }
+    // -------- Dominant color → track background
     function dominantToStage(img, host){
       const c=document.createElement('canvas'), ctx=c.getContext('2d',{willReadFrequently:true});
       const w=48,h=48; c.width=w; c.height=h;
@@ -309,10 +317,193 @@
       }catch(e){}
     }
 
-    // Boot
+    // -------- Aurora overlay (sound-reactive)
+    let acx, srcNode, analyser;
+    let rafId = null;
+    let showTimer = null;
+    let hoverTimer = null;
+    let silenceTimer = null;
+    let overlayOn = false;
+    let overlaySuppressed = false;
+
+    function ensureAudioGraph(){
+      if (acx) return;
+      acx = new (window.AudioContext || window.webkitAudioContext)();
+      srcNode = acx.createMediaElementSource(audio);
+      analyser = acx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.85;
+      srcNode.connect(analyser);
+      analyser.connect(acx.destination);
+    }
+
+    function sizeCanvas(){
+      const r = auroraLayer.getBoundingClientRect();
+      auroraCanvas.width  = Math.max(1, Math.floor(r.width));
+      auroraCanvas.height = Math.max(1, Math.floor(r.height));
+    }
+    sizeCanvas();
+    window.addEventListener('resize', sizeCanvas);
+
+    // palette management (3..7 colors, avoid harsh pink)
+    let palette = genPalette();
+    let targetPalette = genPalette();
+    let paletteT = 0;
+
+    function genPalette(){
+      const n = Math.floor(3 + Math.random()*5); // 3..7
+      const cols = [];
+      let base = Math.random() * 360;
+      for (let i=0;i<n;i++){
+        let h = (base + i*(240/n) + Math.random()*20) % 360;
+        // avoid pink band roughly 315..345
+        if (h>315 && h<345) h = (h+40)%360;
+        const s = 70 + Math.random()*25;
+        const l = 52 + Math.random()*10;
+        cols.push({h,s,l});
+      }
+      return cols;
+    }
+    function lerp(a,b,t){ return a + (b-a)*t; }
+    function hsl(h,s,l){ return `hsla(${h.toFixed(1)} ${s.toFixed(1)}% ${l.toFixed(1)}% / 1)`; }
+
+    function startAurora(){
+      if (overlayOn) return;
+      overlayOn = true;
+      auroraLayer.classList.add('on'); // CSS fades in (5s)
+      if (!acx) ensureAudioGraph();
+      animateAurora();
+    }
+    function stopAurora(slowFade){
+      overlayOn = false;
+      auroraLayer.classList.remove('on'); // CSS fades out (5s)
+      if (rafId){ cancelAnimationFrame(rafId); rafId=null; }
+      if (slowFade){ /* handled by CSS */ }
+    }
+    function scheduleShow(){
+      if (overlayOn || overlaySuppressed) return;
+      clearTimeout(showTimer);
+      showTimer = setTimeout(()=>{ if (!audio.paused) startAurora(); }, 20000);
+    }
+
+    // Hover 5s → hide overlay
+    shell.addEventListener('mouseenter', ()=>{
+      if (!overlayOn) return;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(()=>{ stopAurora(true); overlaySuppressed = true; }, 5000);
+    });
+    shell.addEventListener('mouseleave', ()=>{
+      clearTimeout(hoverTimer);
+      if (!audio.paused){ overlaySuppressed = false; scheduleShow(); }
+    });
+
+    // Play / pause hooks
+    audio.addEventListener('play', ()=>{
+      ensureAudioGraph();
+      scheduleShow();
+    });
+    audio.addEventListener('pause', ()=>{
+      clearTimeout(showTimer);
+      stopAurora(true);
+    });
+
+    // Silence detection (avg level under threshold for ~2s)
+    function checkSilence(){
+      if (!analyser) return;
+      const buf = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(buf);
+      let sum = 0;
+      for (let i=0;i<buf.length;i++) sum += buf[i];
+      const avg = sum / buf.length;
+      if (avg < 5){ // very low level
+        if (!silenceTimer) {
+          silenceTimer = setTimeout(()=> stopAurora(true), 2000);
+        }
+      } else {
+        clearTimeout(silenceTimer); silenceTimer = null;
+      }
+    }
+
+    // Aurora draw
+    const blobs = Array.from({length:7}, ()=>({
+      x: Math.random(), y: Math.random(), r: 0.18 + Math.random()*0.25,
+      vx: (Math.random()*0.6-0.3)*0.0008, vy: (Math.random()*0.6-0.3)*0.0008
+    }));
+
+    function animateAurora(){
+      if (!overlayOn) return;
+      rafId = requestAnimationFrame(animateAurora);
+      sizeCanvas();
+      const w = auroraCanvas.width, h = auroraCanvas.height;
+      auroraCtx.clearRect(0,0,w,h);
+
+      // audio bands
+      const f = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(f);
+      const bass = bandEnergy(f, 20, 150);
+      const mid  = bandEnergy(f, 400, 2000);
+      const treb = bandEnergy(f, 4000, 12000);
+      checkSilence();
+
+      // update palette slowly, morph every ~10s
+      paletteT += 0.002; // slow
+      if (paletteT >= 1){ palette = targetPalette; targetPalette = genPalette(); paletteT = 0; }
+      const curr = blendPalettes(palette, targetPalette, paletteT);
+
+      // draw blobs (count varies with palette size)
+      const N = Math.max(3, Math.min(7, curr.length));
+      for (let i=0;i<N;i++){
+        const b = blobs[i];
+        b.x += (b.vx + 0.0004 * (treb/255 - 0.25));
+        b.y += (b.vy + 0.0003 * (mid/255  - 0.25));
+        if (b.x < 0 || b.x > 1) b.vx *= -1;
+        if (b.y < 0 || b.y > 1) b.vy *= -1;
+
+        const cx = b.x * w, cy = b.y * h;
+        const baseR = b.r * Math.min(w,h);
+        const r = baseR * (0.8 + (bass/255)*0.6);
+
+        const g = auroraCtx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        const col = curr[i % curr.length];
+        g.addColorStop(0.0, colorWithAlpha(col, 0.85));
+        g.addColorStop(0.6, colorWithAlpha(col, 0.35));
+        g.addColorStop(1.0, 'rgba(0,0,0,0)');
+        auroraCtx.fillStyle = g;
+        auroraCtx.beginPath();
+        auroraCtx.arc(cx, cy, r, 0, Math.PI*2);
+        auroraCtx.fill();
+      }
+    }
+
+    function bandEnergy(arr, fLow, fHigh){
+      // map freq bins (approx) to indices
+      const nyq = acx.sampleRate / 2;
+      const low = Math.floor(arr.length * (fLow/nyq));
+      const high= Math.min(arr.length-1, Math.ceil(arr.length * (fHigh/nyq)));
+      let s=0,c=0;
+      for (let i=low;i<=high;i++){ s+=arr[i]; c++; }
+      return c? s/c : 0;
+    }
+    function blendPalettes(a,b,t){
+      const n = Math.max(a.length, b.length);
+      const out=[];
+      for(let i=0;i<n;i++){
+        const A = a[i % a.length], B = b[i % b.length];
+        out.push({ h: lerp(A.h, B.h, t), s: lerp(A.s, B.s, t), l: lerp(A.l, B.l, t) });
+      }
+      return out;
+    }
+    function colorWithAlpha(c, alpha){ return `hsla(${c.h.toFixed(1)} ${c.s.toFixed(1)}% ${c.l.toFixed(1)}% / ${alpha})`; }
+
+    // Hover 5s to disable overlay (already handled above)
+
+    // -------- Boot
     setAlbumQueue(albums[0][0]);
     loadTrackBySrc(albumsMap[albums[0][0]].tracks[0].src);
     setMode(true);
   })();
+
+  // helpers
+  function formatTime(t){ const m=Math.floor(t/60); const s=Math.floor(t%60).toString().padStart(2,'0'); return `${m}:${s}`; }
   </script>
 </section>
