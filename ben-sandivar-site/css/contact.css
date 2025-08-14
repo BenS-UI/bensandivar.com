@@ -1,0 +1,163 @@
+/* ===========================
+   CONTACT SECTION
+   =========================== */
+
+#contact.contact-page{
+  position: relative;
+  z-index: 1;
+  padding: clamp(48px, 10vh, 120px) 8vw;
+  background: var(--color-body-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* keep layout width consistent with other sections */
+@media (min-width: 1024px){
+  #contact .content-wrap{
+    width: 75%;
+    margin: 0 auto;
+  }
+}
+
+/* Header */
+#contact .page-header{
+  text-align: center;
+  margin-bottom: 2.25rem;
+}
+#contact .page-header h2{
+  margin: 0 0 .35rem 0;
+}
+#contact .page-header p{
+  opacity: .85;
+  margin: 0;
+}
+
+/* Grid */
+#contact .contact-grid{
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  width: 100%;
+  max-width: var(--content-max);
+}
+@media (min-width: 720px){
+  #contact .contact-grid{
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Cards */
+#contact .contact-item{
+  position: relative;
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  border: 1px solid rgba(255,255,255,.10);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px var(--color-shadow);
+  transition: transform .18s ease, box-shadow .25s ease, border-color .18s ease;
+}
+#contact .contact-item:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px var(--color-shadow);
+  border-color: rgba(255,255,255,.18);
+}
+
+/* Icon chip */
+#contact .contact-item .icon{
+  --chip: 52px;
+  display: inline-grid;
+  place-items: center;
+  width: var(--chip);
+  height: var(--chip);
+  border-radius: 14px;
+  margin-bottom: .75rem;
+  font-size: 26px;
+  color: #fff;
+  background: radial-gradient(120% 120% at 30% 20%, rgba(47,132,255,.9), rgba(0,110,255,.6));
+  box-shadow: 0 8px 18px rgba(0,110,255,.35), inset 0 0 0 1px rgba(255,255,255,.18);
+}
+
+/* Text */
+#contact .contact-item h4{
+  margin: 0 0 .25rem 0;
+  font-weight: 700;
+}
+#contact .contact-item p{
+  margin: 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+#contact .contact-item a{
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px dashed transparent;
+  transition: color var(--transition), border-color var(--transition);
+}
+#contact .contact-item a:hover{
+  color: var(--color-accent);
+  border-color: currentColor;
+}
+
+/* CTA */
+#contact .contact-cta{
+  margin-top: 2rem;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+#contact .contact-button{
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .8rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+  backdrop-filter: blur(10px);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform .12s ease, box-shadow .25s ease, border-color .18s ease;
+  box-shadow: 0 8px 24px var(--color-shadow);
+}
+#contact .contact-button:hover{
+  transform: translateY(-2px);
+  border-color: rgba(0,110,255,.55);
+  box-shadow: 0 12px 34px var(--color-shadow), 0 0 16px rgba(47,132,255,.35);
+}
+
+/* Footer text */
+#contact .footer-text{
+  margin-top: 1.75rem;
+  opacity: .7;
+  font-size: .9rem;
+  text-align: center;
+}
+
+/* Focus states (keyboard) */
+#contact .contact-item:focus-within,
+#contact .contact-button:focus{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,110,255,.35), 0 10px 30px var(--color-shadow);
+}
+#contact .contact-button:focus{
+  border-color: rgba(0,110,255,.65);
+}
+
+/* Dark theme ready */
+body[data-theme="dark"] #contact .contact-item{
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  border-color: rgba(255,255,255,.10);
+}
+body[data-theme="dark"] #contact .contact-button{
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.14);
+}
+
+/* Motion safe */
+@media (prefers-reduced-motion: reduce){
+  #contact .contact-item,
+  #contact .contact-button{ transition: none; }
+}
