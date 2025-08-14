@@ -4,37 +4,84 @@
 
 .about-skills {
   padding: 10vh 8vw;
+  /* Local neon color for hover glow */
+  --neon: #00e6ff;
 }
 
-.skills-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 2rem;
-  max-width: var(--content-max);
-  margin: 0 auto;
-}
-
-.skills-grid span {
-  font-size: 1rem;
-  color: var(--color-primary);
-  text-align: center;
-  padding: 0.5rem 1.5rem;
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-accent);
-  transition: var(--transition);
-}
-
-.skills-grid span:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 15px var(--color-accent);
-}
-
-/* Final layout: grid with auto-fit columns */
+/* Content container capped at 75% width */
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 0.75rem;
+  max-width: 75%;
+  margin: 2rem auto 0;
+}
+
+/* Modern rounded "button" chips */
+.skills-grid span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+
+  padding: 0.6rem 1.2rem;
+  border-radius: 9999px; /* pill */
+  border: 1px solid var(--color-accent);
+
+  color: var(--color-primary);
+  background: rgba(59, 130, 246, 0.10);
+
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 0 0 1px rgba(59, 130, 246, 0.25);
+
+  transition:
+    transform 180ms cubic-bezier(.2,.8,.2,1),
+    box-shadow 260ms ease,
+    background-color 200ms ease,
+    color 200ms ease;
+  will-change: transform;
+}
+
+/* Float + deep electric neon glow on hover/focus */
+.skills-grid span:hover,
+.skills-grid span:focus-visible {
+  transform: translateY(-4px) scale(1.03);
+  background: rgba(59, 130, 246, 0.16);
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.25),
+    0 0 10px var(--neon),
+    0 0 20px rgba(0, 230, 255, 0.9),
+    0 0 38px rgba(0, 230, 255, 0.75);
+  outline: none;
+  text-shadow: 0 0 6px rgba(0, 230, 255, 0.7);
+}
+
+/* Pressed state */
+.skills-grid span:active {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.25),
+    0 0 8px var(--neon),
+    0 0 16px rgba(0, 230, 255, 0.8);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skills-grid span {
+    transition: box-shadow 200ms ease, background-color 200ms ease, color 200ms ease;
+  }
+  .skills-grid span:hover,
+  .skills-grid span:focus-visible,
+  .skills-grid span:active {
+    transform: none;
+  }
+}
+
+/* Mobile: let the grid span full width */
+@media (max-width: 768px) {
+  .skills-grid {
+    max-width: 100%;
+  }
 }
