@@ -2,7 +2,7 @@
    CONTACT SECTION
    =========================== */
 
-#contact.contact-page{
+#contact.contact-page {
   position: relative;
   z-index: 1;
   padding: clamp(48px, 10vh, 120px) 8vw;
@@ -12,43 +12,41 @@
   align-items: center;
 }
 
-/* keep layout width consistent with other sections */
-@media (min-width: 1024px){
-  #contact .content-wrap{
-    width: 75%;
-    margin: 0 auto;
-  }
+/* Content container: 75% max width on larger screens */
+#contact .content-wrap {
+  width: 100%;
+  max-width: 75%;
+  margin: 0 auto;
 }
 
 /* Header */
-#contact .page-header{
+#contact .page-header {
   text-align: center;
   margin-bottom: 2.25rem;
 }
-#contact .page-header h2{
+#contact .page-header h2 {
   margin: 0 0 .35rem 0;
 }
-#contact .page-header p{
+#contact .page-header p {
   opacity: .85;
   margin: 0;
 }
 
 /* Grid */
-#contact .contact-grid{
+#contact .contact-grid {
   display: grid;
   gap: 1.25rem;
   grid-template-columns: 1fr;
   width: 100%;
-  max-width: var(--content-max);
 }
-@media (min-width: 720px){
-  #contact .contact-grid{
+@media (min-width: 720px) {
+  #contact .contact-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* Cards */
-#contact .contact-item{
+#contact .contact-item {
   position: relative;
   border-radius: var(--radius);
   padding: 1.25rem;
@@ -58,14 +56,14 @@
   box-shadow: 0 8px 24px var(--color-shadow);
   transition: transform .18s ease, box-shadow .25s ease, border-color .18s ease;
 }
-#contact .contact-item:hover{
+#contact .contact-item:hover {
   transform: translateY(-3px);
   box-shadow: 0 14px 36px var(--color-shadow);
   border-color: rgba(255,255,255,.18);
 }
 
 /* Icon chip */
-#contact .contact-item .icon{
+#contact .contact-item .icon {
   --chip: 52px;
   display: inline-grid;
   place-items: center;
@@ -80,34 +78,34 @@
 }
 
 /* Text */
-#contact .contact-item h4{
+#contact .contact-item h4 {
   margin: 0 0 .25rem 0;
   font-weight: 700;
 }
-#contact .contact-item p{
+#contact .contact-item p {
   margin: 0;
   line-height: 1.4;
   word-break: break-word;
 }
-#contact .contact-item a{
+#contact .contact-item a {
   color: var(--color-primary);
   text-decoration: none;
   border-bottom: 1px dashed transparent;
   transition: color var(--transition), border-color var(--transition);
 }
-#contact .contact-item a:hover{
+#contact .contact-item a:hover {
   color: var(--color-accent);
   border-color: currentColor;
 }
 
 /* CTA */
-#contact .contact-cta{
+#contact .contact-cta {
   margin-top: 2rem;
   width: 100%;
   display: grid;
   place-items: center;
 }
-#contact .contact-button{
+#contact .contact-button {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
@@ -122,14 +120,14 @@
   transition: transform .12s ease, box-shadow .25s ease, border-color .18s ease;
   box-shadow: 0 8px 24px var(--color-shadow);
 }
-#contact .contact-button:hover{
+#contact .contact-button:hover {
   transform: translateY(-2px);
   border-color: rgba(0,110,255,.55);
   box-shadow: 0 12px 34px var(--color-shadow), 0 0 16px rgba(47,132,255,.35);
 }
 
 /* Footer text */
-#contact .footer-text{
+#contact .footer-text {
   margin-top: 1.75rem;
   opacity: .7;
   font-size: .9rem;
@@ -138,26 +136,26 @@
 
 /* Focus states (keyboard) */
 #contact .contact-item:focus-within,
-#contact .contact-button:focus{
+#contact .contact-button:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(0,110,255,.35), 0 10px 30px var(--color-shadow);
 }
-#contact .contact-button:focus{
+#contact .contact-button:focus {
   border-color: rgba(0,110,255,.65);
 }
 
 /* Dark theme ready */
-body[data-theme="dark"] #contact .contact-item{
+body[data-theme="dark"] #contact .contact-item {
   background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
   border-color: rgba(255,255,255,.10);
 }
-body[data-theme="dark"] #contact .contact-button{
+body[data-theme="dark"] #contact .contact-button {
   background: rgba(255,255,255,.07);
   border-color: rgba(255,255,255,.14);
 }
 
 /* Motion safe */
-@media (prefers-reduced-motion: reduce){
+@media (prefers-reduced-motion: reduce) {
   #contact .contact-item,
-  #contact .contact-button{ transition: none; }
+  #contact .contact-button { transition: none; }
 }
