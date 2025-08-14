@@ -18,8 +18,6 @@
   position: absolute;
   inset: 0;
   background: url('../assets/bucket.png') center/cover no-repeat;
-  filter: grayscale(0.1);
-  opacity: 0.9;
 }
 
 .bucket-hero::after {
