@@ -7,26 +7,29 @@
 
   <div class="gallery-masonry" id="gallery-container">
     <!-- Gallery items -->
-    <div class="grid-item" data-tilt>
-      <canvas class="glow-layer"></canvas>
-      <img src="assets/ben%20(0).png" alt="Ben 0" loading="lazy" draggable="false" oncontextmenu="return false;">
-    </div>
-    <div class="grid-item" data-tilt>
-      <canvas class="glow-layer"></canvas>
-      <img src="assets/ben%20(1).webp" alt="Ben 1" loading="lazy" draggable="false" oncontextmenu="return false;">
-    </div>
-    <div class="grid-item" data-tilt>
-      <canvas class="glow-layer"></canvas>
-      <img src="assets/ben%20(2).jpg" alt="Ben 2 JPG" loading="lazy" draggable="false" oncontextmenu="return false;">
-    </div>
-    <!-- ... repeat for all other images in your gallery -->
+    <div class="grid-item" data-tilt><img src="assets/ben%20(0).png" alt="Ben 0" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(1).webp" alt="Ben 1" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(2).jpg" alt="Ben 2 JPG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(2).png" alt="Ben 2 PNG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(3).jpg" alt="Ben 3 JPG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(3).png" alt="Ben 3 PNG" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(4).png" alt="Ben 4" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(5).png" alt="Ben 5" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(6).png" alt="Ben 6" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(7).png" alt="Ben 7" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(8).png" alt="Ben 8" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(10).png" alt="Ben 10" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben.png" alt="Ben" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(4).jpg" alt="Ben 4" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben%20(9).png" alt="Ben 9" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
+    <div class="grid-item" data-tilt><img src="assets/ben.jpg" alt="Ben" loading="lazy" draggable="false" oncontextmenu="return false;"></div>
   </div>
 
   <script>
-    // VanillaTilt setup
+    // VanillaTilt init
     (function () {
       if (!window.VanillaTilt) return;
-      const items = document.querySelectorAll('section.photo-grid[data-split="gallery"] .grid-item[data-tilt]');
+      const items = document.querySelectorAll('#gallery .grid-item[data-tilt]');
       if (items.length) {
         window.VanillaTilt.init(items, {
           max: 8,
@@ -38,49 +41,25 @@
       }
     })();
 
-    // Backlight Glow Effect
+    // Backlight glow effect
     document.querySelectorAll('#gallery .grid-item').forEach(item => {
-      const canvas = item.querySelector('.glow-layer');
       const img = item.querySelector('img');
-      const ctx = canvas.getContext('2d');
-
-      let mouseX = 0, mouseY = 0, opacity = 0;
-
-      img.addEventListener('load', () => {
-        canvas.width = img.naturalWidth * 1.05;
-        canvas.height = img.naturalHeight * 1.05;
-        drawGlow();
-      });
-
-      function drawGlow() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // draw enlarged image
-        ctx.filter = 'blur(20px) saturate(1.8)';
-        ctx.drawImage(img, canvas.width * -0.025, canvas.height * -0.025, canvas.width, canvas.height);
-
-        // create mask
-        const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 120);
-        grad.addColorStop(0, `rgba(255,255,255,${opacity})`);
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
-
-        ctx.globalCompositeOperation = 'destination-in';
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = 'source-over';
-
-        requestAnimationFrame(drawGlow);
-      }
+      const glow = document.createElement('div');
+      glow.className = 'glow-layer';
+      glow.style.backgroundImage = `url('${img.src}')`;
+      item.appendChild(glow);
 
       item.addEventListener('mousemove', e => {
         const rect = item.getBoundingClientRect();
-        mouseX = (e.clientX - rect.left) / rect.width * canvas.width;
-        mouseY = (e.clientY - rect.top) / rect.height * canvas.height;
-        opacity = 1;
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        glow.style.setProperty('--mx', `${x}px`);
+        glow.style.setProperty('--my', `${y}px`);
+        glow.style.opacity = '1';
       });
 
       item.addEventListener('mouseleave', () => {
-        opacity = 0;
+        glow.style.opacity = '0';
       });
     });
   </script>
