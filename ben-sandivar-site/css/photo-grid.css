@@ -4,7 +4,8 @@
 
 #gallery .gallery-masonry {
   display: block;
-  width: 70%%;
+  width: 75%;            /* fixed width */
+  margin: 0 auto;        /* center it */
   column-gap: 15px;
   column-count: 4;
 }
@@ -19,6 +20,15 @@
   max-width: var(--content-max);
   margin: 0 auto;
   background: var(--color-body-bg);
+}
+
+/* Override on desktop so wrapper doesn't restrict gallery width */
+@media (min-width: 1024px) {
+  .photo-grid {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .masonry-container {
@@ -87,6 +97,5 @@
 #gallery .grid-caption {
   display: none;
 }
-
 
 /* If you use the CSS-column layout for gallery elsewhere, keep those rules in your responsive file */
