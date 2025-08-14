@@ -1,79 +1,26 @@
-/* ===========================
-   ABOUT SECTION
-   =========================== */
+<!-- homesplits/about.html -->
+<section id="about" class="about-page fade-in" data-split="about">
+  <div class="page-header">
+    <h2>About Me</h2>
+  </div>
 
-.about-intro {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-  margin: 0 auto 2rem;
-  max-width: 75%;
-}
-
-.intro-content {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 4rem;
-  justify-content: flex-start;
-  width: 100%;
-  max-width: 75%;
-  margin: 0 auto;
-  align-items: center;
-}
-
-.profile-container {
-  flex: 0 1 300px;
-  background: transparent;
-  display: flex;
-  justify-content: center;
-}
-
-.profile-pic img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  border: 5px solid var(--color-secondary);
-  box-shadow: 0 4px 15px var(--color-shadow);
-}
-
-.text-container {
-  flex: 1 1 320px;
-  background: transparent;
-  text-align: left;
-}
-
-.intro-text .tagline {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--color-accent);
-  margin-bottom: 1rem;
-}
-
-.about-bio {
-  max-width: 75%;
-  margin: 0 auto;
-}
-
-.about-bio p {
-  font-size: 1.1rem;
-  line-height: 1.8;
-}
-
-/* Desktop alignment preference */
-@media (min-width: 993px) {
-  .about-intro .text-container { text-align: left; }
-  .about-intro .intro-text .tagline,
-  .about-intro .about-bio p { text-align: left; }
-}
-
-/* Mobile: let content span full width */
-@media (max-width: 768px) {
-  .about-intro,
-  .intro-content,
-  .about-bio {
-    max-width: 100%;
-  }
-}
+  <div class="about-intro">
+    <div class="intro-content">
+      <div class="profile-container">
+        <div class="profile-pic">
+          <img src="assets/Profile.png" alt="Ben Sandivar Profile Picture" />
+        </div>
+      </div>
+      <div class="text-container">
+        <div class="intro-text">
+          <p class="tagline">Creative thinker. Visionary and futurist. Holistic learner.</p>
+          <div class="about-bio">
+            <p>I’ve spent the past decade shaping ideas into audiovisual experiences across mediums. From branding systems to interactive tools, my work blends aesthetics and utility with thoughtful simplicity and artistic value.</p>
+            <p>Beyond professional work, I’m driven by curiosity. I explore linguistics, learning techniques, psychology, cognitive frameworks, and the intersection of philosophy, art, and technology to discover new points of synthesis and smarter ways to design.</p>
+            <p>I’m a futurist and like to stay posted on the latest updates in science, society, and politics. I believe in looking forward, but am a lover of antiquity, and I greatly respect and learn from tradition.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
