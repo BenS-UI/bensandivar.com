@@ -3,14 +3,14 @@
 .hidden{display:none!important;}
 
 /* FORCE NORMAL FLOW — keep this section under the hero */
-section.bucket-hero{ position:relative; z-index:2; } /* your hero stays on top */
+section.bucket-hero{ position:relative; z-index:2; }
 #music.music-player{
   position:relative !important;
   z-index:1 !important;
   inset:auto !important;
   clear:both;
-  display:flow-root;         /* break floats, no overlap */
-  contain: layout paint;     /* isolate layout/paint */
+  display:flow-root;
+  contain: layout paint;
 }
 
 .music-player{
@@ -23,14 +23,14 @@ section.bucket-hero{ position:relative; z-index:2; } /* your hero stays on top *
 }
 
 .music-shell{
-  isolation:isolate;         /* local stacking context */
+  isolation:isolate;
   width:100%;
   margin:0 auto;
   border-radius:28px;
   position:relative;
   background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.04), rgba(0,0,0,.45));
   border:1px solid rgba(255,255,255,.08);
-  box-shadow: 0 8px 22px rgba(0,0,0,.22); /* tight (no clipping) */
+  box-shadow: 0 8px 22px rgba(0,0,0,.22);
   display:flex;
   flex-direction:column;
   height: clamp(560px, 72vh, 860px);
@@ -63,16 +63,12 @@ section.bucket-hero{ position:relative; z-index:2; } /* your hero stays on top *
 /* LAYERS (z-index order) */
 .views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; z-index:1; }
 .views-wrap.no-scroll{ overflow:hidden; }
-
-/* Aurora sits above list, below art + player */
-.aurora-layer{
-  position:absolute; inset:0; z-index:3; pointer-events:none;
-  border-radius:inherit; opacity:0; transition:opacity 4s ease;
-}
-.aurora-layer.on{ opacity:1; }
+/* aurora behind album art, above list */
+.aurora-layer{ position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit; opacity:1; }
 .aurora-layer canvas{ width:100%; height:100%; display:block; }
-
-.track-stage .stage-art-wrap{ z-index:4; position:relative; }
+.track-stage .stage-art-wrap{ z-index:3; position:relative; }
+/* player bar at top of stack */
+.player-bar{ position:relative; z-index:4; }
 
 /* LIST VIEW */
 .albums-view{ display:grid; gap:1.75rem; }
@@ -109,20 +105,19 @@ section.bucket-hero{ position:relative; z-index:2; } /* your hero stays on top *
   background: var(--stage-bg, radial-gradient(120% 140% at 50% 25%, rgba(0,0,0,.36), rgba(0,0,0,.9)));
 }
 .track-view{ border-radius:22px; padding:2rem 1.25rem; }
-.track-stage{ display:grid; justify-items:center; z-index:4; position:relative; }
+.track-stage{ display:grid; justify-items:center; z-index:3; position:relative; }
 .stage-art-wrap{
   width:min(42%, 440px); aspect-ratio:1/1; border-radius:18px;
   box-shadow:0 14px 32px rgba(0,0,0,.32);
 }
 #stage-art{ width:100%; height:100%; object-fit:cover; border-radius:18px; display:block; }
 
-/* PLAYER BAR (top layer inside shell) */
+/* PLAYER BAR */
 .player-bar{
   margin-top:1rem;
   display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:center;
   padding:.85rem 1rem; border-radius:16px; border:1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.06); backdrop-filter: blur(10px);
-  position:relative; z-index:5;
 }
 @media (min-width:760px){ .player-bar{ grid-template-columns:auto auto 1fr; } }
 
