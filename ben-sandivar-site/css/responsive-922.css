@@ -38,3 +38,7 @@
     max-width: 90%;
   }
 }
+
+@media (max-width: 1023px) {
+  #gallery .gallery-masonry { column-count: 3; }
+}

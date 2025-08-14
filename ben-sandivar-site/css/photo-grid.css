@@ -2,6 +2,18 @@
    PHOTO GRID / MASONRY
    =========================== */
 
+#gallery .gallery-masonry {
+  display: block;
+  width: 100%;
+  column-gap: 20px;
+  column-count: 4;
+}
+
+#gallery .gallery-masonry .grid-item {
+  break-inside: avoid;
+  margin-bottom: 20px;
+}
+
 .photo-grid {
   padding: 10vh 8vw;
   max-width: var(--content-max);
@@ -75,5 +87,6 @@
 #gallery .grid-caption {
   display: none;
 }
+
 
 /* If you use the CSS-column layout for gallery elsewhere, keep those rules in your responsive file */
