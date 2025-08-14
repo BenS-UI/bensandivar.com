@@ -138,6 +138,14 @@
       </div>
     </div>
 
+    <div class="project-card" data-tilt data-section="music">
+      <img src="https://source.unsplash.com/600x400/?abstract,technology&sig=21" alt="Poetry Collection Thumbnail" />
+      <div class="card-content">
+        <h4>The Myth of Rebirth</h4>
+        <p>A collection of philosophical songs exploring a minimal writing and production style.</p>
+      </div>
+    </div>
+
     <!-- Writing -->
     <div class="project-card" data-tilt data-section="writing">
       <img src="assets/projects/The%20Arcane.jpg" alt="The Arcane Thumbnail" />
@@ -170,55 +178,7 @@
         <p>Futuristic manga exploring VR, AR, hacking, and biohacking in a corporate dystopia through a young hacker’s journey.</p>
       </div>
     </div>
-
-    <div class="project-card" data-tilt data-section="writing">
-      <img src="https://source.unsplash.com/600x400/?abstract,technology&sig=21" alt="Poetry Collection Thumbnail" />
-      <div class="card-content">
-        <h4>The Myth of Rebirth</h4>
-        <p>A collection of philosophical songs exploring a minimal writing and production style.</p>
-      </div>
-    </div>
   </div>
 
   <script>
     (function () {
-      // Initialize tilt
-      if (window.VanillaTilt) {
-        const cards = document.querySelectorAll('.featured-projects .project-card');
-        window.VanillaTilt.init(cards, {
-          max: 8,
-          speed: 800,
-          reverse: true,
-          glare: false,
-          perspective: 1000,
-          scale: 1.0
-        });
-      }
-
-      // Sort and group by data-section
-      const grid = document.querySelector('.projects-grid');
-      if (!grid) return;
-
-      const cards = Array.from(grid.children);
-      cards.sort((a, b) => {
-        const sa = a.dataset.section || '';
-        const sb = b.dataset.section || '';
-        return sa.localeCompare(sb);
-      });
-
-      grid.innerHTML = '';
-      let lastSection = '';
-      cards.forEach(card => {
-        const sec = card.dataset.section || '';
-        if (sec !== lastSection && lastSection !== '') {
-          const gap = document.createElement('div');
-          gap.style.flexBasis = '100%';
-          gap.style.height = '2rem'; // visual gap between sections
-          grid.appendChild(gap);
-        }
-        grid.appendChild(card);
-        lastSection = sec;
-      });
-    })();
-  </script>
-</section>
