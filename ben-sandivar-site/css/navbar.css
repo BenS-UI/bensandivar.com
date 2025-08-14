@@ -2,7 +2,7 @@
 .navbar {
   position: fixed;
   top: 0;
-  width: 75%;
+  width: 100%;
   background: var(--color-navbar-bg);
   backdrop-filter: blur(1px);
   padding: 1rem 0;
@@ -23,7 +23,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: var(--content-max);
+  width: 75%;
   margin: 0 auto;
   padding: 0;
 }
