@@ -253,7 +253,7 @@
   }
 
   // First user play / resume → wait 15s
-  audio.addEventListener('play', ()=>{ ensureAudioGraph(); scheduleShow(15000); });
+  audio.addEventListener('play', ()=>{ ensureAudioGraph(); scheduleShow(1000); });
   audio.addEventListener('pause', ()=>{ stopAurora(); if (autoBackTimer){ clearTimeout(autoBackTimer); autoBackTimer=null; } });
   audio.addEventListener('ended', ()=>{ stopAurora(); if (autoBackTimer){ clearTimeout(autoBackTimer); autoBackTimer=null; } });
 
