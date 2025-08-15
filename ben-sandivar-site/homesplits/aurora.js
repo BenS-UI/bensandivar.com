@@ -1,6 +1,6 @@
 (() => {
-  const musicPlayer = document.getElementById('music-player');
-  if (!musicPlayer) return; // only run if music player exists on page
+  const musicPlayer = document.getElementById('music');
+  if (!musicPlayer) return;
 
   const auroraCanvas = musicPlayer.querySelector('#aurora');
   const auroraLayer  = musicPlayer.querySelector('.aurora-layer');
@@ -11,6 +11,7 @@
 
   let acx, srcNode, analyser;
   let rafId = null, overlayOn = false;
+  let auroraTimeout = null;
 
   function ensureAudioGraph(){
     if (acx) return;
@@ -68,10 +69,21 @@
   }
   function stopAurora(){ 
     overlayOn = false; 
-    if(rafId){ cancelAnimationFrame(rafId); rafId=null; } 
+    if (rafId){ cancelAnimationFrame(rafId); rafId=null; }
+    auroraLayer.classList.remove('on');
+    if (auroraTimeout) { clearTimeout(auroraTimeout); auroraTimeout = null; }
   }
 
-  audio.addEventListener('play', () => { ensureAudioGraph(); startAurora(); });
+  // Delay the aurora fade-in by 15 seconds after audio starts
+  audio.addEventListener('play', () => {
+    ensureAudioGraph();
+    if (auroraTimeout) clearTimeout(auroraTimeout);
+    auroraTimeout = setTimeout(() => {
+      auroraLayer.classList.add('on'); // CSS fade-in
+      startAurora();
+    }, 15000);
+  });
+
   audio.addEventListener('pause', stopAurora);
 
   function bandAverages(arr){
