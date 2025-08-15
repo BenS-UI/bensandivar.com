@@ -281,12 +281,12 @@
     ensureGraph();
     if (acx.state === 'suspended') acx.resume().catch(() => {});
     // If you previously toggled CSS classes for fade, keep them; no HTML change needed.
-    layer && layer.classList && layer.classList.add('on');
+    //layer && layer.classList && layer.classList.add('on');
     maybeStart();
   }
 
   function onPause() {
-    layer && layer.classList && layer.classList.remove('on');
+    //layer && layer.classList && layer.classList.remove('on');
     stopDraw();
     if (acx && acx.state === 'running') acx.suspend().catch(() => {});
   }
