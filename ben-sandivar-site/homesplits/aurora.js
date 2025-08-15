@@ -145,11 +145,11 @@
       const f   = i / (n - 1 || 1);
       const hue = (phase.seed + i * (360 / n) +
                   36 * Math.sin(2 * Math.PI * (tGlobal / LOOP_S + phase.offset + i * 0.09))) % 360;
-      g.addColorStop(f, `hsla(${hue} 92% 55% / 0.96)`);
+      g.addColorStop(f, `hsl(${hue} 92% 55%)`); // full alpha
       if (i < n - 1) {
         const mid  = f + (1 / (n - 1)) * 0.5;
         const hue2 = (hue + 24) % 360;
-        g.addColorStop(mid, `hsla(${hue2} 88% 56% / 0.90)`);
+        g.addColorStop(mid, `hsl(${hue2} 88% 56%)`); // full alpha
       }
     }
     return g;
@@ -163,14 +163,11 @@
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
 
-    // Draw everything to the buffer
     bctx.clearRect(0, 0, w, h);
 
-    // Pull audio data once per frame
     analyser.getByteTimeDomainData(td);
     analyser.getByteFrequencyData(fd);
 
-    // RMS
     let sum = 0;
     for (let i = 0; i < td.length; i++) {
       const v = (td[i] - 128) / 128;
@@ -178,7 +175,6 @@
     }
     const rms = Math.sqrt(sum / td.length);
 
-    // Bands
     const nyq = acx.sampleRate / 2;
     const idx = hz => Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
     const avg = (lo, hi) => {
@@ -195,7 +191,6 @@
     smooth.mid  = lerp(smooth.mid,  bands.mid  / 255, 0.24);
     smooth.treb = lerp(smooth.treb, bands.treb / 255, 0.22);
 
-    // Phase mix
     const now = performance.now();
     let mix   = (now - phaseT) / PHASE_MS;
     if (mix >= 1) {
@@ -205,7 +200,6 @@
       mix = 0;
     }
 
-    // Precompute
     const tL = loopT();
     const kx = 2 * Math.PI / Math.max(360, w);
     const ph = tL * 2 * Math.PI * 0.8;
@@ -214,7 +208,6 @@
     const baseAmp = h * (0.22 + 0.55 * Math.min(1, rms * 1.8));
     const maxRise = h * 0.50;
 
-    // Column modulation (soft parallax feel)
     const cols = 7;
     const colMod = (x) => {
       let v = 0;
@@ -222,7 +215,6 @@
       return (v / cols) * 0.6 + 0.8;
     };
 
-    // --- Build mask path once, then paint gradients under it ---
     const steps = 150;
     const path  = new Path2D();
     path.moveTo(0, h);
@@ -244,7 +236,6 @@
     path.lineTo(w, h);
     path.closePath();
 
-    // Paint blended gradients (on buffer)
     const gA = buildGradient(gradA, now / 1000, w, h);
     const gB = buildGradient(gradB, now / 1000, w, h);
 
@@ -254,13 +245,9 @@
     bctx.globalAlpha = mix;
     bctx.fillStyle = gB; bctx.fillRect(0, 0, w, h);
 
-    // No internal bloom: keep edges clean; we blur final composite instead.
-
-    // Keep only inside the wave shape
     bctx.globalCompositeOperation = 'destination-in';
     bctx.fill(path);
 
-    // Atmospheric fade to top
     const fade = bctx.createLinearGradient(0, 0, 0, h);
     const fadeEnd = Math.max(0.28, (topY / h) - 0.02);
     fade.addColorStop(0.00, 'rgba(0,0,0,1)');
@@ -269,27 +256,25 @@
     bctx.fillStyle = fade;
     bctx.fillRect(0, 0, w, h);
 
-    // Reset buffer composite mode
     bctx.globalCompositeOperation = 'source-over';
-    bctx.globalAlpha = 1;
 
-    // ----- FINAL 15px BLUR PASS (on the main canvas) -----
+    // ---- Apply bold breathing alpha AFTER everything ----
+    const minAlpha = 0.90;
+    const maxAlpha = 0.97;
+    const breathe = minAlpha + (maxAlpha - minAlpha) * (0.5 - Math.abs(0.5 - mix)) * 2;
+
     ctx.clearRect(0, 0, w, h);
-    ctx.filter = 'blur(15px)';
-    // Draw buffer -> main, exact size (CSS px), DPR handled by transform.
-    ctx.drawImage(
-      bufferCanvas,
-      0, 0, bufferCanvas.width, bufferCanvas.height,
-      0, 0, w, h
-    );
+    ctx.filter = 'blur(15px)'; // keep your blur
+    ctx.globalAlpha = breathe;
+    ctx.drawImage(bufferCanvas, 0, 0, bufferCanvas.width, bufferCanvas.height, 0, 0, w, h);
     ctx.filter = 'none';
+    ctx.globalAlpha = 1;
   }
 
   // --------------- Control ----------------
   function onPlay() {
     ensureGraph();
     if (acx.state === 'suspended') acx.resume().catch(() => {});
-    // If you previously toggled CSS classes for fade, keep them; no HTML change needed.
     layer && layer.classList && layer.classList.add('on');
     maybeStart();
   }
