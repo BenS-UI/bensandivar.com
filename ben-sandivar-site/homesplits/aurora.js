@@ -166,8 +166,8 @@
     const h = canvas.clientHeight;
 
   // 🌈 Gradient blending
-    drawGradient(ctx, gradPrev, 1 - mix);
-    drawGradient(ctx, gradNext, mix);
+    //drawGradient(ctx, gradPrev, 1 - mix);
+    //drawGradient(ctx, gradNext, mix);
 
     mix += delta;
     if (mix >= 1) {
