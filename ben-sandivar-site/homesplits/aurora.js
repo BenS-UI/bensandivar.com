@@ -221,32 +221,30 @@
     ctx.stroke();
     ctx.restore();
 
-    // TOP FADE: Create a gradient mask that fades from the crest upward
+    // TOP FADE: Create a SOLID mask above the crest, then blur the SHIT out of it
     maskCtx.clearRect(0,0,w,h);
     
-    // Find the highest point in the crest for our fade start
-    let minY = h;
-    for (let p of crest) {
-      if (p.y < minY) minY = p.y;
+    // Fill EVERYTHING above the crest line with solid black
+    maskCtx.fillStyle = '#000'; // Solid black mask
+    maskCtx.beginPath();
+    maskCtx.moveTo(0, 0);
+    maskCtx.lineTo(w, 0);
+    // Follow the crest line backwards to close the shape
+    for (let i = crest.length - 1; i >= 0; i--) {
+      const p = crest[i];
+      maskCtx.lineTo(p.x, p.y);
     }
+    maskCtx.closePath();
+    maskCtx.fill();
     
-    // Create a radial gradient that starts from the crest area and fades up
-    const fadeHeight = minY + EDGE_BLUR * 1.5; // Extend fade zone
-    const gradient = maskCtx.createLinearGradient(0, minY - EDGE_BLUR, 0, 0);
-    gradient.addColorStop(0, 'rgba(0,0,0,0)');     // Transparent at crest
-    gradient.addColorStop(0.3, 'rgba(0,0,0,0.3)'); // Gentle start
-    gradient.addColorStop(0.7, 'rgba(0,0,0,0.8)'); // Stronger fade
-    gradient.addColorStop(1, 'rgba(0,0,0,1)');     // Full opacity at top
-    
-    maskCtx.fillStyle = gradient;
-    maskCtx.fillRect(0, 0, w, fadeHeight);
-    
-    // Apply the fade mask with heavy blur for smooth transition
+    // Apply the mask with HEAVY blur to create the fade
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
     ctx.filter = `blur(${EDGE_BLUR}px)`;
+    ctx.globalAlpha = 0.9; // Make it slightly less aggressive
     ctx.drawImage(maskCanvas, 0, 0);
     ctx.filter = 'none';
+    ctx.globalAlpha = 1;
     ctx.restore();
   }
 
