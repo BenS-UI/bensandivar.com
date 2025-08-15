@@ -260,8 +260,12 @@
     // Paint blended gradients (on buffer)
     const gPrev = buildGradient(gradPrev, now / 1000, w, h);
     const gNext = buildGradient(gradNext, now / 1000, w, h);
-    
-    // Smooth easing for blend
+    console.log('gradPrev:', gradPrev);
+    console.log('gradNext:', gradNext);
+    console.log('gPrev:', gPrev);
+    console.log('gNext:', gNext);
+
+        // Smooth easing for blend
     const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix); // ease-in-out
 
     // Draw base gradient
