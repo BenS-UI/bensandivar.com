@@ -191,22 +191,71 @@
     }
     const crest = catmull(anchors, 40); // very smooth
 
-    // Clip and fill under crest
+    // Create the aurora shape with smooth fade to transparent at top
     ctx.save();
+    
+    // Find highest point for fade reference
+    let minY = h;
+    for (let p of crest) {
+      if (p.y < minY) minY = p.y;
+    }
+    
+    // Create mask for the aurora shape with fade gradient
+    maskCtx.clearRect(0, 0, w, h);
+    
+    // Create vertical fade gradient - opaque at bottom, transparent at top
+    const fadeHeight = minY + EDGE_BLUR * 2;
+    const fadeGrad = maskCtx.createLinearGradient(0, h, 0, Math.max(0, fadeHeight - EDGE_BLUR * 3));
+    fadeGrad.addColorStop(0, 'rgba(255,255,255,1)');     // Solid at bottom
+    fadeGrad.addColorStop(0.6, 'rgba(255,255,255,1)');   // Stay solid most of the way
+    fadeGrad.addColorStop(0.85, 'rgba(255,255,255,0.8)'); // Start fading
+    fadeGrad.addColorStop(1, 'rgba(255,255,255,0)');     // Transparent at top
+    
+    // Fill the aurora shape with the fade gradient
+    maskCtx.beginPath();
+    maskCtx.moveTo(0, h);
+    for (let i = 0; i < crest.length; i++) {
+      const p = crest[i];
+      maskCtx.lineTo(p.x, p.y);
+    }
+    maskCtx.lineTo(w, h);
+    maskCtx.closePath();
+    maskCtx.fillStyle = fadeGrad;
+    maskCtx.fill();
+    
+    // Use the fade mask to control aurora opacity
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.save();
+    
+    // Create clipping path for aurora shape
     ctx.beginPath();
-    ctx.moveTo(0,h);
-    for (let i=0;i<crest.length;i++){ const p=crest[i]; ctx.lineTo(p.x,p.y); }
-    ctx.lineTo(w,h); ctx.closePath(); ctx.clip();
-
-    // Fill (screen) at 97% + light blur tie-in
-    ctx.globalCompositeOperation='screen';
-    ctx.globalAlpha = BASE_ALPHA*(1-mix); ctx.fillStyle=gA; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha = BASE_ALPHA*mix;     ctx.fillStyle=gB; ctx.fillRect(0,0,w,h);
-
-    ctx.globalAlpha = BASE_ALPHA*0.35;
-    ctx.filter='blur(6px)'; ctx.fillStyle=gA; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha = BASE_ALPHA*0.35*mix; ctx.fillStyle=gB; ctx.fillRect(0,0,w,h);
-    ctx.filter='none'; ctx.globalAlpha=1;
+    ctx.moveTo(0, h);
+    for (let i = 0; i < crest.length; i++) {
+      const p = crest[i];
+      ctx.lineTo(p.x, p.y);
+    }
+    ctx.lineTo(w, h);
+    ctx.closePath();
+    ctx.clip();
+    
+    // Apply fade mask using globalAlpha modulation
+    for (let y = 0; y < h; y += 2) {
+      // Sample the mask to get alpha value
+      const imgData = maskCtx.getImageData(w/2, y, 1, 1);
+      const alpha = imgData.data[0] / 255; // Use red channel as alpha
+      
+      if (alpha > 0) {
+        ctx.globalAlpha = BASE_ALPHA * alpha * (1-mix);
+        ctx.fillStyle = gA;
+        ctx.fillRect(0, y, w, 2);
+        
+        ctx.globalAlpha = BASE_ALPHA * alpha * mix;
+        ctx.fillStyle = gB;
+        ctx.fillRect(0, y, w, 2);
+      }
+    }
+    
+    ctx.restore();
     ctx.restore();
 
     // Crest glow (luminous edge)
@@ -219,32 +268,6 @@
     ctx.lineWidth = GLOW_WIDTH;
     ctx.strokeStyle = 'rgba(255,255,255,0.10)';
     ctx.stroke();
-    ctx.restore();
-
-    // TOP FADE: Create a SOLID mask above the crest, then blur the SHIT out of it
-    maskCtx.clearRect(0,0,w,h);
-    
-    // Fill EVERYTHING above the crest line with solid black
-    maskCtx.fillStyle = '#000'; // Solid black mask
-    maskCtx.beginPath();
-    maskCtx.moveTo(0, 0);
-    maskCtx.lineTo(w, 0);
-    // Follow the crest line backwards to close the shape
-    for (let i = crest.length - 1; i >= 0; i--) {
-      const p = crest[i];
-      maskCtx.lineTo(p.x, p.y);
-    }
-    maskCtx.closePath();
-    maskCtx.fill();
-    
-    // Apply the mask with HEAVY blur to create the fade
-    ctx.save();
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.filter = `blur(${EDGE_BLUR}px)`;
-    ctx.globalAlpha = 0.9; // Make it slightly less aggressive
-    ctx.drawImage(maskCanvas, 0, 0);
-    ctx.filter = 'none';
-    ctx.globalAlpha = 1;
     ctx.restore();
   }
 
