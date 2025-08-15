@@ -1,113 +1,69 @@
-// aurora-visualizer.js
+// aurora.js — instant start, no fades, steady look, 2px final blur
 (() => {
-  const root = document.getElementById('music');
-  if (!root) return;
+  const musicPlayer = document.getElementById('music');
+  if (!musicPlayer) return;
 
-  const canvas = root.querySelector('#aurora');
-  const layer  = root.querySelector('.aurora-layer');
-  const audio  = root.querySelector('audio');
-  if (!canvas || !layer || !audio) return;
+  const auroraCanvas = musicPlayer.querySelector('#aurora');
+  const auroraLayer  = musicPlayer.querySelector('.aurora-layer') || musicPlayer; // size fallback
+  const audio        = musicPlayer.querySelector('audio');
+  if (!auroraCanvas || !audio) return;
 
-  /** @type {CanvasRenderingContext2D} */
-  const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+  // Visible context
+  const ctx = auroraCanvas.getContext('2d', { alpha: true, desynchronized: true });
 
-  // Offscreen buffer to blur the whole composite in one pass.
-  const bufferCanvas = document.createElement('canvas');
-  /** @type {CanvasRenderingContext2D} */
-  const bctx = bufferCanvas.getContext('2d', { alpha: true, desynchronized: true });
+  // Offscreen buffer for final blur
+  const buf = document.createElement('canvas');
+  const btx = buf.getContext('2d', { alpha: true, desynchronized: true });
 
-  // ---------------- Core state ----------------
-  let acx, src, analyser, compressor;
-  let raf = 0;
-  let running = false;
-  let hidden  = false;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // ---------- Audio ----------
+  let acx, srcNode, analyser;
+  function ensureAudioGraph() {
+    if (acx) return;
+    acx = new (window.AudioContext || window.webkitAudioContext)();
+    srcNode  = acx.createMediaElementSource(audio);
+    analyser = acx.createAnalyser();
+    analyser.fftSize = 1024;
+    analyser.smoothingTimeConstant = 0.65;
+    srcNode.connect(analyser);
+    analyser.connect(acx.destination);
+    td = new Uint8Array(analyser.fftSize);
+    fd = new Uint8Array(analyser.frequencyBinCount);
+  }
 
-  // Reused buffers (no GC churn)
-  let td, fd;
-
-  // Hi-DPI
+  // ---------- Sizing / DPR ----------
   let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+  function sizeCanvas() {
+    const r = auroraLayer.getBoundingClientRect();
+    const w = Math.max(1, r.width  | 0);
+    const h = Math.max(1, r.height | 0);
 
-  // Phase / timing
-  const PHASE_MS = 45000;
-  const LOOP_S   = 600;
+    auroraCanvas.width = (w * dpr) | 0;
+    auroraCanvas.height = (h * dpr) | 0;
+    buf.width = (w * dpr) | 0;
+    buf.height = (h * dpr) | 0;
 
-  let startT = performance.now();
-  let phaseT = performance.now();
+    auroraCanvas.style.width = w + 'px';
+    auroraCanvas.style.height = h + 'px';
 
-  let gradA = makePhase();
-  let gradB = makePhase();
-
-  // Smooth spectral bands
-  const smooth = { bass: 0, mid: 0, treb: 0 };
-  const lerp   = (a, b, t) => a + (b - a) * t;
-
-  // Resize handling
-  const ro = new ResizeObserver(sizeCanvas);
-  ro.observe(layer);
-
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    btx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  sizeCanvas();
+  new ResizeObserver(sizeCanvas).observe(auroraLayer);
   window.addEventListener('resize', () => {
     const next = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
     if (next !== dpr) { dpr = next; sizeCanvas(); }
   }, { passive: true });
 
-  document.addEventListener('visibilitychange', () => {
-    hidden = document.hidden;
-    if (hidden) stopDraw(); else maybeStart();
-  }, { passive: true });
+  // ---------- Timing / Phase (no crossfade) ----------
+  const LOOP_S = 600;
+  let t0 = performance.now();
 
-  // Audio lifecycle
-  audio.addEventListener('play',  onPlay,  { passive: true });
-  audio.addEventListener('pause', onPause, { passive: true });
-  audio.addEventListener('ended', onPause, { passive: true });
-
-  if (reduced) return; // user prefers low motion
-
-  sizeCanvas(); // initial
-
-  // --------------- Audio graph ----------------
-  function ensureGraph() {
-    if (acx) return;
-    acx = new (window.AudioContext || window.webkitAudioContext)();
-
-    src        = acx.createMediaElementSource(audio);
-    analyser   = acx.createAnalyser();
-    compressor = acx.createDynamicsCompressor();
-
-    analyser.fftSize = 1024;
-    analyser.smoothingTimeConstant = 0.7;
-
-    src.connect(analyser);
-    analyser.connect(compressor);
-    compressor.connect(acx.destination);
-
-    td = new Uint8Array(analyser.fftSize);
-    fd = new Uint8Array(analyser.frequencyBinCount);
+  function loopT() {
+    const dt = (performance.now() - t0) / 1000;
+    return (dt % LOOP_S) / LOOP_S;
   }
 
-  // --------------- Geometry ----------------
-  function sizeCanvas() {
-    const r = layer.getBoundingClientRect();
-    const w = Math.max(1, r.width  | 0);
-    const h = Math.max(1, r.height | 0);
-
-    // Internal pixel size (Hi-DPI)
-    canvas.width       = (w * dpr) | 0;
-    canvas.height      = (h * dpr) | 0;
-    bufferCanvas.width = (w * dpr) | 0;
-    bufferCanvas.height= (h * dpr) | 0;
-
-    // Match CSS size so transforms map CSS px -> device px
-    canvas.style.width  = w + 'px';
-    canvas.style.height = h + 'px';
-
-    // Scale contexts once
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  // --------------- Phases / Colors ----------------
   function makePhase() {
     return {
       seed: Math.random() * 360,
@@ -117,17 +73,15 @@
     };
   }
   function pickCount() {
-    const r = Math.random();
-    if (r < 0.70) return 4;
-    if (r < 0.90) return 3;
-    if (r < 0.97) return 5;
+    const roll = Math.random();
+    if (roll < 0.70) return 4;
+    if (roll < 0.90) return 3;
+    if (roll < 0.97) return 5;
     return Math.random() < 0.5 ? 6 : 7;
   }
 
-  function loopT() {
-    const dt = (performance.now() - startT) / 1000;
-    return (dt % LOOP_S) / LOOP_S;
-  }
+  // Single phase only — no 45s blending, no “restart” feel
+  let phase = makePhase();
 
   function buildGradient(phase, tGlobal, w, h) {
     const drift = Math.sin(tGlobal * 2 * Math.PI / 1800) * (10 * Math.PI / 180);
@@ -138,36 +92,44 @@
     const x0 = cx - Math.cos(ang) * r / 2, y0 = cy - Math.sin(ang) * r / 2;
     const x1 = cx + Math.cos(ang) * r / 2, y1 = cy + Math.sin(ang) * r / 2;
 
-    const g  = bctx.createLinearGradient(x0, y0, x1, y1);
+    const g  = btx.createLinearGradient(x0, y0, x1, y1);
     const n  = phase.n;
 
     for (let i = 0; i < n; i++) {
       const f   = i / (n - 1 || 1);
       const hue = (phase.seed + i * (360 / n) +
                   36 * Math.sin(2 * Math.PI * (tGlobal / LOOP_S + phase.offset + i * 0.09))) % 360;
-      g.addColorStop(f, `hsl(${hue} 92% 55%)`); // full alpha
+      g.addColorStop(f, `hsla(${hue} 92% 55% / 0.96)`);
       if (i < n - 1) {
         const mid  = f + (1 / (n - 1)) * 0.5;
         const hue2 = (hue + 24) % 360;
-        g.addColorStop(mid, `hsl(${hue2} 88% 56%)`); // full alpha
+        g.addColorStop(mid, `hsla(${hue2} 88% 56% / 0.90)`);
       }
     }
     return g;
   }
 
-  // --------------- Draw ----------------
+  // ---------- Audio buffers ----------
+  let td, fd;
+  const smooth = { bass: 0, mid: 0, treb: 0 };
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  // ---------- Draw ----------
+  let rafId = 0;
   function draw() {
-    if (!running) return;
-    raf = requestAnimationFrame(draw);
+    rafId = requestAnimationFrame(draw);
 
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    const w = auroraCanvas.clientWidth;
+    const h = auroraCanvas.clientHeight;
 
-    bctx.clearRect(0, 0, w, h);
+    // draw to buffer first
+    btx.clearRect(0, 0, w, h);
 
+    // audio pull
     analyser.getByteTimeDomainData(td);
     analyser.getByteFrequencyData(fd);
 
+    // rms
     let sum = 0;
     for (let i = 0; i < td.length; i++) {
       const v = (td[i] - 128) / 128;
@@ -175,6 +137,7 @@
     }
     const rms = Math.sqrt(sum / td.length);
 
+    // bands
     const nyq = acx.sampleRate / 2;
     const idx = hz => Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
     const avg = (lo, hi) => {
@@ -182,24 +145,12 @@
       for (let i = lo; i <= hi; i++) { s += fd[i]; c++; }
       return c ? s / c : 0;
     };
-    const bands = {
-      bass: avg(idx(20), idx(140)),
-      mid:  avg(idx(300), idx(2000)),
-      treb: avg(idx(4000), idx(12000))
-    };
-    smooth.bass = lerp(smooth.bass, bands.bass / 255, 0.28);
-    smooth.mid  = lerp(smooth.mid,  bands.mid  / 255, 0.24);
-    smooth.treb = lerp(smooth.treb, bands.treb / 255, 0.22);
+    const bd = { bass: avg(idx(20), idx(140)), mid: avg(idx(300), idx(2000)), treb: avg(idx(4000), idx(12000)) };
+    smooth.bass = lerp(smooth.bass, bd.bass / 255, 0.28);
+    smooth.mid  = lerp(smooth.mid,  bd.mid  / 255, 0.24);
+    smooth.treb = lerp(smooth.treb, bd.treb / 255, 0.22);
 
-    const now = performance.now();
-    let mix   = (now - phaseT) / PHASE_MS;
-    if (mix >= 1) {
-      gradA = gradB;
-      gradB = makePhase();
-      phaseT = now;
-      mix = 0;
-    }
-
+    // wave params
     const tL = loopT();
     const kx = 2 * Math.PI / Math.max(360, w);
     const ph = tL * 2 * Math.PI * 0.8;
@@ -208,6 +159,7 @@
     const baseAmp = h * (0.22 + 0.55 * Math.min(1, rms * 1.8));
     const maxRise = h * 0.50;
 
+    // column modulation
     const cols = 7;
     const colMod = (x) => {
       let v = 0;
@@ -215,6 +167,7 @@
       return (v / cols) * 0.6 + 0.8;
     };
 
+    // build wave path
     const steps = 150;
     const path  = new Path2D();
     path.moveTo(0, h);
@@ -236,75 +189,51 @@
     path.lineTo(w, h);
     path.closePath();
 
-    const gA = buildGradient(gradA, now / 1000, w, h);
-    const gB = buildGradient(gradB, now / 1000, w, h);
+    // paint gradient (single phase, no crossfade)
+    const now = performance.now();
+    const g = buildGradient(phase, now / 1000, w, h);
 
-    bctx.globalCompositeOperation = 'source-over';
-    bctx.globalAlpha = 1 - mix;
-    bctx.fillStyle = gA; bctx.fillRect(0, 0, w, h);
-    bctx.globalAlpha = mix;
-    bctx.fillStyle = gB; bctx.fillRect(0, 0, w, h);
+    btx.globalCompositeOperation = 'source-over';
+    btx.fillStyle = g;
+    btx.fillRect(0, 0, w, h);
 
-    bctx.globalCompositeOperation = 'destination-in';
-    bctx.fill(path);
+    // mask to wave
+    btx.globalCompositeOperation = 'destination-in';
+    btx.fill(path);
 
-    const fade = bctx.createLinearGradient(0, 0, 0, h);
+    // atmospheric fade
+    const fade = btx.createLinearGradient(0, 0, 0, h);
     const fadeEnd = Math.max(0.28, (topY / h) - 0.02);
     fade.addColorStop(0.00, 'rgba(0,0,0,1)');
     fade.addColorStop(fadeEnd, 'rgba(0,0,0,0)');
-    bctx.globalCompositeOperation = 'destination-out';
-    bctx.fillStyle = fade;
-    bctx.fillRect(0, 0, w, h);
+    btx.globalCompositeOperation = 'destination-out';
+    btx.fillStyle = fade;
+    btx.fillRect(0, 0, w, h);
 
-    bctx.globalCompositeOperation = 'source-over';
+    // reset buffer comp
+    btx.globalCompositeOperation = 'source-over';
 
-    // ---- Apply bold breathing alpha AFTER everything ----
-    const minAlpha = 0.90;
-    const maxAlpha = 0.97;
-    const breathe = minAlpha + (maxAlpha - minAlpha) * (0.5 - Math.abs(0.5 - mix)) * 2;
-
+    // ----- FINAL 2px BLUR to screen -----
     ctx.clearRect(0, 0, w, h);
-    ctx.filter = 'blur(15px)'; // keep your blur
-    ctx.globalAlpha = breathe;
-    ctx.drawImage(bufferCanvas, 0, 0, bufferCanvas.width, bufferCanvas.height, 0, 0, w, h);
+    ctx.filter = 'blur(2px)';       // true final blur in CSS px
+    ctx.drawImage(buf, 0, 0, buf.width, buf.height, 0, 0, w, h);
     ctx.filter = 'none';
-    ctx.globalAlpha = 1;
   }
 
-  // --------------- Control ----------------
-  function onPlay() {
-    ensureGraph();
+  // ---------- Control (no delays, no fades, no suspend) ----------
+  function start() {
+    if (rafId) return;
+    ensureAudioGraph();
     if (acx.state === 'suspended') acx.resume().catch(() => {});
-    layer && layer.classList && layer.classList.add('on');
-    maybeStart();
+    rafId = requestAnimationFrame(draw);
+  }
+  function stop() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+    // keep last frame on canvas; no fade out
   }
 
-  function onPause() {
-    layer && layer.classList && layer.classList.remove('on');
-    stopDraw();
-    if (acx && acx.state === 'running') acx.suspend().catch(() => {});
-  }
-
-  function maybeStart() {
-    if (running || hidden || reduced) return;
-    running = true;
-    startT = performance.now();
-    raf = requestAnimationFrame(draw);
-  }
-
-  function stopDraw() {
-    running = false;
-    if (raf) { cancelAnimationFrame(raf); raf = 0; }
-  }
-
-  // --------------- Cleanup ----------------
-  window.addEventListener('beforeunload', () => {
-    stopDraw();
-    ro.disconnect();
-    try { src && src.disconnect(); } catch {}
-    try { analyser && analyser.disconnect(); } catch {}
-    try { compressor && compressor.disconnect(); } catch {}
-    try { acx && acx.close(); } catch {}
-  }, { passive: true });
+  audio.addEventListener('play',  start, { passive: true });
+  audio.addEventListener('pause', stop,  { passive: true });
+  audio.addEventListener('ended', stop,  { passive: true });
 
 })();
