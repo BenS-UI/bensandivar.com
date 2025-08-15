@@ -203,6 +203,7 @@
       gradB = makePhase();
       phaseT = now;
       mix = 0;
+      const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix); // smooth easing
     }
 
     // Precompute
@@ -248,8 +249,17 @@
     const gA = buildGradient(gradA, now / 1000, w, h);
     const gB = buildGradient(gradB, now / 1000, w, h);
 
+    // Smooth easing for blend
+    const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix); // ease-in-out
+
+    // Draw base gradient
     bctx.globalAlpha = 1;
-    bctx.fillStyle = mix < 1 ? gA : gB;
+    bctx.fillStyle = gA;
+    bctx.fillRect(0, 0, w, h);
+
+    // Overlay next gradient with easing
+    bctx.globalAlpha = easeMix;
+    bctx.fillStyle = gB;
     bctx.fillRect(0, 0, w, h);
 
     // No internal bloom: keep edges clean; we blur final composite instead.
