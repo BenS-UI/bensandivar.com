@@ -81,7 +81,7 @@
     auroraTimeout = setTimeout(() => {
       auroraLayer.classList.add('on'); // CSS fade-in
       startAurora();
-    }, 15000);
+    }, 1000);
   });
 
   audio.addEventListener('pause', stopAurora);
