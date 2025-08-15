@@ -13,13 +13,15 @@
   const maskCanvas = document.createElement('canvas');
   const maskCtx = maskCanvas.getContext('2d');
 
-  const BASE_ALPHA = 0.92;
+  const BASE_ALPHA = 0.97;
   const EDGE_BLUR  = 180;
   const GLOW_BLUR  = 90;
   const GLOW_WIDTH = 28;
   const LOW_WEIGHT = 0.45;
   const MID_WEIGHT = 1.0;
-  const SMOOTH_LERP = 0.25;
+  const SMOOTH_LERP = 0.28;
+  const HOVER_OFF_MS = 3000;
+  const AUTO_BACK_MS = 15000;
 
   let acx, srcNode, analyser;
   function ensureAudioGraph(){
@@ -41,17 +43,21 @@
   sizeCanvas();
   addEventListener('resize', sizeCanvas);
 
+  const LOOP_S = 600;
+  let t0 = performance.now();
   const PHASE_MS = 45000;
+  let phaseStart = performance.now();
   let gradA = makePhase();
   let gradB = makePhase();
-  let phaseStart = performance.now();
 
   function makePhase(){
-    return { seed: Math.random()*360, n: 4, ang: (Math.random()*6-3) * Math.PI/180 };
+    return { seed: Math.random()*360, n: (Math.random()<0.6?5:(Math.random()<0.85?3:7)), ang: (Math.random()*6-3) * Math.PI/180, offset: Math.random()*1000 };
   }
+  function loopT(){ const dt=(performance.now()-t0)/1000; return (dt%LOOP_S)/LOOP_S; }
 
   function buildGradient(phase, tGlobal, w, h){
-    const ang = phase.ang;
+    const drift = Math.sin(tGlobal*2*Math.PI/1800) * (8*Math.PI/180);
+    const ang = phase.ang + drift;
     const r = Math.hypot(w,h), cx=w/2, cy=h*0.65;
     const x0=cx - Math.cos(ang)*r/2, y0=cy - Math.sin(ang)*r/2;
     const x1=cx + Math.cos(ang)*r/2, y1=cy + Math.sin(ang)*r/2;
@@ -59,13 +65,19 @@
     const n = phase.n;
     for (let i=0;i<n;i++){
       const f = i/(n-1||1);
-      const hue = (phase.seed + i*(360/n)) % 360;
-      g.addColorStop(f, `hsla(${hue}, 95%, 60%, 1)`);
+      const hue = (phase.seed + i*(360/n) + 36*Math.sin(2*Math.PI*(tGlobal/LOOP_S + phase.offset + i*0.09))) % 360;
+      g.addColorStop(f, `hsl(${hue} 92% 55%)`);
+      if (i<n-1){
+        const mid = f + (1/(n-1))*0.5;
+        const hue2 = (hue + 20) % 360;
+        g.addColorStop(mid, `hsl(${hue2} 88% 56%)`);
+      }
     }
     return g;
   }
 
   const lowBands = 3, midBands = 9, totalBands = lowBands + midBands;
+  const LOW_MIN=20, LOW_MAX=200, MID_MIN=200, MID_MAX=8000;
   const fd = new Uint8Array(1024);
   const bandSmooth = new Array(totalBands).fill(0);
 
@@ -78,7 +90,7 @@
   function computeBands(){
     analyser.getByteFrequencyData(fd);
     const sr=acx.sampleRate, fft=analyser.fftSize;
-    const lows = [20, 60, 120, 200];
+    const lows = [LOW_MIN, 60, 120, LOW_MAX];
     const mids = [200, 350, 500, 750, 1100, 1600, 2300, 3300, 4700, 8000];
     const tmp = [];
     for (let b=0;b<lowBands;b++) tmp.push(avgRange(hzToIdx(lows[b],fft,sr), hzToIdx(lows[b+1],fft,sr), fd) * LOW_WEIGHT);
@@ -103,9 +115,9 @@
     return out;
   }
 
-  let rafId=null, overlayOn=false;
+  let rafId=null, overlayOn=false, showDelayTimer=null, autoBackTimer=null, hoverTimer=null;
   function startAurora(){ if (overlayOn) return; overlayOn=true; ensureAudioGraph(); draw(); }
-  function stopAurora(){ overlayOn=false; if (rafId){ cancelAnimationFrame(rafId); rafId=null; } auroraLayer.classList.remove('on'); }
+  function stopAurora(){ overlayOn=false; if (rafId){ cancelAnimationFrame(rafId); rafId=null; } auroraLayer.classList.remove('on'); if (showDelayTimer){ clearTimeout(showDelayTimer); showDelayTimer=null; } }
 
   function draw(){
     if (!overlayOn) return;
@@ -143,21 +155,22 @@
     ctx.globalAlpha = BASE_ALPHA*(1-mix); ctx.fillStyle=gA; ctx.fillRect(0,0,w,h);
     ctx.globalAlpha = BASE_ALPHA*mix; ctx.fillStyle=gB; ctx.fillRect(0,0,w,h);
 
-    ctx.filter='blur(100px)';
-    ctx.globalAlpha = 0.7;
+    ctx.globalAlpha = 0.35;
+    ctx.filter='blur(80px)';
     ctx.fillStyle=gA; ctx.fillRect(0,0,w,h);
     ctx.fillStyle=gB; ctx.fillRect(0,0,w,h);
     ctx.filter='none';
+    ctx.globalAlpha=1;
     ctx.restore();
 
     ctx.save();
     ctx.globalCompositeOperation='lighter';
     ctx.shadowBlur = GLOW_BLUR;
-    ctx.shadowColor = 'rgba(255,255,255,0.25)';
+    ctx.shadowColor = 'rgba(255,255,255,0.22)';
     ctx.beginPath();
     crest.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
     ctx.lineWidth = GLOW_WIDTH;
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.10)';
     ctx.stroke();
     ctx.restore();
 
@@ -177,9 +190,46 @@
     ctx.restore();
   }
 
-  audio.addEventListener('play', ()=>{ ensureAudioGraph(); setTimeout(()=>{ auroraLayer.classList.add('on'); startAurora(); }, 15000); });
-  audio.addEventListener('pause', stopAurora);
-  audio.addEventListener('ended', stopAurora);
-  window.aurora = { instant(){ auroraLayer.classList.add('on'); startAurora(); }, off(){ stopAurora(); } };
+  function scheduleShow(ms){
+    if (showDelayTimer) clearTimeout(showDelayTimer);
+    showDelayTimer = setTimeout(()=>{ auroraLayer.classList.add('on'); startAurora(); }, ms);
+  }
+  function manualOff(){
+    stopAurora();
+    if (autoBackTimer) clearTimeout(autoBackTimer);
+    if (!audio.paused){
+      autoBackTimer = setTimeout(()=>{ auroraLayer.classList.add('on'); startAurora(); }, AUTO_BACK_MS);
+    }
+  }
+
+  audio.addEventListener('play', ()=>{ ensureAudioGraph(); scheduleShow(15000); });
+  audio.addEventListener('pause', ()=>{ stopAurora(); if (autoBackTimer){ clearTimeout(autoBackTimer); autoBackTimer=null; } });
+  audio.addEventListener('ended', ()=>{ stopAurora(); if (autoBackTimer){ clearTimeout(autoBackTimer); autoBackTimer=null; } });
+
+  shell.addEventListener('pointerenter', () => {
+    if (!overlayOn || !auroraLayer.classList.contains('on')) return;
+    let t0 = performance.now();
+    const reset = () => { t0 = performance.now(); };
+    const tick = () => {
+      if (!hoverTimer) return;
+      if (performance.now()-t0 >= HOVER_OFF_MS){ clearInterval(hoverTimer); hoverTimer=null; manualOff(); }
+    };
+    if (hoverTimer) clearInterval(hoverTimer);
+    hoverTimer = setInterval(tick, 120);
+    shell.addEventListener('pointermove', reset, { passive:true, capture:true });
+    const stop = () => { clearInterval(hoverTimer); hoverTimer=null; shell.removeEventListener('pointermove', reset, { capture:true }); shell.removeEventListener('pointerleave', stop,  { capture:true }); };
+    shell.addEventListener('pointerleave', stop, { passive:true, capture:true });
+  }, { passive:true });
+
+  window.aurora = {
+    instant(){
+      if (showDelayTimer){ clearTimeout(showDelayTimer); showDelayTimer=null; }
+      if (autoBackTimer){ clearTimeout(autoBackTimer); autoBackTimer=null; }
+      auroraLayer.classList.add('on'); startAurora();
+    },
+    off(){ manualOff(); }
+  };
+  window.__auroraFadeIn  = () => window.aurora.instant();
+  window.__auroraFadeOut = () => window.aurora.off();
 })();
-</script>
+<script>
