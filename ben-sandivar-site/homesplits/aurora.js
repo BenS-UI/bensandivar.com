@@ -270,7 +270,7 @@
 
     // Final blur pass on main canvas
     ctx.clearRect(0, 0, w, h);
-    ctx.filter = 'blur(12px)';
+    ctx.filter = 'blur(20px)';
     ctx.drawImage(
       bufferCanvas,
       0, 0, bufferCanvas.width, bufferCanvas.height,
