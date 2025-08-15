@@ -1,17 +1,16 @@
-// aurora-visualizer.js
 (() => {
   const root = document.getElementById('music');
   if (!root) return;
 
   const canvas = root.querySelector('#aurora');
-  const layer  = root.querySelector('.aurora-layer');
-  const audio  = root.querySelector('audio');
+  const layer = root.querySelector('.aurora-layer');
+  const audio = root.querySelector('audio');
   if (!canvas || !layer || !audio) return;
 
   /** @type {CanvasRenderingContext2D} */
   const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
 
-  // Offscreen buffer to blur the whole composite in one pass.
+  // Offscreen buffer for blur and masking
   const bufferCanvas = document.createElement('canvas');
   /** @type {CanvasRenderingContext2D} */
   const bctx = bufferCanvas.getContext('2d', { alpha: true, desynchronized: true });
@@ -20,30 +19,29 @@
   let acx, src, analyser, compressor;
   let raf = 0;
   let running = false;
-  let hidden  = false;
+  let hidden = false;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Reused buffers (no GC churn)
+  // Reused buffers
   let td, fd;
 
   // Hi-DPI
   let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
   // Phase / timing
-  const PHASE_MS = 45000;
-  const LOOP_S   = 600;
+  const PHASE_MS = 45000; // 45s for gradient transition
+  const LOOP_S = 600; // 10min loop for hue variation
 
   let startT = performance.now();
   let phaseT = performance.now();
+  let mix = 0; // Gradient blend factor
 
-  let gradPrev = makePhase(); // preload first gradient
-  let gradNext = makePhase(); // preload second gradient
-  let mix = 0; // start at 0
-  const delta = 1 / (PHASE_MS / 16.67); // assuming ~60fps
-  
+  let gradPrev = makePhase(); // Preload first gradient
+  let gradNext = makePhase(); // Preload second gradient
+
   // Smooth spectral bands
   const smooth = { bass: 0, mid: 0, treb: 0 };
-  const lerp   = (a, b, t) => a + (b - a) * t;
+  const lerp = (a, b, t) => a + (b - a) * t;
 
   // Resize handling
   const ro = new ResizeObserver(sizeCanvas);
@@ -60,21 +58,21 @@
   }, { passive: true });
 
   // Audio lifecycle
-  audio.addEventListener('play',  onPlay,  { passive: true });
+  audio.addEventListener('play', onPlay, { passive: true });
   audio.addEventListener('pause', onPause, { passive: true });
   audio.addEventListener('ended', onPause, { passive: true });
 
-  if (reduced) return; // user prefers low motion
+  if (reduced) return; // Respect reduced motion preference
 
-  sizeCanvas(); // initial
+  sizeCanvas(); // Initial setup
 
   // --------------- Audio graph ----------------
   function ensureGraph() {
     if (acx) return;
     acx = new (window.AudioContext || window.webkitAudioContext)();
 
-    src        = acx.createMediaElementSource(audio);
-    analyser   = acx.createAnalyser();
+    src = acx.createMediaElementSource(audio);
+    analyser = acx.createAnalyser();
     compressor = acx.createDynamicsCompressor();
 
     analyser.fftSize = 1024;
@@ -91,20 +89,17 @@
   // --------------- Geometry ----------------
   function sizeCanvas() {
     const r = layer.getBoundingClientRect();
-    const w = Math.max(1, r.width  | 0);
+    const w = Math.max(1, r.width | 0);
     const h = Math.max(1, r.height | 0);
 
-    // Internal pixel size (Hi-DPI)
-    canvas.width       = (w * dpr) | 0;
-    canvas.height      = (h * dpr) | 0;
+    canvas.width = (w * dpr) | 0;
+    canvas.height = (h * dpr) | 0;
     bufferCanvas.width = (w * dpr) | 0;
-    bufferCanvas.height= (h * dpr) | 0;
+    bufferCanvas.height = (h * dpr) | 0;
 
-    // Match CSS size so transforms map CSS px -> device px
-    canvas.style.width  = w + 'px';
+    canvas.style.width = w + 'px';
     canvas.style.height = h + 'px';
 
-    // Scale contexts once
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
@@ -118,10 +113,11 @@
       offset: Math.random() * 1000
     };
   }
+
   function pickCount() {
     const r = Math.random();
-    if (r < 0.70) return 4;
-    if (r < 0.90) return 3;
+    if (r < 0.7) return 4;
+    if (r < 0.9) return 3;
     if (r < 0.97) return 5;
     return Math.random() < 0.5 ? 6 : 7;
   }
@@ -133,25 +129,27 @@
 
   function buildGradient(phase, tGlobal, w, h) {
     const drift = Math.sin(tGlobal * 2 * Math.PI / 1800) * (10 * Math.PI / 180);
-    const ang   = phase.ang + drift;
+    const ang = phase.ang + drift;
 
-    const r  = Math.hypot(w, h);
+    const r = Math.hypot(w, h);
     const cx = w / 2, cy = h * 0.65;
-    const x0 = cx - Math.cos(ang) * r / 2, y0 = cy - Math.sin(ang) * r / 2;
-    const x1 = cx + Math.cos(ang) * r / 2, y1 = cy + Math.sin(ang) * r / 2;
+    const x0 = cx - Math.cos(ang) * r / 2;
+    const y0 = cy - Math.sin(ang) * r / 2;
+    const x1 = cx + Math.cos(ang) * r / 2;
+    const y1 = cy + Math.sin(ang) * r / 2;
 
-    const g  = bctx.createLinearGradient(x0, y0, x1, y1);
-    const n  = phase.n;
+    const g = bctx.createLinearGradient(x0, y0, x1, y1);
+    const n = phase.n;
 
     for (let i = 0; i < n; i++) {
-      const f   = i / (n - 1 || 1);
+      const f = i / (n - 1 || 1);
       const hue = (phase.seed + i * (360 / n) +
-                  36 * Math.sin(2 * Math.PI * (tGlobal / LOOP_S + phase.offset + i * 0.09))) % 360;
-    g.addColorStop(f, `hsla(${hue} 92% 55% / 1)`);
+                   36 * Math.sin(2 * Math.PI * (tGlobal / LOOP_S + phase.offset + i * 0.09))) % 360;
+      g.addColorStop(f, `hsla(${hue}, 92%, 55%, 1)`);
       if (i < n - 1) {
-        const mid  = f + (1 / (n - 1)) * 0.5;
+        const mid = f + (1 / (n - 1)) * 0.5;
         const hue2 = (hue + 24) % 360;
-        g.addColorStop(mid, `hsla(${hue2} 92% 55% / 1)`);
+        g.addColorStop(mid, `hsla(${hue2}, 92%, 55%, 1)`);
       }
     }
     return g;
@@ -165,21 +163,17 @@
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
 
-  // 🌈 Gradient blending
-    //drawGradient(ctx, gradPrev, 1 - mix);
-    //drawGradient(ctx, gradNext, mix);
-
-    mix += delta;
+    // Update phase mix
+    const now = performance.now();
+    mix = (now - phaseT) / PHASE_MS;
     if (mix >= 1) {
       mix = 0;
       gradPrev = gradNext;
-      gradNext = makePhase(); // generate new gradient
+      gradNext = makePhase();
+      phaseT = now;
     }
 
-    // Draw everything to the buffer
-    bctx.clearRect(0, 0, w, h);
-
-    // Pull audio data once per frame
+    // Audio data
     analyser.getByteTimeDomainData(td);
     analyser.getByteFrequencyData(fd);
 
@@ -191,7 +185,7 @@
     }
     const rms = Math.sqrt(sum / td.length);
 
-    // Bands
+    // Frequency bands
     const nyq = acx.sampleRate / 2;
     const idx = hz => Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
     const avg = (lo, hi) => {
@@ -201,33 +195,23 @@
     };
     const bands = {
       bass: avg(idx(20), idx(140)),
-      mid:  avg(idx(300), idx(2000)),
+      mid: avg(idx(300), idx(2000)),
       treb: avg(idx(4000), idx(12000))
     };
     smooth.bass = lerp(smooth.bass, bands.bass / 255, 0.28);
-    smooth.mid  = lerp(smooth.mid,  bands.mid  / 255, 0.24);
+    smooth.mid = lerp(smooth.mid, bands.mid / 255, 0.24);
     smooth.treb = lerp(smooth.treb, bands.treb / 255, 0.22);
-
-    // Phase mix
-    const now = performance.now();
-    let mix = (now - phaseT) / PHASE_MS;
-    if (mix >= 1) {
-      gradPrev = gradNext;        // preserve the one that was fading in
-      gradNext = makePhase();     // generate a new one to fade in
-      phaseT = now;
-      mix = 0;
-    }
 
     // Precompute
     const tL = loopT();
     const kx = 2 * Math.PI / Math.max(360, w);
     const ph = tL * 2 * Math.PI * 0.8;
 
-    const energy  = 0.55 * smooth.bass + 0.35 * smooth.mid + 0.10 * smooth.treb;
+    const energy = 0.55 * smooth.bass + 0.35 * smooth.mid + 0.10 * smooth.treb;
     const baseAmp = h * (0.22 + 0.55 * Math.min(1, rms * 1.8));
     const maxRise = h * 0.50;
 
-    // Column modulation (soft parallax feel)
+    // Column modulation
     const cols = 7;
     const colMod = (x) => {
       let v = 0;
@@ -235,18 +219,18 @@
       return (v / cols) * 0.6 + 0.8;
     };
 
-    // --- Build mask path once, then paint gradients under it ---
+    // Build wave path
     const steps = 150;
-    const path  = new Path2D();
+    const path = new Path2D();
     path.moveTo(0, h);
 
     let topY = h;
     for (let i = 0; i <= steps; i++) {
       const x = (i / steps) * w;
       const yWave =
-        Math.sin(kx * x + ph)            * (0.55 + 0.30 * smooth.mid)  +
-        Math.sin(kx * 1.8 * x + ph*1.15) * (0.30 + 0.30 * smooth.treb) +
-        Math.sin(kx * 3.4 * x + ph*0.9 ) * (0.22 + 0.20 * smooth.treb);
+        Math.sin(kx * x + ph) * (0.55 + 0.30 * smooth.mid) +
+        Math.sin(kx * 1.8 * x + ph * 1.15) * (0.30 + 0.30 * smooth.treb) +
+        Math.sin(kx * 3.4 * x + ph * 0.9) * (0.22 + 0.20 * smooth.treb);
 
       let rise = (baseAmp * (0.5 + 0.5 * yWave) * (0.70 + 0.50 * energy)) * colMod(x);
       rise = Math.min(rise, maxRise);
@@ -257,41 +241,36 @@
     path.lineTo(w, h);
     path.closePath();
 
-    // Paint blended gradients (on buffer)
+    // Draw gradients on buffer
+    bctx.clearRect(0, 0, w, h);
     const gPrev = buildGradient(gradPrev, now / 1000, w, h);
     const gNext = buildGradient(gradNext, now / 1000, w, h);
-    console.log('gradPrev:', gradPrev);
-    console.log('gradNext:', gradNext);
-    console.log('gPrev:', gPrev);
-    console.log('gNext:', gNext);
 
-        // Smooth easing for blend
-    const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix); // ease-in-out
+    const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix); // Ease-in-out
 
-    // Draw base gradient
-    bctx.globalAlpha = 1;
+    // Draw previous gradient (fading out)
+    bctx.globalAlpha = 1 - easeMix;
     bctx.fillStyle = gPrev;
     bctx.fillRect(0, 0, w, h);
 
-    // Overlay next gradient with easing
+    // Draw next gradient (fading in)
     bctx.globalAlpha = easeMix;
     bctx.fillStyle = gNext;
     bctx.fillRect(0, 0, w, h);
 
-    // No internal bloom: keep edges clean; we blur final composite instead.
+    // Reset alpha
+    bctx.globalAlpha = 1;
 
-    // Keep only inside the wave shape
+    // Apply wave shape mask
     bctx.globalCompositeOperation = 'destination-in';
     bctx.fill(path);
 
-    // Reset buffer composite mode
+    // Reset composite mode
     bctx.globalCompositeOperation = 'source-over';
-    bctx.globalAlpha = 1;
 
-    // ----- FINAL 2px BLUR PASS (on the main canvas) -----
+    // Final blur pass on main canvas
     ctx.clearRect(0, 0, w, h);
     ctx.filter = 'blur(12px)';
-    // Draw buffer -> main, exact size (CSS px), DPR handled by transform.
     ctx.drawImage(
       bufferCanvas,
       0, 0, bufferCanvas.width, bufferCanvas.height,
@@ -304,13 +283,10 @@
   function onPlay() {
     ensureGraph();
     if (acx.state === 'suspended') acx.resume().catch(() => {});
-    // If you previously toggled CSS classes for fade, keep them; no HTML change needed.
-    //layer && layer.classList && layer.classList.add('on');
     maybeStart();
   }
 
   function onPause() {
-    //layer && layer.classList && layer.classList.remove('on');
     stopDraw();
     if (acx && acx.state === 'running') acx.suspend().catch(() => {});
   }
@@ -336,5 +312,4 @@
     try { compressor && compressor.disconnect(); } catch {}
     try { acx && acx.close(); } catch {}
   }, { passive: true });
-
 })();
