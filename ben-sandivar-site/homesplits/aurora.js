@@ -17,8 +17,8 @@
     if (acx) return;
     acx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = acx.createAnalyser();
-    analyser.fftSize = 2048;                    // 1024 bins
-    analyser.smoothingTimeConstant = 0.72;      // silky
+    analyser.fftSize = 2048;               // 1024 bins
+    analyser.smoothingTimeConstant = 0.72; // silky
     srcNode = acx.createMediaElementSource(audio);
     srcNode.connect(analyser);
     analyser.connect(acx.destination);
@@ -36,13 +36,14 @@
 
   // ===== Color phase (10-min seamless loop) =====
   const LOOP_S   = 600;
-  const FILL_A   = 0.97;  // constant alpha inside shape
+  const FILL_A   = 0.97;   // constant fill alpha
   const PHASE_MS = 45000;
+  const GLOBAL_BLUR = 2;   // << global blur over the whole aurora
   let t0 = performance.now();
   let phaseStart = performance.now();
 
-  const pickN = () => (Math.random()<0.7?4:Math.random()<0.9?3:Math.random()<0.97?5:(Math.random()<0.5?6:7));
-  const newPhase = () => ({ seed: Math.random()*360, n: pickN(), ang: (Math.random()*6-3)*Math.PI/180, off: Math.random()*1000 });
+  const pickN   = () => (Math.random()<0.7?4:Math.random()<0.9?3:Math.random()<0.97?5:(Math.random()<0.5?6:7));
+  const newPhase= () => ({ seed: Math.random()*360, n: pickN(), ang: (Math.random()*6-3)*Math.PI/180, off: Math.random()*1000 });
   let gradA = newPhase(), gradB = newPhase();
 
   function loopFrac() {
@@ -72,12 +73,15 @@
     return g;
   }
 
-  // ===== Bands: 3 low / 9 mid / 12 high =====
-  let bands = null;
+  // ===== Bands: 3 low / 9 mid / 12 high (zoomed, top 15% discarded) =====
+  let bands = null, edges = null;
   function makeBands(){
     const nyq  = acx.sampleRate/2;
     const bins = analyser.frequencyBinCount;
     const idx  = hz => Math.max(0, Math.min(bins-1, Math.round(bins*(hz/nyq))));
+
+    // Drop the very top 15%: zoom the visible range to [20Hz .. 0.85*Nyquist]
+    const HI_CUTOFF = Math.max(6000, nyq * 0.85);
 
     const edgesLog = (min,max,n) => {
       const out=[min], r=Math.pow(max/min,1/n); let v=min;
@@ -85,21 +89,21 @@
       return out;
     };
 
-    const L = [20, 50, 80, 120];             // 3 low bands
-    const M = edgesLog(120, 2400, 9);        // 9 mid bands
-    const H = edgesLog(2400, 12000, 12);     // 12 high bands
-    const edges = [...L, ...M.slice(1), ...H.slice(1)];
+    const L = [20, 50, 80, 120];                // 3 low bands
+    const M = edgesLog(120, 2400, 9);           // 9 mids
+    const H = edgesLog(2400, HI_CUTOFF, 12);    // 12 highs (zoomed; excludes top 15% of nyquist)
+    edges = [...L, ...M.slice(1), ...H.slice(1)]; // total 25 edges → 24 bands
 
     bands = [];
     for (let i=0;i<edges.length-1;i++){
       const lo = idx(edges[i]), hi = idx(edges[i+1]);
-      const weight  = (i<=2) ? 0.45 : (i<=2+9 ? 1.0 : 1.25);
-      const smoothA = (i<=2) ? 0.18 : (i<=2+9 ? 0.30 : 0.36);
+      const weight  = (i<=2) ? 0.40 : (i<=2+9 ? 1.00 : 1.25);  // lows softer, highs a bit more present
+      const smoothA = (i<=2) ? 0.18 : (i<=2+9 ? 0.32 : 0.36);
       bands.push({ lo, hi, weight, a:smoothA, s:0 });
     }
   }
 
-  // interpolate 24 bands to a continuous envelope across width
+  // Linear interpolate 24 bands across width
   function bandAt(u){
     const N=bands.length; // 24
     const x=u*(N-1);
@@ -110,15 +114,21 @@
     return a+(b-a)*t;
   }
 
-  // draw smooth curve via mid-point quadratic smoothing (no angles)
-  function strokeSmooth(ctx, pts){
+  // Vector-smooth path: Catmull–Rom → Bézier (no angles)
+  function smoothPathCR(ctx, pts, tension=0.5){
     ctx.moveTo(pts[0].x, pts[0].y);
-    for (let i=1;i<pts.length-2;i++){
-      const xc=(pts[i].x+pts[i+1].x)/2, yc=(pts[i].y+pts[i+1].y)/2;
-      ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
+    for(let i=0;i<pts.length-1;i++){
+      const p0 = pts[Math.max(0,i-1)];
+      const p1 = pts[i];
+      const p2 = pts[Math.min(pts.length-1,i+1)];
+      const p3 = pts[Math.min(pts.length-1,i+2)];
+
+      const c1x = p1.x + (p2.x - p0.x) * (tension/6);
+      const c1y = p1.y + (p2.y - p0.y) * (tension/6);
+      const c2x = p2.x - (p3.x - p1.x) * (tension/6);
+      const c2y = p2.y - (p3.y - p1.y) * (tension/6);
+      ctx.bezierCurveTo(c1x, c1y, c2x, c2y, p2.x, p2.y);
     }
-    const n=pts.length;
-    ctx.quadraticCurveTo(pts[n-2].x, pts[n-2].y, pts[n-1].x, pts[n-1].y);
   }
 
   // ===== Render =====
@@ -135,7 +145,7 @@
     let mix=(now-phaseStart)/PHASE_MS;
     if(mix>=1){ gradA=gradB; gradB=newPhase(); phaseStart=now; mix=0; }
 
-    // audio data
+    // audio
     const td=new Uint8Array(1024);
     analyser.getByteTimeDomainData(td);
     let sum=0; for(let i=0;i<td.length;i++){ const v=(td[i]-128)/128; sum+=v*v; }
@@ -145,7 +155,8 @@
     analyser.getByteFrequencyData(fd);
 
     if(!bands) makeBands();
-    // update bands
+
+    // band levels (in zoomed range only)
     for(let i=0;i<bands.length;i++){
       const b=bands[i];
       let s=0,c=0;
@@ -154,7 +165,7 @@
       b.s += (val - b.s)*b.a;
     }
 
-    // envelope → points
+    // envelope → points (bottom-anchored)
     const baseEnergy = (0.45*avg(0,2) + 0.40*avg(3,11) + 0.15*avg(12,23));
     const baseAmp = h * (0.22 + 0.65 * Math.min(1, rms*1.8)) * (0.55 + 0.45*baseEnergy);
     const maxRise = h*0.75;
@@ -165,69 +176,70 @@
     for(let i=0;i<=N;i++){
       const u=i/N;
       const x=u*w;
-      const env = Math.max(0, bandAt(u)); // already smoothed & weighted
+      const env = Math.max(0, bandAt(u));
       let rise = baseAmp * env;
       if (rise>maxRise) rise=maxRise;
-      const y = h - (h*0.10 + rise);
+      const y = h - (h*0.10 + rise); // always filling upward from bottom
       crestY = Math.min(crestY, y);
       pts.push({x,y});
     }
 
-    // clip shape
+    // clip the aurora shape
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(0,h);
-    strokeSmooth(ctx, pts);
+    smoothPathCR(ctx, pts, 0.5);
     ctx.lineTo(w,h);
     ctx.closePath();
     ctx.clip();
 
-    // fill with cross-faded gradients
+    // GLOBAL 2px blur on the whole aurora fill
+    ctx.filter = `blur(${GLOBAL_BLUR}px)`;
+
+    // cross-faded gradient fill
     const gA=buildGradient(gradA, now/1000, w, h);
     const gB=buildGradient(gradB, now/1000, w, h);
     ctx.globalCompositeOperation='screen';
     ctx.globalAlpha=1-mix; ctx.fillStyle=gA; ctx.fillRect(0,0,w,h);
     ctx.globalAlpha=mix;   ctx.fillStyle=gB; ctx.fillRect(0,0,w,h);
 
-    // gentle bloom to make the edge glow
-    ctx.filter='blur(18px)';
-    ctx.globalAlpha=0.28;  ctx.fillStyle=gA; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha=0.28*mix; ctx.fillStyle=gB; ctx.fillRect(0,0,w,h);
-    ctx.filter='none';
-    ctx.globalAlpha=1;
+    // gentle bloom for a soft luminous body (kept subtle)
+    ctx.filter='blur(10px)';
+    ctx.globalAlpha=0.22;  ctx.fillStyle=gA; ctx.fillRect(0,0,w,h);
+    ctx.globalAlpha=0.22*mix; ctx.fillStyle=gB; ctx.fillRect(0,0,w,h);
 
-    // ---- Feathered fade to transparent at the TOP (glow-like, no hard cut)
+    // ---- Feathered glow-like fade to transparent at the TOP (no hard cut)
     const fade = ctx.createLinearGradient(0, 0, 0, h);
     const crest = Math.max(0.06, crestY/h);
-    const start = Math.max(0, crest - 0.08);             // begin slightly above the crest
-    const end   = Math.min(1, start + 0.22);             // wide, smooth feather
+    const start = Math.max(0, crest - 0.08);
+    const end   = Math.min(1, start + 0.26);
     fade.addColorStop(0.00, 'rgba(0,0,0,1)');
     fade.addColorStop(start, 'rgba(0,0,0,1)');
     fade.addColorStop((start+end)/2, 'rgba(0,0,0,0.35)');
     fade.addColorStop(end,   'rgba(0,0,0,0)');
 
     ctx.globalCompositeOperation='destination-out';
-    ctx.filter='blur(16px)';                // <- the “glow” feather
+    ctx.filter='blur(18px)';           // feather makes the edge glow-soft
     ctx.fillStyle=fade;
     ctx.fillRect(0,0,w,h);
+
+    // restore defaults
     ctx.filter='none';
     ctx.globalCompositeOperation='source-over';
-
+    ctx.globalAlpha=1;
     ctx.restore();
 
     function avg(a,b){ let s=0,c=0; for(let i=a;i<=b;i++){ s+=bands[i].s; c++; } return c? s/c:0; }
   }
 
-  // ===== Lifecycle (first-play delay, hover hide, auto return) =====
+  // ===== Lifecycle (same timings you’re testing) =====
   let firstShown=false, runningTimer=null, reShow=null, hoverTimer=null, userHidden=false;
 
   function start() {
     if (running) return;
     running=true; ensureAudio(); if(!bands) makeBands(); render();
   }
-  function stop() {
-    running=false; if(raf){ cancelAnimationFrame(raf); raf=null; }
-  }
+  function stop() { running=false; if(raf){ cancelAnimationFrame(raf); raf=null; } }
   function showLayer(){ layer.classList.add('on'); }
   function hideLayer(){ layer.classList.remove('on'); }
 
@@ -236,8 +248,9 @@
     runningTimer=setTimeout(()=>{ showLayer(); start(); firstShown=true; userHidden=false; }, ms);
   }
 
-  audio.addEventListener('play', () => {
+  audio.addEventListener('play', async () => {
     ensureAudio();
+    try { if (acx && acx.state === 'suspended') await acx.resume(); } catch {}
     clearTimeout(runningTimer); clearTimeout(reShow);
     if(!firstShown || userHidden) showAfter(1000); else { showLayer(); start(); }
   });
@@ -245,7 +258,7 @@
     clearTimeout(runningTimer); clearTimeout(reShow); stop(); hideLayer();
   }));
 
-  // Hover/touch hide after 2s, auto return after 5s
+  // Hover/touch hide after 2s, auto return after 5s (your test timings)
   const ARM_MS=2000, RETURN_MS=5000;
   function armHide(){
     if (audio.paused) return;
