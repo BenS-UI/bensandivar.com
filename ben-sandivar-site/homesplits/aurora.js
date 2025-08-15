@@ -260,22 +260,13 @@
     bctx.globalCompositeOperation = 'destination-in';
     bctx.fill(path);
 
-    // Atmospheric fade to top
-    const fade = bctx.createLinearGradient(0, 0, 0, h);
-    const fadeEnd = Math.max(0.28, (topY / h) - 0.02);
-    fade.addColorStop(0.00, 'rgba(0,0,0,1)');
-    fade.addColorStop(fadeEnd, 'rgba(0,0,0,0)');
-    bctx.globalCompositeOperation = 'destination-out';
-    bctx.fillStyle = fade;
-    bctx.fillRect(0, 0, w, h);
-
     // Reset buffer composite mode
     bctx.globalCompositeOperation = 'source-over';
     bctx.globalAlpha = 1;
 
     // ----- FINAL 2px BLUR PASS (on the main canvas) -----
     ctx.clearRect(0, 0, w, h);
-    ctx.filter = 'blur(2px)';
+    ctx.filter = 'blur(12px)';
     // Draw buffer -> main, exact size (CSS px), DPR handled by transform.
     ctx.drawImage(
       bufferCanvas,
