@@ -20,8 +20,8 @@
     analyser = acx.createAnalyser();
     analyser.fftSize = 1024;
     analyser.smoothingTimeConstant = 0.65;
-    srcNode.connect(analyser); 
-    analyser.connect(acx.destination);
+    srcNode.connect(analyser);
+    analyser.connect(acx.destination); // keep simple; no audible issues reported
   }
 
   function sizeCanvas(){
@@ -29,13 +29,13 @@
     auroraCanvas.width  = Math.max(1, r.width|0);
     auroraCanvas.height = Math.max(1, r.height|0);
   }
-  sizeCanvas(); 
+  sizeCanvas();
   window.addEventListener('resize', sizeCanvas);
 
-  const LOOP_S = 600; 
+  const LOOP_S = 600; // 10 minutes
   let t0 = performance.now();
 
-  const PHASE_MS = 45000; 
+  const PHASE_MS = 45000; // smooth morph phases
   let phaseStart = performance.now();
   let gradA = makePhase();
   let gradB = makePhase();
@@ -44,7 +44,7 @@
     return {
       seed: Math.random()*360,
       n: pickCount(),
-      ang: (Math.random()*6-3) * Math.PI/180,
+      ang: (Math.random()*6-3) * Math.PI/180, // near-vertical
       offset: Math.random()*1000
     };
   }
@@ -56,35 +56,35 @@
     return Math.random() < 0.5 ? 6 : 7;
   }
 
-  function loopT(){ 
-    const dt=(performance.now()-t0)/1000; 
-    return (dt%LOOP_S)/LOOP_S; 
+  function loopT(){
+    const dt=(performance.now()-t0)/1000;
+    return (dt%LOOP_S)/LOOP_S;
   }
 
   function startAurora(){
     if (overlayOn) return;
-    overlayOn = true; 
+    overlayOn = true;
     ensureAudioGraph();
     draw();
   }
-  function stopAurora(){ 
-    overlayOn = false; 
+  function stopAurora(){
+    overlayOn = false;
     if (rafId){ cancelAnimationFrame(rafId); rafId=null; }
     auroraLayer.classList.remove('on');
     if (auroraTimeout) { clearTimeout(auroraTimeout); auroraTimeout = null; }
   }
 
-  // Delay the aurora fade-in by 15 seconds after audio starts
+  // Delay showing the overlay by 15s after first play
   audio.addEventListener('play', () => {
     ensureAudioGraph();
     if (auroraTimeout) clearTimeout(auroraTimeout);
     auroraTimeout = setTimeout(() => {
-      auroraLayer.classList.add('on'); // CSS fade-in
+      auroraLayer.classList.add('on'); // CSS fade-in (opacity)
       startAurora();
     }, 15000);
   });
-
   audio.addEventListener('pause', stopAurora);
+  audio.addEventListener('ended', stopAurora);
 
   function bandAverages(arr){
     const nyq = acx.sampleRate/2;
@@ -92,7 +92,6 @@
     const avg = (lo,hi)=>{ let s=0,c=0; for(let i=lo;i<=hi;i++){ s+=arr[i]; c++; } return c? s/c : 0; };
     return { bass: avg(idx(20),idx(140)), mid: avg(idx(300),idx(2000)), treb: avg(idx(4000),idx(12000)) };
   }
-
   const smooth = { bass:0, mid:0, treb:0 };
   const lerp = (a,b,t)=> a+(b-a)*t;
 
@@ -128,6 +127,7 @@
     const w=auroraCanvas.width, h=auroraCanvas.height;
     ctx.clearRect(0,0,w,h);
 
+    // waveform + spectrum
     const td = new Uint8Array(1024);
     analyser.getByteTimeDomainData(td);
     let sum=0; for(let i=0;i<td.length;i++){ const v=(td[i]-128)/128; sum+=v*v; }
@@ -140,6 +140,7 @@
     smooth.mid  = lerp(smooth.mid,  bd.mid/255,  0.24);
     smooth.treb = lerp(smooth.treb, bd.treb/255, 0.22);
 
+    // phase crossfade
     const now = performance.now();
     let mix = (now - phaseStart) / PHASE_MS;
     if (mix >= 1){
@@ -149,7 +150,7 @@
       mix = 0;
     }
 
-    const tL = loopT();             
+    const tL = loopT();
     const kx = 2*Math.PI/Math.max(360,w);
     const ph = tL*2*Math.PI*0.8;
 
@@ -170,7 +171,7 @@
     ctx.beginPath();
     ctx.moveTo(0,h);
     const steps=150;
-    let topY = h; 
+    let topY = h;
     for(let i=0;i<=steps;i++){
       const x=(i/steps)*w;
       const yWave =
@@ -191,19 +192,15 @@
     const gB = buildGradient(gradB, now/1000, w, h);
 
     ctx.globalCompositeOperation='screen';
-    ctx.globalAlpha = 1 - mix;
-    ctx.fillStyle = gA; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha = mix;
-    ctx.fillStyle = gB; ctx.fillRect(0,0,w,h);
+    ctx.globalAlpha = 1 - mix; ctx.fillStyle = gA; ctx.fillRect(0,0,w,h);
+    ctx.globalAlpha = mix;     ctx.fillStyle = gB; ctx.fillRect(0,0,w,h);
 
-    ctx.globalAlpha = 0.95;
-    ctx.filter = 'blur(4px)';
-    ctx.fillStyle = gA; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha = mix;
-    ctx.fillStyle = gB; ctx.fillRect(0,0,w,h);
-    ctx.filter = 'none';
-    ctx.globalAlpha = 1;
+    // slight blur blend
+    ctx.globalAlpha = 0.95; ctx.filter = 'blur(4px)'; ctx.fillStyle = gA; ctx.fillRect(0,0,w,h);
+    ctx.globalAlpha = mix;   ctx.fillStyle = gB; ctx.fillRect(0,0,w,h);
+    ctx.filter = 'none'; ctx.globalAlpha = 1;
 
+    // fade at top
     const fade = ctx.createLinearGradient(0, 0, 0, h);
     const fadeEnd = Math.max(0.28, (topY/h) - 0.02);
     fade.addColorStop(0.00, 'rgba(0,0,0,1)');
@@ -214,4 +211,14 @@
 
     ctx.restore();
   }
+
+  // Public hook for autoplayed next() → show immediately
+  window.aurora = {
+    instant(){
+      if (auroraTimeout) { clearTimeout(auroraTimeout); auroraTimeout = null; }
+      auroraLayer.classList.add('on');
+      startAurora();
+    },
+    off: stopAurora
+  };
 })();

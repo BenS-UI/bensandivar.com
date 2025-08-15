@@ -94,7 +94,6 @@
       if (!albumsMap[t.album]) albumsMap[t.album] = { art:t.art, tracks:[] };
       albumsMap[t.album].tracks.push(t);
     });
-    const albums = Object.entries(albumsMap).sort((a,b)=> b[1].tracks.length - a[1].tracks.length);
 
     const shell      = document.querySelector('.music-shell');
     const viewsWrap  = document.getElementById('viewsWrap');
@@ -111,7 +110,6 @@
     const nextBtn = document.getElementById('nextBtn');
     const playAllBtn = document.getElementById('playAllBtn');
     const seek   = document.getElementById('seek');
-    const neon   = document.querySelector('.bar .neon');
     const currTime = document.getElementById('currTime');
     const durTime  = document.getElementById('durTime');
     const nowArt   = document.getElementById('nowArt');
@@ -148,6 +146,7 @@
     }
     renderAlbums();
 
+    // Populate durations
     albumsView.querySelectorAll('.track-row').forEach(li=>{
       const a = new Audio(); a.src = li.dataset.src; a.preload='metadata';
       a.addEventListener('loadedmetadata', ()=>{ li.querySelector('.t-time').textContent = formatTime(a.duration); });
@@ -176,6 +175,7 @@
       document.querySelectorAll('.track-row').forEach(r=> r.classList.toggle('active', r.dataset.src===t.src));
     }
 
+    // Icon toggling
     function setPlayState(isPlaying){
       iconPlay.hidden  = isPlaying;
       iconPause.hidden = !isPlaying;
@@ -192,7 +192,7 @@
     function next(auto=false){
       index = (index+1) % queue.length;
       loadTrackBySrc(queue[index].src);
-      if (auto) window.__auroraFadeIn?.(); // instant show on autoplay
+      if (auto) window.aurora?.instant?.(); // instant overlay on autoplayed next
       play();
     }
     function prev(){
@@ -201,6 +201,7 @@
       play();
     }
 
+    // List actions
     albumsView.addEventListener('click', e=>{
       const row = e.target.closest('.track-row');
       const playAll = e.target.closest('.play-all');
@@ -221,6 +222,7 @@
       }
     });
 
+    // Global play-all
     playAllBtn.addEventListener('click', ()=>{
       scope='all'; queue = allQueue.slice(); index=0;
       document.querySelectorAll('.album-row').forEach(r=> r.classList.remove('active'));
@@ -231,6 +233,7 @@
     nextBtn.addEventListener('click', ()=> next(false));
     prevBtn.addEventListener('click', prev);
 
+    // Progress
     audio.addEventListener('timeupdate', ()=>{
       if (!isFinite(audio.duration)) return;
       seek.value = Math.floor(1000 * audio.currentTime / audio.duration);
@@ -243,6 +246,7 @@
         audio.currentTime = (seek.value/1000) * audio.duration;
       }
     });
+    audio.addEventListener('ended', ()=> next(true));
 
     function setMode(list){
       const isList = !!list;
@@ -263,20 +267,9 @@
       return `${m}:${s}`;
     }
 
-    /* Expose audio + fade hooks for aurora.js */
-    window.audio = audio;
-    window.__auroraFadeIn  = () => document.querySelector('.aurora-layer')?.classList.add('on');
-    window.__auroraFadeOut = () => document.querySelector('.aurora-layer')?.classList.remove('on');
-
-    // Fade in/out with play state
-    audio.addEventListener('play',  window.__auroraFadeIn);
-    audio.addEventListener('pause', window.__auroraFadeOut);
-    audio.addEventListener('ended', window.__auroraFadeOut);
-
-    // Initial view
+    // Initial view + first track
     setMode(true);
     setPlayState(false);
-    // Prime first album
     const firstAlbum = Object.keys(albumsMap)[0];
     if (firstAlbum){
       const q = albumsMap[firstAlbum].tracks;
@@ -285,6 +278,6 @@
   })();
   </script>
 
-  <!-- Aurora visualizer (loads after player; uses window.audio) -->
-  <script src="homesplits/aurora.js"></script>
+  <!-- Aurora visualizer (correct relative path for fragment loader) -->
+  <script src="./aurora.js"></script>
 </section>
