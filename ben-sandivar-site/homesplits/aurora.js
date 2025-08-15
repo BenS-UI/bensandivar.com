@@ -1,5 +1,5 @@
 (() => {
-  const musicPlayer = document.getElementById('music-player');
+  const musicPlayer = document.getElementById('music');
   if (!musicPlayer) return; // only run if music player exists on page
 
   const auroraCanvas = musicPlayer.querySelector('#aurora');
