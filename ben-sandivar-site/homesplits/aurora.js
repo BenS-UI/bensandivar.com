@@ -275,7 +275,7 @@
 
     // ----- FINAL 2px BLUR PASS (on the main canvas) -----
     ctx.clearRect(0, 0, w, h);
-    ctx.filter = 'blur(2px)';
+    ctx.filter = 'blur(5px)';
     // Draw buffer -> main, exact size (CSS px), DPR handled by transform.
     ctx.drawImage(
       bufferCanvas,
