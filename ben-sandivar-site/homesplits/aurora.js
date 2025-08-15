@@ -212,7 +212,7 @@
     ctx.restore();
   }
 
-  // Fade-out on interaction
+  // Fade-out on interaction (let's see if it works)
   let hoverTimer;
   musicPlayer.addEventListener('mouseenter', () => {
     if (!overlayOn) return;
