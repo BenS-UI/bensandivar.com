@@ -24,6 +24,8 @@
 
   // Reused buffers
   let td, fd;
+  const spectrumBands = new Float32Array(50); // 50-band output
+  const smoothBands = new Float32Array(50); // Smoothed values
 
   // Hi-DPI
   let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
@@ -34,13 +36,12 @@
 
   let startT = performance.now();
   let phaseT = performance.now();
-  let mix = 0; // Gradient blend factor
+  let mix = 0;
 
-  let gradPrev = makePhase(); // Preload first gradient
-  let gradNext = makePhase(); // Preload second gradient
+  let gradPrev = makePhase();
+  let gradNext = makePhase();
 
-  // Smooth spectral bands
-  const smooth = { bass: 0, mid: 0, treb: 0 };
+  // Smooth lerp
   const lerp = (a, b, t) => a + (b - a) * t;
 
   // Resize handling
@@ -57,14 +58,13 @@
     if (hidden) stopDraw(); else maybeStart();
   }, { passive: true });
 
-  // Audio lifecycle
   audio.addEventListener('play', onPlay, { passive: true });
   audio.addEventListener('pause', onPause, { passive: true });
   audio.addEventListener('ended', onPause, { passive: true });
 
-  if (reduced) return; // Respect reduced motion preference
+  if (reduced) return;
 
-  sizeCanvas(); // Initial setup
+  sizeCanvas();
 
   // --------------- Audio graph ----------------
   function ensureGraph() {
@@ -75,7 +75,7 @@
     analyser = acx.createAnalyser();
     compressor = acx.createDynamicsCompressor();
 
-    analyser.fftSize = 1024;
+    analyser.fftSize = 2048; // Increased for better frequency resolution
     analyser.smoothingTimeConstant = 0.7;
 
     src.connect(analyser);
@@ -127,7 +127,7 @@
     return (dt % LOOP_S) / LOOP_S;
   }
 
-  function buildGradient(phase, tGlobal, w, h) {
+  function buildGradient(phase, tGlobal, w, h, intensity) {
     const drift = Math.sin(tGlobal * 2 * Math.PI / 1800) * (10 * Math.PI / 180);
     const ang = phase.ang + drift;
 
@@ -145,14 +145,57 @@
       const f = i / (n - 1 || 1);
       const hue = (phase.seed + i * (360 / n) +
                    36 * Math.sin(2 * Math.PI * (tGlobal / LOOP_S + phase.offset + i * 0.09))) % 360;
-      g.addColorStop(f, `hsla(${hue}, 92%, 55%, 1)`);
+      // Modulate alpha with intensity (0–1)
+      g.addColorStop(f, `hsla(${hue}, 92%, 55%, ${0.7 + 0.3 * intensity})`);
       if (i < n - 1) {
         const mid = f + (1 / (n - 1)) * 0.5;
         const hue2 = (hue + 24) % 360;
-        g.addColorStop(mid, `hsla(${hue2}, 92%, 55%, 1)`);
+        g.addColorStop(mid, `hsla(${hue2}, 92%, 55%, ${0.7 + 0.3 * intensity})`);
       }
     }
     return g;
+  }
+
+  // --------------- Audio Analysis ----------------
+  function computeSpectrumBands() {
+    const nyq = acx.sampleRate / 2;
+    const idx = hz => Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
+
+    // Define frequency ranges
+    const bands = [];
+    // Lows: 5 bands, 20–140 Hz (logarithmic spacing)
+    const lowStart = Math.log10(20), lowEnd = Math.log10(140);
+    for (let i = 0; i < 5; i++) {
+      const f = Math.pow(10, lowStart + (i / 4) * (lowEnd - lowStart));
+      const fNext = Math.pow(10, lowStart + ((i + 1) / 4) * (lowEnd - lowStart));
+      bands.push({ lo: idx(f), hi: idx(fNext), scale: 0.6 }); // Undersensitive
+    }
+    // Mids: 15 bands, 300–2000 Hz
+    const midStart = Math.log10(300), midEnd = Math.log10(2000);
+    for (let i = 0; i < 15; i++) {
+      const f = Math.pow(10, midStart + (i / 14) * (midEnd - midStart));
+      const fNext = Math.pow(10, midStart + ((i + 1) / 14) * (midEnd - midStart));
+      bands.push({ lo: idx(f), hi: idx(fNext), scale: 1.0 }); // Neutral
+    }
+    // Highs: 30 bands, 4000–12000 Hz
+    const highStart = Math.log10(4000), highEnd = Math.log10(12000);
+    for (let i = 0; i < 30; i++) {
+      const f = Math.pow(10, highStart + (i / 29) * (highEnd - highStart));
+      const fNext = Math.pow(10, highStart + ((i + 1) / 29) * (highEnd - highStart));
+      bands.push({ lo: idx(f), hi: idx(fNext), scale: 1.8 }); // Hypersensitive
+    }
+
+    // Compute band energies
+    for (let i = 0; i < 50; i++) {
+      let sum = 0, count = 0;
+      for (let j = bands[i].lo; j <= bands[i].hi; j++) {
+        sum += fd[j];
+        count++;
+      }
+      const avg = count ? (sum / count) / 255 : 0;
+      spectrumBands[i] = lerp(smoothBands[i], avg * bands[i].scale, 0.25);
+      smoothBands[i] = spectrumBands[i]; // Update smoothed value
+    }
   }
 
   // --------------- Draw ----------------
@@ -176,8 +219,9 @@
     // Audio data
     analyser.getByteTimeDomainData(td);
     analyser.getByteFrequencyData(fd);
+    computeSpectrumBands(); // Update spectrumBands
 
-    // RMS
+    // RMS for overall energy
     let sum = 0;
     for (let i = 0; i < td.length; i++) {
       const v = (td[i] - 128) / 128;
@@ -185,37 +229,34 @@
     }
     const rms = Math.sqrt(sum / td.length);
 
-    // Frequency bands
-    const nyq = acx.sampleRate / 2;
-    const idx = hz => Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
-    const avg = (lo, hi) => {
-      let s = 0, c = 0;
-      for (let i = lo; i <= hi; i++) { s += fd[i]; c++; }
-      return c ? s / c : 0;
-    };
-    const bands = {
-      bass: avg(idx(20), idx(140)),
-      mid: avg(idx(300), idx(2000)),
-      treb: avg(idx(4000), idx(12000))
-    };
-    smooth.bass = lerp(smooth.bass, bands.bass / 255, 0.28);
-    smooth.mid = lerp(smooth.mid, bands.mid / 255, 0.24);
-    smooth.treb = lerp(smooth.treb, bands.treb / 255, 0.22);
+    // Aggregate band energy for modulation
+    let bassEnergy = 0, midEnergy = 0, highEnergy = 0;
+    for (let i = 0; i < 5; i++) bassEnergy += spectrumBands[i];
+    for (let i = 5; i < 20; i++) midEnergy += spectrumBands[i];
+    for (let i = 20; i < 50; i++) highEnergy += spectrumBands[i];
+    bassEnergy /= 5;
+    midEnergy /= 15;
+    highEnergy /= 30;
+    const totalEnergy = 0.55 * bassEnergy + 0.35 * midEnergy + 0.10 * highEnergy;
 
     // Precompute
     const tL = loopT();
     const kx = 2 * Math.PI / Math.max(360, w);
     const ph = tL * 2 * Math.PI * 0.8;
 
-    const energy = 0.55 * smooth.bass + 0.35 * smooth.mid + 0.10 * smooth.treb;
     const baseAmp = h * (0.22 + 0.55 * Math.min(1, rms * 1.8));
     const maxRise = h * 0.50;
 
-    // Column modulation
+    // Column modulation with band influence
     const cols = 7;
     const colMod = (x) => {
       let v = 0;
-      for (let c = 1; c <= cols; c++) v += Math.sin((c * 0.28) * kx * x + ph * c * 0.33) / c;
+      for (let c = 1; c <= cols; c++) {
+        v += Math.sin((c * 0.28) * kx * x + ph * c * 0.33) / c;
+      }
+      // Modulate with high frequencies for flicker
+      const bandIdx = Math.min(49, Math.floor((x / w) * 30) + 20); // Use high bands
+      v *= (0.8 + 0.4 * spectrumBands[bandIdx]);
       return (v / cols) * 0.6 + 0.8;
     };
 
@@ -227,12 +268,15 @@
     let topY = h;
     for (let i = 0; i <= steps; i++) {
       const x = (i / steps) * w;
-      const yWave =
-        Math.sin(kx * x + ph) * (0.55 + 0.30 * smooth.mid) +
-        Math.sin(kx * 1.8 * x + ph * 1.15) * (0.30 + 0.30 * smooth.treb) +
-        Math.sin(kx * 3.4 * x + ph * 0.9) * (0.22 + 0.20 * smooth.treb);
+      const bandIdx = Math.min(49, Math.floor((x / w) * 50)); // Map x to band
+      const bandValue = spectrumBands[bandIdx];
 
-      let rise = (baseAmp * (0.5 + 0.5 * yWave) * (0.70 + 0.50 * energy)) * colMod(x);
+      const yWave =
+        Math.sin(kx * x + ph) * (0.55 + 0.30 * midEnergy) +
+        Math.sin(kx * 1.8 * x + ph * 1.15) * (0.30 + 0.30 * highEnergy) +
+        Math.sin(kx * 3.4 * x + ph * 0.9) * (0.22 + 0.20 * bandValue);
+
+      let rise = (baseAmp * (0.5 + 0.5 * yWave) * (0.70 + 0.50 * totalEnergy)) * colMod(x);
       rise = Math.min(rise, maxRise);
       const y = h - (h * 0.10 + rise);
       topY = Math.min(topY, y);
@@ -243,34 +287,33 @@
 
     // Draw gradients on buffer
     bctx.clearRect(0, 0, w, h);
-    const gPrev = buildGradient(gradPrev, now / 1000, w, h);
-    const gNext = buildGradient(gradNext, now / 1000, w, h);
+    // Modulate gradient intensity with total energy
+    const intensity = Math.min(1, 0.5 + 0.5 * totalEnergy);
+    const gPrev = buildGradient(gradPrev, now / 1000, w, h, intensity);
+    const gNext = buildGradient(gradNext, now / 1000, w, h, intensity);
 
-    const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix); // Ease-in-out
+    const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix);
 
-    // Draw previous gradient (fading out)
     bctx.globalAlpha = 1 - easeMix;
     bctx.fillStyle = gPrev;
     bctx.fillRect(0, 0, w, h);
 
-    // Draw next gradient (fading in)
     bctx.globalAlpha = easeMix;
     bctx.fillStyle = gNext;
     bctx.fillRect(0, 0, w, h);
 
-    // Reset alpha
     bctx.globalAlpha = 1;
 
     // Apply wave shape mask
     bctx.globalCompositeOperation = 'destination-in';
     bctx.fill(path);
 
-    // Reset composite mode
     bctx.globalCompositeOperation = 'source-over';
 
-    // Final blur pass on main canvas
+    // Final blur pass, modulated by high frequencies
     ctx.clearRect(0, 0, w, h);
-    ctx.filter = 'blur(20px)';
+    const blurRadius = 8 + 8 * highEnergy; // Dynamic blur
+    ctx.filter = `blur(${blurRadius}px)`;
     ctx.drawImage(
       bufferCanvas,
       0, 0, bufferCanvas.width, bufferCanvas.height,
