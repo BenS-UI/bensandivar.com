@@ -248,11 +248,9 @@
     const gA = buildGradient(gradA, now / 1000, w, h);
     const gB = buildGradient(gradB, now / 1000, w, h);
 
-    bctx.globalCompositeOperation = 'source-over';
-    bctx.globalAlpha = 1 - mix;
-    bctx.fillStyle = gA; bctx.fillRect(0, 0, w, h);
-    bctx.globalAlpha = mix;
-    bctx.fillStyle = gB; bctx.fillRect(0, 0, w, h);
+    bctx.globalAlpha = 1;
+    bctx.fillStyle = mix < 1 ? gA : gB;
+    bctx.fillRect(0, 0, w, h);
 
     // No internal bloom: keep edges clean; we blur final composite instead.
 
