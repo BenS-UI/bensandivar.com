@@ -11,10 +11,6 @@
   /** @type {CanvasRenderingContext2D} */
   const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
 
-  // Force no CSS fade/opacity ever.
-  layer.style.transition = 'none';
-  layer.style.opacity = '1';
-
   // Offscreen buffer to blur the whole composite in one pass.
   const bufferCanvas = document.createElement('canvas');
   /** @type {CanvasRenderingContext2D} */
@@ -34,7 +30,7 @@
   let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
   // Phase / timing
-  const PHASE_MS = Number.POSITIVE_INFINITY; // lock: no crossfade
+  const PHASE_MS = 45000;
   const LOOP_S   = 600;
 
   let startT = performance.now();
@@ -201,7 +197,7 @@
 
     // Phase mix
     const now = performance.now();
-    let mix   = (now - phaseT) / PHASE_MS; // stays 0 with Infinity
+    let mix   = (now - phaseT) / PHASE_MS;
     if (mix >= 1) {
       gradA = gradB;
       gradB = makePhase();
@@ -253,9 +249,9 @@
     const gB = buildGradient(gradB, now / 1000, w, h);
 
     bctx.globalCompositeOperation = 'source-over';
-    bctx.globalAlpha = 1 - mix; // = 1
+    bctx.globalAlpha = 1 - mix;
     bctx.fillStyle = gA; bctx.fillRect(0, 0, w, h);
-    bctx.globalAlpha = mix;     // = 0
+    bctx.globalAlpha = mix;
     bctx.fillStyle = gB; bctx.fillRect(0, 0, w, h);
 
     // No internal bloom: keep edges clean; we blur final composite instead.
@@ -264,7 +260,7 @@
     bctx.globalCompositeOperation = 'destination-in';
     bctx.fill(path);
 
-    // Atmospheric fade to top (spatial, not time-based)
+    // Atmospheric fade to top
     const fade = bctx.createLinearGradient(0, 0, 0, h);
     const fadeEnd = Math.max(0.28, (topY / h) - 0.02);
     fade.addColorStop(0.00, 'rgba(0,0,0,1)');
@@ -293,7 +289,7 @@
   function onPlay() {
     ensureGraph();
     if (acx.state === 'suspended') acx.resume().catch(() => {});
-    // Keeping class toggles, but inline style forces 100% opacity, no fade.
+    // If you previously toggled CSS classes for fade, keep them; no HTML change needed.
     layer && layer.classList && layer.classList.add('on');
     maybeStart();
   }
