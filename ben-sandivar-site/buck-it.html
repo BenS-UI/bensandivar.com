@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Bucket – Fluid Art Game</title>
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="shortcut icon" href="assets/favicon.png" type="image/png">
@@ -13,94 +13,92 @@
 <link rel="stylesheet" href="buck-it.css">
 <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5.5.3/dist/iro.min.js"></script>
 <style>
-/* Additional styling for fluid art page */
-body {
-  margin:0;
-  padding:0;
-  overflow:hidden;
-  background:#020c1f; /* dark background reminiscent of reference image */
-  color:#fff;
-}
-#toolbar {
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:8px;
-  align-items:center;
-  padding:8px 12px;
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(10px);
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.3);
-  opacity:0.05;
-  transition:opacity 0.3s;
-}
-@@ -56,55 +57,62 @@ body {
-.tool-btn.active {
-  background:rgba(255,255,255,0.4);
-}
-.tool-group {
-  display:flex;
-  gap:4px;
-}
-/* Colour selector ring: a conic gradient ring with a swatch inside */
-#colorSelector {
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  position:relative;
-  overflow:hidden;
-  cursor:pointer;
-  padding:4px; /* space for ring */
-  background:conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
-}
-#colorSelector .swatch {
-  position:absolute;
-  inset:4px;
-  border-radius:50%;
-  background:#00aaff;
-  box-shadow:0 0 0 2px rgba(255,255,255,0.5);
-}
-#colorPickerPopup {
-  position:fixed;
-  bottom:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:16px;
-  padding:10px;
-  display:none;
-  z-index:101;
-}
-#settingsPanel, #newPanel, #exportPanel {
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  min-width:280px;
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(10px);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.3);
-  padding:16px;
-  color:#fff;
-  z-index:100;
-  display:none;
-}
-.panel-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  cursor:move;
-  margin-bottom:8px;
-}
-.panel-header h3 {
-  margin:0;
-@@ -295,94 +303,96 @@ body {
+  :root { --glass: rgba(255,255,255,0.15); --glass-strong: rgba(255,255,255,0.3); }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; padding:0; overflow:hidden;
+    background:#020c1f; color:#fff; font-family: "Geologica", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  }
+  nav.navbar {
+    position:fixed; top:0; left:0; right:0; height:56px;
+    display:flex; align-items:center; z-index:200;
+    background:linear-gradient(180deg, rgba(2,12,31,0.85), rgba(2,12,31,0));
+    padding:0 12px;
+  }
+  nav .nav-container { display:flex; align-items:center; width:100%; gap:12px; }
+  nav .logo img { height:28px; display:block; }
+  nav .more-btn { display:none; }
+  nav .nav-links { display:flex; gap:14px; margin:0 0 0 auto; padding:0; list-style:none; }
+  nav .nav-links a { color:#e7f2ff; text-decoration:none; font-size:14px; opacity:0.8; }
+  nav .nav-links a:hover { opacity:1; }
+
+  #fluid { position:fixed; inset:0; display:block; }
+
+  #toolbar {
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    display:flex; gap:8px; align-items:center;
+    padding:8px 12px; background:var(--glass); backdrop-filter:blur(10px);
+    border-radius:14px; border:1px solid var(--glass-strong);
+    opacity:0.05; transition:opacity 0.25s ease; z-index:150;
+  }
+  #toolbar.show { opacity:1; }
+  .tool-btn {
+    border:none; outline:none; cursor:pointer;
+    padding:8px; border-radius:10px; display:grid; place-items:center;
+    background:rgba(255,255,255,0.2);
+  }
+  .tool-btn:hover { background:rgba(255,255,255,0.3); }
+  .tool-btn.active { background:rgba(255,255,255,0.4); }
+  .tool-group { display:flex; gap:4px; }
+
+  .tool-dropdown { position:relative; }
+  .tool-dropdown .tool-options {
+    position:absolute; bottom:48px; left:50%; transform:translateX(-50%) scale(0.98);
+    display:none; flex-wrap:wrap; gap:6px; width:240px;
+    padding:8px; border-radius:12px; border:1px solid var(--glass-strong);
+    background:var(--glass); backdrop-filter:blur(8px); z-index:160;
+  }
+  .tool-dropdown.open .tool-options { display:flex; }
+
+  /* Color selector ring */
+  #colorSelector {
+    width:44px; height:44px; border-radius:50%; position:relative; overflow:hidden; cursor:pointer; padding:4px;
+    background:conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+    box-shadow:0 0 0 1px rgba(255,255,255,0.35) inset;
+  }
+  #colorSelector .swatch {
+    position:absolute; inset:4px; border-radius:50%; background:#00aaff;
+    box-shadow:0 0 0 2px rgba(255,255,255,0.5);
+  }
+  #colorPickerPopup {
+    position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+    background:var(--glass); backdrop-filter:blur(10px);
+    border:1px solid var(--glass-strong); border-radius:16px; padding:10px;
+    display:none; z-index:170;
+  }
+
+  /* Panels */
+  #settingsPanel, #newPanel, #exportPanel, #welcomeOverlay {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    min-width:300px; max-width:92vw;
+    background:var(--glass); color:#fff;
+    border:1px solid var(--glass-strong); border-radius:16px; padding:12px;
+    display:none; z-index:180;
+  }
+  .panel-header {
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:move;
+  }
+  .panel-header h3 { margin:0; font-size:16px; font-weight:600; }
+  .panel-content { display:grid; gap:10px; }
+  .panel-content label { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:14px; }
+  .panel-content input[type="range"], .panel-content input[type="number"], .panel-content select { width:170px; }
+  .close-btn, #welcomeClose {
+    background:rgba(255,255,255,0.2); border:1px solid var(--glass-strong);
+    border-radius:8px; width:28px; height:28px; color:#fff; cursor:pointer;
+  }
+
+  #newColorInputs { display:grid; gap:8px; }
+  #welcomeOverlay { display:none; max-width:520px; }
 </style>
 </head>
 <body>
@@ -123,70 +121,69 @@ body {
   </div>
   <div id="tooltip"></div>
 </nav>
+
 <canvas id="fluid"></canvas>
+
 <div id="toolbar">
   <div id="colorSelector">
     <div class="swatch" style="background:#00aaff"></div>
   </div>
   <div id="colorPickerPopup"></div>
+
   <div class="tool-dropdown" id="colorDropdown">
-    <!-- Colour tool group button toggles the drop-up. Clicking anywhere on the button opens/closes the menu -->
     <button class="tool-btn group-btn" data-name="Colour Tools" data-desc="Choose a colouring tool">
       <span class="material-symbols-outlined">palette</span>
     </button>
     <div class="tool-options">
-      <button class="tool-btn" data-tool="bucket" data-name="Bucket" data-desc="Hold to pour colour and gradually fill an area"><span class="material-symbols-outlined">format_color_fill</span></button>
-      <button class="tool-btn" data-tool="splatter" data-name="Splatter" data-desc="Hold to throw random drops; higher speed increases spin"><span class="material-symbols-outlined">water_drop</span></button>
-      <button class="tool-btn" data-tool="spray" data-name="Spray" data-desc="Hold to spray a fine mist of colour"><span class="material-symbols-outlined">sprinkler</span></button>
-      <button class="tool-btn" data-tool="glitter" data-name="Glitter" data-desc="Hold to sprinkle shimmering speckles"><span class="material-symbols-outlined">auto_awesome</span></button>
+      <button class="tool-btn" data-tool="bucket"   data-name="Bucket"   data-desc="Hold to pour colour"><span class="material-symbols-outlined">format_color_fill</span></button>
+      <button class="tool-btn" data-tool="splatter" data-name="Splatter" data-desc="Random drops"><span class="material-symbols-outlined">water_drop</span></button>
+      <button class="tool-btn" data-tool="spray"    data-name="Spray"    data-desc="Fine mist"><span class="material-symbols-outlined">sprinkler</span></button>
+      <button class="tool-btn" data-tool="glitter"  data-name="Glitter"  data-desc="Shimmer speckles"><span class="material-symbols-outlined">auto_awesome</span></button>
     </div>
   </div>
+
   <div class="tool-dropdown" id="blendDropdown">
-    <!-- Blending tool group button toggles the drop-up. Clicking anywhere opens/closes the menu -->
     <button class="tool-btn group-btn" data-name="Blend Tools" data-desc="Choose a blending tool">
       <span class="material-symbols-outlined">tune</span>
     </button>
     <div class="tool-options">
-      <button class="tool-btn" data-tool="blender" data-name="Blender" data-desc="Hold to spin the paint; left click spins clockwise, right click anticlockwise"><span class="material-symbols-outlined">autorenew</span></button>
-      <button class="tool-btn" data-tool="smudge" data-name="Smudge" data-desc="Hold and drag to smear paint like your finger"><span class="material-symbols-outlined">gesture</span></button>
-      <button class="tool-btn" data-tool="push" data-name="Push" data-desc="Hold and drag to push paint away from your pointer"><span class="material-symbols-outlined">open_with</span></button>
-      <button class="tool-btn" data-tool="pinch" data-name="Pinch" data-desc="Hold to pinch inward or outward depending on click"><span class="material-symbols-outlined">center_focus_strong</span></button>
-      <button class="tool-btn" data-tool="ripple" data-name="Ripple" data-desc="Hold to create expanding waves in the paint"><span class="material-symbols-outlined">waves</span></button>
+      <button class="tool-btn" data-tool="blender" data-name="Blender" data-desc="Spin paint"><span class="material-symbols-outlined">autorenew</span></button>
+      <button class="tool-btn" data-tool="smudge"  data-name="Smudge"  data-desc="Smear paint"><span class="material-symbols-outlined">gesture</span></button>
+      <button class="tool-btn" data-tool="push"    data-name="Push"    data-desc="Push away"><span class="material-symbols-outlined">open_with</span></button>
+      <button class="tool-btn" data-tool="pinch"   data-name="Pinch"   data-desc="Pinch in/out"><span class="material-symbols-outlined">center_focus_strong</span></button>
+      <button class="tool-btn" data-tool="ripple"  data-name="Ripple"  data-desc="Waves"><span class="material-symbols-outlined">waves</span></button>
     </div>
   </div>
-    <button class="tool-btn" id="newBtn" data-name="New Artwork" data-desc="Start a new piece with fresh colours and layout"><span class="material-symbols-outlined">fiber_new</span></button>
-    <button class="tool-btn" id="undoBtn" data-name="Undo" data-desc="Undo the last change"><span class="material-symbols-outlined">undo</span></button>
-    <button class="tool-btn" id="redoBtn" data-name="Redo" data-desc="Redo the undone change"><span class="material-symbols-outlined">redo</span></button>
-    <button class="tool-btn" id="exportBtn" data-name="Export" data-desc="Export your artwork to an image"><span class="material-symbols-outlined">download</span></button>
-    <button class="tool-btn" id="cameraBtn" data-name="Snapshot" data-desc="Quickly capture and save a snapshot"><span class="material-symbols-outlined">photo_camera</span></button>
-    <button class="tool-btn" id="settingsBtn" data-name="Settings" data-desc="Adjust brush and fluid settings"><span class="material-symbols-outlined">settings</span></button>
-    <!-- Removed Tutorial button: tooltips handle guidance -->
+
+  <button class="tool-btn" id="newBtn"     data-name="New Artwork" data-desc="Start new"><span class="material-symbols-outlined">fiber_new</span></button>
+  <button class="tool-btn" id="undoBtn"    data-name="Undo" data-desc="Undo"><span class="material-symbols-outlined">undo</span></button>
+  <button class="tool-btn" id="redoBtn"    data-name="Redo" data-desc="Redo"><span class="material-symbols-outlined">redo</span></button>
+  <button class="tool-btn" id="exportBtn"  data-name="Export" data-desc="Export image"><span class="material-symbols-outlined">download</span></button>
+  <button class="tool-btn" id="cameraBtn"  data-name="Snapshot" data-desc="Quick snapshot"><span class="material-symbols-outlined">photo_camera</span></button>
+  <button class="tool-btn" id="settingsBtn" data-name="Settings" data-desc="Brush and fluid settings"><span class="material-symbols-outlined">settings</span></button>
 </div>
+
 <!-- Settings panel -->
 <div id="settingsPanel">
   <div class="panel-header"><h3>Settings</h3><button class="close-btn">&times;</button></div>
   <div class="panel-content">
-        <label data-name="Speed" data-desc="Controls how fast the simulation evolves">Speed <input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"></label>
-        <label data-name="Strength" data-desc="Controls the strength of the tool effect">Strength <input id="strength" type="range" min="0" max="60" step="0.1" value="24"></label>
-        <label data-name="Size" data-desc="Adjusts the radius of your tool">Size <input id="size" type="range" min="10" max="300" step="1" value="120"></label>
-        <label data-name="Viscosity" data-desc="Higher values make the fluid thicker and move slower">Viscosity <input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"></label>
-        <label data-name="Diffusion" data-desc="Controls how quickly colours blend into the surroundings">Diffusion <input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"></label>
-        <label data-name="Resolution" data-desc="Adjust the simulation detail; higher is slower">Resolution <input id="resolution" type="range" min="128" max="384" step="1" value="128"></label>
+    <label>Speed <input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"></label>
+    <label>Strength <input id="strength" type="range" min="0" max="60" step="0.1" value="24"></label>
+    <label>Size <input id="size" type="range" min="10" max="300" step="1" value="120"></label>
+    <label>Viscosity <input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"></label>
+    <label>Diffusion <input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"></label>
+    <label>Resolution <input id="resolution" type="range" min="128" max="384" step="1" value="128"></label>
   </div>
 </div>
+
 <!-- New layout panel -->
 <div id="newPanel">
   <div class="panel-header"><h3>New Artwork</h3><button class="close-btn">&times;</button></div>
   <div class="panel-content">
     <label>Number of Colors
       <select id="newColors">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+        <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
       </select>
     </label>
     <label>Layout
@@ -197,64 +194,105 @@ body {
         <option value="rings">Rings</option>
         <option value="spiral">Spiral</option>
         <option value="blotches">Blotches</option>
-@@ -942,67 +952,136 @@ body {
-        if(dist2>r2v) continue;
-        const dist = Math.sqrt(dist2)+1e-6;
-        const w = 1 - dist2/r2v;
-        const amp = Math.sin((dist / rG) * Math.PI * 4 - ripplePhase) * amp0 * w;
-        const id = IX(i,j);
-        u0[id] += (dx/dist) * amp * dt;
-        v0[id] += (dy/dist) * amp * dt;
-      }
-    }
+      </select>
+    </label>
+    <div id="newColorInputs"></div>
+    <button id="newConfirm" class="tool-btn">Create</button>
+  </div>
+</div>
+
+<!-- Export panel (added) -->
+<div id="exportPanel">
+  <div class="panel-header"><h3>Export</h3><button class="close-btn">&times;</button></div>
+  <div class="panel-content">
+    <label>Format
+      <select id="exportFormat">
+        <option value="jpeg">JPEG</option>
+        <option value="png">PNG</option>
+        <option value="webp">WEBP</option>
+      </select>
+    </label>
+    <label>Width <input id="exportWidth" type="number" min="100" max="4096" placeholder="auto"></label>
+    <label>Height <input id="exportHeight" type="number" min="100" max="4096" placeholder="auto"></label>
+    <label>Quality <input id="exportQuality" type="number" step="0.01" min="0.1" max="1" value="0.92"></label>
+    <button id="exportDownload" class="tool-btn">Download</button>
+  </div>
+</div>
+
+<!-- Welcome overlay -->
+<div id="welcomeOverlay">
+  <div class="panel-header"><h3>Welcome to Bucket</h3><button id="welcomeClose">&times;</button></div>
+  <div class="panel-content">
+    <p>Hover near the bottom to reveal the toolbar. Use Settings to tweak fluid and brush. Right-click spins blender the other way. Have fun.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- Helpers ----------
+  const clamp = (v,a,b) => v < a ? a : (v > b ? b : v);
+  const IXFor = N => (x,y) => x + y*(N+2);
+
+  // ---------- Canvas / Grid ----------
+  const canvas = document.getElementById('fluid');
+  const ctx = canvas.getContext('2d', { willReadFrequently:true });
+  let DPR = 1, W = 0, H = 0;
+
+  // Simulation grid
+  let N = 128;
+  let IX = IXFor(N);
+  let size = 0;
+
+  // fields
+  let u,v,u0,v0,dR,dG,dB,dR0,dG0,dB0;
+
+  function alloc() {
+    IX = IXFor(N);
+    size = (N+2)*(N+2);
+    u = new Float32Array(size); v = new Float32Array(size);
+    u0 = new Float32Array(size); v0 = new Float32Array(size);
+    dR = new Float32Array(size); dG = new Float32Array(size); dB = new Float32Array(size);
+    dR0 = new Float32Array(size); dG0 = new Float32Array(size); dB0 = new Float32Array(size);
   }
-  function clamp(v,a,b){ return v < a ? a : (v > b ? b : v); }
-  function gridFromPx(px, py) {
-    const x = clamp(((px / W) * (N+2)), 1, N);
-    const y = clamp(((py / H) * (N+2)), 1, N);
-    return [x,y];
-  }
+
   function ensureCanvas() {
     DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     W = Math.floor(window.innerWidth * DPR);
     H = Math.floor(window.innerHeight * DPR);
-    canvas.width = W;
-    canvas.height = H;
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-    // choose grid size based on screen
+    canvas.width = W; canvas.height = H;
+    canvas.style.width = '100vw'; canvas.style.height = '100vh';
+
     const area = window.innerWidth * window.innerHeight;
-    // increase grid resolution for crisper rendering (reduce pixelation)
     const target = Math.sqrt(area / 100000);
     N = clamp(Math.floor(90 * target), 128, 384);
     alloc();
     seedBlueStream();
-    if (typeof resolutionEl !== 'undefined' && resolutionEl) resolutionEl.value = N;
+
+    const resEl = document.getElementById('resolution');
+    if (resEl) resEl.value = N;
   }
+
   function resizeGrid(newN) {
     newN = clamp(newN|0, 32, 1024);
     if (newN === N) return;
     const oldN = N;
-    const oldIX = (x,y)=>x + y*(oldN+2);
+    const oldIX = IXFor(oldN);
     const oldR = dR, oldG = dG, oldB = dB, oldU = u, oldV = v;
-    N = newN;
-    alloc();
+    N = newN; alloc();
     const sx = oldN / N;
     for (let j=1; j<=N; j++) {
       for (let i=1; i<=N; i++) {
         const ox = clamp(Math.floor(i*sx),1,oldN);
         const oy = clamp(Math.floor(j*sx),1,oldN);
-        const src = oldIX(ox,oy);
-        const id = IX(i,j);
-        dR[id] = oldR[src];
-        dG[id] = oldG[src];
-        dB[id] = oldB[src];
-        u[id] = oldU[src];
-        v[id] = oldV[src];
+        const src = oldIX(ox,oy), id = IX(i,j);
+        dR[id] = oldR[src]; dG[id] = oldG[src]; dB[id] = oldB[src];
+        u[id] = oldU[src];   v[id] = oldV[src];
       }
     }
-    if (typeof resolutionEl !== 'undefined' && resolutionEl) resolutionEl.value = N;
+    const resEl = document.getElementById('resolution');
+    if (resEl) resEl.value = N;
   }
+
   function withHighRes(fn) {
     const area = window.innerWidth * window.innerHeight;
     const target = Math.sqrt(area / 100000);
@@ -267,36 +305,307 @@ body {
       draw();
     });
   }
+
   window.addEventListener('resize', ensureCanvas);
-  // UI elements
+
+  // ---------- Stable Fluids Core ----------
+  function set_bnd(b, x) {
+    for (let i=1;i<=N;i++){
+      x[IX(0, i)]   = b===1 ? -x[IX(1, i)] : x[IX(1, i)];
+      x[IX(N+1, i)] = b===1 ? -x[IX(N, i)] : x[IX(N, i)];
+      x[IX(i, 0)]   = b===2 ? -x[IX(i, 1)] : x[IX(i, 1)];
+      x[IX(i, N+1)] = b===2 ? -x[IX(i, N)] : x[IX(i, N)];
+    }
+    x[IX(0,0)]           = 0.5*(x[IX(1,0)]   + x[IX(0,1)]);
+    x[IX(0,N+1)]         = 0.5*(x[IX(1,N+1)] + x[IX(0,N)]);
+    x[IX(N+1,0)]         = 0.5*(x[IX(N,0)]   + x[IX(N+1,1)]);
+    x[IX(N+1,N+1)]       = 0.5*(x[IX(N,N+1)] + x[IX(N+1,N)]);
+  }
+
+  function lin_solve(b, x, x0, a, c) {
+    for (let k=0;k<20;k++){
+      for (let j=1;j<=N;j++){
+        for (let i=1;i<=N;i++){
+          x[IX(i,j)] = (x0[IX(i,j)] + a*(x[IX(i-1,j)] + x[IX(i+1,j)] + x[IX(i,j-1)] + x[IX(i,j+1)])) / c;
+        }
+      }
+      set_bnd(b,x);
+    }
+  }
+
+  function add_source(x, s, dt) {
+    for (let i=0;i<size;i++) x[i] += dt*s[i];
+  }
+
+  function diffuse(b, x, x0, diff, dt) {
+    const a = dt*diff*N*N;
+    lin_solve(b, x, x0, a, 1+4*a);
+  }
+
+  function advect(b, d, d0, u, v, dt) {
+    const dt0 = dt*N;
+    for (let j=1;j<=N;j++){
+      for (let i=1;i<=N;i++){
+        let x = i - dt0*u[IX(i,j)];
+        let y = j - dt0*v[IX(i,j)];
+        if (x<0.5) x=0.5; if (x>N+0.5) x=N+0.5;
+        if (y<0.5) y=0.5; if (y>N+0.5) y=N+0.5;
+        const i0 = Math.floor(x), i1 = i0+1;
+        const j0 = Math.floor(y), j1 = j0+1;
+        const s1 = x-i0, s0 = 1-s1, t1 = y-j0, t0 = 1-t1;
+        d[IX(i,j)] =
+          s0*(t0*d0[IX(i0,j0)] + t1*d0[IX(i0,j1)]) +
+          s1*(t0*d0[IX(i1,j0)] + t1*d0[IX(i1,j1)]);
+      }
+    }
+    set_bnd(b,d);
+  }
+
+  function project(u,v,p,div) {
+    for (let j=1;j<=N;j++){
+      for (let i=1;i<=N;i++){
+        div[IX(i,j)] = -0.5*( u[IX(i+1,j)]-u[IX(i-1,j)] + v[IX(i,j+1)]-v[IX(i,j-1)] )/N;
+        p[IX(i,j)] = 0;
+      }
+    }
+    set_bnd(0,div); set_bnd(0,p);
+    lin_solve(0, p, div, 1, 4);
+    for (let j=1;j<=N;j++){
+      for (let i=1;i<=N;i++){
+        u[IX(i,j)] -= 0.5*N*(p[IX(i+1,j)] - p[IX(i-1,j)]);
+        v[IX(i,j)] -= 0.5*N*(p[IX(i,j+1)] - p[IX(i,j-1)]);
+      }
+    }
+    set_bnd(1,u); set_bnd(2,v);
+  }
+
+  function vel_step(u, v, u0, v0, visc, dt) {
+    add_source(u, u0, dt); add_source(v, v0, dt);
+    [u0,u] = [u,u0]; diffuse(1, u, u0, visc, dt);
+    [v0,v] = [v,v0]; diffuse(2, v, v0, visc, dt);
+    project(u,v,u0,v0);
+    [u0,u] = [u,u0]; [v0,v] = [v,v0];
+    advect(1, u, u0, u0, v0, dt);
+    advect(2, v, v0, u0, v0, dt);
+    project(u,v,u0,v0);
+    // clear sources
+    u0.fill(0); v0.fill(0);
+  }
+
+  function dens_step(r,g,b, r0,g0,b0, diff, dt) {
+    add_source(r, r0, dt); add_source(g, g0, dt); add_source(b, b0, dt);
+    [r0,r] = [r,r0]; diffuse(0, r, r0, diff, dt);
+    [g0,g] = [g,g0]; diffuse(0, g, g0, diff, dt);
+    [b0,b] = [b,b0]; diffuse(0, b, b0, diff, dt);
+    advect(0, r, r0, u, v, dt);
+    advect(0, g, g0, u, v, dt);
+    advect(0, b, b0, u, v, dt);
+    // fade sources
+    r0.fill(0); g0.fill(0); b0.fill(0);
+  }
+
+  // ---------- Seeding / Layout ----------
+  function seedBlueStream() {
+    // simple cool start
+    for (let j=1;j<=N;j++){
+      for (let i=1;i<=N;i++){
+        const id = IX(i,j);
+        const t = j/N;
+        dR[id] = 5;
+        dG[id] = 15 + 20*(1-t);
+        dB[id] = 40 + 120*t;
+      }
+    }
+  }
+
+  function seedLayout(layout, cols) {
+    dR.fill(0); dG.fill(0); dB.fill(0);
+    const C = cols.map(hex => {
+      const n = parseInt(hex.slice(1),16);
+      return [(n>>16)&255, (n>>8)&255, n&255];
+    });
+    if (layout === 'bisection') {
+      const mid = Math.floor(N/2);
+      for (let j=1;j<=N;j++){
+        for (let i=1;i<=N;i++){
+          const id = IX(i,j);
+          const c = i<mid ? C[0% C.length] : C[1% C.length];
+          dR[id]=c[0]; dG[id]=c[1]; dB[id]=c[2];
+        }
+      }
+    } else if (layout === 'squares') {
+      const k = Math.max(1, Math.floor(Math.sqrt(C.length)));
+      const w = Math.floor(N/k);
+      for (let j=1;j<=N;j++){
+        for (let i=1;i<=N;i++){
+          const ci = Math.min(C.length-1, Math.floor(i/w) + k*Math.floor(j/w));
+          const id = IX(i,j), c=C[ci% C.length];
+          dR[id]=c[0]; dG[id]=c[1]; dB[id]=c[2];
+        }
+      }
+    } else if (layout === 'sectors') {
+      const cx = N/2, cy = N/2;
+      for (let j=1;j<=N;j++){
+        for (let i=1;i<=N;i++){
+          const a = Math.atan2(j-cy, i-cx);
+          const t = (a + Math.PI)/(2*Math.PI);
+          const ci = Math.floor(t*C.length) % C.length;
+          const id = IX(i,j), c=C[ci];
+          dR[id]=c[0]; dG[id]=c[1]; dB[id]=c[2];
+        }
+      }
+    } else if (layout === 'rings') {
+      const cx = N/2, cy = N/2;
+      for (let j=1;j<=N;j++){
+        for (let i=1;i<=N;i++){
+          const r = Math.hypot(i-cx, j-cy);
+          const t = (r / (Math.sqrt(2)*N/2));
+          const ci = Math.floor(t*C.length) % C.length;
+          const id = IX(i,j), c=C[ci];
+          dR[id]=c[0]; dG[id]=c[1]; dB[id]=c[2];
+        }
+      }
+    } else if (layout === 'spiral') {
+      const cx=N/2, cy=N/2;
+      for (let j=1;j<=N;j++){
+        for (let i=1;i<=N;i++){
+          const dx=i-cx, dy=j-cy;
+          const a=Math.atan2(dy,dx), r=Math.hypot(dx,dy);
+          const t = (a + r*0.1 + Math.PI)/(2*Math.PI);
+          const ci = Math.floor(t*C.length) % C.length;
+          const id=IX(i,j), c=C[ci];
+          dR[id]=c[0]; dG[id]=c[1]; dB[id]=c[2];
+        }
+      }
+    } else { // blotches
+      for (let k=0;k<Math.max(5, C.length*3); k++){
+        const cx = 1+Math.floor(Math.random()*N);
+        const cy = 1+Math.floor(Math.random()*N);
+        const r = Math.floor(N*0.06 + Math.random()*N*0.12);
+        const c = C[k% C.length];
+        for (let j=cy-r;j<=cy+r;j++){
+          for (let i=cx-r;i<=cx+r;i++){
+            if (i<1||i>N||j<1||j>N) continue;
+            const dx=i-cx, dy=j-cy;
+            if (dx*dx+dy*dy <= r*r) {
+              const id = IX(i,j);
+              dR[id]=c[0]; dG[id]=c[1]; dB[id]=c[2];
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ---------- Tools ----------
+  let currentTool = 'bucket';
+  let holding = false, holdButton = 0;
+  let cursorX=0, cursorY=0, prevX=0, prevY=0;
+  let ripplePhase = 0;
+  let pourColor = [0,170,255];
+
+  function gridFromPx(px, py) {
+    const x = clamp(((px / W) * (N+2)), 1, N);
+    const y = clamp(((py / H) * (N+2)), 1, N);
+    return [x,y];
+  }
+
+  function addCircleDye(cx, cy, radius, color, amount=1.0) {
+    const r2 = radius*radius;
+    for (let j=Math.max(1, (cy-radius)|0); j<=Math.min(N, (cy+radius)|0); j++){
+      for (let i=Math.max(1, (cx-radius)|0); i<=Math.min(N, (cx+radius)|0); i++){
+        const dx=i-cx, dy=j-cy, d2=dx*dx+dy*dy;
+        if (d2<=r2){
+          const w = 1 - d2/r2;
+          const id = IX(i,j);
+          dR0[id] += color[0]*w*amount;
+          dG0[id] += color[1]*w*amount;
+          dB0[id] += color[2]*w*amount;
+        }
+      }
+    }
+  }
+
+  function addVortex(cx, cy, radius, spin) {
+    const r2 = radius*radius;
+    for (let j=Math.max(1,(cy-radius)|0); j<=Math.min(N,(cy+radius)|0); j++){
+      for (let i=Math.max(1,(cx-radius)|0); i<=Math.min(N,(cx+radius)|0); i++){
+        const dx=i-cx, dy=j-cy, d2=dx*dx+dy*dy;
+        if (d2<=r2 && d2>1e-6){
+          const r = Math.sqrt(d2), w = 1 - d2/r2;
+          const tangx = -dy/r, tangy = dx/r;
+          const id = IX(i,j);
+          u0[id] += tangx * spin * w;
+          v0[id] += tangy * spin * w;
+        }
+      }
+    }
+  }
+
+  function addRadial(cx, cy, radius, power) {
+    const r2 = radius*radius;
+    for (let j=Math.max(1,(cy-radius)|0); j<=Math.min(N,(cy+radius)|0); j++){
+      for (let i=Math.max(1,(cx-radius)|0); i<=Math.min(N,(cx+radius)|0); i++){
+        const dx=i-cx, dy=j-cy, d2=dx*dx+dy*dy;
+        if (d2<=r2 && d2>1e-6){
+          const r = Math.sqrt(d2), w = 1 - d2/r2;
+          const id = IX(i,j);
+          u0[id] += (dx/r) * power * w;
+          v0[id] += (dy/r) * power * w;
+        }
+      }
+    }
+  }
+
+  function addRipple(cx, cy, radius, amp, phase) {
+    const r2 = radius*radius, rG = Math.max(6, radius*0.9);
+    for (let j=Math.max(1,(cy-radius)|0); j<=Math.min(N,(cy+radius)|0); j++){
+      for (let i=Math.max(1,(cx-radius)|0); i<=Math.min(N,(cx+radius)|0); i++){
+        const dx=i-cx, dy=j-cy, d2=dx*dx+dy*dy;
+        if (d2<=r2 && d2>1e-6){
+          const dist = Math.sqrt(d2);
+          const w = 1 - d2/r2;
+          const a = Math.sin((dist / rG) * Math.PI * 4 - phase) * amp * w;
+          const id = IX(i,j);
+          u0[id] += (dx/dist) * a;
+          v0[id] += (dy/dist) * a;
+        }
+      }
+    }
+  }
+
+  // ---------- UI / DOM ----------
+  const toolbar = document.getElementById('toolbar');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const newPanel = document.getElementById('newPanel');
+  const exportPanel = document.getElementById('exportPanel');
+  const resolutionEl = document.getElementById('resolution');
   const speedEl = document.getElementById('speed');
   const strengthEl = document.getElementById('strength');
   const sizeEl = document.getElementById('size');
   const viscEl = document.getElementById('visc');
   const diffEl = document.getElementById('diff');
   const colorSwatch = document.querySelector('#colorSelector .swatch');
-  const resolutionEl = document.getElementById('resolution');
-  const toolbar = document.getElementById('toolbar');
-  const settingsBtn = document.getElementById('settingsBtn');
   const colorPickerPopup = document.getElementById('colorPickerPopup');
+
+  // Color picker
   const colorPicker = new iro.ColorPicker('#colorPickerPopup', {
     width: 180,
     color: '#00aaff',
-    layout: [
-      { component: iro.ui.Wheel },
-      { component: iro.ui.Box }
-    ]
+    layout: [ { component: iro.ui.Wheel }, { component: iro.ui.Box } ]
   });
   colorPicker.on('color:change', (color) => {
     colorSwatch.style.background = color.hexString;
     pourColor = [color.rgb.r, color.rgb.g, color.rgb.b];
   });
 
-  if (resolutionEl) {
-    resolutionEl.addEventListener('input', () => {
-      resizeGrid(parseInt(resolutionEl.value));
-    });
-  }
+  // Toolbar reveal
+  document.addEventListener('mousemove', (e) => {
+    if (e.clientY > window.innerHeight * 0.8) toolbar.classList.add('show');
+    else toolbar.classList.remove('show');
+  });
+
+  // Color selector popup
   document.getElementById('colorSelector').addEventListener('click', (e) => {
     e.stopPropagation();
     colorPickerPopup.style.display = colorPickerPopup.style.display === 'block' ? 'none' : 'block';
@@ -306,81 +615,11 @@ body {
       colorPickerPopup.style.display = 'none';
     }
   });
-  settingsBtn.addEventListener('click', () => {
-    openPanel(settingsPanel);
-  });
 
-  // Dropdown elements for colour and blend tools
-  const colorDropdown = document.getElementById('colorDropdown');
-  const blendDropdown = document.getElementById('blendDropdown');
-  // New artwork colour controls
-  const newColorsEl = document.getElementById('newColors');
-  const newColorInputs = document.getElementById('newColorInputs');
-
-  // Show toolbar when the cursor is near the bottom of the screen
-  document.addEventListener('mousemove', (e) => {
-    if (e.clientY > window.innerHeight * 0.8) {
-      toolbar.classList.add('show');
-    } else {
-      toolbar.classList.remove('show');
-    }
-  });
-  // Dropdown toggling for colour and blend tool menus
-  function closeDropdowns() {
-    colorDropdown.classList.remove('open');
-    blendDropdown.classList.remove('open');
-  }
-  colorDropdown.querySelector('.group-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    const open = colorDropdown.classList.contains('open');
-    closeDropdowns();
-@@ -1081,54 +1160,58 @@ body {
-    }
-    // If no colors selected (fallback), generate random colours
-    if (cols.length === 0) {
-      for(let i=0; i<count; i++){
-        const r = Math.floor(50+Math.random()*205);
-        const g = Math.floor(50+Math.random()*205);
-        const b = Math.floor(50+Math.random()*205);
-        cols.push('#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1));
-      }
-    }
-    seedLayout(layout, cols);
-    pushUndo();
-    closePanel(newPanel);
-  });
-  // Export
-  document.getElementById('exportBtn').addEventListener('click', () => {
-    openPanel(exportPanel);
-  });
-  document.getElementById('exportDownload').addEventListener('click', () => {
-    const format = document.getElementById('exportFormat').value;
-    let width = parseInt(document.getElementById('exportWidth').value) || W;
-    let height = parseInt(document.getElementById('exportHeight').value) || H;
-    width = clamp(width, 100, 4096);
-    height = clamp(height, 100, 4096);
-    const quality = parseFloat(document.getElementById('exportQuality').value) || 0.92;
-    withHighRes((done) => {
-      exportImage(format, width, height, quality, done);
-    });
-  });
-  document.getElementById('cameraBtn').addEventListener('click', () => {
-    withHighRes((done) => {
-      exportImage('jpeg', W, H, 0.92, done);
-    });
-  });
-  // Panels
-  const settingsPanel = document.getElementById('settingsPanel');
-  const newPanel = document.getElementById('newPanel');
-  const exportPanel = document.getElementById('exportPanel');
-  document.querySelectorAll('.close-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      closePanel(e.target.closest('div'));
-    });
-  });
+  // Panels open/close
   function openPanel(panel) {
     panel.style.display = 'block';
-    setTimeout(() => { panel.classList.add('open'); }, 10);
+    setTimeout(() => panel.classList.add('open'), 10);
     document.addEventListener('mousedown', outsideClick);
   }
   function closePanel(panel) {
@@ -393,9 +632,12 @@ body {
       [settingsPanel, newPanel, exportPanel].forEach(p => { p.style.display='none'; p.classList.remove('open'); });
       document.removeEventListener('mousedown', outsideClick);
     }
-@@ -1183,91 +1266,71 @@ body {
   }
-  // Drag for panels
+  document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => closePanel(e.target.closest('div')));
+  });
+
+  // Draggable panels
   document.querySelectorAll('#settingsPanel .panel-header, #newPanel .panel-header, #exportPanel .panel-header').forEach(header => {
     let offsetX=0, offsetY=0, dragging=false;
     header.addEventListener('mousedown', e => {
@@ -403,119 +645,213 @@ body {
       const rect = header.parentElement.getBoundingClientRect();
       offsetX = e.clientX - rect.left;
       offsetY = e.clientY - rect.top;
+      function drag(ev) {
+        if (!dragging) return;
+        const panel = header.parentElement;
+        panel.style.left = (ev.clientX - offsetX) + 'px';
+        panel.style.top = (ev.clientY - offsetY) + 'px';
+        panel.style.transform = '';
+      }
+      function stop() {
+        dragging = false;
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', stop);
+      }
       document.addEventListener('mousemove', drag);
       document.addEventListener('mouseup', stop);
     });
-    function drag(e) {
-      if (!dragging) return;
-      const panel = header.parentElement;
-      panel.style.left = (e.clientX - offsetX) + 'px';
-      panel.style.top = (e.clientY - offsetY) + 'px';
-      panel.style.transform = '';
-    }
-    function stop() {
-      dragging = false;
-      document.removeEventListener('mousemove', drag);
-      document.removeEventListener('mouseup', stop);
-    }
   });
-  // Disable default context menu
-  canvas.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
+
+  // Settings button
+  const settingsBtn = document.getElementById('settingsBtn');
+  settingsBtn.addEventListener('click', () => openPanel(settingsPanel));
+
+  // Dropdowns
+  const colorDropdown = document.getElementById('colorDropdown');
+  const blendDropdown = document.getElementById('blendDropdown');
+  function closeDropdowns() { colorDropdown.classList.remove('open'); blendDropdown.classList.remove('open'); }
+  colorDropdown.querySelector('.group-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = colorDropdown.classList.contains('open');
+    closeDropdowns(); if (!open) colorDropdown.classList.add('open');
   });
-  // Input events
-  canvas.addEventListener('mousedown', (e) => {
-    if (e.button === 0 || e.button === 2) {
-      holding = true;
-      holdButton = e.button;
-      holdStart = performance.now();
-      cursorX = e.offsetX * DPR;
-      cursorY = e.offsetY * DPR;
-      prevX = cursorX; prevY = cursorY;
-      maybeTip(currentTool);
-      e.preventDefault();
+  blendDropdown.querySelector('.group-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = blendDropdown.classList.contains('open');
+    closeDropdowns(); if (!open) blendDropdown.classList.add('open');
+  });
+  document.addEventListener('click', () => closeDropdowns());
+
+  // Tool selection
+  document.querySelectorAll('.tool-options .tool-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      currentTool = btn.dataset.tool;
+      document.querySelectorAll('.tool-options .tool-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // New Artwork panel logic
+  const newColorsEl = document.getElementById('newColors');
+  const newColorInputs = document.getElementById('newColorInputs');
+  function rebuildColorInputs() {
+    const count = parseInt(newColorsEl.value)||1;
+    newColorInputs.innerHTML = '';
+    for (let i=0;i<count;i++){
+      const wrap = document.createElement('label');
+      wrap.textContent = `Color ${i+1}`;
+      const input = document.createElement('input');
+      input.type = 'color';
+      input.value = '#'+((1<<24)+(Math.random()*255<<16)+(Math.random()*255<<8)+(Math.random()*255|0)).toString(16).slice(1);
+      input.dataset.index=i;
+      wrap.appendChild(input);
+      newColorInputs.appendChild(wrap);
     }
-  });
-  window.addEventListener('mouseup', (e) => {
-    if (holding && (e.button === holdButton)) {
-      holding = false;
-      pushUndo();
-    }
-  });
-  canvas.addEventListener('mousemove', (e) => {
-    const x = e.offsetX * DPR;
-    const y = e.offsetY * DPR;
-    if (holding) {
-      prevX = cursorX;
-      prevY = cursorY;
-    }
-    cursorX = x; cursorY = y;
-  });
-  canvas.addEventListener('touchstart', (e) => {
-    const t = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    holding = true;
-    holdButton = 0;
-    cursorX = (t.clientX - rect.left) * DPR;
-    cursorY = (t.clientY - rect.top) * DPR;
-    prevX = cursorX; prevY = cursorY;
-    maybeTip(currentTool);
-    e.preventDefault();
-  }, {passive:false});
-  canvas.addEventListener('touchmove', (e) => {
-    const t = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
-@@ -1278,70 +1341,71 @@ body {
-    e.preventDefault();
-  }, {passive:false});
-  canvas.addEventListener('touchend', () => {
-    holding = false;
+  }
+  newColorsEl.addEventListener('change', rebuildColorInputs);
+  rebuildColorInputs();
+
+  document.getElementById('newBtn').addEventListener('click', ()=>openPanel(newPanel));
+  document.getElementById('newConfirm').addEventListener('click', ()=>{
+    const layout = document.getElementById('newLayout').value;
+    const cols = [...newColorInputs.querySelectorAll('input[type="color"]')].map(i=>i.value);
+    seedLayout(layout, cols.length?cols:['#3399ff','#ff6699','#ffee66']);
     pushUndo();
-  }, {passive:true});
-  // Keyboard shortcuts
-  window.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-      e.preventDefault();
-      if (e.shiftKey) { redo(); } else { undo(); }
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-      e.preventDefault();
-      redo();
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
-      e.preventDefault();
-      exportImage('jpeg', W, H, 0.92);
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-      e.preventDefault();
-      openPanel(exportPanel);
-    }
+    closePanel(newPanel);
   });
+
+  // Export
+  document.getElementById('exportBtn').addEventListener('click', ()=>openPanel(exportPanel));
+  const exportDownloadBtn = document.getElementById('exportDownload');
+  if (exportDownloadBtn) {
+    exportDownloadBtn.addEventListener('click', () => {
+      const format = document.getElementById('exportFormat').value;
+      let width = parseInt(document.getElementById('exportWidth').value) || W;
+      let height = parseInt(document.getElementById('exportHeight').value) || H;
+      width = clamp(width, 100, 4096); height = clamp(height, 100, 4096);
+      const quality = parseFloat(document.getElementById('exportQuality').value) || 0.92;
+      withHighRes((done) => {
+        exportImage(format, width, height, quality, done);
+      });
+    });
+  }
+  document.getElementById('cameraBtn').addEventListener('click', () => {
+    withHighRes((done) => { exportImage('jpeg', W, H, 0.92, done); });
+  });
+
   function exportImage(format, width, height, quality, cb) {
-    // copy canvas to offscreen at new resolution
     const off = document.createElement('canvas');
-    off.width = width;
-    off.height = height;
+    off.width = width; off.height = height;
     const offCtx = off.getContext('2d');
-    // draw scaled image
     offCtx.drawImage(canvas, 0, 0, width, height);
-    const mime = format === 'png' ? 'image/png' :
-                 format === 'jpeg' ? 'image/jpeg' : 'image/webp';
+    const mime = format === 'png' ? 'image/png' : (format === 'webp' ? 'image/webp' : 'image/jpeg');
     off.toBlob((blob) => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       const date = new Date().toISOString().replace(/[:.]/g,'-');
       a.download = 'fluid-art-' + date + '.' + format;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1000);
       if (cb) cb();
     }, mime, quality);
     closePanel(exportPanel);
   }
-  // Render
+
+  // Undo / Redo (limit stacks)
+  const MAX_STACK = 10;
+  const undoStack = [];
+  const redoStack = [];
+  function snapshot() {
+    return {
+      N,
+      dR: dR.slice(), dG: dG.slice(), dB: dB.slice(),
+      u: u.slice(), v: v.slice()
+    };
+  }
+  function restore(state) {
+    N = state.N; alloc();
+    dR.set(state.dR); dG.set(state.dG); dB.set(state.dB);
+    u.set(state.u); v.set(state.v);
+    const resEl = document.getElementById('resolution'); if (resEl) resEl.value = N;
+  }
+  function pushUndo() {
+    undoStack.push(snapshot());
+    if (undoStack.length > MAX_STACK) undoStack.shift();
+    redoStack.length = 0;
+  }
+  function undo() {
+    if (!undoStack.length) return;
+    const cur = snapshot();
+    const prev = undoStack.pop();
+    redoStack.push(cur); if (redoStack.length > MAX_STACK) redoStack.shift();
+    restore(prev);
+  }
+  function redo() {
+    if (!redoStack.length) return;
+    const cur = snapshot();
+    const nxt = redoStack.pop();
+    undoStack.push(cur); if (undoStack.length > MAX_STACK) undoStack.shift();
+    restore(nxt);
+  }
+  document.getElementById('undoBtn').addEventListener('click', undo);
+  document.getElementById('redoBtn').addEventListener('click', redo);
+
+  // Input
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  canvas.addEventListener('mousedown', (e) => {
+    if (e.button === 0 || e.button === 2) {
+      holding = true; holdButton = e.button;
+      cursorX = e.offsetX * DPR; cursorY = e.offsetY * DPR;
+      prevX = cursorX; prevY = cursorY;
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (holding && (e.button === holdButton)) { holding = false; pushUndo(); }
+  });
+  canvas.addEventListener('mousemove', (e) => {
+    const x = e.offsetX * DPR, y = e.offsetY * DPR;
+    if (holding) { prevX = cursorX; prevY = cursorY; }
+    cursorX = x; cursorY = y;
+  });
+  canvas.addEventListener('touchstart', (e) => {
+    const t = e.touches[0]; const rect = canvas.getBoundingClientRect();
+    holding = true; holdButton = 0;
+    cursorX = (t.clientX - rect.left) * DPR; cursorY = (t.clientY - rect.top) * DPR;
+    prevX = cursorX; prevY = cursorY; e.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener('touchmove', (e) => {
+    const t = e.touches[0]; const rect = canvas.getBoundingClientRect();
+    const x = (t.clientX - rect.left) * DPR, y = (t.clientY - rect.top) * DPR;
+    prevX = cursorX; prevY = cursorY; cursorX = x; cursorY = y; e.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener('touchend', () => { holding = false; pushUndo(); }, {passive:true});
+
+  // Shortcuts
+  window.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
+    if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); redo(); }
+    if ((e.ctrlKey || e.metaKey) && k === 'p') { e.preventDefault(); exportImage('jpeg', W, H, 0.92); }
+    if ((e.ctrlKey || e.metaKey) && k === 's') { e.preventDefault(); openPanel(exportPanel); }
+  });
+
+  // Tool dropdown behavior already set above. Set default active.
+  document.querySelector('[data-tool="bucket"]')?.classList.add('active');
+
+  // Resolution slider
+  if (resolutionEl) resolutionEl.addEventListener('input', ()=> resizeGrid(parseInt(resolutionEl.value)));
+
+  // Welcome
+  const welcome = document.getElementById('welcomeOverlay');
+  const welcomeClose = document.getElementById('welcomeClose');
+  if (welcome && welcomeClose) {
+    setTimeout(()=> welcome.style.display='block', 600);
+    welcomeClose.addEventListener('click', ()=> closePanel(welcome));
+  }
+
+  // ---------- Render ----------
   let img, pixels;
   function ensureImage() {
     if (!img || img.width !== W || img.height !== H) {
@@ -523,47 +859,101 @@ body {
       pixels = img.data;
     }
   }
+
   function draw() {
     ensureImage();
-    const sx = N / W;
-    const sy = N / H;
+    const sx = N / W, sy = N / H;
     let p = 0;
-    for(let y=0; y<H; y++){
+    for (let y=0; y<H; y++){
       const gy = clamp((y*sy+1)|0, 1, N);
-      for(let x=0; x<W; x++){
+      for (let x=0; x<W; x++){
         const gx = clamp((x*sx+1)|0, 1, N);
         const id = IX(gx, gy);
         pixels[p++] = clamp(dR[id], 0, 255)|0;
         pixels[p++] = clamp(dG[id], 0, 255)|0;
         pixels[p++] = clamp(dB[id], 0, 255)|0;
         pixels[p++] = 255;
-@@ -1364,29 +1428,29 @@ body {
-      else if (currentTool === 'smudge') addSmudge(dt);
-      else if (currentTool === 'push') addPush(dt);
-      else if (currentTool === 'pinch') addPinch(dt);
-      else if (currentTool === 'ripple') addRipple(dt);
+      }
     }
-    // Fluid simulation
+    ctx.putImageData(img, 0, 0);
+  }
+
+  // ---------- Step loop ----------
+  let last=performance.now();
+  function step(now) {
+    const dt = Math.min(0.033, (now - last)/1000) * (parseFloat(speedEl.value)||1); last = now;
+
+    // Apply active tool while holding
+    if (holding) {
+      const [gx, gy] = gridFromPx(cursorX, cursorY);
+      const [pgx, pgy] = gridFromPx(prevX, prevY);
+      const radius = parseFloat(sizeEl.value)||80;
+      const R = clamp((radius / Math.max(W,H)) * N * 2.2, 4, N/2);
+      const strength = parseFloat(strengthEl.value)||20;
+
+      if (currentTool === 'bucket') {
+        addCircleDye(gx, gy, R, pourColor, 1.5);
+      } else if (currentTool === 'spray') {
+        for (let k=0;k<30;k++){
+          const a = Math.random()*2*Math.PI;
+          const r = Math.random()*R;
+          addCircleDye(gx + Math.cos(a)*r, gy + Math.sin(a)*r, 2, pourColor, 1.0);
+        }
+      } else if (currentTool === 'splatter' || currentTool === 'glitter') {
+        const n = currentTool === 'glitter' ? 20 : 50;
+        for (let k=0;k<n;k++){
+          const a = Math.random()*2*Math.PI;
+          const r = Math.random()*R;
+          addCircleDye(gx + Math.cos(a)*r, gy + Math.sin(a)*r, currentTool==='glitter'?1.2:2.5, pourColor, 1.2);
+        }
+      } else if (currentTool === 'blender') {
+        const spin = (holdButton===2 ? -1 : 1) * (strength/30);
+        addVortex(gx, gy, R, spin);
+      } else if (currentTool === 'smudge') {
+        const dx = gx - pgx, dy = gy - pgy;
+        addRadial(gx, gy, R*0.8, 0.7*(dx+dy));
+        // add directional drag
+        const r2 = R*R;
+        for (let j=Math.max(1,(gy-R)|0); j<=Math.min(N,(gy+R)|0); j++){
+          for (let i=Math.max(1,(gx-R)|0); i<=Math.min(N,(gx+R)|0); i++){
+            const dx2=i-gx, dy2=j-gy, d2=dx2*dx2+dy2*dy2;
+            if (d2<=r2) {
+              const w = 1 - d2/r2;
+              const id = IX(i,j);
+              u0[id] += (gx-pgx)*0.8*w; v0[id] += (gy-pgy)*0.8*w;
+            }
+          }
+        }
+      } else if (currentTool === 'push') {
+        addRadial(gx, gy, R, strength/40);
+      } else if (currentTool === 'pinch') {
+        addRadial(gx, gy, R, (holdButton===2 ? 1 : -1) * strength/40);
+      } else if (currentTool === 'ripple') {
+        ripplePhase += dt*6;
+        addRipple(gx, gy, R, strength/60, ripplePhase);
+      }
+    }
+
+    // Fluid steps
     vel_step(u, v, u0, v0, +viscEl.value, dt);
-    // fade dyes slightly
+
+    // gentle fade
     for(let i=0;i<dR0.length;i++){
       dR0[i] = dR[i] * 0.999;
       dG0[i] = dG[i] * 0.999;
       dB0[i] = dB[i] * 0.999;
     }
     dens_step(dR, dG, dB, dR0, dG0, dB0, +diffEl.value, dt);
+
     draw();
     requestAnimationFrame(step);
   }
+
+  // ---------- Init ----------
   ensureCanvas();
+  pushUndo();
   requestAnimationFrame(step);
 })();
 </script>
-
-  <!-- Welcome overlay -->
-  <div id="welcomeOverlay">
-    <div class="panel-header"><h3>Welcome to Bucket</h3><button id="welcomeClose">&times;</button></div>
-    <p>Hover near the bottom of the page to reveal the toolbar. Use the settings button to adjust your brush and fluid settings. Right‑click now spins the blender in the opposite direction. Have fun creating your art!</p>
-  </div>
 </body>
 </html>
