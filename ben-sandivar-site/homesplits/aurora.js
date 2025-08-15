@@ -36,9 +36,11 @@
   let startT = performance.now();
   let phaseT = performance.now();
 
-  let gradPrev = makePhase(); // fading out
-  let gradNext = makePhase(); // fading in
-
+  let gradPrev = makePhase(); // preload first gradient
+  let gradNext = makePhase(); // preload second gradient
+  let mix = 0; // start at 0
+  const delta = 1 / (PHASE_MS / 16.67); // assuming ~60fps
+  
   // Smooth spectral bands
   const smooth = { bass: 0, mid: 0, treb: 0 };
   const lerp   = (a, b, t) => a + (b - a) * t;
@@ -162,6 +164,17 @@
 
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+
+  // 🌈 Gradient blending
+    drawGradient(ctx, gradPrev, 1 - mix);
+    drawGradient(ctx, gradNext, mix);
+
+    mix += delta;
+    if (mix >= 1) {
+      mix = 0;
+      gradPrev = gradNext;
+      gradNext = makePhase(); // generate new gradient
+    }
 
     // Draw everything to the buffer
     bctx.clearRect(0, 0, w, h);
