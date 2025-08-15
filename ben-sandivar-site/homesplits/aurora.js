@@ -145,11 +145,11 @@
       const f   = i / (n - 1 || 1);
       const hue = (phase.seed + i * (360 / n) +
                   36 * Math.sin(2 * Math.PI * (tGlobal / LOOP_S + phase.offset + i * 0.09))) % 360;
-      g.addColorStop(f, `hsla(${hue} 92% 55% / 0.96)`);
+    g.addColorStop(f, `hsla(${hue} 92% 55% / 1)`);
       if (i < n - 1) {
         const mid  = f + (1 / (n - 1)) * 0.5;
         const hue2 = (hue + 24) % 360;
-        g.addColorStop(mid, `hsla(${hue2} 88% 56% / 0.90)`);
+        g.addColorStop(mid, `hsla(${hue2} 92% 55% / 1)`);
       }
     }
     return g;
