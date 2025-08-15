@@ -1,3 +1,4 @@
+// aurora-visualizer.js
 (() => {
   const root = document.getElementById('music');
   if (!root) return;
@@ -7,52 +8,71 @@
   const audio  = root.querySelector('audio');
   if (!canvas || !layer || !audio) return;
 
+  /** @type {CanvasRenderingContext2D} */
   const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
 
-  // Offscreen for selective blur
-  let off, offCtx;
+  // Offscreen buffer to blur the whole composite in one pass.
+  const bufferCanvas = document.createElement('canvas');
+  /** @type {CanvasRenderingContext2D} */
+  const bctx = bufferCanvas.getContext('2d', { alpha: true, desynchronized: true });
 
+  // ---------------- Core state ----------------
   let acx, src, analyser, compressor;
-  let raf = 0, running = false, hidden = false;
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let raf = 0;
+  let running = false;
+  let hidden  = false;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Reused buffers (no GC churn)
   let td, fd;
-  let dpr = Math.max(1, Math.min(3, devicePixelRatio || 1));
 
+  // Hi-DPI
+  let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+
+  // Phase / timing
   const PHASE_MS = 45000;
   const LOOP_S   = 600;
+
   let startT = performance.now();
   let phaseT = performance.now();
+
   let gradA = makePhase();
   let gradB = makePhase();
 
-  const smooth = { bass:0, mid:0, treb:0 };
-  const lerp = (a,b,t)=> a+(b-a)*t;
+  // Smooth spectral bands
+  const smooth = { bass: 0, mid: 0, treb: 0 };
+  const lerp   = (a, b, t) => a + (b - a) * t;
 
+  // Resize handling
   const ro = new ResizeObserver(sizeCanvas);
   ro.observe(layer);
-  addEventListener('resize', () => {
-    const next = Math.max(1, Math.min(3, devicePixelRatio || 1));
+
+  window.addEventListener('resize', () => {
+    const next = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
     if (next !== dpr) { dpr = next; sizeCanvas(); }
-  }, { passive:true });
+  }, { passive: true });
 
   document.addEventListener('visibilitychange', () => {
     hidden = document.hidden;
-    if (hidden) stop(); else maybeStart();
-  });
+    if (hidden) stopDraw(); else maybeStart();
+  }, { passive: true });
 
-  audio.addEventListener('play',  onPlay,  { passive:true });
-  audio.addEventListener('pause', onPause, { passive:true });
-  audio.addEventListener('ended', onPause, { passive:true });
+  // Audio lifecycle
+  audio.addEventListener('play',  onPlay,  { passive: true });
+  audio.addEventListener('pause', onPause, { passive: true });
+  audio.addEventListener('ended', onPause, { passive: true });
 
-  if (reduced) return;
-  sizeCanvas();
+  if (reduced) return; // user prefers low motion
 
-  function ensureGraph(){
+  sizeCanvas(); // initial
+
+  // --------------- Audio graph ----------------
+  function ensureGraph() {
     if (acx) return;
     acx = new (window.AudioContext || window.webkitAudioContext)();
-    src = acx.createMediaElementSource(audio);
-    analyser = acx.createAnalyser();
+
+    src        = acx.createMediaElementSource(audio);
+    analyser   = acx.createAnalyser();
     compressor = acx.createDynamicsCompressor();
 
     analyser.fftSize = 1024;
@@ -66,200 +86,240 @@
     fd = new Uint8Array(analyser.frequencyBinCount);
   }
 
-  function sizeCanvas(){
+  // --------------- Geometry ----------------
+  function sizeCanvas() {
     const r = layer.getBoundingClientRect();
-    const w = Math.max(1, r.width|0);
-    const h = Math.max(1, r.height|0);
+    const w = Math.max(1, r.width  | 0);
+    const h = Math.max(1, r.height | 0);
 
-    canvas.width  = (w*dpr)|0;
-    canvas.height = (h*dpr)|0;
-    canvas.style.width  = w+'px';
-    canvas.style.height = h+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+    // Internal pixel size (Hi-DPI)
+    canvas.width       = (w * dpr) | 0;
+    canvas.height      = (h * dpr) | 0;
+    bufferCanvas.width = (w * dpr) | 0;
+    bufferCanvas.height= (h * dpr) | 0;
 
-    // Offscreen matches main
-    off = new OffscreenCanvas((w*dpr)|0, (h*dpr)|0);
-    offCtx = off.getContext('2d', { alpha:true });
-    offCtx.setTransform(dpr,0,0,dpr,0,0);
+    // Match CSS size so transforms map CSS px -> device px
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
+
+    // Scale contexts once
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  function makePhase(){
-    return { seed: Math.random()*360, n: pickN(),
-             ang: (Math.random()*6-3)*Math.PI/180, offset: Math.random()*1000 };
+  // --------------- Phases / Colors ----------------
+  function makePhase() {
+    return {
+      seed: Math.random() * 360,
+      n: pickCount(),
+      ang: (Math.random() * 6 - 3) * Math.PI / 180,
+      offset: Math.random() * 1000
+    };
   }
-  function pickN(){
+  function pickCount() {
     const r = Math.random();
     if (r < 0.70) return 4;
     if (r < 0.90) return 3;
     if (r < 0.97) return 5;
     return Math.random() < 0.5 ? 6 : 7;
   }
-  function loopT(){ const dt=(performance.now()-startT)/1000; return (dt%LOOP_S)/LOOP_S; }
 
-  function buildGradient(phase, t, w, h){
-    const drift = Math.sin(t*2*Math.PI/1800)*(10*Math.PI/180);
-    const ang = phase.ang + drift;
-    const r = Math.hypot(w,h);
-    const cx=w/2, cy=h*0.65;
-    const x0=cx - Math.cos(ang)*r/2, y0=cy - Math.sin(ang)*r/2;
-    const x1=cx + Math.cos(ang)*r/2, y1=cy + Math.sin(ang)*r/2;
+  function loopT() {
+    const dt = (performance.now() - startT) / 1000;
+    return (dt % LOOP_S) / LOOP_S;
+  }
 
-    const g = ctx.createLinearGradient(x0,y0,x1,y1);
-    const n = phase.n;
-    for(let i=0;i<n;i++){
-      const f = i/(n-1 || 1);
-      const hue = (phase.seed + i*(360/n) +
-        36*Math.sin(2*Math.PI*(t/LOOP_S + phase.offset + i*0.09))) % 360;
+  function buildGradient(phase, tGlobal, w, h) {
+    const drift = Math.sin(tGlobal * 2 * Math.PI / 1800) * (10 * Math.PI / 180);
+    const ang   = phase.ang + drift;
+
+    const r  = Math.hypot(w, h);
+    const cx = w / 2, cy = h * 0.65;
+    const x0 = cx - Math.cos(ang) * r / 2, y0 = cy - Math.sin(ang) * r / 2;
+    const x1 = cx + Math.cos(ang) * r / 2, y1 = cy + Math.sin(ang) * r / 2;
+
+    const g  = bctx.createLinearGradient(x0, y0, x1, y1);
+    const n  = phase.n;
+
+    for (let i = 0; i < n; i++) {
+      const f   = i / (n - 1 || 1);
+      const hue = (phase.seed + i * (360 / n) +
+                  36 * Math.sin(2 * Math.PI * (tGlobal / LOOP_S + phase.offset + i * 0.09))) % 360;
       g.addColorStop(f, `hsla(${hue} 92% 55% / 0.96)`);
-      if(i<n-1){
-        const mid = f + (1/(n-1))*0.5;
-        g.addColorStop(mid, `hsla(${(hue+24)%360} 88% 56% / 0.90)`);
+      if (i < n - 1) {
+        const mid  = f + (1 / (n - 1)) * 0.5;
+        const hue2 = (hue + 24) % 360;
+        g.addColorStop(mid, `hsla(${hue2} 88% 56% / 0.90)`);
       }
     }
     return g;
   }
 
-  function draw(){
+  // --------------- Draw ----------------
+  function draw() {
     if (!running) return;
     raf = requestAnimationFrame(draw);
 
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
 
-    // ---- AUDIO ----
+    // Draw everything to the buffer
+    bctx.clearRect(0, 0, w, h);
+
+    // Pull audio data once per frame
     analyser.getByteTimeDomainData(td);
     analyser.getByteFrequencyData(fd);
 
-    let sum=0; for(let i=0;i<td.length;i++){ const v=(td[i]-128)/128; sum+=v*v; }
-    const rms = Math.sqrt(sum/td.length);
+    // RMS
+    let sum = 0;
+    for (let i = 0; i < td.length; i++) {
+      const v = (td[i] - 128) / 128;
+      sum += v * v;
+    }
+    const rms = Math.sqrt(sum / td.length);
 
-    const nyq = acx.sampleRate/2;
-    const idx = hz => Math.min(fd.length-1, Math.max(0, Math.round(fd.length*(hz/nyq))));
-    const avg = (lo,hi)=>{ let s=0,c=0; for(let i=lo;i<=hi;i++){ s+=fd[i]; c++; } return c? s/c : 0; };
-    const bands = { bass: avg(idx(20),idx(140)), mid: avg(idx(300),idx(2000)), treb: avg(idx(4000),idx(12000)) };
-    smooth.bass = lerp(smooth.bass, bands.bass/255, 0.28);
-    smooth.mid  = lerp(smooth.mid,  bands.mid/255,  0.24);
-    smooth.treb = lerp(smooth.treb, bands.treb/255, 0.22);
+    // Bands
+    const nyq = acx.sampleRate / 2;
+    const idx = hz => Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
+    const avg = (lo, hi) => {
+      let s = 0, c = 0;
+      for (let i = lo; i <= hi; i++) { s += fd[i]; c++; }
+      return c ? s / c : 0;
+    };
+    const bands = {
+      bass: avg(idx(20), idx(140)),
+      mid:  avg(idx(300), idx(2000)),
+      treb: avg(idx(4000), idx(12000))
+    };
+    smooth.bass = lerp(smooth.bass, bands.bass / 255, 0.28);
+    smooth.mid  = lerp(smooth.mid,  bands.mid  / 255, 0.24);
+    smooth.treb = lerp(smooth.treb, bands.treb / 255, 0.22);
 
-    // ---- PHASE ----
+    // Phase mix
     const now = performance.now();
-    let mix = (now - phaseT) / PHASE_MS;
-    if (mix >= 1){ gradA = gradB; gradB = makePhase(); phaseT = now; mix = 0; }
+    let mix   = (now - phaseT) / PHASE_MS;
+    if (mix >= 1) {
+      gradA = gradB;
+      gradB = makePhase();
+      phaseT = now;
+      mix = 0;
+    }
 
+    // Precompute
     const tL = loopT();
-    const kx = 2*Math.PI/Math.max(360,w);
-    const ph = tL*2*Math.PI*0.8;
+    const kx = 2 * Math.PI / Math.max(360, w);
+    const ph = tL * 2 * Math.PI * 0.8;
 
-    const energy  = 0.55*smooth.bass + 0.35*smooth.mid + 0.10*smooth.treb;
-    const baseAmp = h * (0.22 + 0.55 * Math.min(1, rms*1.8));
+    const energy  = 0.55 * smooth.bass + 0.35 * smooth.mid + 0.10 * smooth.treb;
+    const baseAmp = h * (0.22 + 0.55 * Math.min(1, rms * 1.8));
     const maxRise = h * 0.50;
 
+    // Column modulation (soft parallax feel)
     const cols = 7;
-    const colMod = (x)=> {
-      let v=0;
-      for(let c=1;c<=cols;c++) v += Math.sin((c*0.28)*kx*x + ph*c*0.33) / c;
-      return (v/cols)*0.6 + 0.8;
+    const colMod = (x) => {
+      let v = 0;
+      for (let c = 1; c <= cols; c++) v += Math.sin((c * 0.28) * kx * x + ph * c * 0.33) / c;
+      return (v / cols) * 0.6 + 0.8;
     };
 
-    // ---- PATH (wave crest) ----
+    // --- Build mask path once, then paint gradients under it ---
     const steps = 150;
     const path  = new Path2D();
-    path.moveTo(0,h);
+    path.moveTo(0, h);
+
     let topY = h;
-
-    for(let i=0;i<=steps;i++){
-      const x=(i/steps)*w;
+    for (let i = 0; i <= steps; i++) {
+      const x = (i / steps) * w;
       const yWave =
-        Math.sin(kx*x + ph)            * (0.55 + 0.30*smooth.mid)  +
-        Math.sin(kx*1.8*x + ph*1.15)   * (0.30 + 0.30*smooth.treb) +
-        Math.sin(kx*3.4*x + ph*0.9)    * (0.22 + 0.20*smooth.treb);
+        Math.sin(kx * x + ph)            * (0.55 + 0.30 * smooth.mid)  +
+        Math.sin(kx * 1.8 * x + ph*1.15) * (0.30 + 0.30 * smooth.treb) +
+        Math.sin(kx * 3.4 * x + ph*0.9 ) * (0.22 + 0.20 * smooth.treb);
 
-      let rise = (baseAmp*(0.5+0.5*yWave)*(0.70 + 0.50*energy))*colMod(x);
+      let rise = (baseAmp * (0.5 + 0.5 * yWave) * (0.70 + 0.50 * energy)) * colMod(x);
       rise = Math.min(rise, maxRise);
-      const y = h - (h*0.10 + rise);
+      const y = h - (h * 0.10 + rise);
       topY = Math.min(topY, y);
-      path.lineTo(x,y);
+      path.lineTo(x, y);
     }
-    path.lineTo(w,h); path.closePath();
+    path.lineTo(w, h);
+    path.closePath();
 
-    const gA = buildGradient(gradA, now/1000, w, h);
-    const gB = buildGradient(gradB, now/1000, w, h);
+    // Paint blended gradients (on buffer)
+    const gA = buildGradient(gradA, now / 1000, w, h);
+    const gB = buildGradient(gradB, now / 1000, w, h);
 
-    // ---- RENDER CRISP BASE ON MAIN ----
-    ctx.clearRect(0,0,w,h);
-    ctx.globalAlpha = 1 - mix; ctx.fillStyle = gA; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha = mix;     ctx.fillStyle = gB; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha = 1;
+    bctx.globalCompositeOperation = 'source-over';
+    bctx.globalAlpha = 1 - mix;
+    bctx.fillStyle = gA; bctx.fillRect(0, 0, w, h);
+    bctx.globalAlpha = mix;
+    bctx.fillStyle = gB; bctx.fillRect(0, 0, w, h);
 
-    // keep only inside the wave
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.fill(path);
-    ctx.globalCompositeOperation = 'source-over';
+    // No internal bloom: keep edges clean; we blur final composite instead.
 
-    // ---- BUILD A MATCHING COPY ON OFFSCREEN (for blur) ----
-    offCtx.clearRect(0,0,w,h);
-    offCtx.globalAlpha = 1 - mix; offCtx.fillStyle = gA; offCtx.fillRect(0,0,w,h);
-    offCtx.globalAlpha = mix;     offCtx.fillStyle = gB; offCtx.fillRect(0,0,w,h);
-    offCtx.globalAlpha = 1;
-    offCtx.globalCompositeOperation = 'destination-in';
-    offCtx.fill(path);
-    offCtx.globalCompositeOperation = 'source-over';
+    // Keep only inside the wave shape
+    bctx.globalCompositeOperation = 'destination-in';
+    bctx.fill(path);
 
-    // ---- SELECTIVE BLUR: top 30% of the aurora only ----
-    // Compute band edge from the crest
-    const yCut = topY + 0.30 * (h - topY);
-
-    ctx.save();
-    // Clip to the vertical band only (let blur soften the rim)
-    ctx.beginPath();
-    ctx.rect(0, 0, w, yCut);
-    ctx.clip();
-
-    // Draw the blurred copy over the crisp base
-    ctx.filter = 'blur(2px)';
-    ctx.drawImage(off, 0, 0, w, h);
-    ctx.filter = 'none';
-    ctx.restore();
-
-    // ---- Optional soft atmospheric fade (keeps the top airy, not harsh) ----
-    const fade = ctx.createLinearGradient(0, 0, 0, h);
-    const fadeEnd = Math.max(0.28, (topY/h) - 0.02);
+    // Atmospheric fade to top
+    const fade = bctx.createLinearGradient(0, 0, 0, h);
+    const fadeEnd = Math.max(0.28, (topY / h) - 0.02);
     fade.addColorStop(0.00, 'rgba(0,0,0,1)');
     fade.addColorStop(fadeEnd, 'rgba(0,0,0,0)');
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillStyle = fade;
-    ctx.fillRect(0,0,w,h);
-    ctx.globalCompositeOperation = 'source-over';
+    bctx.globalCompositeOperation = 'destination-out';
+    bctx.fillStyle = fade;
+    bctx.fillRect(0, 0, w, h);
+
+    // Reset buffer composite mode
+    bctx.globalCompositeOperation = 'source-over';
+    bctx.globalAlpha = 1;
+
+    // ----- FINAL 2px BLUR PASS (on the main canvas) -----
+    ctx.clearRect(0, 0, w, h);
+    ctx.filter = 'blur(2px)';
+    // Draw buffer -> main, exact size (CSS px), DPR handled by transform.
+    ctx.drawImage(
+      bufferCanvas,
+      0, 0, bufferCanvas.width, bufferCanvas.height,
+      0, 0, w, h
+    );
+    ctx.filter = 'none';
   }
 
-  function onPlay(){
+  // --------------- Control ----------------
+  function onPlay() {
     ensureGraph();
-    acx.state === 'suspended' && acx.resume().catch(()=>{});
-    layer.classList.add('on');
+    if (acx.state === 'suspended') acx.resume().catch(() => {});
+    // If you previously toggled CSS classes for fade, keep them; no HTML change needed.
+    layer && layer.classList && layer.classList.add('on');
     maybeStart();
   }
-  function onPause(){
-    layer.classList.remove('on');
-    stop();
-    acx && acx.state === 'running' && acx.suspend().catch(()=>{});
+
+  function onPause() {
+    layer && layer.classList && layer.classList.remove('on');
+    stopDraw();
+    if (acx && acx.state === 'running') acx.suspend().catch(() => {});
   }
-  function maybeStart(){
+
+  function maybeStart() {
     if (running || hidden || reduced) return;
     running = true;
     startT = performance.now();
     raf = requestAnimationFrame(draw);
   }
-  function stop(){
+
+  function stopDraw() {
     running = false;
-    if (raf) cancelAnimationFrame(raf);
-    raf = 0;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
   }
 
-  addEventListener('beforeunload', () => {
-    stop(); ro.disconnect();
+  // --------------- Cleanup ----------------
+  window.addEventListener('beforeunload', () => {
+    stopDraw();
+    ro.disconnect();
     try { src && src.disconnect(); } catch {}
     try { analyser && analyser.disconnect(); } catch {}
     try { compressor && compressor.disconnect(); } catch {}
     try { acx && acx.close(); } catch {}
-  });
+  }, { passive: true });
+
 })();
