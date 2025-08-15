@@ -36,8 +36,8 @@
   let startT = performance.now();
   let phaseT = performance.now();
 
-  let gradA = makePhase();
-  let gradB = makePhase();
+  let gradPrev = makePhase(); // fading out
+  let gradNext = makePhase(); // fading in
 
   // Smooth spectral bands
   const smooth = { bass: 0, mid: 0, treb: 0 };
@@ -197,13 +197,12 @@
 
     // Phase mix
     const now = performance.now();
-    let mix   = (now - phaseT) / PHASE_MS;
+    let mix = (now - phaseT) / PHASE_MS;
     if (mix >= 1) {
-      gradA = gradB;
-      gradB = makePhase();
+      gradPrev = gradNext;        // preserve the one that was fading in
+      gradNext = makePhase();     // generate a new one to fade in
       phaseT = now;
       mix = 0;
-      const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix); // smooth easing
     }
 
     // Precompute
@@ -246,20 +245,20 @@
     path.closePath();
 
     // Paint blended gradients (on buffer)
-    const gA = buildGradient(gradA, now / 1000, w, h);
-    const gB = buildGradient(gradB, now / 1000, w, h);
-
+    const gPrev = buildGradient(gradPrev, now / 1000, w, h);
+    const gNext = buildGradient(gradNext, now / 1000, w, h);
+    
     // Smooth easing for blend
     const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix); // ease-in-out
 
     // Draw base gradient
     bctx.globalAlpha = 1;
-    bctx.fillStyle = gA;
+    bctx.fillStyle = gPrev;
     bctx.fillRect(0, 0, w, h);
 
     // Overlay next gradient with easing
     bctx.globalAlpha = easeMix;
-    bctx.fillStyle = gB;
+    bctx.fillStyle = gNext;
     bctx.fillRect(0, 0, w, h);
 
     // No internal bloom: keep edges clean; we blur final composite instead.
