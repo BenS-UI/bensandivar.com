@@ -1,314 +1,394 @@
+/* AURORA v1.0 — brand-new, self-contained visualizer
+   Wiring:
+     - Expects in DOM (inside #music): .aurora-layer > canvas#aurora, and one <audio>.
+     - No other site scripts required. No timers/UX logic. Audio-reactive only.
+
+   Behavior:
+     - Start on audio.play, stop on pause/ended.
+     - Queries ONLY: #music, .aurora-layer, #aurora, and the <audio> inside #music.
+     - Bail if any missing.
+*/
+
 (() => {
-  // ===== Targets =====
-  const music  = document.getElementById('music');
-  if (!music) return;
-
-  const layer  = music.querySelector('.aurora-layer');
-  const canvas = music.querySelector('#aurora');
-  const audio  = music.querySelector('audio');
-  if (!layer || !canvas || !audio) return;
-
-  const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
-
-  // ===== Tunables (from your superprompt) =====
+  // ---- Constants (quick tuning) ----
   const VISIBLE_MIN_HZ = 40;
   const VISIBLE_MAX_HZ = 18000;
-  const LOW_BANDS   = 3;
-  const MID_BANDS   = 18;
-  const HIGH_BANDS  = 27;
+  const LOW_BANDS = 3;
+  const MID_BANDS = 18;
+  const HIGH_BANDS = 27;
 
-  const LOW_SMOOTH  = 0.16;
-  const MID_SMOOTH  = 0.30;
+  const LOW_SMOOTH = 0.16;
+  const MID_SMOOTH = 0.30;
   const HIGH_SMOOTH = 0.38;
 
-  const FILL_ALPHA        = 0.98;  // inside shape
-  const GLOBAL_BLUR_PX    = 2;     // blur on the whole aurora body
-  const FEATHER_BLUR_PX   = 16;    // blur on the top-edge mask
-  const FEATHER_START_OFF = 0.06;  // start feather just above crest (fraction of height)
-  const FEATHER_SPREAD    = 0.22;
-  const MAX_HEIGHT_FRAC   = 0.90;  // 90% of canvas height
+  const FILL_ALPHA = 0.98;
+  const GLOBAL_BLUR_PX = 2;
+  const FEATHER_BLUR_PX = 16;
+  const FEATHER_START_OFFSET = 0.06;
+  const FEATHER_SPREAD = 0.22;
+  const MAX_HEIGHT_FRAC = 0.90;
 
-  const PHASE_MS = 45000;          // color morph
-  const LOOP_S   = 600;            // 10-min palette loop
+  const PHASE_MS = 45000;  // color morph time
+  const LOOP_S = 600;      // 10-min loop
 
   const FFT_SIZE = 2048;
   const SMOOTHING_TIME_CONSTANT = 0.72;
 
-  // ===== Audio =====
-  let acx, analyser, srcNode;
-  function ensureAudio() {
-    if (acx) return;
-    acx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = acx.createAnalyser();
-    analyser.fftSize = FFT_SIZE;
-    analyser.smoothingTimeConstant = SMOOTHING_TIME_CONSTANT;
-    srcNode = acx.createMediaElementSource(audio);
-    srcNode.connect(analyser);
-    analyser.connect(acx.destination);
+  // Weights: keep lows calmer, mids/ highs more present.
+  const WEIGHT_LOW  = 0.7;
+  const WEIGHT_MID  = 1.0;
+  const WEIGHT_HIGH = 1.1;
+
+  // ---- DOM targets (strict) ----
+  const root   = document.getElementById('music');
+  if (!root) return;
+
+  const layer  = root.querySelector('.aurora-layer');
+  const canvas = root.querySelector('#aurora');
+  const audio  = root.querySelector('audio');
+
+  if (!layer || !canvas || !audio) return;
+
+  // ---- Canvas setup ----
+  const ctx = canvas.getContext('2d', { desynchronized: true, alpha: true });
+  if (!ctx) return;
+
+  let running = false;
+  let rafId = 0;
+
+  // DPR-aware sizing (cap at 2 for perf)
+  const dpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, rect.width);
+    const h = Math.max(1, rect.height);
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resizeCanvas();
+  // Optional: observe size changes if the layout is fluid
+  const ro = new ResizeObserver(resizeCanvas);
+  ro.observe(canvas);
+
+  // ---- Audio nodes (lazy) ----
+  let audioCtx = null;
+  let analyser = null;
+  let source   = null;
+
+  let freqBins = null; // Uint8Array
+  let timeDomain = null; // Uint8Array
+
+  // Band model
+  let bands = []; // {loHz, hiHz, loBin, hiBin, weight, smooth, s}
+
+  function makeLogEdges(minHz, maxHz, count) {
+    const edges = new Array(count + 1);
+    const logMin = Math.log(minHz);
+    const logMax = Math.log(maxHz);
+    for (let i = 0; i <= count; i++) {
+      const t = i / count;
+      edges[i] = Math.exp(logMin + (logMax - logMin) * t);
+    }
+    return edges;
   }
 
-  // ===== Canvas sizing =====
-  function size() {
-    const r = layer.getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width  = Math.max(1, Math.round(r.width  * dpr));
-    canvas.height = Math.max(1, Math.round(r.height * dpr));
-  }
-  size();
-  addEventListener('resize', size, { passive:true });
+  function buildBands(sampleRate) {
+    // Visible clamp
+    const minHz = VISIBLE_MIN_HZ;
+    const maxHz = Math.min(VISIBLE_MAX_HZ, sampleRate * 0.5 * 0.85); // ignore top ~15% of Nyquist
 
-  // ===== Color Phases (10-min seamless loop with crossfade) =====
-  let t0 = performance.now();
-  let phaseStart = performance.now();
+    const lows = makeLogEdges(40, 120, LOW_BANDS);
+    const mids = makeLogEdges(120, 2500, MID_BANDS);
+    const highs = makeLogEdges(2500, maxHz, HIGH_BANDS);
 
-  const pickStops = () =>
-    (Math.random()<0.7?4 : Math.random()<0.9?3 : Math.random()<0.97?5 : (Math.random()<0.5?6:7));
+    const triples = [
+      { edges: lows,  weight: WEIGHT_LOW,  smooth: LOW_SMOOTH },
+      { edges: mids,  weight: WEIGHT_MID,  smooth: MID_SMOOTH },
+      { edges: highs, weight: WEIGHT_HIGH, smooth: HIGH_SMOOTH },
+    ];
 
-  const newPhase = () => ({
-    seed: Math.random()*360,
-    n: pickStops(),
-    ang: (Math.random()*6 - 3) * Math.PI/180, // near-vertical slight tilt
-    off: Math.random()*1000
-  });
+    const result = [];
+    const nyquist = sampleRate / 2;
+    const binCount = FFT_SIZE / 2;
 
-  let gradA = newPhase();
-  let gradB = newPhase();
-
-  function loopFrac() {
-    const dt = (performance.now() - t0) / 1000;
-    return (dt % LOOP_S) / LOOP_S;
-  }
-
-  function buildGradient(p, t, w, h){
-    // slow drift to keep gradient alive, but not distracting
-    const drift = Math.sin(t*2*Math.PI/1800) * (10*Math.PI/180);
-    const ang = p.ang + drift;
-    const r  = Math.hypot(w,h);
-    const cx = w/2, cy = h*0.65;
-    const x0 = cx - Math.cos(ang)*r/2, y0 = cy - Math.sin(ang)*r/2;
-    const x1 = cx + Math.cos(ang)*r/2, y1 = cy + Math.sin(ang)*r/2;
-
-    const g = ctx.createLinearGradient(x0,y0,x1,y1);
-    const n = p.n;
-    for(let i=0;i<n;i++){
-      const f   = i/(n-1 || 1);
-      const hue = (p.seed + i*(360/n) + 36*Math.sin(2*Math.PI*(loopFrac() + p.off + i*0.09))) % 360;
-      // Bold, saturated, constant alpha inside the shape
-      g.addColorStop(f, `hsla(${hue} 96% 56% / ${FILL_ALPHA})`);
-      if(i<n-1){
-        // soft micro-cross stop to keep transitions buttery
-        const mid  = f + (1/(n-1))*0.5;
-        const hue2 = (hue + 24) % 360;
-        g.addColorStop(mid, `hsla(${hue2} 94% 55% / ${FILL_ALPHA})`);
+    for (const { edges, weight, smooth } of triples) {
+      for (let i = 0; i < edges.length - 1; i++) {
+        const lo = edges[i];
+        const hi = edges[i + 1];
+        const loBin = Math.max(0, Math.floor((lo / nyquist) * binCount));
+        const hiBin = Math.min(binCount - 1, Math.ceil((hi / nyquist) * binCount));
+        if (hiBin <= loBin) continue;
+        result.push({ loHz: lo, hiHz: hi, loBin, hiBin, weight, smooth, s: 0 });
       }
+    }
+    return result;
+  }
+
+  // ---- Color system (phase cross-fade + 10-min hue loop) ----
+  // Simple seeded PRNG for stable gradients per phase
+  function PRNG(seed) {
+    let s = seed >>> 0;
+    return function rnd() {
+      // xorshift32
+      s ^= s << 13; s >>>= 0;
+      s ^= s >>> 17; s >>>= 0;
+      s ^= s << 5;  s >>>= 0;
+      return (s >>> 0) / 0xFFFFFFFF;
+    };
+  }
+
+  function makeGradient(ctx, w, h, phaseIndex, baseHueDeg) {
+    const rnd = PRNG(0xA11CE ^ phaseIndex);
+    // 3–7 stops
+    const stopCount = 3 + Math.floor(rnd() * 5);
+    // Orientation: pick slight angle
+    const angle = rnd() * Math.PI * 2;
+    const x0 = w * (0.5 + 0.45 * Math.cos(angle));
+    const y0 = h * (0.5 + 0.45 * Math.sin(angle));
+    const x1 = w - x0;
+    const y1 = h - y0;
+    const g = ctx.createLinearGradient(x0, y0, x1, y1);
+
+    for (let i = 0; i < stopCount; i++) {
+      const t = i / (stopCount - 1);
+      // Bold saturation (90–100%), lightness (50–60%), slight hue drift per stop
+      const hue = (baseHueDeg + (rnd() * 60 - 30) + t * 90) % 360;
+      const sat = 90 + rnd() * 10;
+      const light = 50 + rnd() * 10;
+      g.addColorStop(t, `hsla(${hue}, ${sat}%, ${light}%, ${FILL_ALPHA})`);
     }
     return g;
   }
 
-  // ===== Band layout: zoomed musical range (48 bands total) =====
-  let bands = null;
-  function makeBands(){
-    const nyq  = acx.sampleRate/2;
-    // Ignore the very top (we explicitly cap at VISIBLE_MAX_HZ)
-    const minHz = Math.max(20, VISIBLE_MIN_HZ);
-    const maxHz = Math.min(VISIBLE_MAX_HZ, nyq*0.98);
+  const startEpoch = performance.now();
 
-    const bins = analyser.frequencyBinCount;
-    const idx  = hz => Math.max(0, Math.min(bins-1, Math.round(bins * (hz/nyq))));
+  function gradientPhases(w, h) {
+    const now = performance.now();
+    const loopT = ((now - startEpoch) / 1000) % LOOP_S;
+    const baseHue = (loopT / LOOP_S) * 360; // 0–360 over 10 minutes
 
-    const edgesLog = (min,max,nBands) => {
-      const out=[min], r=Math.pow(max/min, nBands);
-      let v=min;
-      for(let i=0;i<nBands;i++){ v*=Math.pow(max/min,1/nBands); out.push(v); }
-      return out;
-    };
+    const phase = Math.floor((now - startEpoch) / PHASE_MS);
+    const phaseT = ((now - startEpoch) % PHASE_MS) / PHASE_MS; // 0..1
 
-    const L = edgesLog( minHz,                     120,       LOW_BANDS); // 3
-    const M = edgesLog( Math.max(120,minHz),       2500,      MID_BANDS); // 18
-    const H = edgesLog( Math.max(2500,minHz),      maxHz,     HIGH_BANDS);// 27
+    const gradA = makeGradient(ctx, w, h, phase, baseHue);
+    const gradB = makeGradient(ctx, w, h, phase + 1, (baseHue + 20) % 360);
 
-    const edges = [...L, ...M.slice(1), ...H.slice(1)]; // contiguous
+    return { gradA, gradB, mix: phaseT };
+  }
 
-    bands = [];
-    for (let i=0;i<edges.length-1;i++){
-      const lo = idx(edges[i]);
-      const hi = idx(edges[i+1]);
-
-      // weights & smoothing per zone
-      let weight, smoothA;
-      if (i < LOW_BANDS) { weight = 0.35; smoothA = LOW_SMOOTH; }
-      else if (i < LOW_BANDS + MID_BANDS) { weight = 1.00; smoothA = MID_SMOOTH; }
-      else { weight = 1.20; smoothA = HIGH_SMOOTH; }
-
-      bands.push({ lo, hi, weight, a:smoothA, s:0 });
+  // ---- Envelope & curve ----
+  // Sample envelope across width with linear interp between band means.
+  function sampleEnvelopeAcrossWidth(bands, samples) {
+    const N = bands.length;
+    const arr = new Float32Array(samples);
+    for (let i = 0; i < samples; i++) {
+      const t = (i / (samples - 1)) * (N - 1);
+      const i0 = Math.floor(t);
+      const i1 = Math.min(N - 1, i0 + 1);
+      const f = t - i0;
+      const v = bands[i0].s * (1 - f) + bands[i1].s * f;
+      arr[i] = v;
     }
+    return arr;
   }
 
-  // Interpolate bands → continuous envelope [0..1] across width
-  function bandAt(u){
-    const N = bands.length; // 48
-    const x = u*(N-1);
-    const i = Math.floor(x);
-    const t = x - i;
-
-    const a = bands[Math.max(0, Math.min(N-1, i    ))].s;
-    const b = bands[Math.max(0, Math.min(N-1, i + 1))].s;
-    return a + (b - a) * t;
-  }
-
-  // Catmull–Rom → Bézier for vector-smooth crest (no angles)
-  function smoothPathCR(ctx, pts, tension=0.5){
+  // Catmull-Rom → cubic Bézier
+  function catmullRomToBezier(ctx, pts) {
+    if (pts.length < 2) return;
     ctx.moveTo(pts[0].x, pts[0].y);
-    for(let i=0;i<pts.length-1;i++){
-      const p0 = pts[Math.max(0, i-1)];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i];
       const p1 = pts[i];
-      const p2 = pts[Math.min(pts.length-1, i+1)];
-      const p3 = pts[Math.min(pts.length-1, i+2)];
-      const c1x = p1.x + (p2.x - p0.x) * (tension/6);
-      const c1y = p1.y + (p2.y - p0.y) * (tension/6);
-      const c2x = p2.x - (p3.x - p1.x) * (tension/6);
-      const c2y = p2.y - (p3.y - p1.y) * (tension/6);
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] || p2;
+
+      const c1x = p1.x + (p2.x - p0.x) / 6;
+      const c1y = p1.y + (p2.y - p0.y) / 6;
+      const c2x = p2.x - (p3.x - p1.x) / 6;
+      const c2y = p2.y - (p3.y - p1.y) / 6;
+
       ctx.bezierCurveTo(c1x, c1y, c2x, c2y, p2.x, p2.y);
     }
   }
 
-  // ===== Render =====
-  let raf=null, running=false;
-  function render(){
-    if(!running) return;
-    raf = requestAnimationFrame(render);
+  // ---- RMS + band energy driver ----
+  function computeRMS(td) {
+    let sum = 0;
+    const mid = 128;
+    for (let i = 0; i < td.length; i++) {
+      const v = (td[i] - mid) / 128; // -1..1
+      sum += v * v;
+    }
+    const rms = Math.sqrt(sum / td.length); // 0..~1
+    return Math.min(1, rms * 1.5);
+  }
 
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0,0,w,h);
+  // ---- Rendering loop ----
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 
-    // Color phase crossfade
-    const now = performance.now();
-    let mix = (now - phaseStart) / PHASE_MS;
-    if (mix >= 1){ gradA = gradB; gradB = newPhase(); phaseStart = now; mix = 0; }
+  function render() {
+    if (!running || !analyser) return;
 
-    // Audio pull
-    const td = new Uint8Array(1024);
-    analyser.getByteTimeDomainData(td);
-    let sum = 0; for (let i=0;i<td.length;i++){ const v=(td[i]-128)/128; sum += v*v; }
-    const rms = Math.sqrt(sum/td.length);
+    analyser.getByteFrequencyData(freqBins);
+    analyser.getByteTimeDomainData(timeDomain);
 
-    const fd = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(fd);
-
-    if (!bands) makeBands();
-
-    // Per-band update (smoothed and weighted)
-    for (let i=0;i<bands.length;i++){
+    // Per-band mean, normalize, weight, smooth
+    for (let i = 0; i < bands.length; i++) {
       const b = bands[i];
-      let s=0, c=0;
-      for (let k=b.lo; k<=b.hi; k++){ s += fd[k]; c++; }
-      const val = (c ? (s/c)/255 : 0) * b.weight;
-      b.s += (val - b.s) * b.a;
+      let sum = 0;
+      let count = 0;
+      for (let k = b.loBin; k <= b.hiBin; k++) {
+        sum += freqBins[k];
+        count++;
+      }
+      const mean = count ? sum / (count * 255) : 0; // 0..1
+      const v = mean * b.weight;
+      b.s += (v - b.s) * b.smooth;
     }
 
-    // Envelope → crest points (bottom anchored, no gap)
-    const N = 260;
-    const pts = [];
-    let crestY = h;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
 
-    // energy weighting (lows/mids/highs across your zones)
-    const lowAvg  = avg(0, LOW_BANDS-1);
-    const midAvg  = avg(LOW_BANDS, LOW_BANDS+MID_BANDS-1);
-    const highAvg = avg(LOW_BANDS+MID_BANDS, bands.length-1);
-    const energy  = 0.35*lowAvg + 0.45*midAvg + 0.20*highAvg;
+    // Envelope samples across width
+    const SAMPLES = Math.max(64, Math.floor(w / 8)); // smooth enough
+    const env = sampleEnvelopeAcrossWidth(bands, SAMPLES);
+
+    // Amplitude driver: mix RMS and band energy
+    let bandAvg = 0;
+    for (let i = 0; i < bands.length; i++) bandAvg += bands[i].s;
+    bandAvg /= bands.length;
+
+    const rms = computeRMS(timeDomain);
+    const energy = Math.min(1, 0.6 * bandAvg + 0.4 * rms);
 
     const maxRise = h * MAX_HEIGHT_FRAC;
-    const baseAmp = h * (0.15 + 0.75 * Math.min(1, rms*1.8)) * (0.55 + 0.45*energy);
+    const baseAmp = Math.min(maxRise, (0.12 * h) + energy * maxRise);
 
-    for (let i=0;i<=N;i++){
-      const u = i/N;
-      const x = u*w;
-      const env = Math.max(0, bandAt(u));
-      let rise  = baseAmp * env;
-      if (rise > maxRise) rise = maxRise;
-
-      const y = h - rise; // baseline = bottom (no gap)
-      crestY = Math.min(crestY, y);
+    // Build crest points (bottom-anchored)
+    const pts = [];
+    let crestY = h;
+    for (let i = 0; i < SAMPLES; i++) {
+      const x = (i / (SAMPLES - 1)) * w;
+      const rise = baseAmp * env[i];
+      const y = Math.max(0, h - rise); // bottom-anchored
+      if (y < crestY) crestY = y;
       pts.push({ x, y });
     }
 
-    // Clip aurora shape
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(0,h);
-    smoothPathCR(ctx, pts, 0.5);
-    ctx.lineTo(w,h);
-    ctx.closePath();
-    ctx.clip();
+    // Gradients (phase cross-fade)
+    const { gradA, gradB, mix } = gradientPhases(w, h);
 
-    // Global body blur for the entire aurora
+    // Draw shape
+    clearCanvas();
+    ctx.save();
     ctx.filter = `blur(${GLOBAL_BLUR_PX}px)`;
 
-    // Cross-faded gradient fill (bold colors, constant per-stop alpha)
-    const gA = buildGradient(gradA, now/1000, w, h);
-    const gB = buildGradient(gradB, now/1000, w, h);
-    ctx.globalCompositeOperation = 'screen';
-    ctx.globalAlpha = 1 - mix; ctx.fillStyle = gA; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha = mix;     ctx.fillStyle = gB; ctx.fillRect(0,0,w,h);
+    // Path: bottom-left → crest → bottom-right → close
+    ctx.beginPath();
+    // Bottom edge
+    ctx.moveTo(0, h);
+    // Smooth crest
+    catmullRomToBezier(ctx, pts);
+    // Down to bottom-right and close
+    ctx.lineTo(w, h);
+    ctx.closePath();
 
-    // Subtle bloom to tie colors together
-    ctx.filter = `blur(${GLOBAL_BLUR_PX + 8}px)`;
-    ctx.globalAlpha = 0.18;    ctx.fillStyle = gA; ctx.fillRect(0,0,w,h);
-    ctx.globalAlpha = 0.18*mix;ctx.fillStyle = gB; ctx.fillRect(0,0,w,h);
+    // Fill A
+    ctx.globalAlpha = (1 - mix);
+    ctx.fillStyle = gradA;
+    ctx.fill();
 
-    // Feathered fade-to-transparent only at the TOP edge (glow-soft, no hard cut)
-    const fade = ctx.createLinearGradient(0, 0, 0, h);
-    const crest      = Math.max(0.04, crestY/h);
-    const fadeStart  = Math.max(0, crest - FEATHER_START_OFF);
-    const fadeEnd    = Math.min(1, fadeStart + FEATHER_SPREAD);
-    fade.addColorStop(0.00, 'rgba(0,0,0,1)');
-    fade.addColorStop(fadeStart, 'rgba(0,0,0,1)');
-    fade.addColorStop((fadeStart+fadeEnd)/2, 'rgba(0,0,0,0.35)');
-    fade.addColorStop(fadeEnd, 'rgba(0,0,0,0)');
+    // Fill B (cross-fade)
+    ctx.globalAlpha = mix;
+    ctx.fillStyle = gradB;
+    ctx.fill();
 
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.filter = `blur(${FEATHER_BLUR_PX}px)`;
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = fade;
-    ctx.fillRect(0,0,w,h);
-
-    // Restore
-    ctx.filter = 'none';
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 1;
     ctx.restore();
 
-    function avg(a,b){ let s=0,c=0; for(let i=a;i<=b;i++){ s+=bands[i].s; c++; } return c? s/c:0; }
+    // Top-edge feather (destination-out)
+    // Start a bit above crest, fade over a vertical band
+    const startY = Math.max(0, crestY - FEATHER_START_OFFSET * h);
+    const endY = Math.min(h, startY + FEATHER_SPREAD * h);
+
+    const feather = ctx.createLinearGradient(0, startY, 0, endY);
+    feather.addColorStop(0, 'rgba(0,0,0,1)');
+    feather.addColorStop(1, 'rgba(0,0,0,0)');
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.filter = `blur(${FEATHER_BLUR_PX}px)`;
+    ctx.fillStyle = feather;
+    ctx.fillRect(0, startY, w, endY - startY);
+    ctx.restore();
+
+    // Keep going while playing
+    rafId = requestAnimationFrame(render);
   }
 
-  // ===== Lifecycle (ALWAYS-ON WHEN AUDIO PLAYS — no delays, no hover rules) =====
   function start() {
     if (running) return;
     running = true;
-    ensureAudio();
-    if (!bands) makeBands();
-    render();
+    rafId = requestAnimationFrame(render);
   }
+
   function stop() {
     running = false;
-    if (raf) { cancelAnimationFrame(raf); raf = null; }
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+    clearCanvas();
   }
 
-  // Show the layer immediately; draw only while playing
-  layer.classList.add('on');
+  // ---- Audio wiring on first gesture (play) ----
+  async function ensureAudio() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = FFT_SIZE;
+    analyser.smoothingTimeConstant = SMOOTHING_TIME_CONSTANT;
 
+    source = audioCtx.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    freqBins = new Uint8Array(analyser.frequencyBinCount);
+    timeDomain = new Uint8Array(analyser.fftSize);
+
+    bands = buildBands(audioCtx.sampleRate);
+  }
+
+  // ---- Events (drive only from audio) ----
   audio.addEventListener('play', async () => {
-    ensureAudio();
-    try { if (acx && acx.state === 'suspended') await acx.resume(); } catch {}
+    await ensureAudio();
+    try { await audioCtx.resume(); } catch (_) {}
     start();
-  });
-  ['pause','ended','emptied','abort','stalled','suspend'].forEach(ev =>
-    audio.addEventListener(ev, stop)
-  );
+  }, { passive: true });
 
-  // Public hooks (kept minimal)
+  audio.addEventListener('pause', () => {
+    stop();
+  }, { passive: true });
+
+  audio.addEventListener('ended', () => {
+    stop();
+  }, { passive: true });
+
+  // If src changes and autoplay triggers play, the 'play' handler handles it.
+
+  // ---- Public tiny hooks (optional) ----
   window.aurora = {
-    instant(){ start(); },
-    off(){ stop(); } // keeps the last frame visible in the layer
+    instant: () => {
+      if (!audio.paused) {
+        ensureAudio().then(() => {
+          audioCtx.resume().then(() => start());
+        });
+      }
+    },
+    off: () => {
+      stop();
+    }
   };
 })();
