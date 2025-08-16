@@ -56,7 +56,7 @@
 
   // ---------------- AURORA GATE (NEW) ----------------
   const SHOW_DELAY_MS = 10000; // 10s
-  const HOVER_OFF_MS  = 2500;  // 2.5s
+  const HOVER_OFF_MS  = 1500;  // 1.5s
 
   let hasEverPlayed = false;
   let lastStopCause = 'none'; // 'pause' | 'ended' | 'hover' | 'none'
