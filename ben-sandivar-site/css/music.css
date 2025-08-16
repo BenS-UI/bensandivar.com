@@ -194,3 +194,67 @@ body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-col
   z-index: 11;          /* higher than player bar (4) and aurora (2) */
   pointer-events: none; /* mouse clicks pass through; visuals still on top */
 }
+
+/* ==================== OVERRIDES: STABLE 50/50 PLAYER BAR ==================== */
+
+/* Lock player bar to two equal columns (left: meta+controls, right: progress) */
+.player-bar{
+  grid-template-columns: 1fr 1fr !important;
+}
+
+/* Left cluster wrapper (requires .player-left in markup) */
+.player-left{
+  display:flex;
+  align-items:center;
+  gap:.8rem;
+  min-width:0;           /* enable ellipsis */
+  font-size:0.5em;       /* ~50% smaller text per spec */
+}
+
+/* Make left-side buttons a bit smaller */
+.player-left .icon-btn{ width:28px; height:28px; border-radius:10px; }
+.player-left .icon-btn.primary{ width:34px; height:34px; }
+
+/* Slightly smaller art on left to save space */
+.player-left .now-art{ width:32px; height:32px; }
+
+/* Ellipsis and tooltip for long titles */
+.now{ display:flex; align-items:center; gap:.6rem; min-width:0; }
+.now-meta{ min-width:0; max-width: clamp(160px, 28vw, 420px); }
+.now-meta span,
+.now-meta small{
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.now-meta [data-full]{ position:relative; }
+.now-meta [data-full]:hover::after{
+  content: attr(data-full);
+  position:absolute;
+  left:0; top:120%;
+  max-width: min(60vw, 520px);
+  padding:.45rem .6rem;
+  font-size:.9em;
+  white-space:normal;
+  line-height:1.2;
+  border-radius:10px;
+  background: rgba(0,0,0,.85);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow: 0 8px 22px rgba(0,0,0,.35);
+  z-index: 9999;
+}
+
+/* Right side container (requires .player-right in markup) */
+.player-right{ min-width:0; }
+
+/* Keep progress full-width inside right column */
+.player-right .progress{ width:100%; }
+
+/* Stack on very narrow screens */
+@media (max-width:640px){
+  .player-bar{ grid-template-columns: 1fr !important; }
+  .player-right{ order:2; }
+  .player-left{ order:1; justify-content:space-between; }
+}
