@@ -61,6 +61,6 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.hero-content { pointer-events: auto; }
+.hero-content { pointer-events: none; }
 .hero-content a,
 .hero-content button { pointer-events: auto; }
