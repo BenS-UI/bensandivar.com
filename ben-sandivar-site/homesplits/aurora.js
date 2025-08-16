@@ -55,11 +55,6 @@
   const softClip = x => Math.tanh(x);
 
   // ---------------- AURORA GATE (NEW) ----------------
-  // Rules:
-  // - First ever play: wait 10s, then fade in.
-  // - Track-to-track (ended -> next): no wait, on immediately.
-  // - Pause -> Play: wait 10s again.
-  // - Hover inside player 2.5s: fade out. Re-enable after 10s idle or leave.
   const SHOW_DELAY_MS = 10000; // 10s
   const HOVER_OFF_MS  = 2500;  // 2.5s
 
@@ -68,7 +63,7 @@
   let onRequested   = false;  // gate request to show
   let delayUntil    = 0;      // absolute time to allow showing
 
-  // visual alpha (0..1), smooth eased each frame
+  // visual alpha (0..1)
   let alpha = 0;
 
   // hover timers + state (on the whole player window)
@@ -79,7 +74,7 @@
 
   function requestOnImmediate() {
     onRequested = true;
-    delayUntil = performance.now(); // no wait
+    delayUntil = performance.now();
   }
   function requestOnWithDelay(ms) {
     onRequested = true;
@@ -99,7 +94,6 @@
   function scheduleHoverIdleReenable() {
     clearTimeout(hoverIdleTimer);
     hoverIdleTimer = window.setTimeout(() => {
-      // 10s idle while still hovered OR after leaving → bring it back (no extra wait)
       if (!audio.paused) requestOnImmediate();
     }, SHOW_DELAY_MS);
   }
@@ -118,37 +112,33 @@
     if (hidden) stopDraw(); else maybeStart();
   }, { passive: true });
 
-  // Hover gating (only inside the player window area)
+  // Hover gating
   hoverArea.addEventListener('mouseenter', () => {
     hoverInside = true;
-    scheduleHoverOff();               // 2.5s → off
-    scheduleHoverIdleReenable();      // 10s without movement → back on
-  }, { passive: true });
-
-  hoverArea.addEventListener('mousemove', () => {
-    if (!hoverInside) return;
-    // pushing out the idle re-enable
+    scheduleHoverOff();
     scheduleHoverIdleReenable();
   }, { passive: true });
-
+  hoverArea.addEventListener('mousemove', () => {
+    if (!hoverInside) return;
+    scheduleHoverIdleReenable();
+  }, { passive: true });
   hoverArea.addEventListener('mouseleave', () => {
     hoverInside = false;
     clearTimeout(hoverOffTimer);
-    scheduleHoverIdleReenable(); // after 10s outside, come back
+    scheduleHoverIdleReenable();
   }, { passive: true });
 
-  audio.addEventListener('play',  onAudioPlay,  { passive: true });
+  audio.addEventListener('play',    onAudioPlay, { passive: true });
   audio.addEventListener('playing', onAudioPlay, { passive: true });
 
   audio.addEventListener('pause', () => {
-    requestOff('pause');              // fade out smoothly
-    // keep RAF running so fade-out can animate
+    requestOff('pause');
     if (!running) maybeStart();
     if (acx && acx.state === 'running') acx.suspend().catch(() => {});
   }, { passive: true });
 
   audio.addEventListener('ended', () => {
-    requestOff('ended');              // fade out, but next track will pop back immediately
+    requestOff('ended');
     if (!running) maybeStart();
     if (acx && acx.state === 'running') acx.suspend().catch(() => {});
   }, { passive: true });
@@ -317,7 +307,7 @@
   function bandValueAt(x, w) {
     const n = spectrumBands.length;
     const scaled = clamp01(x / Math.max(1, w)) * (n - 1);
-    const i0 = Math.floor(scaled);
+       const i0 = Math.floor(scaled);
     const i1 = Math.min(n - 1, i0 + 1);
     const t  = scaled - i0;
     const v0 = spectrumBands[i0];
@@ -375,7 +365,7 @@
     const baseAmpPx = h * 0.78;
     const dynCore   = 0.18 + 0.82 * totalEnergy;
 
-    // Scale motion by alpha (fade reduces height + opacity)
+    // Scale motion by alpha
     const vis = alpha;
     const dyn = dynCore * vis;
 
@@ -409,7 +399,7 @@
 
     // Draw gradients on buffer
     const intensityCore = clamp01(0.45 + 0.55 * totalEnergy);
-    const intensity = intensityCore * vis; // fade by alpha only
+    const intensity = intensityCore * vis;
     const gPrev = buildGradient(gradPrev, now / 1000, w, h, intensity);
     const gNext = buildGradient(gradNext, now / 1000, w, h, intensity);
     const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix);
@@ -424,7 +414,7 @@
     bctx.fill(path);
     bctx.globalCompositeOperation = 'source-over';
 
-    // Final blur pass, modulated by highs and alpha
+    // Final blur pass
     ctx.clearRect(0, 0, w, h);
     const blurRadius = (8 + 9 * highE) * (0.3 + 0.7 * vis);
     ctx.filter = `blur(${blurRadius}px)`;
@@ -449,20 +439,23 @@
     if (acx.state === 'suspended') acx.resume().catch(() => {});
     maybeStart();
 
-    // Decide delay behavior
+    // Do not override a scheduled first-play delay with a later 'playing' event
+    if (onRequested && performance.now() < delayUntil) {
+      return;
+    }
+
     if (!hasEverPlayed) {
       hasEverPlayed = true;
-      requestOnWithDelay(SHOW_DELAY_MS);
+      requestOnWithDelay(SHOW_DELAY_MS);   // enforce 10s wait on first play
     } else {
       if (lastStopCause === 'pause' || lastStopCause === 'hover') {
-        requestOnWithDelay(SHOW_DELAY_MS);
+        requestOnWithDelay(SHOW_DELAY_MS); // pause/resume: wait 10s
       } else if (lastStopCause === 'ended') {
-        requestOnImmediate(); // back-to-back track
+        requestOnImmediate();              // back-to-back track: no wait
       } else {
-        requestOnImmediate();
+        requestOnImmediate();              // default
       }
     }
-    // reset cause once we've requested on
     lastStopCause = 'none';
   }
 
@@ -479,7 +472,7 @@
 
   // --------------- Init kick ----------------
   ensureGraph();
-  // Start drawing only when needed; we’ll spin up on first play
+  // Start drawing only when needed
 
   // --------------- Cleanup ----------------
   window.addEventListener('beforeunload', () => {
