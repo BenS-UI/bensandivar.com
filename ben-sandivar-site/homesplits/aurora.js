@@ -128,7 +128,7 @@
     if (r < 0.9) return 3;
     if (r < 0.97) return 5;
     return Math.random() < 0.5 ? 6 : 7;
-    }
+  }
 
   function loopT() {
     const dt = (performance.now() - startT) / 1000;
@@ -197,21 +197,27 @@
 
   // ---------------- Audio Analysis: 60 bands with dynamic norm ----------------
   function percentile(arr, p) {
-    if (!arr.length) return 0;
-    const a = arr.slice().sort((x, y) => x - y);
+    const a = Array.from(arr).sort((x, y) => x - y);
     const idx = Math.min(a.length - 1, Math.max(0, Math.floor(p * (a.length - 1))));
-    return a[idx];
+    return a[idx] || 0;
   }
 
   function computeSpectrumBands() {
-    if (!BAND_SPECS) {
-      // Safety: build if not ready yet
-      BAND_SPECS = buildBands();
-    }
-    const raw = new Array(BAND_COUNT);
+    if (!BAND_SPECS) BAND_SPECS = buildBands();
+
+    const raw = new Float32Array(BAND_COUNT);
 
     // Average bins per band, apply per-region scale
-    for (let i = 0; i = 0.90));
+    for (let i = 0; i < BAND_COUNT; i++) {
+      const { lo, hi, scale } = BAND_SPECS[i];
+      let sum = 0, count = 0;
+      for (let j = lo; j <= hi; j++) { sum += fd[j]; count++; }
+      const avg = count ? (sum / count) / 255 : 0; // 0..1
+      raw[i] = avg * scale;
+    }
+
+    // Dynamic normalization so highs light up even when bass is huge
+    const p90 = Math.max(0.05, percentile(raw, 0.90));
     const norm = 1 / p90;
 
     for (let i = 0; i < BAND_COUNT; i++) {
