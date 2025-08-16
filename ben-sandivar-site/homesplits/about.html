@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About – Ben Sandivar</title>
+  <link rel="stylesheet" href="assets/css/about.css" />
+</head>
+<body>
+
 <!-- homesplits/about.html -->
 <section id="about" class="about-page fade-in" data-split="about">
   <div class="page-header">
@@ -7,8 +17,9 @@
   <div class="about-intro">
     <div class="intro-content">
       <div class="profile-container">
-        <div class="profile-pic">
+        <div class="profile-pic" data-bubbles>
           <img src="assets/Profile.png" alt="Ben Sandivar Profile Picture" />
+          <!-- Bubble canvas is injected by JS if motion allowed -->
         </div>
       </div>
       <div class="text-container">
@@ -24,3 +35,159 @@
     </div>
   </div>
 </section>
+
+<!-- Inline JS for rainbow bubble hover -->
+<script>
+(() => {
+  'use strict';
+
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wrappers = document.querySelectorAll('.profile-pic[data-bubbles]');
+  if (!wrappers.length || reduceMotion) return;
+
+  wrappers.forEach(initBubbleField);
+
+  function initBubbleField(wrapper) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'bubble-canvas';
+    wrapper.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d', { alpha: true });
+    let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+    let bubbles = [];
+    let running = false;
+    let rafId = null;
+    let lastTs = 0;
+
+    let scale = 1.6;
+    let cx = 0, cy = 0;
+
+    const ro = 'ResizeObserver' in window ? new ResizeObserver(() => resize()) : null;
+    if (ro) ro.observe(wrapper);
+    window.addEventListener('resize', resize);
+
+    resize();
+
+    wrapper.addEventListener('mouseenter', onEnter, { passive: true });
+    wrapper.addEventListener('mouseleave', onLeave, { passive: true });
+    window.addEventListener('pagehide', cleanup, { once: true });
+
+    function onEnter() {
+      running = true;
+      if (!rafId) {
+        lastTs = performance.now();
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
+    function onLeave() {
+      running = false;
+    }
+
+    function cleanup() {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+      if (ro) ro.disconnect();
+      bubbles.length = 0;
+    }
+
+    function resize() {
+      // Update DPR on resize/zoom for crisp edges
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+      const rect = wrapper.getBoundingClientRect();
+      const cssW = Math.max(1, rect.width * scale);
+      const cssH = Math.max(1, rect.height * scale);
+
+      canvas.style.width = cssW + 'px';
+      canvas.style.height = cssH + 'px';
+
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+
+      cx = canvas.width * 0.5;
+      cy = canvas.height * 0.5;
+    }
+
+    function tick(ts) {
+      const dt = Math.min(32, ts - lastTs) / 16.6667;
+      lastTs = ts;
+
+      if (running) spawn(Math.floor(rand(5, 9)));
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'screen';
+
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        const b = bubbles[i];
+
+        b.vx += b.ax * dt;
+        b.vy += b.ay * dt;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+        b.r += b.grow * dt;
+        b.life -= b.fade * dt;
+
+        const grd = ctx.createRadialGradient(
+          b.x, b.y, Math.max(0.0001, b.r * 0.12),
+          b.x, b.y, b.r
+        );
+        grd.addColorStop(0, `hsla(${b.h}, ${b.s}%, ${b.l}%, ${clamp(b.life * 0.9, 0, 1)})`);
+        grd.addColorStop(0.55, `hsla(${(b.h + 25) % 360}, ${b.s}%, ${Math.min(90, b.l + 15)}%, ${clamp(b.life * 0.35, 0, 1)})`);
+        grd.addColorStop(1, `hsla(${(b.h + 60) % 360}, ${b.s}%, ${b.l}%, 0)`);
+
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (b.life <= 0 || b.r > Math.max(canvas.width, canvas.height)) {
+          bubbles.splice(i, 1);
+        }
+      }
+
+      if (running || bubbles.length) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }
+
+    function spawn(n) {
+      const baseHue = Math.floor(rand(0, 360));
+      for (let i = 0; i < n; i++) {
+        const angle = rand(0, Math.PI * 2);
+        const speed = rand(0.35, 1.35) * dpr;
+        const jitter = rand(-6, 6) * dpr;
+
+        bubbles.push({
+          x: cx + Math.cos(angle) * jitter,
+          y: cy + Math.sin(angle) * jitter,
+
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+
+          ax: Math.cos(angle) * rand(0.01, 0.05) * dpr,
+          ay: Math.sin(angle) * rand(0.01, 0.05) * dpr,
+
+          r: rand(3, 9) * dpr,
+          grow: rand(0.18, 0.48) * dpr,
+          life: rand(0.55, 1.0),
+          fade: rand(0.02, 0.06),
+
+          h: (baseHue + rand(-40, 40) + 360) % 360,
+          s: rand(80, 100),
+          l: rand(50, 70)
+        });
+      }
+    }
+  }
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+})();
+</script>
+</body>
+</html>

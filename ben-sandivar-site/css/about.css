@@ -28,6 +28,12 @@
   justify-content: center;
 }
 
+.profile-pic {
+  position: relative;
+  overflow: visible;
+  isolation: isolate;
+}
+
 .profile-pic img {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -36,6 +42,24 @@
   display: block;
   border: 5px solid var(--color-secondary);
   box-shadow: 0 4px 15px var(--color-shadow);
+  position: relative;
+  z-index: 1;
+}
+
+/* Bubble canvas sits above the image */
+.bubble-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.profile-pic:hover .bubble-canvas {
+  opacity: 1;
 }
 
 .text-container {
@@ -77,4 +101,9 @@
     flex-basis: 100%;
     max-width: 100%;
   }
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  .bubble-canvas { display: none !important; }
 }
