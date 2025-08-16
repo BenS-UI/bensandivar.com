@@ -24,9 +24,12 @@
 
   // Reused buffers
   let td, fd;
-  const BAND_COUNT = 60;                         // 60 total bands
+
+  // Bands
+  const BAND_COUNT = 60; // 12 low + 18 mid + 30 high
   const spectrumBands = new Float32Array(BAND_COUNT);
   const smoothBands   = new Float32Array(BAND_COUNT);
+  let BAND_SPECS = null; // built after AudioContext exists
 
   // Hi-DPI
   let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
@@ -45,7 +48,7 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const clamp01 = v => Math.min(1, Math.max(0, v));
 
-  // Resize handling
+  // ---------------- Events ----------------
   const ro = new ResizeObserver(sizeCanvas);
   ro.observe(layer);
 
@@ -76,8 +79,7 @@
     compressor = acx.createDynamicsCompressor();
 
     analyser.fftSize = 2048;                  // good resolution, balanced CPU
-    analyser.smoothingTimeConstant = 0.6;     // slightly quicker highs
-    // Tighten analyzer window to lift quiet highs a bit
+    analyser.smoothingTimeConstant = 0.6;     // quicker highs
     analyser.minDecibels = -95;
     analyser.maxDecibels = -10;
 
@@ -87,6 +89,9 @@
 
     td = new Uint8Array(analyser.fftSize);
     fd = new Uint8Array(analyser.frequencyBinCount);
+
+    // Build band specs now that sampleRate and bin count exist
+    BAND_SPECS = buildBands();
   }
 
   // --------------- Geometry ----------------
@@ -123,7 +128,7 @@
     if (r < 0.9) return 3;
     if (r < 0.97) return 5;
     return Math.random() < 0.5 ? 6 : 7;
-  }
+    }
 
   function loopT() {
     const dt = (performance.now() - startT) / 1000;
@@ -161,13 +166,12 @@
   }
 
   // ---------------- Frequency layout (relevant range only) ----------------
-  // Trim to where modern music carries useful energy:
-  // Lows:   32–180 Hz  (12 bands)
-  // Mids:   180–3200 Hz (18 bands)
-  // Highs:  3200–16000 Hz (30 bands)
-  const LOW_CFG  = { f0: 32,   f1: 180,   count: 12, scale: 0.28 }; // very undersensitive
-  const MID_CFG  = { f0: 180,  f1: 3200,  count: 18, scale: 1.25 }; // moderate boost
-  const HIGH_CFG = { f0: 3200, f1: 16000, count: 30, scale: 2.8  }; // super-boosted
+  // Lows:  32–180 Hz  (12 bands, very undersensitive)
+  // Mids:  180–3200 Hz (18 bands, moderate boost)
+  // Highs: 3200–16000 Hz (30 bands, super-boosted)
+  const LOW_CFG  = { f0: 32,   f1: 180,   count: 12, scale: 0.28 };
+  const MID_CFG  = { f0: 180,  f1: 3200,  count: 18, scale: 1.25 };
+  const HIGH_CFG = { f0: 3200, f1: 16000, count: 30, scale: 2.8  };
 
   function hzToIndex(hz) {
     const nyq = acx.sampleRate / 2;
@@ -176,7 +180,6 @@
 
   function buildBands() {
     const specs = [];
-
     const pushLogRange = (cfg) => {
       const log0 = Math.log10(cfg.f0);
       const log1 = Math.log10(cfg.f1);
@@ -186,14 +189,11 @@
         specs.push({ lo: hzToIndex(fA), hi: hzToIndex(fB), scale: cfg.scale });
       }
     };
-
     pushLogRange(LOW_CFG);
     pushLogRange(MID_CFG);
     pushLogRange(HIGH_CFG);
     return specs;
   }
-
-  const BAND_SPECS = buildBands(); // 60 specs continuous, no gaps
 
   // ---------------- Audio Analysis: 60 bands with dynamic norm ----------------
   function percentile(arr, p) {
@@ -204,26 +204,21 @@
   }
 
   function computeSpectrumBands() {
+    if (!BAND_SPECS) {
+      // Safety: build if not ready yet
+      BAND_SPECS = buildBands();
+    }
     const raw = new Array(BAND_COUNT);
 
     // Average bins per band, apply per-region scale
-    for (let i = 0; i < BAND_COUNT; i++) {
-      const { lo, hi, scale } = BAND_SPECS[i];
-      let sum = 0, count = 0;
-      for (let j = lo; j <= hi; j++) { sum += fd[j]; count++; }
-      const avg = count ? (sum / count) / 255 : 0; // 0..1
-      raw[i] = avg * scale;
-    }
-
-    // Dynamic normalization so highs light up even when bass is huge
-    const p90 = Math.max(0.05, percentile(raw, 0.90));
+    for (let i = 0; i = 0.90));
     const norm = 1 / p90;
 
     for (let i = 0; i < BAND_COUNT; i++) {
-      // Loudness tilt: boost highs perceptually more than lows
-      const t = i / (BAND_COUNT - 1);                 // 0 (low) → 1 (high)
-      const gamma = 0.95 - 0.30 * t;                  // highs get lower gamma → more lift
-      const v = clamp01((raw[i] * norm));
+      // Loudness tilt: highs lift more than lows
+      const t = i / (BAND_COUNT - 1);       // 0 (low) → 1 (high)
+      const gamma = 0.95 - 0.30 * t;        // lower gamma on highs
+      const v = clamp01(raw[i] * norm);
       const shaped = Math.pow(v, gamma);
       spectrumBands[i] = lerp(smoothBands[i], shaped, 0.25); // temporal smoothing
       smoothBands[i]   = spectrumBands[i];
@@ -249,6 +244,7 @@
 
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+    if (w === 0 || h === 0) return; // hidden or not laid out yet
 
     // Update gradient phase mix (colors only)
     const now = performance.now();
@@ -267,9 +263,9 @@
 
     // Energy buckets (weighted toward highs)
     let lowE = 0, midE = 0, highE = 0;
-    for (let i = 0; i < LOW_CFG.count; i++)          lowE  += spectrumBands[i];
+    for (let i = 0; i < LOW_CFG.count; i++) lowE += spectrumBands[i];
     for (let i = LOW_CFG.count; i < LOW_CFG.count + MID_CFG.count; i++) midE += spectrumBands[i];
-    for (let i = LOW_CFG.count + MID_CFG.count; i < BAND_COUNT; i++)    highE += spectrumBands[i];
+    for (let i = LOW_CFG.count + MID_CFG.count; i < BAND_COUNT; i++) highE += spectrumBands[i];
 
     lowE  /= LOW_CFG.count;
     midE  /= MID_CFG.count;
@@ -278,25 +274,24 @@
     const totalEnergy = clamp01(0.25 * lowE + 0.35 * midE + 0.40 * highE);
 
     // Build smooth band-driven curve (Catmull–Rom → cubic Bézier)
-    const steps = 200; // more points = smoother curve
+    const steps = 200;
     const points = [];
-    const baseAmpPx = h * 0.55;        // max visual amplitude
+    const baseAmpPx = h * 0.55;
     const bottomPad = h * 0.10;
     const maxRise = h * 0.52;
 
-    // Soft dynamics so quiet parts still move a bit
     const dyn = 0.20 + 0.80 * totalEnergy;
 
     for (let i = 0; i <= steps; i++) {
       const x = (i / steps) * w;
-      let v = bandValueAt(x, w);                 // 0..1 after shaping
+      let v = bandValueAt(x, w); // 0..1 after shaping
+      v = Math.pow(v, 0.95);     // tiny extra lift to keep motion alive
       let rise = baseAmpPx * v * dyn;
       rise = Math.min(rise, maxRise);
       const y = h - (bottomPad + rise);
       points.push({ x, y });
     }
 
-    // Catmull–Rom to Bézier
     const path = new Path2D();
     path.moveTo(points[0].x, points[0].y);
     for (let i = 0; i < points.length - 1; i++) {
@@ -312,7 +307,6 @@
 
       path.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
     }
-    // Close to bottom for mask fill
     path.lineTo(w, h);
     path.lineTo(0, h);
     path.closePath();
@@ -370,6 +364,11 @@
     running = false;
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
   }
+
+  // --------------- Init kick ----------------
+  // Ensure graph early; start if audio already playing.
+  ensureGraph();
+  if (!audio.paused) maybeStart();
 
   // --------------- Cleanup ----------------
   window.addEventListener('beforeunload', () => {
