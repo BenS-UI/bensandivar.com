@@ -25,16 +25,16 @@
   // Reused buffers
   let td, fd;
 
-  // Bands
-  const BAND_COUNT = 60; // keep 60 points across the curve
+  // Bands (unchanged analysis)
+  const BAND_COUNT = 60;
   const spectrumBands = new Float32Array(BAND_COUNT);
   const smoothBands   = new Float32Array(BAND_COUNT);
-  let BAND_SPECS = null; // built after AudioContext exists
+  let BAND_SPECS = null;
 
   // Hi-DPI
   let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
-  // Color timing (shape is data-driven)
+  // Color timing (unchanged)
   const PHASE_MS = 45000;
   const LOOP_S   = 600;
 
@@ -47,12 +47,62 @@
 
   const lerp = (a, b, t) => a + (b - a) * t;
   const clamp01 = v => Math.min(1, Math.max(0, v));
-  const smoothstep = (edge0, edge1, x) => {
-    const t = clamp01((x - edge0) / (edge1 - edge0));
+  const smoothstep = (e0, e1, x) => {
+    const t = clamp01((x - e0) / (e1 - e0));
     return t * t * (3 - 2 * t);
   };
   const gauss = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2);
-  const softClip = x => Math.tanh(x); // gentle soft knee
+  const softClip = x => Math.tanh(x);
+
+  // ---------------- AURORA GATE (NEW) ----------------
+  // Rules:
+  // - First ever play: wait 10s, then fade in.
+  // - Track-to-track (ended -> next): no wait, on immediately.
+  // - Pause -> Play: wait 10s again.
+  // - Hover inside player 2.5s: fade out. Re-enable after 10s idle or leave.
+  const SHOW_DELAY_MS = 10000; // 10s
+  const HOVER_OFF_MS  = 2500;  // 2.5s
+
+  let hasEverPlayed = false;
+  let lastStopCause = 'none'; // 'pause' | 'ended' | 'hover' | 'none'
+  let onRequested   = false;  // gate request to show
+  let delayUntil    = 0;      // absolute time to allow showing
+
+  // visual alpha (0..1), smooth eased each frame
+  let alpha = 0;
+
+  // hover timers + state (on the whole player window)
+  const hoverArea = root.querySelector('.music-shell') || root;
+  let hoverInside = false;
+  let hoverOffTimer = 0;
+  let hoverIdleTimer = 0;
+
+  function requestOnImmediate() {
+    onRequested = true;
+    delayUntil = performance.now(); // no wait
+  }
+  function requestOnWithDelay(ms) {
+    onRequested = true;
+    delayUntil = performance.now() + ms;
+  }
+  function requestOff(cause) {
+    onRequested = false;
+    lastStopCause = cause || 'none';
+  }
+
+  function scheduleHoverOff() {
+    clearTimeout(hoverOffTimer);
+    hoverOffTimer = window.setTimeout(() => {
+      if (hoverInside) requestOff('hover');
+    }, HOVER_OFF_MS);
+  }
+  function scheduleHoverIdleReenable() {
+    clearTimeout(hoverIdleTimer);
+    hoverIdleTimer = window.setTimeout(() => {
+      // 10s idle while still hovered OR after leaving → bring it back (no extra wait)
+      if (!audio.paused) requestOnImmediate();
+    }, SHOW_DELAY_MS);
+  }
 
   // ---------------- Events ----------------
   const ro = new ResizeObserver(sizeCanvas);
@@ -68,9 +118,40 @@
     if (hidden) stopDraw(); else maybeStart();
   }, { passive: true });
 
-  audio.addEventListener('play',  onPlay,  { passive: true });
-  audio.addEventListener('pause', onPause, { passive: true });
-  audio.addEventListener('ended', onPause, { passive: true });
+  // Hover gating (only inside the player window area)
+  hoverArea.addEventListener('mouseenter', () => {
+    hoverInside = true;
+    scheduleHoverOff();               // 2.5s → off
+    scheduleHoverIdleReenable();      // 10s without movement → back on
+  }, { passive: true });
+
+  hoverArea.addEventListener('mousemove', () => {
+    if (!hoverInside) return;
+    // pushing out the idle re-enable
+    scheduleHoverIdleReenable();
+  }, { passive: true });
+
+  hoverArea.addEventListener('mouseleave', () => {
+    hoverInside = false;
+    clearTimeout(hoverOffTimer);
+    scheduleHoverIdleReenable(); // after 10s outside, come back
+  }, { passive: true });
+
+  audio.addEventListener('play',  onAudioPlay,  { passive: true });
+  audio.addEventListener('playing', onAudioPlay, { passive: true });
+
+  audio.addEventListener('pause', () => {
+    requestOff('pause');              // fade out smoothly
+    // keep RAF running so fade-out can animate
+    if (!running) maybeStart();
+    if (acx && acx.state === 'running') acx.suspend().catch(() => {});
+  }, { passive: true });
+
+  audio.addEventListener('ended', () => {
+    requestOff('ended');              // fade out, but next track will pop back immediately
+    if (!running) maybeStart();
+    if (acx && acx.state === 'running') acx.suspend().catch(() => {});
+  }, { passive: true });
 
   if (reduced) return;
   sizeCanvas();
@@ -85,7 +166,7 @@
     compressor = acx.createDynamicsCompressor();
 
     analyser.fftSize = 2048;
-    analyser.smoothingTimeConstant = 0.55; // balanced temporal smoothing
+    analyser.smoothingTimeConstant = 0.55;
     analyser.minDecibels = -95;
     analyser.maxDecibels = -10;
 
@@ -96,7 +177,6 @@
     td = new Uint8Array(analyser.fftSize);
     fd = new Uint8Array(analyser.frequencyBinCount);
 
-    // Build band specs now that sampleRate exists
     BAND_SPECS = buildBands();
   }
 
@@ -118,7 +198,7 @@
     bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  // --------------- Phases / Colors (background only) ----------------
+  // --------------- Phases / Colors (unchanged) ----------------
   function makePhase() {
     return {
       seed: Math.random() * 360,
@@ -168,11 +248,9 @@
     return g;
   }
 
-  // ---------------- Frequency layout (zoom to interesting 70%) ----------------
-  // Keep bass present but softer, mids smooth, highs hot.
-  // We REMOVE the dead top end by capping FMAX below Nyquist.
-  const FMIN = 32;         // Hz
-  const FMAX = 11000;      // Hz  ← dropped the useless top ~30%
+  // ---------------- Frequency layout (unchanged) ----------------
+  const FMIN = 32;        // Hz
+  const FMAX = 11000;     // Hz
   const LOW_COUNT  = 12;
   const MID_COUNT  = 18;
   const HIGH_COUNT = 30;
@@ -181,8 +259,6 @@
     const nyq = acx.sampleRate / 2;
     return Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
   }
-
-  // Build 60 log-spaced bands across [FMIN, FMAX] (smooth transitions)
   function buildBands() {
     const specs = [];
     const log0 = Math.log(FMIN);
@@ -192,73 +268,52 @@
       const b = (i + 1) / BAND_COUNT;
       const fA = Math.exp(log0 + (log1 - log0) * a);
       const fB = Math.exp(log0 + (log1 - log0) * b);
-      specs.push({ lo: hzToIndex(fA), hi: hzToIndex(fB), t: (i + 0.5) / BAND_COUNT }); // t in [0,1]
+      specs.push({ lo: hzToIndex(fA), hi: hzToIndex(fB), t: (i + 0.5) / BAND_COUNT });
     }
     return specs;
   }
-
-  // Continuous perceptual weighting:
-  // - Bass starts soft, rises into low-mids smoothly.
-  // - Mids are reduced (not flat-out), with a gentle notch.
-  // - Highs lift hard toward the top end.
   function weightForT(t) {
-    // Base rise from lows into early mids (smooth, no step)
-    let w = 0.28 + 0.72 * smoothstep(0.06, 0.32, t); // ≈0.28 → ~1.0 by ~0.32
-
-    // Mid notch (broad, gentle)
-    const notch = 0.30 * gauss(t, 0.46, 0.16); // center ~0.46, σ ~0.16
-    w *= (1 - notch); // reduce mids smoothly
-
-    // High lift (strong emphasis as t→1)
-    const lift = smoothstep(0.55, 1.0, t) ** 0.85; // earlier, smooth pull-up
-    w = w + (3.2 - w) * lift; // asymptote ~3.2 at the very top
-
+    let w = 0.28 + 0.72 * smoothstep(0.06, 0.32, t);
+    const notch = 0.30 * gauss(t, 0.46, 0.16);
+    w *= (1 - notch);
+    const lift = smoothstep(0.55, 1.0, t) ** 0.85;
+    w = w + (3.2 - w) * lift;
     return w;
   }
 
-  // ---------------- Audio Analysis: dynamic norm, continuous tilt ----------------
+  // ---------------- Audio Analysis (unchanged) ----------------
   function percentile(arr, p) {
     const a = Array.from(arr).sort((x, y) => x - y);
     const idx = Math.min(a.length - 1, Math.max(0, Math.floor(p * (a.length - 1))));
     return a[idx] || 0;
   }
-
   function computeSpectrumBands() {
     if (!BAND_SPECS) BAND_SPECS = buildBands();
 
     const raw = new Float32Array(BAND_COUNT);
 
-    // Average bins per band with continuous weighting
     for (let i = 0; i < BAND_COUNT; i++) {
       const { lo, hi, t } = BAND_SPECS[i];
       let sum = 0, count = 0;
       for (let j = lo; j <= hi; j++) { sum += fd[j]; count++; }
-      const avg = count ? (sum / count) / 255 : 0; // 0..1
+      const avg = count ? (sum / count) / 255 : 0;
       const w = weightForT(t);
       raw[i] = avg * w;
     }
 
-    // Robust frame normalization (ignore outliers, protect silence)
     const p90 = Math.max(0.02, percentile(raw, 0.90));
     const inv = 1 / p90;
 
-    // Temporal smoothing + slight high-tilt via gamma per-band
     for (let i = 0; i < BAND_COUNT; i++) {
       const t = (i + 0.5) / BAND_COUNT;
       const v = clamp01(raw[i] * inv);
-
-      // Lower gamma on highs → they “pop” more, mids stay honest
-      const gamma = 1.05 - 0.35 * t; // ~1.05 lows → ~0.70 highs
+      const gamma = 1.05 - 0.35 * t;
       const shaped = Math.pow(v, gamma);
-
-      // EMA smoothing (faster on highs to feel crisp)
-      const alpha = lerp(0.18, 0.28, t);
-      spectrumBands[i] = lerp(smoothBands[i], shaped, alpha);
+      const alphaT = lerp(0.18, 0.28, t);
+      spectrumBands[i] = lerp(smoothBands[i], shaped, alphaT);
       smoothBands[i]   = spectrumBands[i];
     }
   }
-
-  // Interpolated band value at horizontal x (smooth across bands)
   function bandValueAt(x, w) {
     const n = spectrumBands.length;
     const scaled = clamp01(x / Math.max(1, w)) * (n - 1);
@@ -279,8 +334,16 @@
     const h = canvas.clientHeight;
     if (w === 0 || h === 0) return;
 
-    // Update gradient phase mix (colors only)
+    // Gate alpha progression
     const now = performance.now();
+    const allowed = onRequested && now >= delayUntil && !hidden;
+    const targetAlpha = allowed ? 1 : 0;
+    const k = targetAlpha > alpha ? 0.08 : 0.10; // smooth in/out
+    alpha += (targetAlpha - alpha) * k;
+    if (alpha < 0.001) alpha = 0;
+    if (alpha > 0.999) alpha = 1;
+
+    // Update gradient phase mix (colors only)
     mix = (now - phaseT) / PHASE_MS;
     if (mix >= 1) {
       mix = 0;
@@ -294,36 +357,37 @@
     analyser.getByteFrequencyData(fd);
     computeSpectrumBands();
 
-    // Energy buckets (based on 12/18/30 split across 60)
+    // Energy buckets
     let lowE = 0, midE = 0, highE = 0;
     for (let i = 0; i < LOW_COUNT; i++) lowE += spectrumBands[i];
     for (let i = LOW_COUNT; i < LOW_COUNT + MID_COUNT; i++) midE += spectrumBands[i];
     for (let i = LOW_COUNT + MID_COUNT; i < BAND_COUNT; i++) highE += spectrumBands[i];
-
     lowE  /= LOW_COUNT;
     midE  /= MID_COUNT;
     highE /= HIGH_COUNT;
 
-    // Let highs drive the feel
     const totalEnergy = clamp01(0.15 * lowE + 0.30 * midE + 0.55 * highE);
 
-    // Build smooth band-driven curve (Catmull–Rom → cubic Bézier)
+    // Build smooth curve
     const steps = 220;
     const points = [];
     const bottomPad = h * 0.08;
-    const baseAmpPx = h * 0.78; // more headroom, avoid the “roof”
-    const dyn = 0.18 + 0.82 * totalEnergy;
+    const baseAmpPx = h * 0.78;
+    const dynCore   = 0.18 + 0.82 * totalEnergy;
+
+    // Scale motion by alpha (fade reduces height + opacity)
+    const vis = alpha;
+    const dyn = dynCore * vis;
 
     for (let i = 0; i <= steps; i++) {
       const x = (i / steps) * w;
-      let v = bandValueAt(x, w);        // 0..1 after shaping
-      v = softClip(v * 1.25);           // soft knee, more room before ceiling
+      let v = bandValueAt(x, w);
+      v = softClip(v * 1.25);
       let rise = baseAmpPx * v * dyn;
       const y = h - (bottomPad + rise);
       points.push({ x, y });
     }
 
-    // Vector path
     const path = new Path2D();
     path.moveTo(points[0].x, points[0].y);
     for (let i = 0; i < points.length - 1; i++) {
@@ -344,7 +408,8 @@
     path.closePath();
 
     // Draw gradients on buffer
-    const intensity = clamp01(0.45 + 0.55 * totalEnergy);
+    const intensityCore = clamp01(0.45 + 0.55 * totalEnergy);
+    const intensity = intensityCore * vis; // fade by alpha only
     const gPrev = buildGradient(gradPrev, now / 1000, w, h, intensity);
     const gNext = buildGradient(gradNext, now / 1000, w, h, intensity);
     const easeMix = 0.5 - 0.5 * Math.cos(Math.PI * mix);
@@ -359,28 +424,48 @@
     bctx.fill(path);
     bctx.globalCompositeOperation = 'source-over';
 
-    // Final blur pass, modulated by highs
+    // Final blur pass, modulated by highs and alpha
     ctx.clearRect(0, 0, w, h);
-    const blurRadius = 8 + 9 * highE;
+    const blurRadius = (8 + 9 * highE) * (0.3 + 0.7 * vis);
     ctx.filter = `blur(${blurRadius}px)`;
+    ctx.globalAlpha = vis;
     ctx.drawImage(
       bufferCanvas,
       0, 0, bufferCanvas.width, bufferCanvas.height,
       0, 0, w, h
     );
     ctx.filter = 'none';
+    ctx.globalAlpha = 1;
+
+    // Save CPU when fully off
+    if (!onRequested && alpha === 0 && !hoverInside && (audio.paused || audio.ended)) {
+      stopDraw();
+    }
   }
 
   // --------------- Control ----------------
-  function onPlay() {
+  function onAudioPlay() {
     ensureGraph();
     if (acx.state === 'suspended') acx.resume().catch(() => {});
     maybeStart();
+
+    // Decide delay behavior
+    if (!hasEverPlayed) {
+      hasEverPlayed = true;
+      requestOnWithDelay(SHOW_DELAY_MS);
+    } else {
+      if (lastStopCause === 'pause' || lastStopCause === 'hover') {
+        requestOnWithDelay(SHOW_DELAY_MS);
+      } else if (lastStopCause === 'ended') {
+        requestOnImmediate(); // back-to-back track
+      } else {
+        requestOnImmediate();
+      }
+    }
+    // reset cause once we've requested on
+    lastStopCause = 'none';
   }
-  function onPause() {
-    stopDraw();
-    if (acx && acx.state === 'running') acx.suspend().catch(() => {});
-  }
+
   function maybeStart() {
     if (running || hidden || reduced) return;
     running = true;
@@ -394,12 +479,14 @@
 
   // --------------- Init kick ----------------
   ensureGraph();
-  if (!audio.paused) maybeStart();
+  // Start drawing only when needed; we’ll spin up on first play
 
   // --------------- Cleanup ----------------
   window.addEventListener('beforeunload', () => {
     stopDraw();
     ro.disconnect();
+    clearTimeout(hoverOffTimer);
+    clearTimeout(hoverIdleTimer);
     try { src && src.disconnect(); } catch {}
     try { analyser && analyser.disconnect(); } catch {}
     try { compressor && compressor.disconnect(); } catch {}
