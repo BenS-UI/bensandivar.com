@@ -1,4 +1,6 @@
-/* utils */
+/* ===========================
+   utils
+   =========================== */
 [hidden]{display:none!important;}
 .hidden{display:none!important;}
 
@@ -13,6 +15,9 @@ section.bucket-hero{ position:relative; z-index:2; }
   contain: layout paint;
 }
 
+/* ===========================
+   MUSIC PLAYER WRAPPER
+   =========================== */
 .music-player{
   margin-top: clamp(24px, 8vh, 120px);
   margin-bottom: 10vh;
@@ -41,7 +46,9 @@ section.bucket-hero{ position:relative; z-index:2; }
 
 .page-header{ text-align:center; margin-bottom: 2rem; }
 
-/* VIEW SWITCH */
+/* ===========================
+   VIEW SWITCH
+   =========================== */
 .mode-lights{ position:absolute; top:.6rem; left:50%; transform:translateX(-50%); display:flex; gap:.5rem; align-items:center; z-index:6; }
 .mode-lights .light{
   width:12px; height:12px; border-radius:999px; border:0; cursor:pointer;
@@ -60,7 +67,9 @@ section.bucket-hero{ position:relative; z-index:2; }
 }
 .mode-lights:hover .hint{ opacity:1; }
 
-/* LAYERS (z-index order) */
+/* ===========================
+   LAYERS (z-index order)
+   =========================== */
 .views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; z-index:1; }
 .views-wrap.no-scroll{ overflow:hidden; }
 
@@ -80,7 +89,9 @@ section.bucket-hero{ position:relative; z-index:2; }
 /* player bar at top of stack */
 .player-bar{ position:relative; z-index:4; }
 
-/* LIST VIEW */
+/* ===========================
+   LIST VIEW
+   =========================== */
 .albums-view{ display:grid; gap:1.75rem; }
 .album-row{
   display:grid; grid-template-columns:140px 1fr; gap:1rem;
@@ -110,7 +121,9 @@ section.bucket-hero{ position:relative; z-index:2; }
 .t-title{ text-align:left; }
 .t-time{ text-align:right; opacity:.82; min-width:3.2rem; }
 
-/* TRACK VIEW (art only) */
+/* ===========================
+   TRACK VIEW (art only)
+   =========================== */
 .music-shell.track-bg{
   background: var(--stage-bg, radial-gradient(120% 140% at 50% 25%, rgba(0,0,0,.36), rgba(0,0,0,.9)));
 }
@@ -122,7 +135,17 @@ section.bucket-hero{ position:relative; z-index:2; }
 }
 #stage-art{ width:100%; height:100%; object-fit:cover; border-radius:18px; display:block; }
 
-/* PLAYER BAR */
+/* Put the main album art ABOVE EVERYTHING (aurora untouched) in track view */
+.music-shell.track-bg .views-wrap{ z-index: 10; }
+.music-shell.track-bg .track-view .stage-art-wrap{
+  position: relative;
+  z-index: 11;          /* higher than player bar (4) and aurora (2) */
+  pointer-events: none; /* mouse clicks pass through; visuals still on top */
+}
+
+/* ===========================
+   PLAYER BAR (base)
+   =========================== */
 .player-bar{
   margin-top:1rem;
   display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:center;
@@ -136,6 +159,7 @@ section.bucket-hero{ position:relative; z-index:2; }
 .now-meta{ display:flex; flex-direction:column; line-height:1.1; }
 .now-meta small{ opacity:.75; }
 
+/* Controls + buttons */
 .controls{ display:flex; gap:.5rem; align-items:center; }
 .icon-btn{
   display:grid; place-items:center; width:36px; height:36px; border-radius:12px;
@@ -147,7 +171,80 @@ section.bucket-hero{ position:relative; z-index:2; }
 .icon-btn.primary{ width:42px; height:42px; color:#fff; background: rgba(0,110,255,.18); border-color: rgba(0,110,255,.55); }
 .icon-btn.active{ box-shadow: 0 0 16px rgba(47,132,255,.6); }
 
-/* Progress */
+/* Toggle SVG / IMG icons */
+.toggle-icon{ display:none; vertical-align:middle; }
+.toggle-icon.active{ display:inline-block; }
+.icon-btn svg, .icon-btn img{ display:block; }
+
+/* Remote Iconify images: lock size in case of global img rules */
+.remote-icon{ width:20px; height:20px; }
+
+/* ===========================
+   PLAYER BAR (50/50 compact)
+   =========================== */
+.player-bar{
+  grid-template-columns: 1fr 1fr !important; /* lock to two equal columns */
+}
+.player-left{
+  display:grid;
+  grid-template-columns: auto 1fr; /* art+titles | controls */
+  gap:.75rem;
+  align-items:center;
+  min-width:0; /* enable ellipsis */
+  font-size:0.5em; /* ~50% smaller text/buttons per spec */
+}
+.player-left .controls{
+  margin-left:auto; /* keep controls pinned right within left half */
+  display:flex;
+  gap:.35rem;
+  align-items:center;
+  flex-shrink:0;
+}
+.player-right{ min-width:0; }
+
+/* Smaller art + buttons in compact bar */
+.player-bar.compact .now-art{ width:32px; height:32px; }
+.player-bar.compact .now-meta{ font-size:.78rem; line-height:1.1; }
+.player-bar.compact .icon-btn{ width:28px; height:28px; border-radius:10px; }
+.player-bar.compact .icon-btn.primary{ width:34px; height:34px; }
+
+/* Ellipsis + hover tooltips (use title attr) */
+.player-bar .now-meta{ min-width:0; }
+.player-bar .now-meta span,
+.player-bar .now-meta small{
+  display:block;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  position:relative;
+}
+.player-bar .now-meta [title]:hover::after{
+  content: attr(title);
+  position:absolute;
+  left:0; top:120%;
+  max-width: min(60vw, 520px);
+  padding:.45rem .6rem;
+  font-size:.9em;
+  white-space:normal;
+  line-height:1.2;
+  border-radius:10px;
+  background: rgba(0,0,0,.85);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow: 0 8px 22px rgba(0,0,0,.35);
+  z-index: 9999;
+}
+
+/* Stack on very narrow screens */
+@media (max-width:640px){
+  .player-bar{ grid-template-columns: 1fr !important; }
+  .player-right{ order:2; }
+  .player-left{ order:1; justify-content:space-between; }
+}
+
+/* ===========================
+   PROGRESS
+   =========================== */
 .progress{ display:grid; grid-template-columns:auto 1fr auto; gap:.6rem; align-items:center; }
 .time{ font-variant-numeric: tabular-nums; opacity:.85; min-width:3ch; text-align:right; }
 .bar{ position:relative; height:18px; display:flex; align-items:center; }
@@ -172,138 +269,9 @@ section.bucket-hero{ position:relative; z-index:2; }
   background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.9);
 }
 
-/* Dark theme ready */
-body[data-theme="dark"] .music-shell{
-  background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.02), rgba(0,0,0,.78));
-  border-color: rgba(255,255,255,.07);
-}
-body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
-body[data-theme="dark"] .player-bar{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
-body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); }
-
-/* ==================== ADDITIONS (track view only) ==================== */
-
-/* Icon toggle for play/pause (class-based) */
-.toggle-icon{ display:none; }
-.toggle-icon.active{ display:inline; }
-
-/* Track view: put the main album art ABOVE EVERYTHING (aurora untouched) */
-.music-shell.track-bg .views-wrap{ z-index: 10; } /* lift the whole view layer only in track view */
-.music-shell.track-bg .track-view .stage-art-wrap{
-  position: relative;
-  z-index: 11;          /* higher than player bar (4) and aurora (2) */
-  pointer-events: none; /* mouse clicks pass through; visuals still on top */
-}
-
-/* ==================== OVERRIDES: STABLE 50/50 PLAYER BAR ==================== */
-
-/* Lock player bar to two equal columns (left: meta+controls, right: progress) */
-.player-bar{
-  grid-template-columns: 1fr 1fr !important;
-}
-
-/* Left cluster wrapper (requires .player-left in markup) */
-.player-left{
-  display:flex;
-  align-items:center;
-  gap:.8rem;
-  min-width:0;           /* enable ellipsis */
-  font-size:0.5em;       /* ~50% smaller text per spec */
-}
-
-/* Make left-side buttons a bit smaller */
-.player-left .icon-btn{ width:28px; height:28px; border-radius:10px; }
-.player-left .icon-btn.primary{ width:34px; height:34px; }
-
-/* Slightly smaller art on left to save space */
-.player-left .now-art{ width:32px; height:32px; }
-
-/* Ellipsis and tooltip for long titles */
-.now{ display:flex; align-items:center; gap:.6rem; min-width:0; }
-.now-meta{ min-width:0; max-width: clamp(160px, 28vw, 420px); }
-.now-meta span,
-.now-meta small{
-  display:block;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.now-meta [data-full]{ position:relative; }
-.now-meta [data-full]:hover::after{
-  content: attr(data-full);
-  position:absolute;
-  left:0; top:120%;
-  max-width: min(60vw, 520px);
-  padding:.45rem .6rem;
-  font-size:.9em;
-  white-space:normal;
-  line-height:1.2;
-  border-radius:10px;
-  background: rgba(0,0,0,.85);
-  color:#fff;
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow: 0 8px 22px rgba(0,0,0,.35);
-  z-index: 9999;
-}
-
-/* Right side container (requires .player-right in markup) */
-.player-right{ min-width:0; }
-
-/* Keep progress full-width inside right column */
-.player-right .progress{ width:100%; }
-
-/* Stack on very narrow screens */
-@media (max-width:640px){
-  .player-bar{ grid-template-columns: 1fr !important; }
-  .player-right{ order:2; }
-  .player-left{ order:1; justify-content:space-between; }
-}
-
-/* === Player bar 50/50 split & stable controls === */
-.player-bar.compact{
-  display:grid;
-  grid-template-columns: 1fr 1fr; /* left cluster / right progress */
-  gap:1rem;
-  align-items:center;
-}
-.player-left{
-  display:grid;
-  grid-template-columns: auto 1fr; /* art+titles | controls */
-  gap:.75rem;
-  align-items:center;
-  min-width:0; /* allow ellipsis */
-}
-.player-right{ min-width:0; } /* progress half */
-
-.player-left .controls{
-  margin-left:auto; /* always right-anchored in left half */
-  display:flex;
-  gap:.35rem;
-  align-items:center;
-  flex-shrink:0;
-}
-
-/* 50% smaller titles/buttons in bar */
-.player-bar.compact .now-art{ width:32px; height:32px; }
-.player-bar.compact .now-meta{ font-size:.78rem; line-height:1.1; }
-.player-bar.compact .icon-btn{ width:28px; height:28px; border-radius:10px; }
-.player-bar.compact .icon-btn.primary{ width:34px; height:34px; }
-
-/* Ellipsis + hover tooltips */
-.player-bar .now-meta{ min-width:0; }
-.player-bar .now-meta span,
-.player-bar .now-meta small{
-  display:block;
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-}
-
-/* Toggle SVGs */
-.toggle-icon{ display:none; }
-.toggle-icon.active{ display:inline; }
-
-/* Minimal, non-invasive scrollbars */
+/* ===========================
+   SCROLLBARS (minimal)
+   =========================== */
 .views-wrap::-webkit-scrollbar{ width:6px; height:6px; }
 .views-wrap::-webkit-scrollbar-track{ background: transparent; }
 .views-wrap::-webkit-scrollbar-thumb{
@@ -311,3 +279,14 @@ body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-col
   border-radius:999px;
 }
 .views-wrap{ scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.25) transparent; }
+
+/* ===========================
+   DARK THEME
+   =========================== */
+body[data-theme="dark"] .music-shell{
+  background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.02), rgba(0,0,0,.78));
+  border-color: rgba(255,255,255,.07);
+}
+body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
+body[data-theme="dark"] .player-bar{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
+body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); }
