@@ -46,21 +46,15 @@
         <div class="controls" aria-label="Playback controls">
           <!-- Scope toggle: shows the ACTION you’ll switch to -->
           <button class="icon-btn" id="toggleScopeBtn" title="Switch to play 1 track">
-            <!-- PLAYLIST (play all library) – Tabler playlist -->
-            <svg class="toggle-icon scope-all" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <path d="M14 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-              <path d="M17 17v-13h4"/>
-              <path d="M13 5h-10"/>
-              <path d="M3 9l10 0"/>
-              <path d="M9 13h-6"/>
-            </svg>
-            <!-- PLAYLIST-X (play one / cancel playlist) – Tabler playlist-x -->
-            <svg class="toggle-icon scope-one active" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <!-- Use Iconify playlist-play for the ALL-library action -->
+            <img class="toggle-icon remote-icon scope-all"
+                 src="https://api.iconify.design/mdi/playlist-play.svg?color=%23fff"
+                 width="20" height="20" alt="" />
+            <!-- Keep “play one” as the playlist with X (visually obvious) -->
+            <!-- (Using Tabler inline as fallback until a perfect MDI slashed playlist variant is chosen) -->
+            <svg class="toggle-icon scope-one active" xmlns="http://www.w3.org/2000/svg"
+                 width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
               <path d="M3 5h10"/>
               <path d="M3 9h10"/>
@@ -71,9 +65,7 @@
           </button>
 
           <button class="icon-btn" id="prevBtn" title="Previous">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path d="M6 6v12M18 6l-8 6 8 6V6z" fill="currentColor"/>
-            </svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6v12M18 6l-8 6 8 6V6z" fill="currentColor"/></svg>
           </button>
 
           <!-- PLAY/PAUSE (class-based icon toggles) -->
@@ -87,73 +79,35 @@
           </button>
 
           <button class="icon-btn" id="nextBtn" title="Next">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path d="M18 6v12M6 6l8 6-8 6V6z" fill="currentColor"/>
-            </svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M18 6v12M6 6l8 6-8 6V6z" fill="currentColor"/></svg>
           </button>
 
-          <!-- Loop tri-state: off / all / one -->
+          <!-- Loop tri-state: off / all / one (Iconify) -->
           <button class="icon-btn" id="loopBtn" title="Loop off">
-            <!-- repeat-off (active by default) -->
-            <svg class="toggle-icon loop-off active" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <path d="M4 8h4v-4"/>
-              <path d="M4 12a4 4 0 0 0 8 0v-4"/>
-              <path d="M20 12a4 4 0 0 0 -4 -4"/>
-              <path d="M16 16h4v4"/>
-              <path d="M16 20a4 4 0 0 1 -4 -4v-4"/>
-              <path d="M3 3l18 18"/>
-            </svg>
-            <!-- repeat (loop all) -->
-            <svg class="toggle-icon loop-all" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <path d="M4 8h4v-4"/>
-              <path d="M4 12a4 4 0 1 0 4 -4h12"/>
-              <path d="M20 16h-4v4"/>
-              <path d="M20 12a4 4 0 1 1 -4 4h-12"/>
-            </svg>
-            <!-- repeat-once (loop one) -->
-            <svg class="toggle-icon loop-one" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <path d="M4 8h4v-4"/>
-              <path d="M4 12a4 4 0 1 0 4 -4h12"/>
-              <path d="M20 16h-4v4"/>
-              <path d="M20 12a4 4 0 1 1 -4 4h-12"/>
-              <path d="M11 11l1 -1v4"/>
-            </svg>
+            <!-- off -->
+            <img class="toggle-icon remote-icon loop-off active"
+                 src="https://api.iconify.design/mdi/repeat-off.svg?color=%23fff"
+                 width="20" height="20" alt="" />
+            <!-- all -->
+            <img class="toggle-icon remote-icon loop-all"
+                 src="https://api.iconify.design/mdi/repeat.svg?color=%23fff"
+                 width="20" height="20" alt="" />
+            <!-- one -->
+            <img class="toggle-icon remote-icon loop-one"
+                 src="https://api.iconify.design/mdi/repeat-once.svg?color=%23fff"
+                 width="20" height="20" alt="" />
           </button>
 
-          <!-- Shuffle toggle -->
+          <!-- Shuffle toggle (Iconify) -->
           <button class="icon-btn" id="shuffleBtn" title="Shuffle off">
-            <!-- arrows-shuffle (on) -->
-            <svg class="toggle-icon shuffle-on" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <path d="M18 4l3 3l-3 3"/>
-              <path d="M18 20l3 -3l-3 -3"/>
-              <path d="M3 7h5l7 10h6"/>
-              <path d="M3 17h5l7 -10h6"/>
-            </svg>
-            <!-- “off” = same icon + ban slash layered -->
-            <svg class="toggle-icon shuffle-off active" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                 viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M0 0h24v24H0z" stroke="none" fill="none"/>
-                <path d="M18 4l3 3l-3 3"/>
-                <path d="M18 20l3 -3l-3 -3"/>
-                <path d="M3 7h5l7 10h6"/>
-                <path d="M3 17h5l7 -10h6"/>
-                <path d="M9 9a6 6 0 1 0 6 6a6 6 0 0 0 -6 -6"/>
-                <path d="M14.5 14.5l-5 5"/>
-              </g>
-            </svg>
+            <!-- on -->
+            <img class="toggle-icon remote-icon shuffle-on"
+                 src="https://api.iconify.design/mdi/shuffle.svg?color=%23fff"
+                 width="20" height="20" alt="" />
+            <!-- off -->
+            <img class="toggle-icon remote-icon shuffle-off active"
+                 src="https://api.iconify.design/mdi/shuffle-disabled.svg?color=%23fff"
+                 width="20" height="20" alt="" />
           </button>
         </div>
       </div>
@@ -206,6 +160,7 @@
     const iconPause = document.getElementById('iconPause');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+
     const toggleScopeBtn = document.getElementById('toggleScopeBtn');
     const loopBtn = document.getElementById('loopBtn');
     const shuffleBtn = document.getElementById('shuffleBtn');
@@ -219,7 +174,7 @@
     const stageArt = document.getElementById('stage-art');
     const stageArtWrap = document.getElementById('stageArtWrap');
 
-    // --- placeholder CD (white) for player bar AND track view art before first selection ---
+    // --- placeholder CD (white) for player bar + stage BEFORE first selection ---
     function makeCDDataURL() {
       const svg =
         `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'>
@@ -236,12 +191,11 @@
     }
     const CD_PLACEHOLDER = makeCDDataURL();
 
-    // start with no selection (show the CD in BOTH the bar and the track view)
+    // start with no selection
     let hasSelection = false;
     nowArt.src = CD_PLACEHOLDER;
     nowArt.alt = 'No track selected';
-    stageArt.src = CD_PLACEHOLDER;
-    stageArt.alt = 'No track selected';
+    stageArt.removeAttribute('src'); // track view shows CD when toggled on (see setMode)
 
     // ---------- layout helpers ----------
     function setTooltip(el, text){ el.title = text || ''; }
@@ -262,10 +216,7 @@
                 <header class="playlist-head">
                   <h3>${name}</h3>
                   <button class="icon-btn play-all" title="Play all in ${name}">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                      <path d="M5 7h8M5 12h14M5 17h10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-                      <path d="M17 8v8l5-4z" fill="currentColor"/>
-                    </svg>
+                    <img src="https://api.iconify.design/mdi/playlist-play.svg?color=%23fff" width="18" height="18" alt="">
                   </button>
                 </header>
                 <ul class="track-list">${items}</ul>
@@ -288,7 +239,9 @@
     let currentAlbum = Object.keys(albumsMap)[0] || null;
 
     // Toggles
-    let scopeMode = 'all';          // 'all' (default) | 'track'
+    // scopeMode: what PLAY applies to from the bar
+    // 'all' = full library, 'track' = single current track
+    let scopeMode = 'all';          // default selected is "play all"
     let loopMode  = 'off';          // 'off' | 'all' | 'one'
     let shuffleOn = false;
 
@@ -320,12 +273,10 @@
       document.querySelectorAll('.album-row').forEach(r=> r.classList.toggle('active', r.dataset.album===name));
     }
 
-    // >>> UPDATED: set both bar art AND track-view art <<<
     function applyArt(t){
-      const art = t ? albumsMap[t.album].art : CD_PLACEHOLDER;
-      const alt = t ? `${t.album} art` : 'No track selected';
-      nowArt.src = art;   nowArt.alt = alt;
-      stageArt.src = art; stageArt.alt = alt;
+      nowArt.src = t ? albumsMap[t.album].art : CD_PLACEHOLDER;
+      nowArt.alt = t ? `${t.album} art` : 'No track selected';
+      stageArt.src = t ? albumsMap[t.album].art : '';
     }
 
     function loadTrackBySrc(src){
@@ -414,8 +365,8 @@
     toggleScopeBtn.addEventListener('click', ()=>{
       scopeMode = (scopeMode === 'all') ? 'track' : 'all';
       // Icon shows *the action you’ll switch to* on next click
-      toggleScopeBtn.querySelector('.scope-all').classList.toggle('active', scopeMode === 'track');
-      toggleScopeBtn.querySelector('.scope-one').classList.toggle('active', scopeMode === 'all');
+      toggleScopeBtn.querySelector('.scope-all')?.classList.toggle('active', scopeMode === 'track');
+      toggleScopeBtn.querySelector('.scope-one')?.classList.toggle('active', scopeMode === 'all');
       toggleScopeBtn.title = (scopeMode === 'all') ? 'Switch to play 1 track' : 'Switch to play ALL (library)';
       // Rebuild queue around current track if we have one
       if (hasSelection){
@@ -456,7 +407,7 @@
       if (playAll && albumRow){
         // This play-all is album-only (as requested)
         setAlbumQueue(albumRow.dataset.album);
-        // If scopeMode is 'track', still respect it: play first then stop at end
+        // Respect scopeMode
         if (scopeMode === 'track'){
           const first = albumsMap[albumRow.dataset.album].tracks[0];
           loadTrackBySrc(first.src);
@@ -508,10 +459,10 @@
 
       // Elevate main album art above everything when in track view
       if (!isList) {
-        // >>> If no track chosen yet, force CD placeholder in track view <<<
+        // Show CD placeholder on stage if nothing selected yet
         if (!hasSelection) {
           stageArt.src = CD_PLACEHOLDER;
-          stageArt.alt = 'No track selected';
+          stageArt.alt = 'CD placeholder';
         }
         stageArtWrap.style.position = 'relative';
         stageArtWrap.style.zIndex = '2147483647';
@@ -537,7 +488,7 @@
       return `${m}:${s}`;
     }
 
-    // Initial view: list; no auto-selection; CD placeholder shown in bar + track view
+    // Initial view: list; no auto-selection; CD placeholder shown in bar
     setMode(true);
     refreshPlayState();
   })();
