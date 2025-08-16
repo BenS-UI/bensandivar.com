@@ -1,4 +1,3 @@
-<!-- homesplits/hero.html -->
 <section class="hero" id="hero">
   <!-- Minimal, scoped styles so the hero fills the viewport and the canvas sits behind the text -->
   <style>
@@ -18,7 +17,7 @@
       width: 100%;
       height: 100%;
       z-index: 1;
-      pointer-events: auto;
+      pointer-events: auto; /* canvas must receive mouse/touch */
     }
     section.hero .hero-content {
       position: relative;
@@ -32,10 +31,19 @@
       justify-content: center;
       min-height: 100vh;
       text-align: center;
+
+      /* FIX: make the overlay not eat pointer events */
+      pointer-events: none;
+    }
+    /* Re-enable interactivity ONLY for actual controls/links inside the content */
+    section.hero .hero-content a,
+    section.hero .hero-content button {
       pointer-events: auto;
     }
+
     section.hero h1 { margin: 0 0 1rem; }
-    section.hero p { margin: 0 0 2rem; }
+    section.hero p  { margin: 0 0 2rem; }
+
     .scroll-arrow {
       display: inline-block;
       padding: 0.75rem 1.5rem;
@@ -50,6 +58,7 @@
       background: rgba(255,255,255,0.1);
       border-color: rgba(255,255,255,0.6);
     }
+
     @media (max-width: 768px) {
       section.hero .hero-content { padding: 0 1rem; }
     }
@@ -69,27 +78,27 @@
   <script>
   (() => {
     // Scope: target the canvas inside THIS fragment, even if another #gl exists elsewhere.
-    const root = document.currentScript && document.currentScript.closest('section.hero') || document;
+    const root   = (document.currentScript && document.currentScript.closest('section.hero')) || document;
     const canvas = root.querySelector('#gl') || root.querySelector('canvas');
     if (!canvas) return;
 
     const DPR = Math.min(2, window.devicePixelRatio || 1);
     const gl = canvas.getContext('webgl2', { antialias:true, alpha:true, premultipliedAlpha:false });
-    if (!gl) { 
+    if (!gl) {
       const warn = document.createElement('div');
       warn.style.cssText = 'padding:20px;font:14px system-ui;color:#fff;background:#000';
       warn.textContent = 'WebGL2 required';
       canvas.replaceWith(warn);
-      return; 
+      return;
     }
 
     function resize(){
       const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
-      canvas.width = Math.floor(w*DPR); 
+      canvas.width  = Math.floor(w*DPR);
       canvas.height = Math.floor(h*DPR);
       gl.viewport(0,0,canvas.width,canvas.height);
     }
-    new ResizeObserver(resize).observe(canvas); 
+    new ResizeObserver(resize).observe(canvas);
     resize();
 
     const GRID = 200;
@@ -120,8 +129,8 @@
         uv[i*2] = u; uv[i*2+1] = v;
         const U=u*TWO_PI, V=v*TWO_PI;
         const p = klein(U, V, morph0);
-        pos[i*3]   = p[0]*2.0; 
-        pos[i*3+1] = p[1]*2.0; 
+        pos[i*3]   = p[0]*2.0;
+        pos[i*3+1] = p[1]*2.0;
         pos[i*3+2] = p[2]*2.0;
         i++;
       }
@@ -142,8 +151,8 @@
     out float v_soft;
     vec3 palette(float t){
       vec3 indigo = vec3(0.03, 0.00, 0.45);
-      vec3 eblue  = vec3(0.15, 0.30, 0.9);
-      vec3 aqua   = vec3(0.00, 0.58, 0.7);
+      vec3 eblue  = vec3(0.15, 0.30, 0.90);
+      vec3 aqua   = vec3(0.00, 0.58, 0.70);
       return (t < 0.5) ? mix(indigo, eblue, t*2.0) : mix(eblue, aqua, (t-0.5)*2.0);
     }
     void main(){
@@ -177,18 +186,18 @@
       o = vec4(col, a);
     }`;
 
-    function makeShader(src, type){ 
-      const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); 
-      if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); 
-      return s; 
+    function makeShader(src, type){
+      const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+      if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+      return s;
     }
-    function makeProgram(vs, fs){ 
-      const p=gl.createProgram(); 
-      gl.attachShader(p,makeShader(vs,gl.VERTEX_SHADER)); 
-      gl.attachShader(p,makeShader(fs,gl.FRAGMENT_SHADER)); 
-      gl.linkProgram(p); 
-      if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); 
-      return p; 
+    function makeProgram(vs, fs){
+      const p=gl.createProgram();
+      gl.attachShader(p,makeShader(vs,gl.VERTEX_SHADER));
+      gl.attachShader(p,makeShader(fs,gl.FRAGMENT_SHADER));
+      gl.linkProgram(p);
+      if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      return p;
     }
 
     const prog = makeProgram(vert, frag);
@@ -198,79 +207,93 @@
     gl.clearColor(0,0,0,0);
     gl.bindBuffer(gl.ARRAY_BUFFER, bufPos); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0,3,gl.FLOAT,false,0,0);
     gl.bindBuffer(gl.ARRAY_BUFFER, bufUV ); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1,2,gl.FLOAT,false,0,0);
-    const uni = { 
-      proj : gl.getUniformLocation(prog,'u_proj'), 
-      view : gl.getUniformLocation(prog,'u_view'), 
-      point: gl.getUniformLocation(prog,'u_point'), 
-      time : gl.getUniformLocation(prog,'u_time') 
+    const uni = {
+      proj : gl.getUniformLocation(prog,'u_proj'),
+      view : gl.getUniformLocation(prog,'u_view'),
+      point: gl.getUniformLocation(prog,'u_point'),
+      time : gl.getUniformLocation(prog,'u_time')
     };
 
     const projBuf = new Float32Array(16), viewBuf = new Float32Array(16);
-    function perspective(fovy, aspect, near, far){ 
-      const f = 1/Math.tan(fovy/2), nf = 1/(near-far); 
-      projBuf.set([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,(2*far*near)*nf,0]); 
-      return projBuf; 
+    function perspective(fovy, aspect, near, far){
+      const f = 1/Math.tan(fovy/2.0), nf = 1.0/(near-far);
+      projBuf.set([
+        f/aspect,0,0,0,
+        0,f,0,0,
+        0,0,(far+near)*nf,-1,
+        0,0,(2*far*near)*nf,0
+      ]);
+      return projBuf;
     }
-    function lookAt(eye,center,up){ 
-      const ex=eye[0],ey=eye[1],ez=eye[2]; 
-      let fx=center[0]-ex, fy=center[1]-ey, fz=center[2]-ez; 
-      let rl=1/Math.hypot(fx,fy,fz); fx*=rl; fy*=rl; fz*=rl; 
-      let sx=fy*up[2]-fz*up[1], sy=fz*up[0]-fx*up[2], sz=fx*up[1]-fy*up[0]; 
-      rl=1/Math.hypot(sx,sy,sz); sx*=rl; sy*=rl; sz*=rl; 
-      const ux=sy*fz-sz*fy, uy=sz*fx-sx*fz, uz=sx*fy-sy*fx; 
-      viewBuf.set([ sx,ux,-fx,0, sy,uy,-fy,0, sz,uz,-fz,0, -(sx*ex+sy*ey+sz*ez), -(ux*ex+uy*ey+uz*ez), (fx*ex+fy*ey+fz*ez), 1 ]); 
-      return viewBuf; 
+    function lookAt(eye,center,up){
+      const ex=eye[0],ey=eye[1],ez=eye[2];
+      let fx=center[0]-ex, fy=center[1]-ey, fz=center[2]-ez;
+      let rl=1/Math.hypot(fx,fy,fz); fx*=rl; fy*=rl; fz*=rl;
+      let sx=fy*up[2]-fz*up[1], sy=fz*up[0]-fx*up[2], sz=fx*up[1]-fy*up[0];
+      rl=1/Math.hypot(sx,sy,sz); sx*=rl; sy*=rl; sz*=rl;
+      const ux=sy*fz-sz*fy, uy=sz*fx-sx*fz, uz=sx*fy-sy*fx;
+      viewBuf.set([
+        sx,ux,-fx,0,
+        sy,uy,-fy,0,
+        sz,uz,-fz,0,
+        -(sx*ex+sy*ey+sz*ez), -(ux*ex+uy*ey+uz*ez), (fx*ex+fy*ey+fz*ez), 1
+      ]);
+      return viewBuf;
     }
 
     const eye = [0,0,6.0];
-    function ndcFromEvent(e){ 
-      const r=canvas.getBoundingClientRect(); 
-      const x=((e.clientX-r.left)/r.width)*2 - 1; 
-      const y=-(((e.clientY-r.top)/r.height)*2 - 1); 
-      return [x,y]; 
+    function ndcFromEvent(e){
+      const r=canvas.getBoundingClientRect();
+      const x=((e.clientX-r.left)/r.width)*2 - 1;
+      const y=-(((e.clientY-r.top)/r.height)*2 - 1);
+      return [x,y];
     }
-    function z0World(ndc){ 
-      const aspect = canvas.width/canvas.height; 
-      const fovy = 60*Math.PI/180; 
-      const tanF = Math.tan(fovy/2); 
-      const rx = ndc[0]*aspect*tanF; 
-      const ry = ndc[1]*tanF; 
-      const origin = [0,0,eye[2]]; 
-      const dir = [rx,ry,-1]; 
-      const t = (0-origin[2])/dir[2]; 
-      return [origin[0]+dir[0]*t, origin[1]+dir[1]*t, 0]; 
+    function z0World(ndc){
+      const aspect = canvas.width/canvas.height;
+      const fovy = 60*Math.PI/180;
+      const tanF = Math.tan(fovy/2);
+      const rx = ndc[0]*aspect*tanF;
+      const ry = ndc[1]*tanF;
+      const origin = [0,0,eye[2]];
+      const dir = [rx,ry,-1];
+      const t = (0-origin[2])/dir[2];
+      return [origin[0]+dir[0]*t, origin[1]+dir[1]*t, 0];
     }
 
     let mouse=[999,999,0], mouseSm=[999,999,0], mouseIn=false, prevMouse=[999,999,0];
     canvas.addEventListener('mousemove', e => { prevMouse = mouse.slice(0); mouse = z0World(ndcFromEvent(e)); mouseIn=true; }, {passive:true});
     canvas.addEventListener('mouseleave', () => { mouse=[999,999,0]; mouseIn=false; }, {passive:true});
-    canvas.addEventListener('touchmove', e => { const t=e.changedTouches[0], r=canvas.getBoundingClientRect(); const nd=[((t.clientX-r.left)/r.width)*2-1, -(((t.clientY-r.top)/r.height)*2-1)]; prevMouse = mouse.slice(0); mouse = z0World(nd); mouseIn=true; }, {passive:true});
+    canvas.addEventListener('touchmove', e => {
+      const t=e.changedTouches[0], r=canvas.getBoundingClientRect();
+      const nd=[((t.clientX-r.left)/r.width)*2-1, -(((t.clientY-r.top)/r.height)*2-1)];
+      prevMouse = mouse.slice(0); mouse = z0World(nd); mouseIn=true;
+    }, {passive:true});
     canvas.addEventListener('touchend', ()=>{ mouse=[999,999,0]; mouseIn=false; }, {passive:true});
 
-    function basis3(x,y,z,t){ 
-      const a = Math.sin(0.61*x + 1.21*y + 0.77*z + 0.19*t); 
-      const b = Math.sin(1.23*x - 0.97*y + 0.45*z + 0.27*t); 
-      const c = Math.sin(-0.73*x + 0.51*y - 1.33*z + 0.31*t); 
-      const d = Math.cos(0.89*x - 1.41*y + 0.37*z - 0.17*t); 
-      const e = Math.cos(-1.11*x + 0.67*y + 0.91*z + 0.23*t); 
-      const f = Math.cos(0.39*x + 0.83*y - 0.59*z - 0.29*t); 
-      return [a+d, b+e, c+f]; 
+    function basis3(x,y,z,t){
+      const a = Math.sin(0.61*x + 1.21*y + 0.77*z + 0.19*t);
+      const b = Math.sin(1.23*x - 0.97*y + 0.45*z + 0.27*t);
+      const c = Math.sin(-0.73*x + 0.51*y - 1.33*z + 0.31*t);
+      const d = Math.cos(0.89*x - 1.41*y + 0.37*z - 0.17*t);
+      const e = Math.cos(-1.11*x + 0.67*y + 0.91*z + 0.23*t);
+      const f = Math.cos(0.39*x + 0.83*y - 0.59*z - 0.29*t);
+      return [a+d, b+e, c+f];
     }
-    function curlNoise(px,py,pz,t){ 
-      const eps = 0.0015; 
-      const f1 = basis3(px, py+eps, pz, t); 
-      const f2 = basis3(px, py-eps, pz, t); 
-      const f3 = basis3(px, py, pz+eps, t); 
-      const f4 = basis3(px, py, pz-eps, t); 
-      const f5 = basis3(px+eps, py, pz, t); 
-      const f6 = basis3(px-eps, py, pz, t); 
-      const dZdy = (f3[2]-f4[2])/(2*eps); 
-      const dYdz = (f1[1]-f2[1])/(2*eps); 
-      const dXdz = (f3[0]-f4[0])/(2*eps); 
-      const dZdx = (f5[2]-f6[2])/(2*eps); 
-      const dYdx = (f5[1]-f6[1])/(2*eps); 
-      const dXdy = (f1[0]-f2[0])/(2*eps); 
-      return [ dZdy - dYdz, dXdz - dZdx, dYdx - dXdy ]; 
+    function curlNoise(px,py,pz,t){
+      const eps = 0.0015;
+      const f1 = basis3(px, py+eps, pz, t);
+      const f2 = basis3(px, py-eps, pz, t);
+      const f3 = basis3(px, py, pz+eps, t);
+      const f4 = basis3(px, py, pz-eps, t);
+      const f5 = basis3(px+eps, py, pz, t);
+      const f6 = basis3(px-eps, py, pz, t);
+      const dZdy = (f3[2]-f4[2])/(2.0*eps);
+      const dYdz = (f1[1]-f2[1])/(2.0*eps);
+      const dXdz = (f3[0]-f4[0])/(2.0*eps);
+      const dZdx = (f5[2]-f6[2])/(2.0*eps);
+      const dYdx = (f5[1]-f6[1])/(2.0*eps);
+      const dXdy = (f1[0]-f2[0])/(2.0*eps);
+      return [ dZdy - dYdz, dXdz - dZdx, dYdx - dXdy ];
     }
 
     const damp = 0.80;
@@ -290,7 +313,7 @@
       gl.useProgram(prog);
       gl.uniform1f(uni.time, time);
 
-      const k = 1 - Math.exp(-dt*10.0);
+      const k = 1.0 - Math.exp(-dt*10.0);
       mouseSm[0] += (mouse[0]-mouseSm[0])*k;
       mouseSm[1] += (mouse[1]-mouseSm[1])*k;
       mouseSm[2] += (mouse[2]-mouseSm[2])*k;
@@ -349,7 +372,7 @@
         vel[j*3+1] += dj * (Math.sin(0.011*j + 2.3*T) + 0.6*rand(j+17));
         vel[j*3+2] += dj * (Math.sin(0.013*j + 2.9*T) + 0.6*rand(j+31));
 
-        const dampPow = Math.pow(damp, dt*60);
+        const dampPow = Math.pow(damp, dt*60.0);
         vel[j*3  ] *= dampPow;
         vel[j*3+1] *= dampPow;
         vel[j*3+2] *= dampPow;
