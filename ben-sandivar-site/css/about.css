@@ -2,6 +2,29 @@
    ABOUT SECTION
    =========================== */
 
+/* Bubble canvas behind everything */
+.bubble-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none; /* don't block UI */
+}
+
+/* Lift page content above the canvas */
+.about-page {
+  position: relative;
+  z-index: 1;
+}
+
+/* Disable selection/copy in the about section */
+#about, #about * {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Base layout */
 .about-intro {
   display: flex;
   flex-wrap: wrap;
@@ -32,8 +55,10 @@
   position: relative;
   overflow: visible;
   isolation: isolate;
+  cursor: crosshair; /* playful hint */
 }
 
+/* Make the photo non-interactive itself; container handles hover */
 .profile-pic img {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -44,22 +69,9 @@
   box-shadow: 0 4px 15px var(--color-shadow);
   position: relative;
   z-index: 1;
-}
-
-/* Bubble canvas sits above the image */
-.bubble-canvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  pointer-events: none;
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 180ms ease;
-}
-
-.profile-pic:hover .bubble-canvas {
-  opacity: 1;
+  pointer-events: none;       /* can't click/drag the image */
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 
 .text-container {
@@ -105,5 +117,5 @@
 
 /* Respect users who prefer less motion */
 @media (prefers-reduced-motion: reduce) {
-  .bubble-canvas { display: none !important; }
+  .bubble-field { display: none !important; }
 }
