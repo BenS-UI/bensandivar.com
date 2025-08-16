@@ -180,3 +180,29 @@ body[data-theme="dark"] .music-shell{
 body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
 body[data-theme="dark"] .player-bar{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
 body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); }
+
+/* ==================== ADDITIONS ==================== */
+
+/* Play/Pause icon toggle */
+.toggle-icon{ display:none; }
+.toggle-icon.active{ display:inline; }
+svg[hidden]{ display:none!important; } /* safety if hidden attr appears */
+
+/* Placeholder art: ensure it displays cleanly */
+.now-art{ background: transparent; }
+
+/* Lift main album art above everything in track view */
+#music.music-player.track-top{ z-index:2147483646 !important; }
+#music.music-player.track-top .track-stage .stage-art-wrap{
+  position:relative;
+  z-index:2147483647 !important;
+}
+
+/* If JS only toggles .track-bg, still raise art within section */
+.music-shell.track-bg{ z-index:9; } /* above local layers */
+.music-shell.track-bg .track-stage .stage-art-wrap{ z-index:10; }
+
+/* Ensure the aurora stays under the art and over the list */
+.aurora-layer{ z-index:2; }
+.track-stage .stage-art-wrap{ z-index:3; }
+.player-bar{ z-index:4; }

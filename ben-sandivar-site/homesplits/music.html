@@ -1,203 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Music Player</title>
-
-  <style>
-  /* ======================== YOUR CSS ======================== */
-
-  /* utils */
-  [hidden]{display:none!important;}
-  .hidden{display:none!important;}
-
-  /* FORCE NORMAL FLOW — keep this section under the hero */
-  section.bucket-hero{ position:relative; z-index:2; }
-  #music.music-player{
-    position:relative !important;
-    z-index:1 !important;
-    inset:auto !important;
-    clear:both;
-    display:flow-root;
-    contain: layout paint;
-  }
-
-  .music-player{
-    margin-top: clamp(24px, 8vh, 120px);
-    margin-bottom: 10vh;
-    padding: 0 8vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .music-shell{
-    isolation:isolate;
-    width:100%;
-    margin:0 auto;
-    border-radius:28px;
-    position:relative;
-    background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.04), rgba(0,0,0,.45));
-    border:1px solid rgba(255,255,255,.08);
-    box-shadow: 0 8px 22px rgba(0,0,0,.22);
-    display:flex;
-    flex-direction:column;
-    height: clamp(560px, 72vh, 860px);
-    padding:2.25rem 2rem 1.25rem;
-    overflow:hidden;
-  }
-  @media (min-width:1024px){ .music-shell{ width:75%; } }
-
-  .page-header{ text-align:center; margin-bottom: 2rem; }
-
-  /* VIEW SWITCH */
-  .mode-lights{ position:absolute; top:.6rem; left:50%; transform:translateX(-50%); display:flex; gap:.5rem; align-items:center; z-index:6; }
-  .mode-lights .light{
-    width:12px; height:12px; border-radius:999px; border:0; cursor:pointer;
-    background: radial-gradient(circle at 35% 35%, #7ab8ff 10%, #1f6fff 70%, #0036e8 100%);
-    box-shadow: 0 0 10px rgba(47,132,255,.9), 0 0 18px rgba(47,132,255,.5);
-    opacity:.65; transition:opacity .2s ease, transform .08s ease;
-  }
-  .mode-lights .light.on{ opacity:1; }
-  .mode-lights .light:active{ transform:scale(.92); }
-  .mode-lights .hint{
-    position:absolute; top:1.6rem; left:50%; transform:translateX(-50%);
-    padding:.35rem .6rem; font-size:.72rem; border-radius:10px;
-    background: rgba(255,255,255,.12); color: var(--color-primary);
-    border:1px solid rgba(255,255,255,.18); backdrop-filter: blur(6px);
-    opacity:0; pointer-events:none; transition:opacity .2s ease;
-  }
-  .mode-lights:hover .hint{ opacity:1; }
-
-  /* LAYERS (z-index order) */
-  .views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; z-index:1; }
-  .views-wrap.no-scroll{ overflow:hidden; }
-
-  /* aurora behind album art, above list */
-  .aurora-layer{
-    position:absolute;
-    inset:0;
-    z-index:2;
-    pointer-events:none;
-    border-radius:inherit;
-    opacity:1;
-  }
-  .aurora-layer.on{ opacity:1; }
-  .aurora-layer canvas{ width:100%; height:100%; display:block; }
-
-  .track-stage .stage-art-wrap{ z-index:3; position:relative; }
-  /* player bar at top of stack */
-  .player-bar{ position:relative; z-index:4; }
-
-  /* LIST VIEW */
-  .albums-view{ display:grid; gap:1.75rem; }
-  .album-row{
-    display:grid; grid-template-columns:140px 1fr; gap:1rem;
-    background: rgba(255,255,255,.03);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:18px; padding:1rem;
-  }
-  @media (max-width:720px){ .album-row{ grid-template-columns:100px 1fr; } }
-  .album-art{ width:120px; height:120px; border-radius:12px; object-fit:cover; box-shadow:0 8px 18px rgba(0,0,0,.28); }
-  .playlist-col{ display:flex; flex-direction:column; gap:.6rem; }
-  .playlist-head{ display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
-  .playlist-head h3{ margin:0; font-size:1.1rem; }
-  .icon-btn.play-all{
-    width:34px; height:34px; border-radius:10px;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.06);
-    color: var(--color-primary);
-    backdrop-filter: blur(6px);
-  }
-  .track-list{ list-style:none; margin:0; padding:0; display:grid; gap:.3rem; }
-  .track-row{
-    display:grid; grid-template-columns:1fr auto; align-items:center;
-    padding:.45rem .6rem; border-radius:10px; transition:background .2s ease;
-  }
-  .track-row:hover{ background: rgba(255,255,255,.05); }
-  .track-row.active .t-title{ font-weight:700; }
-  .t-title{ text-align:left; }
-  .t-time{ text-align:right; opacity:.82; min-width:3.2rem; }
-
-  /* TRACK VIEW (art only) */
-  .music-shell.track-bg{
-    background: var(--stage-bg, radial-gradient(120% 140% at 50% 25%, rgba(0,0,0,.36), rgba(0,0,0,.9)));
-  }
-  .track-view{ border-radius:22px; padding:2rem 1.25rem; }
-  .track-stage{ display:grid; justify-items:center; z-index:3; position:relative; }
-  .stage-art-wrap{
-    width:min(42%, 440px); aspect-ratio:1/1; border-radius:18px;
-    box-shadow:0 14px 32px rgba(0,0,0,.32);
-  }
-  #stage-art{ width:100%; height:100%; object-fit:cover; border-radius:18px; display:block; }
-
-  /* PLAYER BAR */
-  .player-bar{
-    margin-top:1rem;
-    display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:center;
-    padding:.85rem 1rem; border-radius:16px; border:1px solid rgba(255,255,255,.12);
-    background: rgba(255,255,255,.06); backdrop-filter: blur(10px);
-  }
-  @media (min-width:760px){ .player-bar{ grid-template-columns:auto auto 1fr; } }
-
-  .now{ display:grid; grid-template-columns:auto 1fr; gap:.6rem; align-items:center; }
-  .now-art{ width:40px; height:40px; border-radius:8px; object-fit:cover; box-shadow:0 4px 12px rgba(0,0,0,.25); }
-  .now-meta{ display:flex; flex-direction:column; line-height:1.1; }
-  .now-meta small{ opacity:.75; }
-
-  .controls{ display:flex; gap:.5rem; align-items:center; }
-  .icon-btn{
-    display:grid; place-items:center; width:36px; height:36px; border-radius:12px;
-    border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: var(--color-primary);
-    transition: box-shadow .2s ease, border-color .2s ease, transform .06s ease;
-  }
-  .icon-btn:hover{ border-color: rgba(0,110,255,.5); box-shadow: 0 0 12px rgba(47,132,255,.35); }
-  .icon-btn:active{ transform:scale(.97); }
-  .icon-btn.primary{ width:42px; height:42px; color:#fff; background: rgba(0,110,255,.18); border-color: rgba(0,110,255,.55); }
-  .icon-btn.active{ box-shadow: 0 0 16px rgba(47,132,255,.6); }
-
-  /* Progress */
-  .progress{ display:grid; grid-template-columns:auto 1fr auto; gap:.6rem; align-items:center; }
-  .time{ font-variant-numeric: tabular-nums; opacity:.85; min-width:3ch; text-align:right; }
-  .bar{ position:relative; height:18px; display:flex; align-items:center; }
-  .bar-track{ position:absolute; left:0; right:0; height:8px; border-radius:999px; background: rgba(255,255,255,.18); }
-  .neon{
-    --pct:0;
-    position:absolute; left:0; height:6px; width: calc(var(--pct) * 1%); border-radius:999px;
-    background: linear-gradient(90deg, #0a5bff, #2f84ff);
-    box-shadow: 0 0 18px #2f84ff, 0 0 36px rgba(47,132,255,.5);
-  }
-  #seek{
-    -webkit-appearance:none; appearance:none; width:100%; height:18px; margin:0; background:transparent; position:relative; z-index:1;
-  }
-  #seek::-webkit-slider-runnable-track{ height:18px; background:transparent; }
-  #seek::-moz-range-track{ height:18px; background:transparent; }
-  #seek::-webkit-slider-thumb{
-    -webkit-appearance:none; width:16px; height:16px; border-radius:50%; margin-top:1px;
-    background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.9);
-  }
-  #seek::-moz-range-thumb{
-    width:16px; height:16px; border-radius:50%;
-    background:#fff; border:1px solid rgba(47,132,255,.95); box-shadow:0 0 12px rgba(47,132,255,.9);
-  }
-
-  /* Dark theme ready */
-  body[data-theme="dark"] .music-shell{
-    background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.02), rgba(0,0,0,.78));
-    border-color: rgba(255,255,255,.07);
-  }
-  body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
-  body[data-theme="dark"] .player-bar{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
-  body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); }
-
-  /* ===== Play/Pause icon toggle (add to your stylesheet if you prefer) ===== */
-  .toggle-icon{ display:none; }
-  .toggle-icon.active{ display:inline; }
-  </style>
-</head>
-<body>
-
 <section id="music" class="music-player fade-in" data-split="music">
   <div class="page-header">
     <h2>Music</h2>
@@ -219,7 +19,7 @@
       <!-- Track view: art only -->
       <div id="track-view" class="track-view hidden">
         <div class="track-stage">
-          <div class="stage-art-wrap">
+          <div class="stage-art-wrap" id="stageArtWrap">
             <img id="stage-art" src="" alt="Album art">
           </div>
         </div>
@@ -256,9 +56,11 @@
         <!-- PLAY/PAUSE (class-based icon toggles) -->
         <button class="icon-btn primary" id="playPauseBtn" title="Play / Pause" aria-pressed="false">
           <svg id="iconPlay" class="toggle-icon active" viewBox="0 0 24 24" width="20" height="20">
-            <path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+            <path d="M8 5v14l11-7z" fill="currentColor"/>
+          </svg>
           <svg id="iconPause" class="toggle-icon" viewBox="0 0 24 24" width="20" height="20">
-            <path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>
+            <path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>
+          </svg>
         </button>
 
         <button class="icon-btn" id="nextBtn" title="Next">
@@ -297,6 +99,7 @@
       albumsMap[t.album].tracks.push(t);
     });
 
+    const musicSection = document.getElementById('music');
     const shell      = document.querySelector('.music-shell');
     const viewsWrap  = document.getElementById('viewsWrap');
     const albumsView = document.getElementById('albums-view');
@@ -318,14 +121,38 @@
     const nowTitle = document.getElementById('nowTitle');
     const nowAlbum = document.getElementById('nowAlbum');
     const stageArt = document.getElementById('stage-art');
+    const stageArtWrap = document.getElementById('stageArtWrap');
+
+    // --- placeholder CD (white) for player bar art before first selection ---
+    function makeCDDataURL() {
+      const svg =
+        `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'>
+           <defs>
+             <radialGradient id='g' cx='50%' cy='50%' r='60%'>
+               <stop offset='0%' stop-color='white' stop-opacity='1'/>
+               <stop offset='100%' stop-color='white' stop-opacity='1'/>
+             </radialGradient>
+           </defs>
+           <circle cx='80' cy='80' r='70' fill='url(#g)' />
+           <circle cx='80' cy='80' r='14' fill='none' stroke='rgba(0,0,0,0.12)' stroke-width='3'/>
+         </svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+    const CD_PLACEHOLDER = makeCDDataURL();
+
+    // start with no selection
+    let hasSelection = false;
+    nowArt.src = CD_PLACEHOLDER;
+    nowArt.alt = 'No track selected';
+    stageArt.removeAttribute('src'); // keep track view empty until selection
 
     function renderAlbums(){
       albumsView.innerHTML = Object.entries(albumsMap)
         .sort((a,b)=> b[1].tracks.length - a[1].tracks.length)
         .map(([name, data])=>{
           const items = data.tracks.map(t => `
-            <li class="track-row" data-src="\${t.src}" data-title="\${t.title}" data-album="${name}" data-art="${data.art}">
-              <span class="t-title">\${t.title}</span>
+            <li class="track-row" data-src="${t.src}" data-title="${t.title}" data-album="${name}" data-art="${data.art}">
+              <span class="t-title">${t.title}</span>
               <span class="t-time">--:--</span>
             </li>`).join('');
           return `
@@ -348,7 +175,7 @@
     }
     renderAlbums();
 
-    // Populate durations
+    // durations
     albumsView.querySelectorAll('.track-row').forEach(li=>{
       const a = new Audio(); a.src = li.dataset.src; a.preload='metadata';
       a.addEventListener('loadedmetadata', ()=>{ li.querySelector('.t-time').textContent = formatTime(a.duration); });
@@ -362,6 +189,13 @@
       document.querySelectorAll('.album-row').forEach(r=> r.classList.toggle('active', r.dataset.album===name));
     }
 
+    function applyArt(t){
+      // only switch away from CD once user picked something
+      nowArt.src = t ? albumsMap[t.album].art : CD_PLACEHOLDER;
+      nowArt.alt = t ? `${t.album} art` : 'No track selected';
+      stageArt.src = t ? albumsMap[t.album].art : '';
+    }
+
     function loadTrackBySrc(src){
       index = queue.findIndex(t => t.src===src); if (index<0) index=0;
       const t = queue[index];
@@ -369,10 +203,10 @@
       audio.src = t.src;
       audio.load();
 
-      nowArt.src = albumsMap[t.album].art;
       nowTitle.textContent = t.title;
       nowAlbum.textContent = t.album;
-      stageArt.src = albumsMap[t.album].art;
+      applyArt(t);
+      hasSelection = true;
 
       document.querySelectorAll('.track-row').forEach(r=> r.classList.toggle('active', r.dataset.src===t.src));
     }
@@ -387,6 +221,15 @@
 
     // --- CONTROL HELPERS ---
     async function play() {
+      // if no selection yet, pick first item in current scope
+      if (!hasSelection) {
+        if (scope === 'album') {
+          const firstAlbum = Object.keys(albumsMap)[0];
+          if (firstAlbum) { setAlbumQueue(firstAlbum); }
+        }
+        if (queue.length === 0) queue = allQueue.slice();
+        if (queue.length) loadTrackBySrc(queue[0].src);
+      }
       try { await audio.play(); } catch {}
       refreshPlayState();
     }
@@ -406,12 +249,14 @@
     ].forEach(ev => audio.addEventListener(ev, refreshPlayState));
 
     function next(auto=false){
+      if (queue.length === 0) return;
       index = (index+1) % queue.length;
       loadTrackBySrc(queue[index].src);
       if (auto) window.aurora?.instant?.();
       play();
     }
     function prev(){
+      if (queue.length === 0) return;
       index = (index-1+queue.length) % queue.length;
       loadTrackBySrc(queue[index].src);
       play();
@@ -442,7 +287,7 @@
     playAllBtn.addEventListener('click', ()=>{
       scope='all'; queue = allQueue.slice(); index=0;
       document.querySelectorAll('.album-row').forEach(r=> r.classList.remove('active'));
-      loadTrackBySrc(queue[0].src); play();
+      if (queue.length){ loadTrackBySrc(queue[0].src); play(); }
       playAllBtn.classList.add('active'); setTimeout(()=> playAllBtn.classList.remove('active'), 240);
     });
 
@@ -473,6 +318,17 @@
       shell.classList.toggle('track-bg', !isList);
       viewsWrap.classList.toggle('no-scroll', !isList);
       viewsWrap.scrollTop = 0;
+
+      // elevate main album art above everything when in track view
+      if (!isList) {
+        stageArtWrap.style.position = 'relative';
+        stageArtWrap.style.zIndex = '2147483647';
+        // push the whole section up in stacking order too
+        musicSection.style.setProperty('z-index', '2147483646', 'important');
+      } else {
+        stageArtWrap.style.removeProperty('z-index');
+        musicSection.style.removeProperty('z-index');
+      }
     }
     lightList.addEventListener('click', ()=> setMode(true));
     lightTrack.addEventListener('click', ()=> setMode(false));
@@ -483,20 +339,12 @@
       return `${m}:${s}`;
     }
 
-    // Initial view + first track
+    // Initial view: list; no auto-selection; CD placeholder shown
     setMode(true);
     refreshPlayState();
-    const firstAlbum = Object.keys(albumsMap)[0];
-    if (firstAlbum){
-      const q = albumsMap[firstAlbum].tracks;
-      if (q && q.length){ loadTrackBySrc(q[0].src); }
-    }
   })();
   </script>
 
   <!-- Aurora visualizer -->
   <script src="./aurora.js"></script>
 </section>
-
-</body>
-</html>
