@@ -24,13 +24,14 @@
 
   // Reused buffers
   let td, fd;
-  const spectrumBands = new Float32Array(50); // 50-band output
-  const smoothBands   = new Float32Array(50); // temporal smoothing
+  const BAND_COUNT = 60;                         // 60 total bands
+  const spectrumBands = new Float32Array(BAND_COUNT);
+  const smoothBands   = new Float32Array(BAND_COUNT);
 
   // Hi-DPI
   let dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
-  // Phase / timing for color only (shape is data-driven)
+  // Color timing (shape is data-driven)
   const PHASE_MS = 45000;
   const LOOP_S   = 600;
 
@@ -74,8 +75,11 @@
     analyser   = acx.createAnalyser();
     compressor = acx.createDynamicsCompressor();
 
-    analyser.fftSize = 2048;           // good freq resolution
-    analyser.smoothingTimeConstant = 0.7;
+    analyser.fftSize = 2048;                  // good resolution, balanced CPU
+    analyser.smoothingTimeConstant = 0.6;     // slightly quicker highs
+    // Tighten analyzer window to lift quiet highs a bit
+    analyser.minDecibels = -95;
+    analyser.maxDecibels = -10;
 
     src.connect(analyser);
     analyser.connect(compressor);
@@ -156,42 +160,72 @@
     return g;
   }
 
-  // --------------- Audio Analysis: 50 bands ----------------
-  function computeSpectrumBands() {
+  // ---------------- Frequency layout (relevant range only) ----------------
+  // Trim to where modern music carries useful energy:
+  // Lows:   32–180 Hz  (12 bands)
+  // Mids:   180–3200 Hz (18 bands)
+  // Highs:  3200–16000 Hz (30 bands)
+  const LOW_CFG  = { f0: 32,   f1: 180,   count: 12, scale: 0.28 }; // very undersensitive
+  const MID_CFG  = { f0: 180,  f1: 3200,  count: 18, scale: 1.25 }; // moderate boost
+  const HIGH_CFG = { f0: 3200, f1: 16000, count: 30, scale: 2.8  }; // super-boosted
+
+  function hzToIndex(hz) {
     const nyq = acx.sampleRate / 2;
-    const idx = hz => Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
+    return Math.min(fd.length - 1, Math.max(0, Math.round(fd.length * (hz / nyq))));
+  }
 
-    const bands = [];
-    // Lows: 5 bands, 20–140 Hz (log)
-    const lowStart = Math.log10(20), lowEnd = Math.log10(140);
-    for (let i = 0; i < 5; i++) {
-      const f  = Math.pow(10, lowStart + (i / 4) * (lowEnd - lowStart));
-      const fN = Math.pow(10, lowStart + ((i + 1) / 4) * (lowEnd - lowStart));
-      bands.push({ lo: idx(f), hi: idx(fN), scale: 0.7 }); // slightly undersensitive
-    }
-    // Mids: 15 bands, 300–2000 Hz (log)
-    const midStart = Math.log10(300), midEnd = Math.log10(2000);
-    for (let i = 0; i < 15; i++) {
-      const f  = Math.pow(10, midStart + (i / 14) * (midEnd - midStart));
-      const fN = Math.pow(10, midStart + ((i + 1) / 14) * (midEnd - midStart));
-      bands.push({ lo: idx(f), hi: idx(fN), scale: 1.35 }); // boosted mids
-    }
-    // Highs: 30 bands, 4000–12000 Hz (log)
-    const highStart = Math.log10(4000), highEnd = Math.log10(12000);
-    for (let i = 0; i < 30; i++) {
-      const f  = Math.pow(10, highStart + (i / 29) * (highEnd - highStart));
-      const fN = Math.pow(10, highStart + ((i + 1) / 29) * (highEnd - highStart));
-      bands.push({ lo: idx(f), hi: idx(fN), scale: 2.0 }); // super-boosted highs
-    }
+  function buildBands() {
+    const specs = [];
 
-    // Compute band energies with temporal smoothing
-    for (let i = 0; i < 50; i++) {
-      const { lo, hi, scale } = bands[i];
+    const pushLogRange = (cfg) => {
+      const log0 = Math.log10(cfg.f0);
+      const log1 = Math.log10(cfg.f1);
+      for (let i = 0; i < cfg.count; i++) {
+        const fA = Math.pow(10, log0 + (i / cfg.count) * (log1 - log0));
+        const fB = Math.pow(10, log0 + ((i + 1) / cfg.count) * (log1 - log0));
+        specs.push({ lo: hzToIndex(fA), hi: hzToIndex(fB), scale: cfg.scale });
+      }
+    };
+
+    pushLogRange(LOW_CFG);
+    pushLogRange(MID_CFG);
+    pushLogRange(HIGH_CFG);
+    return specs;
+  }
+
+  const BAND_SPECS = buildBands(); // 60 specs continuous, no gaps
+
+  // ---------------- Audio Analysis: 60 bands with dynamic norm ----------------
+  function percentile(arr, p) {
+    if (!arr.length) return 0;
+    const a = arr.slice().sort((x, y) => x - y);
+    const idx = Math.min(a.length - 1, Math.max(0, Math.floor(p * (a.length - 1))));
+    return a[idx];
+  }
+
+  function computeSpectrumBands() {
+    const raw = new Array(BAND_COUNT);
+
+    // Average bins per band, apply per-region scale
+    for (let i = 0; i < BAND_COUNT; i++) {
+      const { lo, hi, scale } = BAND_SPECS[i];
       let sum = 0, count = 0;
       for (let j = lo; j <= hi; j++) { sum += fd[j]; count++; }
-      const avg = count ? (sum / count) / 255 : 0;      // normalize 0..1
-      const val = clamp01(avg * scale);
-      spectrumBands[i] = lerp(smoothBands[i], val, 0.25); // temporal damping
+      const avg = count ? (sum / count) / 255 : 0; // 0..1
+      raw[i] = avg * scale;
+    }
+
+    // Dynamic normalization so highs light up even when bass is huge
+    const p90 = Math.max(0.05, percentile(raw, 0.90));
+    const norm = 1 / p90;
+
+    for (let i = 0; i < BAND_COUNT; i++) {
+      // Loudness tilt: boost highs perceptually more than lows
+      const t = i / (BAND_COUNT - 1);                 // 0 (low) → 1 (high)
+      const gamma = 0.95 - 0.30 * t;                  // highs get lower gamma → more lift
+      const v = clamp01((raw[i] * norm));
+      const shaped = Math.pow(v, gamma);
+      spectrumBands[i] = lerp(smoothBands[i], shaped, 0.25); // temporal smoothing
       smoothBands[i]   = spectrumBands[i];
     }
   }
@@ -203,18 +237,8 @@
     const i0 = Math.floor(scaled);
     const i1 = Math.min(n - 1, i0 + 1);
     const t  = scaled - i0;
-
-    // Per-band visual gain (matches analysis emphasis)
-    const gain = (i) => {
-      if (i < 5) return 1.0;       // lows
-      if (i < 20) return 1.3;      // mids boosted
-      return 1.9;                  // highs super boosted
-    };
-
-    const v0 = spectrumBands[i0] * gain(i0);
-    const v1 = spectrumBands[i1] * gain(i1);
-
-    // Linear interp between adjacent bands
+    const v0 = spectrumBands[i0];
+    const v1 = spectrumBands[i1];
     return clamp01(v0 * (1 - t) + v1 * t);
   }
 
@@ -241,37 +265,33 @@
     analyser.getByteFrequencyData(fd);
     computeSpectrumBands();
 
-    // Overall energy for visual modulation
-    let bass = 0, mid = 0, high = 0;
-    for (let i = 0; i < 5;  i++) bass += spectrumBands[i];
-    for (let i = 5; i < 20; i++) mid  += spectrumBands[i];
-    for (let i = 20; i < 50; i++) high += spectrumBands[i];
-    bass /= 5; mid /= 15; high /= 30;
+    // Energy buckets (weighted toward highs)
+    let lowE = 0, midE = 0, highE = 0;
+    for (let i = 0; i < LOW_CFG.count; i++)          lowE  += spectrumBands[i];
+    for (let i = LOW_CFG.count; i < LOW_CFG.count + MID_CFG.count; i++) midE += spectrumBands[i];
+    for (let i = LOW_CFG.count + MID_CFG.count; i < BAND_COUNT; i++)    highE += spectrumBands[i];
 
-    const totalEnergy = 0.45 * bass + 0.35 * mid + 0.20 * high;
+    lowE  /= LOW_CFG.count;
+    midE  /= MID_CFG.count;
+    highE /= HIGH_CFG.count;
+
+    const totalEnergy = clamp01(0.25 * lowE + 0.35 * midE + 0.40 * highE);
 
     // Build smooth band-driven curve (Catmull–Rom → cubic Bézier)
-    const steps = 180; // more points = smoother curve
+    const steps = 200; // more points = smoother curve
     const points = [];
     const baseAmpPx = h * 0.55;        // max visual amplitude
     const bottomPad = h * 0.10;
     const maxRise = h * 0.52;
 
-    // Soft dynamic range control so quiet parts still move
-    const dyn = 0.25 + 0.75 * clamp01(totalEnergy);
+    // Soft dynamics so quiet parts still move a bit
+    const dyn = 0.20 + 0.80 * totalEnergy;
 
     for (let i = 0; i <= steps; i++) {
       const x = (i / steps) * w;
-      // Interpolated, gain-weighted band value (0..1)
-      let v = bandValueAt(x, w);
-
-      // Gentle gamma to favor peaks while keeping floor
-      v = Math.pow(v, 0.85);
-
-      // Convert to pixels with global dynamics
+      let v = bandValueAt(x, w);                 // 0..1 after shaping
       let rise = baseAmpPx * v * dyn;
       rise = Math.min(rise, maxRise);
-
       const y = h - (bottomPad + rise);
       points.push({ x, y });
     }
@@ -315,9 +335,9 @@
     bctx.fill(path);
     bctx.globalCompositeOperation = 'source-over';
 
-    // Final blur pass, modulated a bit by highs
+    // Final blur pass, modulated by highs
     ctx.clearRect(0, 0, w, h);
-    const blurRadius = 8 + 8 * high;
+    const blurRadius = 8 + 8 * highE;
     ctx.filter = `blur(${blurRadius}px)`;
     ctx.drawImage(
       bufferCanvas,
