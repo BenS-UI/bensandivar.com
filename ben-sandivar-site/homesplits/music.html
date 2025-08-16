@@ -175,24 +175,40 @@
       document.querySelectorAll('.track-row').forEach(r=> r.classList.toggle('active', r.dataset.src===t.src));
     }
 
-    // Icon toggling
-    function setPlayState(isPlaying){
+    // --- ICON STATE (robust) ---
+    function refreshPlayState() {
+      const isPlaying = !audio.paused && !audio.ended && audio.readyState >= 2;
       iconPlay.hidden  = isPlaying;
       iconPause.hidden = !isPlaying;
+      iconPlay.style.display  = isPlaying ? 'none' : '';
+      iconPause.style.display = isPlaying ? '' : 'none';
       playBtn.setAttribute('aria-pressed', String(isPlaying));
     }
-    function play(){ audio.play().catch(()=>{}); setPlayState(true); }
-    function pause(){ audio.pause(); setPlayState(false); }
 
-    playBtn.addEventListener('click', ()=> audio.paused ? play() : pause());
-    ['play','playing'].forEach(ev => audio.addEventListener(ev, ()=>setPlayState(true)));
-    ['pause','ended','stalled','suspend','waiting','emptied','abort']
-      .forEach(ev => audio.addEventListener(ev, ()=>setPlayState(false)));
+    // --- CONTROL HELPERS ---
+    async function play() {
+      try { await audio.play(); } catch {}
+      refreshPlayState();
+    }
+    function pause() {
+      audio.pause();
+      refreshPlayState();
+    }
+
+    // --- BUTTON ---
+    playBtn.addEventListener('click', () => (audio.paused ? play() : pause()));
+
+    // --- EVENTS: always recheck state ---
+    [
+      'play','playing','pause','ended',
+      'timeupdate','seeking','seeked','ratechange',
+      'loadeddata','canplay','waiting','stalled','suspend','emptied','abort'
+    ].forEach(ev => audio.addEventListener(ev, refreshPlayState));
 
     function next(auto=false){
       index = (index+1) % queue.length;
       loadTrackBySrc(queue[index].src);
-      if (auto) window.aurora?.instant?.(); // instant overlay on autoplayed next
+      if (auto) window.aurora?.instant?.();
       play();
     }
     function prev(){
@@ -269,7 +285,7 @@
 
     // Initial view + first track
     setMode(true);
-    setPlayState(false);
+    refreshPlayState();
     const firstAlbum = Object.keys(albumsMap)[0];
     if (firstAlbum){
       const q = albumsMap[firstAlbum].tracks;
@@ -278,6 +294,11 @@
   })();
   </script>
 
-  <!-- Aurora visualizer (correct relative path for fragment loader) -->
+  <!-- Aurora visualizer -->
   <script src="./aurora.js"></script>
 </section>
+
+<style>
+/* make sure [hidden] works even if CSS overrides */
+svg[hidden] { display: none !important; }
+</style>
