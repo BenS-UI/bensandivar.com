@@ -55,7 +55,6 @@
   position: relative;
   overflow: visible;
   isolation: isolate;
-  cursor: crosshair; /* playful hint */
 }
 
 /* Make the photo non-interactive itself; container handles hover */
