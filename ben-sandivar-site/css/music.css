@@ -258,3 +258,56 @@ body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-col
   .player-right{ order:2; }
   .player-left{ order:1; justify-content:space-between; }
 }
+
+/* === Player bar 50/50 split & stable controls === */
+.player-bar.compact{
+  display:grid;
+  grid-template-columns: 1fr 1fr; /* left cluster / right progress */
+  gap:1rem;
+  align-items:center;
+}
+.player-left{
+  display:grid;
+  grid-template-columns: auto 1fr; /* art+titles | controls */
+  gap:.75rem;
+  align-items:center;
+  min-width:0; /* allow ellipsis */
+}
+.player-right{ min-width:0; } /* progress half */
+
+.player-left .controls{
+  margin-left:auto; /* always right-anchored in left half */
+  display:flex;
+  gap:.35rem;
+  align-items:center;
+  flex-shrink:0;
+}
+
+/* 50% smaller titles/buttons in bar */
+.player-bar.compact .now-art{ width:32px; height:32px; }
+.player-bar.compact .now-meta{ font-size:.78rem; line-height:1.1; }
+.player-bar.compact .icon-btn{ width:28px; height:28px; border-radius:10px; }
+.player-bar.compact .icon-btn.primary{ width:34px; height:34px; }
+
+/* Ellipsis + hover tooltips */
+.player-bar .now-meta{ min-width:0; }
+.player-bar .now-meta span,
+.player-bar .now-meta small{
+  display:block;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+/* Toggle SVGs */
+.toggle-icon{ display:none; }
+.toggle-icon.active{ display:inline; }
+
+/* Minimal, non-invasive scrollbars */
+.views-wrap::-webkit-scrollbar{ width:6px; height:6px; }
+.views-wrap::-webkit-scrollbar-track{ background: transparent; }
+.views-wrap::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.25);
+  border-radius:999px;
+}
+.views-wrap{ scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.25) transparent; }

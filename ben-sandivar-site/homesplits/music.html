@@ -31,73 +31,130 @@
       <canvas id="aurora"></canvas>
     </div>
 
-    <!-- player bar -->
-    <div class="player-bar glass">
-      <!-- LEFT 50%: art + titles + controls -->
+    <!-- player bar (split 50/50) -->
+    <div class="player-bar glass compact">
       <div class="player-left">
         <div class="now">
           <img id="nowArt" src="" alt="" class="now-art">
           <div class="now-meta">
-            <span id="nowTitle" data-full="—">—</span>
-            <small id="nowAlbum" data-full="—">—</small>
+            <span id="nowTitle" title="—">—</span>
+            <small id="nowAlbum" title="—">—</small>
           </div>
         </div>
 
-        <div class="controls">
-          <!-- Play entire library (existing) -->
-          <button class="icon-btn" id="playAllBtn" title="Play entire library">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path d="M5 7h8M5 12h14M5 17h10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"></path>
-              <path d="M17 8v8l5-4z" fill="currentColor"></path>
+        <!-- Controls stay right-aligned inside left half -->
+        <div class="controls" aria-label="Playback controls">
+          <!-- Scope toggle: shows the ACTION you’ll switch to -->
+          <button class="icon-btn" id="toggleScopeBtn" title="Switch to play 1 track">
+            <!-- PLAYLIST (play all library) – Tabler playlist -->
+            <!-- Source: Tabler Icons playlist (MIT) -->
+            <!--  -->
+            <svg class="toggle-icon scope-all" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M14 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
+              <path d="M17 17v-13h4"/>
+              <path d="M13 5h-10"/>
+              <path d="M3 9l10 0"/>
+              <path d="M9 13h-6"/>
+            </svg>
+            <!-- PLAYLIST-X (play one / cancel playlist) – Tabler playlist-x -->
+            <!-- Using “X” variant to clearly indicate single-track mode -->
+            <!-- Reference: Tabler “playlist-x” entry -->
+            <!--  -->
+            <svg class="toggle-icon scope-one active" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M3 5h10"/>
+              <path d="M3 9h10"/>
+              <path d="M3 13h6"/>
+              <path d="M21 15l-6 6"/>
+              <path d="M15 15l6 6"/>
             </svg>
           </button>
 
-          <!-- Prev -->
           <button class="icon-btn" id="prevBtn" title="Previous">
-            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6v12M18 6l-8 6 8 6V6z" fill="currentColor"></path></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6v12M18 6l-8 6 8 6V6z" fill="currentColor"/></svg>
           </button>
 
-          <!-- Play/Pause (class-based icon toggles) -->
+          <!-- PLAY/PAUSE (class-based icon toggles) -->
           <button class="icon-btn primary" id="playPauseBtn" title="Play / Pause" aria-pressed="false">
-            <svg id="iconPlay" class="toggle-icon active" viewBox="0 0 24 24" width="20" height="20">
-              <path d="M8 5v14l11-7z" fill="currentColor"></path>
+            <svg id="iconPlay" class="toggle-icon active" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M8 5v14l11-7z" fill="currentColor"/>
             </svg>
-            <svg id="iconPause" class="toggle-icon" viewBox="0 0 24 24" width="20" height="20">
-              <path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"></path>
+            <svg id="iconPause" class="toggle-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>
             </svg>
           </button>
 
-          <!-- Next -->
           <button class="icon-btn" id="nextBtn" title="Next">
-            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 6v12M6 6l8 6-8 6V6z" fill="currentColor"></path></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M18 6v12M6 6l8 6-8 6V6z" fill="currentColor"/></svg>
           </button>
 
-          <!-- NEW: Play only this track -->
-          <button class="icon-btn" id="playOneBtn" title="Play only this track">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path d="M8 5v14l11-7z" fill="currentColor"></path>
-              <text x="4" y="20" font-size="8" fill="currentColor">1</text>
+          <!-- Loop tri-state: off / all / one -->
+          <button class="icon-btn" id="loopBtn" title="Loop off">
+            <!-- repeat-off (active by default) -->
+            <!-- Source: Tabler repeat-off (MIT) -->
+            <!--  -->
+            <svg class="toggle-icon loop-off active" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M4 8h4v-4"/>
+              <path d="M4 12a4 4 0 0 0 8 0v-4"/>
+              <path d="M20 12a4 4 0 0 0 -4 -4"/>
+              <path d="M16 16h4v4"/>
+              <path d="M16 20a4 4 0 0 1 -4 -4v-4"/>
+              <path d="M3 3l18 18"/>
+            </svg>
+            <!-- repeat (loop all) -->
+            <!--  -->
+            <svg class="toggle-icon loop-all" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M4 8h4v-4"/>
+              <path d="M4 12a4 4 0 1 0 4 -4h12"/>
+              <path d="M20 16h-4v4"/>
+              <path d="M20 12a4 4 0 1 1 -4 4h-12"/>
+            </svg>
+            <!-- repeat-once (loop one) -->
+            <!--  -->
+            <svg class="toggle-icon loop-one" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M4 8h4v-4"/>
+              <path d="M4 12a4 4 0 1 0 4 -4h12"/>
+              <path d="M20 16h-4v4"/>
+              <path d="M20 12a4 4 0 1 1 -4 4h-12"/>
+              <path d="M11 11l1 -1v4"/>
             </svg>
           </button>
 
-          <!-- NEW: Loop modes (cycles: none → one → album → all) -->
-          <button class="icon-btn" id="loopBtn" data-mode="none" title="Loop: off">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path d="M7 7h8a3 3 0 013 3v1M17 17H9a3 3 0 01-3-3v-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"></path>
-              <path d="M7 7l-2 2 2 2M17 17l2-2-2-2" fill="currentColor"></path>
+          <!-- Shuffle toggle -->
+          <button class="icon-btn" id="shuffleBtn" title="Shuffle off">
+            <!-- arrows-shuffle (on) -->
+            <!-- Source: Tabler arrows-shuffle (MIT) -->
+            <!--  -->
+            <svg class="toggle-icon shuffle-on" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M18 4l3 3l-3 3"/>
+              <path d="M18 20l3 -3l-3 -3"/>
+              <path d="M3 7h5l7 10h6"/>
+              <path d="M3 17h5l7 -10h6"/>
             </svg>
-          </button>
-
-          <!-- NEW: Shuffle toggle -->
-          <button class="icon-btn" id="shuffleBtn" aria-pressed="false" title="Shuffle off">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path d="M4 7h4l4 10h4M14 7h6M4 17h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"></path>
+            <!-- “off” = same icon + official Tabler ban slash layered -->
+            <!-- Source: Tabler ban (MIT) -->
+            <!--  -->
+            <svg class="toggle-icon shuffle-off active" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M0 0h24v24H0z" stroke="none" fill="none"/>
+                <path d="M18 4l3 3l-3 3"/>
+                <path d="M18 20l3 -3l-3 -3"/>
+                <path d="M3 7h5l7 10h6"/>
+                <path d="M3 17h5l7 -10h6"/>
+                <!-- ban slash circle + line -->
+                <path d="M9 9a6 6 0 1 0 6 6a6 6 0 0 0 -6 -6"/>
+                <path d="M14.5 14.5l-5 5"/>
+              </g>
             </svg>
           </button>
         </div>
       </div>
 
-      <!-- RIGHT 50%: progress -->
       <div class="player-right">
         <div class="progress">
           <span id="currTime" class="time">0:00</span>
@@ -122,7 +179,6 @@
       { title:"Sonata",      src:"assets/tracks/Track 2.mp3", album:"Musings",              art:"assets/tracks/Musings.jpg" },
       { title:"Münchhausen", src:"assets/tracks/Track 3.mp3", album:"Musings",              art:"assets/tracks/Musings.jpg" },
       { title:"Growing Old", src:"assets/tracks/Track 4.mp3", album:"Musings",              art:"assets/tracks/Musings.jpg" },
-      { title:"Musings", src:"assets/tracks/Track 6.mp3", album:"Musings",              art:"assets/tracks/Musings.jpg" },
       { title:"The Adventure Begins", src:"assets/tracks/Track 5.mp3", album:"The Adventure Begins", art:"assets/tracks/Adventure.jpg" }
     ];
 
@@ -146,7 +202,10 @@
     const iconPause = document.getElementById('iconPause');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const playAllBtn = document.getElementById('playAllBtn');
+    const toggleScopeBtn = document.getElementById('toggleScopeBtn');
+    const loopBtn = document.getElementById('loopBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+
     const seek   = document.getElementById('seek');
     const currTime = document.getElementById('currTime');
     const durTime  = document.getElementById('durTime');
@@ -177,7 +236,10 @@
     let hasSelection = false;
     nowArt.src = CD_PLACEHOLDER;
     nowArt.alt = 'No track selected';
-    stageArt.removeAttribute('src'); // keep track view empty until selection
+    stageArt.removeAttribute('src');
+
+    // ---------- layout helpers ----------
+    function setTooltip(el, text){ el.title = text || ''; }
 
     function renderAlbums(){
       albumsView.innerHTML = Object.entries(albumsMap)
@@ -196,8 +258,8 @@
                   <h3>${name}</h3>
                   <button class="icon-btn play-all" title="Play all in ${name}">
                     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                      <path d="M5 7h8M5 12h14M5 17h10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"></path>
-                      <path d="M17 8v8l5-4z" fill="currentColor"></path>
+                      <path d="M5 7h8M5 12h14M5 17h10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                      <path d="M17 8v8l5-4z" fill="currentColor"/>
                     </svg>
                   </button>
                 </header>
@@ -214,32 +276,72 @@
       a.addEventListener('loadedmetadata', ()=>{ li.querySelector('.t-time').textContent = formatTime(a.duration); });
     });
 
-    let scope='album', queue=[], index=0;
+    // ---------- playback state ----------
+    let scope='album';              // 'album' or 'all'
+    let queue=[], index=0;
     const allQueue = Object.entries(albumsMap).flatMap(([n,d]) => d.tracks);
+    let currentAlbum = Object.keys(albumsMap)[0] || null;
+
+    // Toggles
+    // scopeMode: what PLAY applies to from the bar
+    // 'all' = full library, 'track' = single current track
+    let scopeMode = 'all';          // default selected is "play all"
+    let loopMode  = 'off';          // 'off' | 'all' | 'one'
+    let shuffleOn = false;
+
+    // ---------- queue helpers ----------
+    function baseQueueForScope(){
+      return (scope === 'all') ? allQueue.slice()
+        : (currentAlbum ? albumsMap[currentAlbum].tracks.slice() : []);
+    }
+    function shuffleArray(a){
+      for (let i=a.length-1;i>0;i--){ const j=(Math.random()* (i+1))|0; [a[i],a[j]]=[a[j],a[i]]; }
+      return a;
+    }
+    function rebuildQueue(keepTrack){
+      let base = baseQueueForScope();
+      if (shuffleOn) base = shuffleArray(base);
+      if (scopeMode === 'track' && keepTrack){
+        queue = [keepTrack];
+        index = 0;
+      } else {
+        queue = base;
+        index = keepTrack ? Math.max(0, queue.findIndex(t => t.src === keepTrack.src)) : 0;
+      }
+    }
 
     function setAlbumQueue(name){
-      scope='album'; queue = albumsMap[name].tracks.slice(); index=0;
+      scope='album';
+      currentAlbum = name;
+      rebuildQueue();
       document.querySelectorAll('.album-row').forEach(r=> r.classList.toggle('active', r.dataset.album===name));
     }
 
     function applyArt(t){
-      // only switch away from CD once user picked something
       nowArt.src = t ? albumsMap[t.album].art : CD_PLACEHOLDER;
       nowArt.alt = t ? `${t.album} art` : 'No track selected';
       stageArt.src = t ? albumsMap[t.album].art : '';
     }
 
     function loadTrackBySrc(src){
-      index = queue.findIndex(t => t.src===src); if (index<0) index=0;
+      // ensure queue contains this source
+      const inAlbum = scope === 'album' && currentAlbum && albumsMap[currentAlbum].tracks.some(tr => tr.src === src);
+      if (!inAlbum && scope === 'album'){
+        // if user clicked a different album, switch scope.album
+        const found = Object.keys(albumsMap).find(a => albumsMap[a].tracks.some(tr => tr.src === src));
+        if (found){ setAlbumQueue(found); }
+      }
+      // Rebuild queue around this selection respecting scopeMode/shuffle
+      const picked = (allQueue.find(t => t.src === src)) || null;
+      if (picked){ rebuildQueue(picked); }
+
       const t = queue[index];
       audio.preload = 'auto';
       audio.src = t.src;
       audio.load();
 
-      nowTitle.textContent = t.title;
-      nowAlbum.textContent = t.album;
-      nowTitle.dataset.full = t.title;
-      nowAlbum.dataset.full = t.album;
+      nowTitle.textContent = t.title; setTooltip(nowTitle, t.title);
+      nowAlbum.textContent = t.album; setTooltip(nowAlbum, t.album);
       applyArt(t);
       hasSelection = true;
 
@@ -250,52 +352,95 @@
     function refreshPlayState() {
       const isPlaying = !audio.paused && !audio.ended && audio.readyState >= 2;
       iconPlay.classList.toggle('active', !isPlaying);
-      iconPause.classList.toggle('active', isPlaying);
+      iconPause.classList.toggle('active',  isPlaying);
       playBtn.setAttribute('aria-pressed', String(isPlaying));
     }
 
-    // --- CONTROL HELPERS ---
+    // --- BUTTON ACTIONS ---
     async function play() {
-      // if no selection yet, pick first item in current scope
-      if (!hasSelection) {
-        if (scope === 'album') {
+      if (!hasSelection){
+        // no selection yet: choose by scopeMode
+        if (scopeMode === 'all'){
+          scope = 'all';
+          currentAlbum = null;
+          rebuildQueue();
+        } else {
+          // single-track mode without a selection: pick first of first album
           const firstAlbum = Object.keys(albumsMap)[0];
-          if (firstAlbum) { setAlbumQueue(firstAlbum); }
+          if (firstAlbum){ setAlbumQueue(firstAlbum); }
+          if (queue.length) queue = [queue[0]], index = 0;
         }
-        if (queue.length === 0) queue = allQueue.slice();
-        if (queue.length) loadTrackBySrc(queue[0].src);
+        if (queue.length){ loadTrackBySrc(queue[index].src); }
       }
+      // Loop mode -> audio.loop only for "one"
+      audio.loop = (loopMode === 'one');
+
       try { await audio.play(); } catch {}
       refreshPlayState();
     }
-    function pause() {
-      audio.pause();
-      refreshPlayState();
-    }
-
-    // --- BUTTON ---
-    playBtn.addEventListener('click', () => (audio.paused ? play() : pause()));
-
-    // --- EVENTS: always recheck state ---
-    [
-      'play','playing','pause','ended',
-      'timeupdate','seeking','seeked','ratechange',
-      'loadeddata','canplay','waiting','stalled','suspend','emptied','abort'
-    ].forEach(ev => audio.addEventListener(ev, refreshPlayState));
+    function pause(){ audio.pause(); refreshPlayState(); }
 
     function next(auto=false){
       if (queue.length === 0) return;
-      index = (index+1) % queue.length;
+      // stop at end if loop off and auto-advance reached tail
+      const atTail = (index >= queue.length - 1);
+      if (auto && loopMode === 'off' && atTail){
+        pause();
+        return;
+      }
+      index = atTail ? 0 : index + 1;
       loadTrackBySrc(queue[index].src);
       if (auto) window.aurora?.instant?.();
       play();
     }
     function prev(){
       if (queue.length === 0) return;
-      index = (index-1+queue.length) % queue.length;
+      index = (index - 1 + queue.length) % queue.length;
       loadTrackBySrc(queue[index].src);
       play();
     }
+
+    // --- CONTROL WIRING ---
+    playBtn.addEventListener('click', () => (audio.paused ? play() : pause()));
+    nextBtn.addEventListener('click', ()=> next(false));
+    prevBtn.addEventListener('click', prev);
+
+    // Toggle scope: ‘all library’ <-> ‘single track’
+    toggleScopeBtn.addEventListener('click', ()=>{
+      scopeMode = (scopeMode === 'all') ? 'track' : 'all';
+      // Icon shows *the action you’ll switch to* on next click
+      toggleScopeBtn.querySelector('.scope-all').classList.toggle('active', scopeMode === 'track');
+      toggleScopeBtn.querySelector('.scope-one').classList.toggle('active', scopeMode === 'all');
+      toggleScopeBtn.title = (scopeMode === 'all') ? 'Switch to play 1 track' : 'Switch to play ALL (library)';
+      // Rebuild queue around current track if we have one
+      if (hasSelection){
+        const t = queue[index];
+        rebuildQueue(t);
+      }
+    });
+
+    // Loop tri-state
+    loopBtn.addEventListener('click', ()=>{
+      loopMode = (loopMode === 'off') ? 'all' : (loopMode === 'all' ? 'one' : 'off');
+      loopBtn.querySelector('.loop-off').classList.toggle('active', loopMode === 'off');
+      loopBtn.querySelector('.loop-all').classList.toggle('active', loopMode === 'all');
+      loopBtn.querySelector('.loop-one').classList.toggle('active', loopMode === 'one');
+      loopBtn.title = (loopMode === 'off') ? 'Loop off' : (loopMode === 'all' ? 'Loop all' : 'Loop 1');
+      audio.loop = (loopMode === 'one');
+    });
+
+    // Shuffle toggle
+    shuffleBtn.addEventListener('click', ()=>{
+      shuffleOn = !shuffleOn;
+      shuffleBtn.querySelector('.shuffle-on').classList.toggle('active', shuffleOn);
+      shuffleBtn.querySelector('.shuffle-off').classList.toggle('active', !shuffleOn);
+      shuffleBtn.title = shuffleOn ? 'Shuffle on' : 'Shuffle off';
+      // keep current track, rebuild around it
+      if (hasSelection){
+        const t = queue[index];
+        rebuildQueue(t);
+      }
+    });
 
     // List actions
     albumsView.addEventListener('click', e=>{
@@ -304,30 +449,29 @@
       const albumRow = e.target.closest('.album-row');
 
       if (playAll && albumRow){
+        // This play-all is album-only (as requested)
         setAlbumQueue(albumRow.dataset.album);
-        loadTrackBySrc(queue[0].src);
+        // If scopeMode is 'track', still respect it: play first then stop at end
+        if (scopeMode === 'track'){
+          const first = albumsMap[albumRow.dataset.album].tracks[0];
+          loadTrackBySrc(first.src);
+          queue = [first]; index = 0;
+        } else {
+          rebuildQueue(); // album scope; shuffle respected
+        }
         play();
         return;
       }
       if (row){
-        if (scope!=='album' || queue.length===0 || (queue[0].album !== row.dataset.album)){
-          setAlbumQueue(row.dataset.album);
+        const album = row.dataset.album;
+        if (scope!=='album' || !currentAlbum || currentAlbum !== album){
+          setAlbumQueue(album);
         }
         loadTrackBySrc(row.dataset.src);
+        if (scopeMode === 'track'){ queue = [queue[index]]; index = 0; }
         play();
       }
     });
-
-    // Global play-all
-    playAllBtn.addEventListener('click', ()=>{
-      scope='all'; queue = allQueue.slice(); index=0;
-      document.querySelectorAll('.album-row').forEach(r=> r.classList.remove('active'));
-      if (queue.length){ loadTrackBySrc(queue[0].src); play(); }
-      playAllBtn.classList.add('active'); setTimeout(()=> playAllBtn.classList.remove('active'), 240);
-    });
-
-    nextBtn.addEventListener('click', ()=> next(false));
-    prevBtn.addEventListener('click', prev);
 
     // Progress
     audio.addEventListener('timeupdate', ()=>{
@@ -338,12 +482,15 @@
       durTime.textContent  = formatTime(audio.duration);
     });
     seek.addEventListener('input', ()=>{
-      if (isFinite(audio.duration)){
-        audio.currentTime = (seek.value/1000) * audio.duration;
-      }
+      if (isFinite(audio.duration)){ audio.currentTime = (seek.value/1000) * audio.duration; }
     });
-    audio.addEventListener('ended', ()=> next(true));
 
+    audio.addEventListener('ended', ()=> {
+      if (loopMode === 'one'){ /* audio.loop already handles */ return; }
+      next(true);
+    });
+
+    // View mode switch
     function setMode(list){
       const isList = !!list;
       albumsView.classList.toggle('hidden', !isList);
@@ -354,11 +501,10 @@
       viewsWrap.classList.toggle('no-scroll', !isList);
       viewsWrap.scrollTop = 0;
 
-      // elevate main album art above everything when in track view
+      // Elevate main album art above everything when in track view
       if (!isList) {
         stageArtWrap.style.position = 'relative';
         stageArtWrap.style.zIndex = '2147483647';
-        // push the whole section up in stacking order too
         musicSection.style.setProperty('z-index', '2147483646', 'important');
       } else {
         stageArtWrap.style.removeProperty('z-index');
@@ -367,6 +513,13 @@
     }
     lightList.addEventListener('click', ()=> setMode(true));
     lightTrack.addEventListener('click', ()=> setMode(false));
+
+    // Always recheck state
+    [
+      'play','playing','pause','ended',
+      'timeupdate','seeking','seeked','ratechange',
+      'loadeddata','canplay','waiting','stalled','suspend','emptied','abort'
+    ].forEach(ev => audio.addEventListener(ev, refreshPlayState));
 
     function formatTime(t){
       const m=Math.floor(t/60);
