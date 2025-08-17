@@ -46,12 +46,11 @@
         <div class="controls" aria-label="Playback controls">
           <!-- Scope toggle: shows the ACTION you’ll switch to -->
           <button class="icon-btn" id="toggleScopeBtn" title="Switch to play 1 track">
-            <!-- Use Iconify playlist-play for the ALL-library action -->
+            <!-- ALL-library action (Iconify) -->
             <img class="toggle-icon remote-icon scope-all"
-                 src="https://api.iconify.design/mdi/playlist-play.svg?color=%23fff"
+                 src="https://api.iconify.design/mdi/playlist-play.svg"
                  width="20" height="20" alt="" />
-            <!-- Keep “play one” as the playlist with X (visually obvious) -->
-            <!-- (Using Tabler inline as fallback until a perfect MDI slashed playlist variant is chosen) -->
+            <!-- “Play one” (inline, follows currentColor) -->
             <svg class="toggle-icon scope-one active" xmlns="http://www.w3.org/2000/svg"
                  width="20" height="20" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -86,15 +85,15 @@
           <button class="icon-btn" id="loopBtn" title="Loop off">
             <!-- off -->
             <img class="toggle-icon remote-icon loop-off active"
-                 src="https://api.iconify.design/mdi/repeat-off.svg?color=%23fff"
+                 src="https://api.iconify.design/mdi/repeat-off.svg"
                  width="20" height="20" alt="" />
             <!-- all -->
             <img class="toggle-icon remote-icon loop-all"
-                 src="https://api.iconify.design/mdi/repeat.svg?color=%23fff"
+                 src="https://api.iconify.design/mdi/repeat.svg"
                  width="20" height="20" alt="" />
             <!-- one -->
             <img class="toggle-icon remote-icon loop-one"
-                 src="https://api.iconify.design/mdi/repeat-once.svg?color=%23fff"
+                 src="https://api.iconify.design/mdi/repeat-once.svg"
                  width="20" height="20" alt="" />
           </button>
 
@@ -102,11 +101,11 @@
           <button class="icon-btn" id="shuffleBtn" title="Shuffle off">
             <!-- on -->
             <img class="toggle-icon remote-icon shuffle-on"
-                 src="https://api.iconify.design/mdi/shuffle.svg?color=%23fff"
+                 src="https://api.iconify.design/mdi/shuffle.svg"
                  width="20" height="20" alt="" />
             <!-- off -->
             <img class="toggle-icon remote-icon shuffle-off active"
-                 src="https://api.iconify.design/mdi/shuffle-disabled.svg?color=%23fff"
+                 src="https://api.iconify.design/mdi/shuffle-disabled.svg"
                  width="20" height="20" alt="" />
           </button>
         </div>
@@ -146,6 +145,7 @@
       albumsMap[t.album].tracks.push(t);
     });
 
+    const body       = document.body;
     const musicSection = document.getElementById('music');
     const shell      = document.querySelector('.music-shell');
     const viewsWrap  = document.getElementById('viewsWrap');
@@ -174,7 +174,7 @@
     const stageArt = document.getElementById('stage-art');
     const stageArtWrap = document.getElementById('stageArtWrap');
 
-    // --- placeholder CD (white) for player bar + stage BEFORE first selection ---
+    // --- placeholder CD for player bar + stage BEFORE first selection ---
     function makeCDDataURL() {
       const svg =
         `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'>
@@ -216,7 +216,8 @@
                 <header class="playlist-head">
                   <h3>${name}</h3>
                   <button class="icon-btn play-all" title="Play all in ${name}">
-                    <img src="https://api.iconify.design/mdi/playlist-play.svg?color=%23fff" width="18" height="18" alt="">
+                    <!-- no forced color param: CSS will recolor -->
+                    <img src="https://api.iconify.design/mdi/playlist-play.svg" width="18" height="18" alt="">
                   </button>
                 </header>
                 <ul class="track-list">${items}</ul>
@@ -446,6 +447,26 @@
       next(true);
     });
 
+    // ---------- THEME-AWARE TRACK VIEW BACKGROUND ----------
+    // Using the existing CSS rule:
+    // .music-shell.track-bg { background: var(--stage-bg, <fallback>) }
+    // We set --stage-bg according to the current theme.
+    const DARK_STAGE_BG  = 'radial-gradient(120% 140% at 50% 25%, rgba(0,0,0,.36), rgba(0,0,0,.9))';
+    const LIGHT_STAGE_BG = 'radial-gradient(120% 140% at 50% 25%, rgba(255,255,255,.35), rgba(0,0,0,.15))';
+
+    function applyStageBG(){
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      shell.style.setProperty('--stage-bg', isDark ? DARK_STAGE_BG : LIGHT_STAGE_BG);
+    }
+
+    // Watch for theme toggles while in track view
+    const themeObserver = new MutationObserver(muts => {
+      if ([...muts].some(m => m.attributeName === 'data-theme')) {
+        if (shell.classList.contains('track-bg')) applyStageBG();
+      }
+    });
+    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+
     // View mode switch
     function setMode(list){
       const isList = !!list;
@@ -457,21 +478,27 @@
       viewsWrap.classList.toggle('no-scroll', !isList);
       viewsWrap.scrollTop = 0;
 
-      // Elevate main album art above everything when in track view
       if (!isList) {
+        // theme-aware background for track view
+        applyStageBG();
+
         // Show CD placeholder on stage if nothing selected yet
         if (!hasSelection) {
           stageArt.src = CD_PLACEHOLDER;
           stageArt.alt = 'CD placeholder';
         }
+        // elevate album art above everything visually
         stageArtWrap.style.position = 'relative';
         stageArtWrap.style.zIndex = '2147483647';
         musicSection.style.setProperty('z-index', '2147483646', 'important');
       } else {
+        // back to list view -> let CSS theme control the shell bg
+        shell.style.removeProperty('--stage-bg');
         stageArtWrap.style.removeProperty('z-index');
         musicSection.style.removeProperty('z-index');
       }
     }
+
     lightList.addEventListener('click', ()=> setMode(true));
     lightTrack.addEventListener('click', ()=> setMode(false));
 
