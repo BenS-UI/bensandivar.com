@@ -351,8 +351,8 @@ body[data-theme="dark"] .icon-btn img.remote-icon {
 /* Dark theme — switch cleanly */
 body[data-theme="dark"] .icon-btn.loop svg,
 body[data-theme="dark"] .icon-btn.shuffle svg {
-  fill: currentColor !important;
-  stroke: currentColor !important;
+  fill: #0b0b0b !important;
+  stroke: #0b0b0b !important;
 }
 body[data-theme="dark"] .icon-btn.loop img,
 body[data-theme="dark"] .icon-btn.shuffle img {
