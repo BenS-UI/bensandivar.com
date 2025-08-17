@@ -165,16 +165,24 @@ section.bucket-hero{ position:relative; z-index:2; }
   display:grid; place-items:center; width:36px; height:36px; border-radius:12px;
   border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: var(--color-primary);
   transition: box-shadow .2s ease, border-color .2s ease, transform .06s ease;
+  line-height:0; /* kill inline gaps around icons */
 }
 .icon-btn:hover{ border-color: rgba(0,110,255,.5); box-shadow: 0 0 12px rgba(47,132,255,.35); }
 .icon-btn:active{ transform:scale(.97); }
 .icon-btn.primary{ width:42px; height:42px; color:#fff; background: rgba(0,110,255,.18); border-color: rgba(0,110,255,.55); }
 .icon-btn.active{ box-shadow: 0 0 16px rgba(47,132,255,.6); }
 
-/* Toggle SVG / IMG icons */
-.toggle-icon{ display:none; vertical-align:middle; }
-.toggle-icon.active{ display:inline-block; }
-.icon-btn svg, .icon-btn img{ display:block; }
+/* Generic SVG/IMG in buttons */
+.icon-btn svg,
+.icon-btn img{
+  display:block;
+  width:20px;
+  height:20px;
+}
+
+/* Toggle SVG / IMG icons — ONLY show the active one */
+.icon-btn .toggle-icon{ display:none !important; }
+.icon-btn .toggle-icon.active{ display:inline-block !important; }
 
 /* Remote Iconify images: lock size in case of global img rules */
 .remote-icon{ width:20px; height:20px; }
