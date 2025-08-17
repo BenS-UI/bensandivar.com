@@ -108,7 +108,7 @@ section.bucket-hero{ position:relative; z-index:2; }
   width:34px; height:34px; border-radius:10px;
   border:1px solid rgba(255,255,255,.14);
   background: rgba(255,255,255,.06);
-  color: var(--color-primary);
+  color: #fff;
   backdrop-filter: blur(6px);
 }
 .track-list{ list-style:none; margin:0; padding:0; display:grid; gap:.3rem; }
@@ -308,7 +308,7 @@ body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-col
 
 /* Default (light theme): dark icons */
 .icon-btn {
-  color: #0b0b0c; /* drives inline SVG via currentColor */
+  color: #fff; /* drives inline SVG via currentColor */
 }
 .icon-btn svg {
   /* normalize both fill-only and stroke-only SVGs */
@@ -322,7 +322,7 @@ body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-col
 
 /* Dark theme: white icons */
 body[data-theme="dark"] .icon-btn {
-  color: #fff !important;
+  color: #0b0b0b !important;
 }
 body[data-theme="dark"] .icon-btn svg {
   fill: currentColor !important;
