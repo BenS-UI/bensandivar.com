@@ -99,3 +99,28 @@
   color: var(--color-primary);
   transform: translateX(2px);
 }
+
+/* ===========================
+   SECURITY LOCKS
+   =========================== */
+
+/* Prevent text selection */
+#projects, 
+#projects * {
+  user-select: none;
+}
+
+/* Block image dragging, context menus, and pointer interactions */
+#projects img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* Disable right-click on the entire section */
+#projects {
+  -webkit-touch-callout: none; /* Safari iOS long press */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
