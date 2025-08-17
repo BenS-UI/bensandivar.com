@@ -337,24 +337,26 @@ body[data-theme="dark"] .icon-btn img.remote-icon {
    LOOP + SHUFFLE FIX
    =========================== */
 
-/* Light theme — keep them white */
-.icon-btn.loop svg,
-.icon-btn.shuffle svg {
+/* Light theme — force white icons */
+#loopBtn svg,
+#shuffleBtn svg {
   fill: currentColor !important;
   stroke: currentColor !important;
+  color: #fff !important;
 }
-.icon-btn.loop img,
-.icon-btn.shuffle img {
+#loopBtn img.remote-icon,
+#shuffleBtn img.remote-icon {
   filter: none !important;
 }
 
-/* Dark theme — switch cleanly */
-body[data-theme="dark"] .icon-btn.loop svg,
-body[data-theme="dark"] .icon-btn.shuffle svg {
+/* Dark theme — force dark icons */
+body[data-theme="dark"] #loopBtn svg,
+body[data-theme="dark"] #shuffleBtn svg {
   fill: #0b0b0b !important;
   stroke: #0b0b0b !important;
+  color: #0b0b0b !important;
 }
-body[data-theme="dark"] .icon-btn.loop img,
-body[data-theme="dark"] .icon-btn.shuffle img {
+body[data-theme="dark"] #loopBtn img.remote-icon,
+body[data-theme="dark"] #shuffleBtn img.remote-icon {
   filter: brightness(0) invert(1) !important;
 }
