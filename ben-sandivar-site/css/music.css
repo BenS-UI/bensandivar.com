@@ -306,7 +306,7 @@ body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-col
 
 /* ---- Icon colors (place at end of file) ---- */
 
-/* Default (light theme): dark icons */
+/* Default (light theme): white icons */
 .icon-btn {
   color: #fff; /* drives inline SVG via currentColor */
 }
@@ -320,7 +320,7 @@ body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-col
   filter: none !important;
 }
 
-/* Dark theme: white icons */
+/* Dark theme: black icons */
 body[data-theme="dark"] .icon-btn {
   color: #0b0b0b !important;
 }
@@ -330,5 +330,31 @@ body[data-theme="dark"] .icon-btn svg {
 }
 body[data-theme="dark"] .icon-btn img.remote-icon {
   /* turn black icon images white */
+  filter: brightness(0) invert(1) !important;
+}
+
+/* ===========================
+   LOOP + SHUFFLE FIX
+   =========================== */
+
+/* Light theme — keep them white */
+.icon-btn.loop svg,
+.icon-btn.shuffle svg {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+.icon-btn.loop img,
+.icon-btn.shuffle img {
+  filter: none !important;
+}
+
+/* Dark theme — switch cleanly */
+body[data-theme="dark"] .icon-btn.loop svg,
+body[data-theme="dark"] .icon-btn.shuffle svg {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+body[data-theme="dark"] .icon-btn.loop img,
+body[data-theme="dark"] .icon-btn.shuffle img {
   filter: brightness(0) invert(1) !important;
 }
