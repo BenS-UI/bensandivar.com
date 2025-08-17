@@ -292,7 +292,7 @@ section.bucket-hero{ position:relative; z-index:2; }
    DARK THEME
    =========================== */
 body[data-theme="dark"] .music-shell{
-  background: radial-gradient(120% 120% at 60% 20%, rgba(0, 0, 0,), rgb(68, 68, 68));
+  background: radial-gradient(120% 120% at 60% 20%, rgba(0, 0, 0, 0.9), rgb(68, 68, 68));
   border-color: rgba(255,255,255,.07);
 }
 body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
