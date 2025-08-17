@@ -299,62 +299,36 @@ body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-co
 body[data-theme="dark"] .player-bar{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
 body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); }
 
-
 /* ===========================
-   ICON COLORS
+   ICON COLORS — unified + fixed
    =========================== */
 
-/* ---- Icon colors (place at end of file) ---- */
-
-/* Default (light theme): white icons */
-.icon-btn {
-  color: #fff; /* drives inline SVG via currentColor */
+/* Inline SVGs follow button color */
+.icon-btn{
+  color:#fff; /* light theme: white icons */
 }
-.icon-btn svg {
-  /* normalize both fill-only and stroke-only SVGs */
+.icon-btn svg{
   fill: currentColor !important;
   stroke: currentColor !important;
 }
-.icon-btn img.remote-icon {
-  /* Iconify SVGs delivered as <img>: black in light mode */
-  filter: none !important;
-}
 
-/* Dark theme: black icons */
-body[data-theme="dark"] .icon-btn {
-  color: #0b0b0b !important;
-}
-body[data-theme="dark"] .icon-btn svg {
+/* Iconify <img> (default black):
+   - Light theme => invert to white
+   - Dark theme  => no filter (stay black)
+*/
+.icon-btn img{ display:block; } /* normalize */
+.icon-btn img.remote-icon{ filter: brightness(0) invert(1) !important; }
+
+/* Dark theme */
+body[data-theme="dark"] .icon-btn{ color:#0b0b0b !important; }
+body[data-theme="dark"] .icon-btn svg{
   fill: currentColor !important;
   stroke: currentColor !important;
 }
-body[data-theme="dark"] .icon-btn img.remote-icon {
-  /* turn black icon images white */
-  filter: brightness(0) invert(1) !important;
-}
+body[data-theme="dark"] .icon-btn img.remote-icon{ filter:none !important; }
 
-/* ===========================
-   LOOP + SHUFFLE FIX
-   =========================== */
-
-/* Light theme — white icons */
-#loopBtn svg,
-#shuffleBtn svg {
-  fill: #fff !important;
-  stroke: #fff !important;
-}
-#loopBtn img.remote-icon,
-#shuffleBtn img.remote-icon {
-  filter: none !important;
-}
-
-/* Dark theme — dark icons */
-body[data-theme="dark"] #loopBtn svg,
-body[data-theme="dark"] #shuffleBtn svg {
-  fill: #0b0b0b !important;
-  stroke: #0b0b0b !important;
-}
-body[data-theme="dark"] #loopBtn img.remote-icon,
-body[data-theme="dark"] #shuffleBtn img.remote-icon {
-  filter: none !important; /* don’t invert, just show dark */
-}
+/* Ensure loop/shuffle obey the same logic even if HTML lacks the .remote-icon class */
+#loopBtn img,
+#shuffleBtn img{ filter: brightness(0) invert(1) !important; }
+body[data-theme="dark"] #loopBtn img,
+body[data-theme="dark"] #shuffleBtn img{ filter:none !important; }
