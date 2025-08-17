@@ -298,3 +298,37 @@ body[data-theme="dark"] .music-shell{
 body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
 body[data-theme="dark"] .player-bar{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
 body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); }
+
+
+/* ===========================
+   ICON COLORS
+   =========================== */
+
+/* ---- Icon colors (place at end of file) ---- */
+
+/* Default (light theme): dark icons */
+.icon-btn {
+  color: #0b0b0c; /* drives inline SVG via currentColor */
+}
+.icon-btn svg {
+  /* normalize both fill-only and stroke-only SVGs */
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+.icon-btn img.remote-icon {
+  /* Iconify SVGs delivered as <img>: black in light mode */
+  filter: none !important;
+}
+
+/* Dark theme: white icons */
+body[data-theme="dark"] .icon-btn {
+  color: #fff !important;
+}
+body[data-theme="dark"] .icon-btn svg {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+body[data-theme="dark"] .icon-btn img.remote-icon {
+  /* turn black icon images white */
+  filter: brightness(0) invert(1) !important;
+}
