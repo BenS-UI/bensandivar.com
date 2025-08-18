@@ -106,11 +106,11 @@
 }
 
 /* ===========================
-   Web layout (≤ 1000px)
+   Web layout (≤ 1400px)
    - Pic above text
    - Centered headings & body
    =========================== */
-@media (max-width: 1000px) {
+@media (max-width: 1400px) {
   /* let sections span full width */
   .intro-content,
   .about-bio {
