@@ -19,7 +19,27 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
 #view{display:block;width:100vw;height:100vh}
 
 /* Hint */
-#hint{position:fixed;top:12px;left:50%;transform:translateX(-50%);font:13px/1.25 system-ui;opacity:.7;user-select:none}
+#hint {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font: 13px/1.25 system-ui;
+  opacity: 0.9;
+  user-select: none;
+  z-index: 1000;
+  padding: 10px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease;
+}
+#hint.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* ============== Toolbar (centered, 5% idle) ============== */
 #bar{

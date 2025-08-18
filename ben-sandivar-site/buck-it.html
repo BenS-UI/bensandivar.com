@@ -33,6 +33,10 @@
   <!-- Canvas and hints -->
   <canvas id="view"></canvas>
   <div id="hint">Left = CW • Right = CCW • Ctrl+Z / Ctrl+Y • Ctrl+P snapshot • Ctrl+S export</div>
+  <div id="hint" class="glass">
+  Tip: Right-click to rotate counter-clockwise. Tap settings to fine-tune your art.
+</div>
+
   <div id="tips"></div>
 
   <!-- Toolbar (centered by CSS in buck-it.css) -->
@@ -232,5 +236,14 @@
 
   <!-- App (module). This imports ./fluid-core.js internally. -->
   <script type="module" src="app.js"></script>
+  <script>
+  const hint = document.getElementById('hint');
+  if (hint) {
+    const hideHint = () => hint.classList.add('hidden');
+    setTimeout(() => {
+      document.addEventListener('click', hideHint, { once: true });
+    }, 500); // slight delay to avoid immediate dismissal
+  }
+</script>
 </body>
 </html>
