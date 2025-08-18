@@ -156,18 +156,18 @@
     </div>
 
     <div class="project-card" data-tilt data-section="writing">
-      <img src="assets/projects/downfall.png" alt="Downfall Thumbnail" />
-      <div class="card-content">
-        <h4>Downfall</h4>
-        <p>Western duel animation subverting clichés with fresh 2D style and themes of vengeance.</p>
-      </div>
-    </div>
-
-    <div class="project-card" data-tilt data-section="writing">
       <img src="assets/projects/A%20Dark%20Place.jpg" alt="A Dark Place Thumbnail" />
       <div class="card-content">
         <h4>A Dark Place</h4>
         <p>Psychological sci-fi manga blending high school drama, advanced physics, and themes of friendship and humanity.</p>
+      </div>
+    </div>
+
+    <div class="project-card" data-tilt data-section="writing">
+      <img src="assets/projects/downfall.png" alt="Downfall Thumbnail" />
+      <div class="card-content">
+        <h4>Downfall</h4>
+        <p>Western duel animation subverting clichés with fresh 2D style and themes of vengeance.</p>
       </div>
     </div>
 
@@ -179,4 +179,48 @@
       </div>
     </div>
   </div>
-  
+</section>
+
+<!-- Scoped, non-visual protections (does not change layout or styles) -->
+<style>
+  /* Scope to #projects only */
+  #projects, #projects * { user-select: none; -webkit-user-select: none; }
+  #projects img { -webkit-user-drag: none; user-drag: none; }
+</style>
+<script>
+  (function () {
+    const root = document.getElementById('projects');
+    if (!root) return;
+
+    const stop = (e) => { e.preventDefault(); e.stopPropagation(); return false; };
+
+    // Block selection, copy/paste, right-click, and dragging inside the section
+    ['selectstart', 'copy', 'cut', 'paste', 'contextmenu', 'dragstart'].forEach(evt => {
+      root.addEventListener(evt, stop, { capture: true });
+    });
+
+    // Make all images non-draggable and block aux-click (middle button) on them
+    const imgs = root.querySelectorAll('img');
+    imgs.forEach(img => {
+      img.setAttribute('draggable', 'false');
+      img.addEventListener('contextmenu', stop, { capture: true });
+      img.addEventListener('dragstart', stop, { capture: true });
+      img.addEventListener('auxclick', stop, { capture: true });
+      img.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) stop(e); // block middle/right open-in-new-tab
+      }, { capture: true });
+    });
+
+    // Scope keyboard blocks only while mouse is over the section
+    let over = false;
+    root.addEventListener('mouseenter', () => { over = true; }, true);
+    root.addEventListener('mouseleave', () => { over = false; }, true);
+
+    // Block common shortcuts while over section (best-effort)
+    document.addEventListener('keydown', (e) => {
+      if (!over) return;
+      const k = (e.key || '').toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && ['c','x','v','s','p','u','i'].includes(k)) stop(e);
+    }, { capture: true });
+  })();
+</script>
