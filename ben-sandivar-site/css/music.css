@@ -4,15 +4,17 @@
 [hidden]{display:none!important;}
 .hidden{display:none!important;}
 
-/* FORCE NORMAL FLOW — keep this section under the hero */
-section.bucket-hero{ position:relative; z-index:2; }
+/* Keep normal flow under hero */
+section.bucket-hero{ position:relative; }
+
+/* The section itself should not force a stacking context or z-index */
 #music.music-player{
-  position:relative !important;
-  z-index:1 !important;
-  inset:auto !important;
+  position:relative;
+  inset:auto;
   clear:both;
   display:flow-root;
   contain: layout paint;
+  z-index:auto !important; /* neutralize any legacy !important */
 }
 
 /* ===========================
@@ -28,13 +30,13 @@ section.bucket-hero{ position:relative; z-index:2; }
 }
 
 .music-shell{
-  isolation:isolate;
   width:100%;
   margin:0 auto;
   border-radius:28px;
   position:relative;
+  /* visual bg stays local to the shell */
   background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.04), rgba(0,0,0,.45));
-  border:1px solid rgba(255,255,255,.08);
+  border:1px solid var(--color-border);
   box-shadow: 0 8px 22px rgba(0,0,0,.22);
   display:flex;
   flex-direction:column;
@@ -49,7 +51,10 @@ section.bucket-hero{ position:relative; z-index:2; }
 /* ===========================
    VIEW SWITCH
    =========================== */
-.mode-lights{ position:absolute; top:.6rem; left:50%; transform:translateX(-50%); display:flex; gap:.5rem; align-items:center; z-index:6; }
+.mode-lights{
+  position:absolute; top:.6rem; left:50%; transform:translateX(-50%);
+  display:flex; gap:.5rem; align-items:center; z-index:2;
+}
 .mode-lights .light{
   width:12px; height:12px; border-radius:999px; border:0; cursor:pointer;
   background: radial-gradient(circle at 35% 35%, #7ab8ff 10%, #1f6fff 70%, #0036e8 100%);
@@ -70,24 +75,18 @@ section.bucket-hero{ position:relative; z-index:2; }
 /* ===========================
    LAYERS (z-index order)
    =========================== */
-.views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; z-index:1; }
+.views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; }
 .views-wrap.no-scroll{ overflow:hidden; }
 
 /* aurora behind album art, above list */
 .aurora-layer{
-  position:absolute;
-  inset:0;
-  z-index:2;
-  pointer-events:none;
-  border-radius:inherit;
-  opacity:1;
+  position:absolute; inset:0; z-index:1; pointer-events:none; border-radius:inherit; opacity:1;
 }
-.aurora-layer.on{ opacity:1; }
 .aurora-layer canvas{ width:100%; height:100%; display:block; }
 
-.track-stage .stage-art-wrap{ z-index:3; position:relative; }
-/* player bar at top of stack */
-.player-bar{ position:relative; z-index:4; }
+.track-stage .stage-art-wrap{ z-index:2; position:relative; }
+/* player bar at top of stack within shell */
+.player-bar{ position:relative; z-index:3; }
 
 /* ===========================
    LIST VIEW
@@ -96,7 +95,7 @@ section.bucket-hero{ position:relative; z-index:2; }
 .album-row{
   display:grid; grid-template-columns:140px 1fr; gap:1rem;
   background: rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.08);
+  border:1px solid var(--color-border);
   border-radius:18px; padding:1rem;
 }
 @media (max-width:720px){ .album-row{ grid-template-columns:100px 1fr; } }
@@ -106,9 +105,9 @@ section.bucket-hero{ position:relative; z-index:2; }
 .playlist-head h3{ margin:0; font-size:1.1rem; }
 .icon-btn.play-all{
   width:34px; height:34px; border-radius:10px;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-  color: #fff;
+  border:1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--icon-color);
   backdrop-filter: blur(6px);
 }
 .track-list{ list-style:none; margin:0; padding:0; display:grid; gap:.3rem; }
@@ -128,19 +127,19 @@ section.bucket-hero{ position:relative; z-index:2; }
   background: var(--stage-bg, radial-gradient(120% 140% at 50% 25%, rgba(0,0,0,.36), rgba(0,0,0,.9)));
 }
 .track-view{ border-radius:22px; padding:2rem 1.25rem; }
-.track-stage{ display:grid; justify-items:center; z-index:3; position:relative; }
+.track-stage{ display:grid; justify-items:center; z-index:2; position:relative; }
 .stage-art-wrap{
   width:min(42%, 440px); aspect-ratio:1/1; border-radius:18px;
   box-shadow:0 14px 32px rgba(0,0,0,.32);
 }
 #stage-art{ width:100%; height:100%; object-fit:cover; border-radius:18px; display:block; }
 
-/* Put the main album art ABOVE EVERYTHING (aurora untouched) in track view */
-.music-shell.track-bg .views-wrap{ z-index: 10; }
+/* Keep art above list within the shell only */
+.music-shell.track-bg .views-wrap{ z-index: 1; }
 .music-shell.track-bg .track-view .stage-art-wrap{
   position: relative;
-  z-index: 11;          /* higher than player bar (4) and aurora (2) */
-  pointer-events: none; /* mouse clicks pass through; visuals still on top */
+  z-index: 3;          /* above player bar (3 ties okay) and aurora (1) only inside shell */
+  pointer-events: none;
 }
 
 /* ===========================
@@ -149,8 +148,8 @@ section.bucket-hero{ position:relative; z-index:2; }
 .player-bar{
   margin-top:1rem;
   display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:center;
-  padding:.85rem 1rem; border-radius:16px; border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06); backdrop-filter: blur(10px);
+  padding:.85rem 1rem; border-radius:16px; border:1px solid var(--glass-border);
+  background: var(--glass-bg); backdrop-filter: blur(10px);
 }
 @media (min-width:760px){ .player-bar{ grid-template-columns:auto auto 1fr; } }
 
@@ -163,46 +162,42 @@ section.bucket-hero{ position:relative; z-index:2; }
 .controls{ display:flex; gap:.5rem; align-items:center; }
 .icon-btn{
   display:grid; place-items:center; width:36px; height:36px; border-radius:12px;
-  border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: var(--color-primary);
+  border:1px solid var(--glass-border); background: var(--glass-bg); color: var(--icon-color);
   transition: box-shadow .2s ease, border-color .2s ease, transform .06s ease;
-  line-height:0; /* kill inline gaps around icons */
+  line-height:0;
 }
 .icon-btn:hover{ border-color: rgba(0,110,255,.5); box-shadow: 0 0 12px rgba(47,132,255,.35); }
 .icon-btn:active{ transform:scale(.97); }
-.icon-btn.primary{ width:42px; height:42px; color:#fff; background: rgba(0,110,255,.18); border-color: rgba(0,110,255,.55); }
+.icon-btn.primary{ width:42px; height:42px; color: var(--icon-color-contrast); background: rgba(0,110,255,.18); border-color: rgba(0,110,255,.55); }
 .icon-btn.active{ box-shadow: 0 0 16px rgba(47,132,255,.6); }
 
-/* Generic SVG/IMG in buttons */
+/* Generic SVG/IMG sizes (colors come from global-theme.css) */
 .icon-btn svg,
-.icon-btn img{
-  display:block;
-  width:20px;
-  height:20px;
-}
+.icon-btn img{ display:block; width:20px; height:20px; }
 
 /* Toggle SVG / IMG icons — ONLY show the active one */
 .icon-btn .toggle-icon{ display:none !important; }
 .icon-btn .toggle-icon.active{ display:inline-block !important; }
 
-/* Remote Iconify images: lock size in case of global img rules */
+/* Remote Iconify images: lock size */
 .remote-icon{ width:20px; height:20px; }
 
 /* ===========================
    PLAYER BAR (50/50 compact)
    =========================== */
 .player-bar{
-  grid-template-columns: 1fr 1fr !important; /* lock to two equal columns */
+  grid-template-columns: 1fr 1fr !important;
 }
 .player-left{
   display:grid;
-  grid-template-columns: auto 1fr; /* art+titles | controls */
+  grid-template-columns: auto 1fr;
   gap:.75rem;
   align-items:center;
-  min-width:0; /* enable ellipsis */
-  font-size:0.5em; /* ~50% smaller text/buttons per spec */
+  min-width:0;
+  font-size:0.5em;
 }
 .player-left .controls{
-  margin-left:auto; /* keep controls pinned right within left half */
+  margin-left:auto;
   display:flex;
   gap:.35rem;
   align-items:center;
@@ -220,27 +215,16 @@ section.bucket-hero{ position:relative; z-index:2; }
 .player-bar .now-meta{ min-width:0; }
 .player-bar .now-meta span,
 .player-bar .now-meta small{
-  display:block;
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-  position:relative;
+  display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; position:relative;
 }
 .player-bar .now-meta [title]:hover::after{
   content: attr(title);
-  position:absolute;
-  left:0; top:120%;
+  position:absolute; left:0; top:120%;
   max-width: min(60vw, 520px);
-  padding:.45rem .6rem;
-  font-size:.9em;
-  white-space:normal;
-  line-height:1.2;
-  border-radius:10px;
-  background: rgba(0,0,0,.85);
-  color:#fff;
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow: 0 8px 22px rgba(0,0,0,.35);
-  z-index: 9999;
+  padding:.45rem .6rem; font-size:.9em; white-space:normal; line-height:1.2;
+  border-radius:10px; background: rgba(0,0,0,.85); color:#fff;
+  border:1px solid rgba(255,255,255,.18); box-shadow: 0 8px 22px rgba(0,0,0,.35);
+  z-index: 9;
 }
 
 /* Stack on very narrow screens */
@@ -287,48 +271,3 @@ section.bucket-hero{ position:relative; z-index:2; }
   border-radius:999px;
 }
 .views-wrap{ scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.25) transparent; }
-
-/* ===========================
-   DARK THEME
-   =========================== */
-body[data-theme="dark"] .music-shell{
-  background: radial-gradient(120% 120% at 60% 20%, rgba(0, 0, 0, 0.9), rgb(68, 68, 68));
-  border-color: rgba(255,255,255,.07);
-}
-body[data-theme="dark"] .album-row{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
-body[data-theme="dark"] .player-bar{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
-body[data-theme="dark"] .icon-btn{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); }
-
-/* ===========================
-   ICON COLORS — unified + fixed
-   =========================== */
-
-/* Inline SVGs follow button color */
-.icon-btn{
-  color:#fff; /* light theme: white icons */
-}
-.icon-btn svg{
-  fill: currentColor !important;
-  stroke: currentColor !important;
-}
-
-/* Iconify <img> (default black):
-   - Light theme => invert to white
-   - Dark theme  => no filter (stay black)
-*/
-.icon-btn img{ display:block; } /* normalize */
-.icon-btn img.remote-icon{ filter: brightness(0) invert(1) !important; }
-
-/* Dark theme */
-body[data-theme="dark"] .icon-btn{ color:#0b0b0b !important; }
-body[data-theme="dark"] .icon-btn svg{
-  fill: currentColor !important;
-  stroke: currentColor !important;
-}
-body[data-theme="dark"] .icon-btn img.remote-icon{ filter:none !important; }
-
-/* Ensure loop/shuffle obey the same logic even if HTML lacks the .remote-icon class */
-#loopBtn img,
-#shuffleBtn img{ filter: brightness(0) invert(1) !important; }
-body[data-theme="dark"] #loopBtn img,
-body[data-theme="dark"] #shuffleBtn img{ filter:none !important; }
