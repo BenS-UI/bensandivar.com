@@ -18,8 +18,8 @@
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:var(--text)}
 #view{display:block;width:100vw;height:100vh}
 
-/* Hint */
-#hint {
+/* Welcome */
+#welcome {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -36,7 +36,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: opacity 0.3s ease;
 }
-#hint.hidden {
+#welcome.hidden {
   opacity: 0;
   pointer-events: none;
 }

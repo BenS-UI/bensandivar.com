@@ -32,10 +32,14 @@
 
   <!-- Canvas and hints -->
   <canvas id="view"></canvas>
-  <div id="hint" class="glass"></div><h3>Welcome to Bucket</h3></div>
-    <p>Hover near the bottom of the page to reveal the toolbar. Right‑click anywhere on the canvas to adjust your brush and fluid settings. Have fun creating your art!</p>
-  </div>
-
+<div id="welcome" class="glass">
+  <h3>Welcome to Bucket</h3>
+  <p>
+    Hover near the bottom of the page to reveal the toolbar.  
+    Right‑click anywhere on the canvas to adjust your brush and fluid settings.  
+    Have fun creating your art!
+  </p>
+</div>
   <div id="tips"></div>
 
   <!-- Toolbar (centered by CSS in buck-it.css) -->
@@ -237,8 +241,8 @@
   <script type="module" src="app.js"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-     const hint = document.getElementById('hint');
-      if (hint) {
+     const welcome = document.getElementById('welcome');
+      if (welcome) {
         const hideHint = () => hint.classList.add('hidden');
         setTimeout(() => {
           document.addEventListener('click', hideHint, { once: true });
