@@ -22,9 +22,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
 #navbar-slot .navbar{position:relative;isolation:isolate}
 #navbar-slot .navbar::before{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(to bottom, rgba(255,255,255,.70), rgba(164, 164, 164, 50));
+  background:linear-gradient(to bottom, rgba(255,255,255,.30), rgba(164, 164, 164, 15));
   pointer-events:none;z-index:0;
-  filter: blur(1px)
+  filter: blur(4px)
 }
 #navbar-slot .navbar>*{position:relative;z-index:1}
 
