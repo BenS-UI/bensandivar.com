@@ -287,16 +287,22 @@
   let lastTs = null;
   let inside = false;
 
-  function mapSpeed(xNorm) {
-    if (xNorm > 0.5) {
-      const r = Math.pow((xNorm - 0.5) / 0.5, EASE);
-      return { dir: 'right', ms: SLOW - r * (SLOW - FAST) };
-    } else if (xNorm < 0.5) {
-      const l = Math.pow((0.5 - xNorm) / 0.5, EASE);
-      return { dir: 'left', ms: SLOW - l * (SLOW - FAST) };
-    }
-    return { dir: null, ms: SLOW };
+// Increase max speed by dividing FAST with SPEED_MULT (2 = 2x faster).
+const SPEED_MULT = 2; // tweak: 1.5, 2, 3 ...
+const MIN_MS = 30;    // safety floor
+
+function mapSpeed(xNorm) {
+  const fast = Math.max(FAST / SPEED_MULT, MIN_MS);
+
+  if (xNorm > 0.5) {
+    const r = Math.pow((xNorm - 0.5) / 0.5, EASE);
+    return { dir: 'right', ms: SLOW - r * (SLOW - fast) };
+  } else if (xNorm < 0.5) {
+    const l = Math.pow((0.5 - xNorm) / 0.5, EASE);
+    return { dir: 'left', ms: SLOW - l * (SLOW - fast) };
   }
+  return { dir: null, ms: SLOW };
+}
 
   track.addEventListener('mousemove', (e) => {
     const rect = track.getBoundingClientRect();
