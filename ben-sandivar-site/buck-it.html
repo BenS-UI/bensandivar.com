@@ -4,27 +4,56 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bucket</title>
+
+  <!-- Site fonts/icons used by the navbar -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <!-- Your site styles (needed for the navbar look/feel) -->
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="stylesheet" href="css/themes.css" />
+  <link rel="stylesheet" href="css/992.css" />
+  <link rel="stylesheet" href="css/768.css" />
+
+  <!-- App styles -->
   <link rel="stylesheet" href="buck-it.css" />
+
+  <!-- Keep navbar above the canvas -->
+  <style>
+    #navbar-slot { position: relative; z-index: 100; }
+  </style>
 </head>
 <body>
-  <!-- Navbar (keep this in BODY, not HEAD) -->
+  <!-- Navbar slot -->
   <div id="navbar-slot"></div>
-  <script defer src="/js/navbar.js"></script>
 
-  <!-- Canvas + hint -->
+  <!-- Canvas and hints -->
   <canvas id="view"></canvas>
   <div id="hint">Left = CW • Right = CCW • Ctrl+Z / Ctrl+Y • Ctrl+P snapshot • Ctrl+S export</div>
   <div id="tips"></div>
 
-  <!-- Toolbar (centered) -->
+  <!-- Toolbar (centered by CSS in buck-it.css) -->
   <div id="bar">
     <button id="colorBtn" class="btn" title="Color">
       <div id="swatch" style="background:#1aa4ff"></div>
       <span class="label">Color</span>
     </button>
-    <button id="colorToolsBtn" class="btn" title="Color tools"><span class="label">Color ▾</span></button>
-    <button id="blendToolsBtn" class="btn" title="Blend tools"><span class="label">Blend ▾</span></button>
-    <button id="newBtn" class="btn" title="New"><span class="label">New ▾</span></button>
+
+    <button id="colorToolsBtn" class="btn" title="Color tools">
+      <span class="label">Color ▾</span>
+    </button>
+
+    <button id="blendToolsBtn" class="btn" title="Blend tools">
+      <span class="label">Blend ▾</span>
+    </button>
+
+    <button id="newBtn" class="btn" title="New">
+      <span class="label">New ▾</span>
+    </button>
+
     <button id="settingsBtn" class="btn iconbtn" title="Settings">
       <!-- gear -->
       <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -32,23 +61,22 @@
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 5 15.4a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6c.31-.2.68-.31 1.06-.31H10a2 2 0 1 1 4 0h-.06c.38 0 .75.11 1.06.31a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.46.46-.6 1.14-.33 1.82.2.31.31.68.31 1.06V10a2 2 0 1 1 0 4h-.09c-.38 0-.75.11-1.06.31z"/>
       </svg>
     </button>
+
     <button id="undoBtn" class="btn iconbtn" title="Undo (Ctrl+Z)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="9 14 4 9 9 4"/><path d="M20 20a8 8 0 0 0-8-8H4"/>
-      </svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20a8 8 0 0 0-8-8H4"/></svg>
     </button>
+
     <button id="redoBtn" class="btn iconbtn" title="Redo (Ctrl+Y)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="15 14 20 9 15 4"/><path d="M4 20a8 8 0 0 1 8-8h8"/>
-      </svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20a8 8 0 0 1 8-8h8"/></svg>
     </button>
+
     <button id="cameraBtn" class="btn iconbtn" title="Quick JPG (Ctrl+P)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-        <circle cx="12" cy="13" r="4"/>
-      </svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
     </button>
-    <button id="exportBtn" class="btn" title="Export… (Ctrl+S)"><span class="label">Export</span></button>
+
+    <button id="exportBtn" class="btn" title="Export… (Ctrl+S)">
+      <span class="label">Export</span>
+    </button>
   </div>
 
   <!-- Color wheel popover -->
@@ -60,7 +88,7 @@
     </div>
   </div>
 
-  <!-- Color tools -->
+  <!-- Color tools menu -->
   <div id="colorMenu" class="menu" role="menu" aria-label="Color Tools">
     <div class="menu-item" data-tool="bucket"><span class="dot" style="color:#9ad1ff"></span>Bucket</div>
     <div class="menu-item" data-tool="splatter"><span class="dot" style="color:#c8ffa8"></span>Splatter</div>
@@ -68,7 +96,7 @@
     <div class="menu-item" data-tool="glitter"><span class="dot" style="color:#fff"></span>Glitter</div>
   </div>
 
-  <!-- Blend tools -->
+  <!-- Blend tools menu -->
   <div id="blendMenu" class="menu" role="menu" aria-label="Blend Tools">
     <div class="menu-item active" data-tool="blender"><span class="dot" style="color:#9ad1ff"></span>Blender</div>
     <div class="menu-item" data-tool="smudge"><span class="dot" style="color:#ffd79a"></span>Smudge</div>
@@ -77,15 +105,17 @@
     <div class="menu-item" data-tool="ripple"><span class="dot" style="color:#9ae2ff"></span>Ripple</div>
   </div>
 
-  <!-- New -->
+  <!-- New artwork menu -->
   <div id="newMenu" class="menu" role="menu" aria-label="New">
     <h4>New Artwork</h4>
-    <div class="row"><label>Colors</label>
+    <div class="row">
+      <label>Colors</label>
       <select id="newCount">
         <option>1</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option>
       </select>
     </div>
-    <div class="row"><label>Layout</label>
+    <div class="row">
+      <label>Layout</label>
       <select id="newLayout">
         <option value="stream" selected>Blue Stream</option>
         <option value="sectors">Radial Sectors</option>
@@ -107,35 +137,100 @@
     </div>
   </div>
 
-  <!-- Export -->
+  <!-- Export menu -->
   <div id="exportMenu" class="menu" role="dialog" aria-label="Export">
     <h4 style="margin:6px 8px 8px;font:12px/1.1 ui-monospace;opacity:.9;letter-spacing:.3px">Export</h4>
     <div class="grid">
       <label>Format</label>
-      <select id="exFormat"><option value="image/png">PNG</option><option value="image/jpeg" selected>JPG</option><option value="image/webp">WEBP</option></select>
-      <label>Width</label><input id="exW" type="number" min="256" max="4096" value="1920">
-      <label>Height</label><input id="exH" type="number" min="256" max="4096" value="1080">
-      <label>Aspect</label><div><label style="display:flex;align-items:center;gap:8px"><input id="exLock" type="checkbox" checked><span class="small" id="exRatio">16:9</span></label></div>
-      <label>Quality</label><input id="exQ" type="range" min="0.5" max="1" step="0.01" value="0.92">
-      <div class="full actions"><button id="exCancel" class="ghost" type="button">Cancel</button><button id="exSave" class="primary" type="button">Save</button></div>
+      <select id="exFormat">
+        <option value="image/png">PNG</option>
+        <option value="image/jpeg" selected>JPG</option>
+        <option value="image/webp">WEBP</option>
+      </select>
+
+      <label>Width</label>
+      <input id="exW" type="number" min="256" max="4096" value="1920">
+
+      <label>Height</label>
+      <input id="exH" type="number" min="256" max="4096" value="1080">
+
+      <label>Aspect</label>
+      <div>
+        <label style="display:flex;align-items:center;gap:8px">
+          <input id="exLock" type="checkbox" checked>
+          <span class="small" id="exRatio">16:9</span>
+        </label>
+      </div>
+
+      <label>Quality</label>
+      <input id="exQ" type="range" min="0.5" max="1" step="0.01" value="0.92">
+
+      <div class="full actions">
+        <button id="exCancel" class="ghost" type="button">Cancel</button>
+        <button id="exSave" class="primary" type="button">Save</button>
+      </div>
     </div>
   </div>
 
-  <!-- Settings -->
+  <!-- Settings panel -->
   <div id="overlay"></div>
   <div id="panel" role="dialog" aria-modal="true" aria-label="Settings">
-    <div id="drag"><div id="title">Settings</div><button id="close" aria-label="Close">✕</button></div>
+    <div id="drag">
+      <div id="title">Settings</div>
+      <button id="close" aria-label="Close">✕</button>
+    </div>
     <div id="grid">
-      <label>Speed</label><div><input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"> <span class="val" id="speedV">1.50</span></div>
-      <label>Strength</label><div><input id="strength" type="range" min="0" max="60" step="0.1" value="24"> <span class="val" id="strengthV">24.0</span></div>
-      <label>Size</label><div><input id="size" type="range" min="10" max="300" step="1" value="120"> <span class="val" id="sizeV">120</span></div>
-      <label>Viscosity</label><div><input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"> <span class="val" id="viscV">0.0008</span></div>
-      <label>Diffusion</label><div><input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"> <span class="val" id="diffV">0.0005</span></div>
-      <label>Resolution</label><div><input id="res" type="range" min="60" max="220" step="1" value="90"> <span class="val" id="resV">90</span></div>
+      <label>Speed</label>
+      <div><input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"> <span class="val" id="speedV">1.50</span></div>
+
+      <label>Strength</label>
+      <div><input id="strength" type="range" min="0" max="60" step="0.1" value="24"> <span class="val" id="strengthV">24.0</span></div>
+
+      <label>Size</label>
+      <div><input id="size" type="range" min="10" max="300" step="1" value="120"> <span class="val" id="sizeV">120</span></div>
+
+      <label>Viscosity</label>
+      <div><input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"> <span class="val" id="viscV">0.0008</span></div>
+
+      <label>Diffusion</label>
+      <div><input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"> <span class="val" id="diffV">0.0005</span></div>
+
+      <label>Resolution</label>
+      <div><input id="res" type="range" min="60" max="220" step="1" value="90"> <span class="val" id="resV">90</span></div>
     </div>
   </div>
 
-  <!-- Scripts (ONE module – app.js imports fluid-core.js) -->
+  <!-- Navbar fragment loader (adjust path if this file is in a subfolder) -->
+  <script>
+    (async () => {
+      const slot = document.querySelector('#navbar-slot');
+      if (!slot) return;
+
+      const path = 'homesplits/navbar.html'; // if /games/buck-it.html, change to ../homesplits/navbar.html
+      const base = new URL(path, location.href);
+
+      const html = await fetch(base, { cache: 'no-store' })
+        .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)));
+
+      const tpl = document.createElement('template');
+      tpl.innerHTML = html;
+
+      // Execute scripts inside fragment; fix relative src with base
+      tpl.content.querySelectorAll('script').forEach(old => {
+        const s = document.createElement('script');
+        [...old.attributes].forEach(({ name, value }) => {
+          if (name === 'src') s.src = new URL(value, base).href;
+          else s.setAttribute(name, value);
+        });
+        if (old.textContent) s.textContent = old.textContent;
+        old.replaceWith(s);
+      });
+
+      slot.replaceChildren(tpl.content.cloneNode(true));
+    })();
+  </script>
+
+  <!-- App (module). This imports ./fluid-core.js internally. -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
