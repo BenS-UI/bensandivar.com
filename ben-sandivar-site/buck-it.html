@@ -1,823 +1,537 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bucket – Fluid Art Game</title>
-<link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="shortcut icon" href="assets/favicon.png" type="image/png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vortex Paint Fluid</title>
 <style>
-/* Additional styling for fluid art page */
-body {
-  margin:0;
-  padding:0;
-  overflow:hidden;
-  background:#020c1f;
-  color:#fff;
-}
-#toolbar {
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:8px;
-  align-items:center;
-  padding:8px 12px;
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(10px);
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.3);
-  opacity:0.05;
-  transition:opacity 0.3s;
-}
-#toolbar:hover, #toolbar.show {
-  opacity:1;
-}
-.tool-btn {
-  background:rgba(255,255,255,0.2);
-  backdrop-filter:blur(4px);
-  border:none;
-  border-radius:8px;
-  padding:6px 10px;
-  cursor:pointer;
-  color:#fff;
-  font-family:inherit;
-  font-size:14px;
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-.tool-btn.active {
-  background:rgba(255,255,255,0.4);
-}
-.tool-group {
-  display:flex;
-  gap:4px;
-}
-#colorSelector {
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  position:relative;
-  overflow:hidden;
-  border:2px solid rgba(255,255,255,0.5);
-  cursor:pointer;
-}
-#colorSelector .swatch {
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-}
-#colorSelector input[type="color"] {
-  position:absolute;
-  inset:0;
-  opacity:0;
-  cursor:pointer;
-}
-#settingsPanel, #newPanel, #exportPanel {
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  min-width:280px;
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(10px);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.3);
-  padding:16px;
-  color:#fff;
-  z-index:100;
-  display:none;
-}
-.panel-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  cursor:move;
-  margin-bottom:8px;
-}
-.panel-header h3 {
-  margin:0;
-  font-size:16px;
-}
-.panel-header button {
-  background:transparent;
-  border:none;
-  color:#fff;
-  font-size:20px;
-  cursor:pointer;
-}
-.panel-content label {
-  display:block;
-  margin:8px 0 4px;
-}
-.panel-content input[type="range"], .panel-content input[type="number"], .panel-content select {
-  width:100%;
-}
-.panel-content .row {
-  display:flex;
-  gap:6px;
-  margin-bottom:8px;
-}
-.tip {
-  position:fixed;
-  top:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.6);
-  color:#fff;
-  padding:6px 12px;
-  border-radius:8px;
-  backdrop-filter:blur(4px);
-  opacity:0;
-  transition:opacity 0.3s;
-  pointer-events:none;
-}
+  :root{
+    --glass-bg: rgba(20,22,28,.35);
+    --glass-brd: rgba(255,255,255,.25);
+    --pill: rgba(255,255,255,.12);
+    --pill-hover: rgba(255,255,255,.18);
+    --text: #f4f6fb;
+    --accent: #8fd3ff;
+  }
+  html, body { margin:0; padding:0; background:radial-gradient(1200px 1200px at 20% 120%, #0a0d12 0, #020409 55%, #000 100%); height:100%; overflow:hidden; color:var(--text); }
+  canvas { display:block; width:100vw; height:100vh; }
+  #hint { position:fixed; top:14px; left:50%; transform:translateX(-50%); color:#e9eef7; font:13px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; opacity:.7; user-select:none; letter-spacing:.2px; }
 
-/* Harmonize dropdowns and number inputs with glassmorphic theme */
-.panel-content select,
-.panel-content input[type="number"] {
-  width:100%;
-  appearance:none;
-  -webkit-appearance: none;
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:10px;
-  padding:8px 10px;
-  margin-top:4px;
-  background:rgba(255,255,255,0.1);
-  color:#fff;
-  backdrop-filter:blur(6px);
-  font-family:inherit;
-  font-size:14px;
-  cursor:pointer;
-}
-.panel-content select {
-  background-image:url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='%23ffffff' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 10px center;
-  background-size:14px 14px;
-  padding-right:34px;
-}
-.panel-content select:focus,
-.panel-content input[type="number"]:focus {
-  outline:none;
-  box-shadow:0 0 0 2px rgba(143,211,255,0.5);
-}
+  /* Toolbar (5% idle opacity) */
+  #bar{ position:fixed; left:16px; bottom:16px; display:flex; gap:10px; align-items:center; z-index:20; opacity:.05; transition:opacity .2s; }
+  #bar:hover, #bar:focus-within, #bar.show { opacity:1; }
+  .btn{ display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:14px; border:1px solid var(--glass-brd); background:var(--pill); backdrop-filter: blur(10px) saturate(1.2); cursor:pointer; -webkit-user-select:none; user-select:none; transition:background .15s, transform .06s; box-shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08); color:#fff; }
+  .btn > *{ pointer-events:none; }
+  .btn:hover{ background:var(--pill-hover); }
+  .btn:active{ transform: translateY(1px); }
+  .btn .label{ font:13px/1.2 system-ui, sans-serif; letter-spacing:.2px; }
+  .btn.active{ outline: 1px solid var(--accent); box-shadow: 0 0 0 3px rgba(143,211,255,.15), 0 8px 24px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1); }
+  .iconbtn{ width:38px; height:38px; border-radius:12px; display:grid; place-items:center; font:16px/1 ui-monospace,Menlo,monospace; }
 
-/* Hide legacy tip element */
-#tip {
-  display: none !important;
-}
+  /* Swatch */
+  #swatch{ width:18px; height:18px; border-radius:50%; border:2px solid rgba(255,255,255,.85); box-shadow: 0 0 0 2px rgba(0,0,0,.2) inset; }
+  #colorWell{ position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
 
-/* Tooltip styling */
-#tooltip {
-  position: fixed;
-  pointer-events: none;
-  background: rgba(0,0,0,0.65);
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  opacity: 0;
-  transform: translate(-50%, -150%);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 999;
-}
-#tooltip.show {
-  opacity: 1;
-  transform: translate(-50%, -170%);
-}
+  /* Menus (glass) */
+  #colorMenu, #blendMenu, #newMenu, #exportMenu{ position:fixed; inset:auto auto 64px 16px; min-width:240px; background:var(--glass-bg); border:1px solid var(--glass-brd); border-radius:14px; padding:10px; backdrop-filter: blur(12px) saturate(1.2); box-shadow:0 24px 50px rgba(0,0,0,.45); display:none; z-index:30; color:var(--text); }
+  #colorMenu.show, #blendMenu.show, #newMenu.show, #exportMenu.show{ display:block; animation: pop .12s ease-out; }
+  @keyframes pop{ from{ transform:translateY(6px); opacity:0;} to{ transform:none; opacity:1;}}
+  .menu-item{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; cursor:pointer; font:13px/1.2 system-ui, sans-serif; }
+  .menu-item:hover{ background:rgba(255,255,255,.12); }
+  .menu-item.active{ background:rgba(143,211,255,.18); outline:1px solid rgba(143,211,255,.35); }
+  .dot{ width:8px; height:8px; border-radius:50%; background:currentColor; opacity:.9; }
 
-/* Welcome overlay styling */
-#welcomeOverlay {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 16px;
-  padding: 20px;
-  color: #fff;
-  width: 320px;
-  z-index: 120;
-  text-align: center;
-  display: none;
-}
-#welcomeOverlay p {
-  margin-top: 10px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-#welcomeOverlay h3 {
-  margin: 0;
-  font-size: 20px;
-}
-#welcomeOverlay button {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-}
+  /* New menu content */
+  #newMenu h4{ margin:6px 8px 4px; font:12px/1.1 ui-monospace,Menlo,monospace; opacity:.9; letter-spacing:.3px; }
+  .row{ display:flex; align-items:center; gap:10px; padding:6px 8px; }
+  .row label{ width:90px; font:12px/1 system-ui; opacity:.9; }
+  .row select, .row input[type=number]{ flex:1; padding:6px 10px; border-radius:10px; border:1px solid var(--glass-brd); background:rgba(0,0,0,.15); color:#fff; }
+  .colors{ display:grid; grid-template-columns: repeat(7, 28px); gap:8px; padding:6px 8px; }
+  .cwell{ width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,.8); overflow:hidden; position:relative; cursor:pointer; }
+  .cwell input{ position:absolute; inset:0; opacity:0; }
+  .actions{ display:flex; justify-content:flex-end; gap:8px; padding:8px; }
+  .ghost{ background:transparent; border:1px solid var(--glass-brd); color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer; }
+  .primary{ background:linear-gradient(180deg, rgba(143,211,255,.9), rgba(86,164,255,.9)); border:0; color:#00121f; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600; }
+
+  /* Export menu */
+  #exportMenu .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; padding:6px; }
+  #exportMenu .full{ grid-column:1/-1; }
+  #exportMenu .small{ font:12px/1 ui-monospace,Menlo; opacity:.8; }
+
+  /* Settings panel */
+  #overlay{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:40; }
+  #panel{ position:fixed; top:92px; left:92px; width:360px; background:var(--glass-bg); color:var(--text); border:1px solid var(--glass-brd); border-radius:18px; padding:10px 12px 12px; backdrop-filter: blur(14px) saturate(1.35); box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 2px 0 rgba(255,255,255,.06) inset; display:none; z-index:50; }
+  #panel.show{ display:block; animation: pop .14s ease-out; }
+  #drag{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 6px 10px; cursor:grab; }
+  #drag:active{ cursor:grabbing; }
+  #title{ font:12px/1.1 ui-monospace, SFMono-Regular, Menlo, monospace; opacity:.9; letter-spacing:.3px; }
+  #close{ width:26px; height:26px; border-radius:8px; border:1px solid var(--glass-brd); background:var(--pill); color:#fff; display:grid; place-items:center; cursor:pointer; }
+  #close:hover{ background:var(--pill-hover); }
+  #grid{ display:grid; grid-template-columns: 1fr auto; gap:8px 10px; padding:6px 4px 4px; }
+  #grid label{ font:12px/1.1 system-ui, sans-serif; opacity:.85; }
+  #grid input[type=range]{ width:220px; }
+  #grid .val{ width:48px; text-align:right; font:12px/1 ui-monospace, Menlo; opacity:.9; }
+
+  /* Tips */
+  #tips{ position:fixed; left:0; right:0; bottom:84px; display:flex; justify-content:center; pointer-events:none; z-index:35; }
+  .tip{ background:var(--glass-bg); border:1px solid var(--glass-brd); border-radius:14px; padding:10px 12px; color:#fff; font:13px/1.25 system-ui,sans-serif; max-width:min(70vw,520px); box-shadow:0 20px 60px rgba(0,0,0,.45); backdrop-filter: blur(12px) saturate(1.2); opacity:0; transform:translateY(6px); transition:opacity .2s, transform .2s; }
+  .tip.show{ opacity:1; transform:none; }
 </style>
 </head>
 <body>
-<nav class="navbar">
-  <div class="nav-container">
-    <a href="/ben-sandivar-site/index.html" class="logo">
-      <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Ben Sandivar Logo">
-    </a>
-    <button class="more-btn" aria-label="Toggle Menu">
-      <span class="material-symbols-outlined">menu</span>
-    </button>
-    <ul class="nav-links">
-      <li><a href="/ben-sandivar-site/index.html#hero">Home</a></li>
-      <li><a href="/ben-sandivar-site/index.html#projects">Work</a></li>
-      <li><a href="/ben-sandivar-site/index.html#music">Music</a></li>
-      <li><a href="/ben-sandivar-site/index.html#about">About</a></li>
-      <li><a href="/ben-sandivar-site/index.html#contact">Contact</a></li>
-      <li><a href="/ben-sandivar-site/blog.html">Blog</a></li>
-    </ul>
-  </div>
-  <div id="tooltip"></div>
-</nav>
-<canvas id="fluid"></canvas>
-<div id="toolbar">
-  <div id="colorSelector" data-name="Colour Picker" data-desc="Select your base colour">
-    <input id="colorInput" type="color" value="#00aaff">
-    <div class="swatch" style="background:#00aaff"></div>
-  </div>
-  <div class="tool-group" id="colorTools">
-    <button class="tool-btn" data-tool="bucket" data-name="Bucket" data-desc="Hold to pour colour and gradually fill an area"><span class="material-symbols-outlined">format_color_fill</span></button>
-    <button class="tool-btn" data-tool="splatter" data-name="Splatter" data-desc="Hold to throw random drops; higher speed increases spin"><span class="material-symbols-outlined">ink_drop</span></button>
-    <button class="tool-btn" data-tool="spray" data-name="Spray" data-desc="Hold to spray a fine mist of colour"><span class="material-symbols-outlined">sprinkler</span></button>
-    <button class="tool-btn" data-tool="glitter" data-name="Glitter" data-desc="Hold to sprinkle shimmering speckles"><span class="material-symbols-outlined">auto_awesome</span></button>
-  </div>
-  <div class="tool-group" id="blendTools">
-    <button class="tool-btn" data-tool="blender" data-name="Blender" data-desc="Hold to spin the paint; left click spins clockwise, right click anticlockwise"><span class="material-symbols-outlined">autorenew</span></button>
-    <button class="tool-btn" data-tool="smudge" data-name="Smudge" data-desc="Hold and drag to smear paint like your finger"><span class="material-symbols-outlined">gesture</span></button>
-    <button class="tool-btn" data-tool="push" data-name="Push" data-desc="Hold and drag to push paint away from your pointer"><span class="material-symbols-outlined">open_with</span></button>
-    <button class="tool-btn" data-tool="pinch" data-name="Pinch" data-desc="Hold and drag to pinch inward or outward depending on click"><span class="material-symbols-outlined">center_focus_strong</span></button>
-    <button class="tool-btn" data-tool="ripple" data-name="Ripple" data-desc="Hold to create expanding waves in the paint"><span class="material-symbols-outlined">waves</span></button>
-  </div>
-    <button class="tool-btn" id="newBtn" data-name="New Artwork" data-desc="Start a new piece with fresh colours and layout"><span class="material-symbols-outlined">fiber_new</span></button>
-    <button class="tool-btn" id="undoBtn" data-name="Undo" data-desc="Undo the last change"><span class="material-symbols-outlined">undo</span></button>
-    <button class="tool-btn" id="redoBtn" data-name="Redo" data-desc="Redo the undone change"><span class="material-symbols-outlined">redo</span></button>
-    <button class="tool-btn" id="exportBtn" data-name="Export" data-desc="Export your artwork to an image"><span class="material-symbols-outlined">download</span></button>
-    <button class="tool-btn" id="cameraBtn" data-name="Snapshot" data-desc="Quickly capture and save a snapshot"><span class="material-symbols-outlined">photo_camera</span></button>
+<canvas id="view"></canvas>
+<div id="hint">Right‑click: settings • Ctrl+Z / Ctrl+Y • Ctrl+P snapshot • Ctrl+S export</div>
+<div id="tips"></div>
+
+<!-- Toolbar -->
+<div id="bar">
+  <button id="colorBtn" class="btn" type="button" title="Color" tabindex="0">
+    <div id="swatch" style="background:#1aa4ff"></div>
+    <span class="label">Color</span>
+  </button>
+  <button id="colorToolsBtn" class="btn" type="button" title="Color tools" tabindex="0">
+    <span class="label" id="colorToolsLabel">Color ▾</span>
+  </button>
+  <button id="blendToolsBtn" class="btn" type="button" title="Blend tools" tabindex="0">
+    <span class="label" id="blendToolsLabel">Blend ▾</span>
+  </button>
+  <button id="newBtn" class="btn" type="button" title="New" tabindex="0">
+    <span class="label">New ▾</span>
+  </button>
+  <button id="tutorialBtn" class="btn" type="button" title="Tutorial tips" tabindex="0"><span class="label">Tutorial</span></button>
+  <button id="undoBtn" class="btn iconbtn" title="Undo (Ctrl+Z)">↺</button>
+  <button id="redoBtn" class="btn iconbtn" title="Redo (Ctrl+Y)">↻</button>
+  <button id="cameraBtn" class="btn iconbtn" title="Quick JPG (Ctrl+P)">📷</button>
+  <button id="exportBtn" class="btn" title="Export… (Ctrl+S)"><span class="label">Export</span></button>
 </div>
-<!-- Settings panel -->
-<div id="settingsPanel">
-  <div class="panel-header"><h3>Settings</h3><button class="close-btn">&times;</button></div>
-  <div class="panel-content">
-    <label data-name="Speed" data-desc="Controls how fast the simulation evolves">Speed <input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"></label>
-    <label data-name="Strength" data-desc="Controls the strength of the tool effect">Strength <input id="strength" type="range" min="0" max="60" step="0.1" value="24"></label>
-    <label data-name="Size" data-desc="Adjusts the radius of your tool">Size <input id="size" type="range" min="10" max="300" step="1" value="120"></label>
-    <label data-name="Viscosity" data-desc="Higher values make the fluid thicker and move slower">Viscosity <input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"></label>
-    <label data-name="Diffusion" data-desc="Controls how quickly colours blend into the surroundings">Diffusion <input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"></label>
-  </div>
+
+<!-- Menus -->
+<div id="colorMenu" role="menu" aria-label="Color Tools">
+  <div class="menu-item" data-tool="bucket"><span class="dot" style="color:#9ad1ff"></span>Bucket</div>
+  <div class="menu-item" data-tool="splatter"><span class="dot" style="color:#c8ffa8"></span>Splatter</div>
+  <div class="menu-item" data-tool="spray"><span class="dot" style="color:#ffd79a"></span>Spray</div>
+  <div class="menu-item" data-tool="glitter"><span class="dot" style="color:#fff"></span>Glitter</div>
 </div>
-<!-- New layout panel -->
-<div id="newPanel">
-  <div class="panel-header"><h3>New Artwork</h3><button class="close-btn">&times;</button></div>
-  <div class="panel-content">
-    <label>Number of Colours
-      <select id="newColors">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-      </select>
-    </label>
-    <label>Layout
-      <select id="newLayout">
-        <option value="bisection">Bisection</option>
-        <option value="squares">Squares</option>
-        <option value="sectors">Radial Sectors</option>
-        <option value="rings">Rings</option>
-        <option value="spiral">Spiral</option>
-        <option value="blotches">Blotches</option>
-        <option value="stripes-v">Stripes Vertical</option>
-        <option value="stripes-h">Stripes Horizontal</option>
-        <option value="random">Random</option>
-      </select>
-    </label>
-    <button class="tool-btn" id="newCreate" data-name="Create" data-desc="Generate a new layout with your chosen colours">Create</button>
+<div id="blendMenu" role="menu" aria-label="Blend Tools">
+  <div class="menu-item active" data-tool="blender"><span class="dot" style="color:#9ad1ff"></span>Blender</div>
+  <div class="menu-item" data-tool="smudge"><span class="dot" style="color:#ffd79a"></span>Smudge</div>
+  <div class="menu-item" data-tool="push"><span class="dot" style="color:#a8e0ff"></span>Push</div>
+  <div class="menu-item" data-tool="pinch"><span class="dot" style="color:#ffa6c1"></span>Pinch</div>
+  <div class="menu-item" data-tool="ripple"><span class="dot" style="color:#9ae2ff"></span>Ripple</div>
+</div>
+
+<!-- New menu -->
+<div id="newMenu" role="menu" aria-label="New">
+  <h4>New Artwork</h4>
+  <div class="row"><label>Colors</label>
+    <select id="newCount">
+      <option>1</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option>
+    </select>
+  </div>
+  <div class="row"><label>Layout</label>
+    <select id="newLayout">
+      <option value="stream" selected>Blue Stream</option>
+      <option value="sectors">Radial Sectors</option>
+      <option value="rings">Rings</option>
+      <option value="spiral">Spiral</option>
+      <option value="blotches">Blotches</option>
+      <option value="stripes-v">Stripes • Vertical</option>
+      <option value="stripes-h">Stripes • Horizontal</option>
+      <option value="voronoi">Random Regions</option>
+      <option value="squares">Squares</option>
+      <option value="split">Bisection</option>
+    </select>
+  </div>
+  <h4>Palette</h4>
+  <div id="newColors" class="colors"></div>
+  <div class="actions">
+    <button id="newCancel" class="ghost" type="button">Cancel</button>
+    <button id="newCreate" class="primary" type="button">Create</button>
   </div>
 </div>
-<!-- Export panel -->
-<div id="exportPanel">
-  <div class="panel-header"><h3>Export</h3><button class="close-btn">&times;</button></div>
-  <div class="panel-content">
-    <label>Format
-      <select id="exportFormat">
-        <option value="png">PNG</option>
-        <option value="jpeg">JPEG</option>
-        <option value="webp">WEBP</option>
-      </select>
-    </label>
-    <label>Width <input id="exportWidth" type="number" value="1920" min="100" max="4096"></label>
-    <label>Height <input id="exportHeight" type="number" value="1080" min="100" max="4096"></label>
-    <label>Quality (JPEG/WEBP) <input id="exportQuality" type="range" min="0.1" max="1" step="0.01" value="0.92"></label>
-    <button class="tool-btn" id="exportDownload" data-name="Download" data-desc="Save your image with the chosen settings">Download</button>
+
+<!-- Export menu -->
+<div id="exportMenu" role="dialog" aria-label="Export">
+  <h4 style="margin:6px 8px 8px; font:12px/1.1 ui-monospace,Menlo; opacity:.9; letter-spacing:.3px;">Export</h4>
+  <div class="grid">
+    <label>Format</label>
+    <select id="exFormat"><option value="image/png">PNG</option><option value="image/jpeg" selected>JPG</option><option value="image/webp">WEBP</option></select>
+    <label>Width</label>
+    <input id="exW" type="number" min="256" max="4096" step="1" value="1920">
+    <label>Height</label>
+    <input id="exH" type="number" min="256" max="4096" step="1" value="1080">
+    <label>Aspect</label>
+    <div><label style="display:flex;align-items:center;gap:8px"><input id="exLock" type="checkbox" checked><span class="small" id="exRatio">16:9</span></label></div>
+    <label>Quality</label>
+    <input id="exQ" type="range" min="0.5" max="1" step="0.01" value="0.92">
+    <div class="full actions">
+      <button id="exCancel" class="ghost" type="button">Cancel</button>
+      <button id="exSave" class="primary" type="button">Save</button>
+    </div>
   </div>
 </div>
-<div id="tip" class="tip"></div>
-<script src="scripts.js"></script>
+
+<!-- Hidden color input -->
+<input id="colorWell" type="color" value="#1aa4ff" />
+
+<!-- Glass settings panel -->
+<div id="overlay"></div>
+<div id="panel" role="dialog" aria-modal="true" aria-label="Settings">
+  <div id="drag">
+    <div id="title">Settings</div>
+    <button id="close" title="Close" aria-label="Close">✕</button>
+  </div>
+  <div id="grid">
+    <label for="speed">Speed</label>
+    <div><input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"> <span class="val" id="speedV">1.50</span></div>
+    <label for="strength">Strength</label>
+    <div><input id="strength" type="range" min="0" max="60" step="0.1" value="24"> <span class="val" id="strengthV">24.0</span></div>
+    <label for="size">Size</label>
+    <div><input id="size" type="range" min="10" max="300" step="1" value="120"> <span class="val" id="sizeV">120</span></div>
+    <label for="visc">Viscosity</label>
+    <div><input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"> <span class="val" id="viscV">0.0008</span></div>
+    <label for="diff">Diffusion</label>
+    <div><input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"> <span class="val" id="diffV">0.0005</span></div>
+  </div>
+</div>
+
 <script>
-// Fluid Art Simulation Script
 (() => {
-  const canvas = document.getElementById('fluid');
-  const ctx = canvas.getContext('2d', { alpha: false });
-  let DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-  let W = 0, H = 0, N = 128;
-  let u, v, u0, v0, dR, dG, dB, dR0, dG0, dB0;
-  const IX = (x,y) => x + y * (N+2);
-  let holding = false;
-  let holdButton = 0;
-  let holdStart = 0;
-  let cursorX = 0, cursorY = 0, prevX = 0, prevY = 0;
-  let currentTool = 'bucket';
-  let pourColor = [0, 170, 255];
-  const undoStack = [];
-  const redoStack = [];
-  let tipsEnabled = false; // legacy placeholder
-  const tipsSeen = JSON.parse(localStorage.getItem('fluidTips') || '{}');
+  // ---------- Sim setup ----------
+  const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const canvas = document.getElementById('view');
+  const ctx = canvas.getContext('2d', { alpha:false });
+  let W=0,H=0,N=0,iter=20; const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+  function pickGrid(){ const area=window.innerWidth*window.innerHeight; return clamp(Math.floor(160*Math.sqrt(area/150000)),96,256)|0; }
+  function resize(){ W=Math.floor(window.innerWidth*DPR); H=Math.floor(window.innerHeight*DPR); canvas.width=W; canvas.height=H; N=pickGrid(); initFluid(); defaultSeed(); resetHistory(); }
+  window.addEventListener('resize', resize);
 
-  function alloc() {
-    const size = (N+2)*(N+2);
-    u = new Float32Array(size); v = new Float32Array(size);
-    u0 = new Float32Array(size); v0 = new Float32Array(size);
-    dR = new Float32Array(size); dG = new Float32Array(size); dB = new Float32Array(size);
-    dR0 = new Float32Array(size); dG0 = new Float32Array(size); dB0 = new Float32Array(size);
-  }
-  function clearFluid() {
-    u.fill(0); v.fill(0);
-    dR.fill(0); dG.fill(0); dB.fill(0);
-  }
-  function seedBlueStream() {
-    for (let j=1; j<=N; j++) {
-      for (let i=1; i<=N; i++) {
-        const p = j / N;
-        const r = 0 + (0-0) * p;
-        const g = 170 + (255-170) * p;
-        const b = 255 + (209-255) * p;
-        const noise = Math.random() * 40 - 20;
-        const id = IX(i,j);
-        dR[id] = Math.min(255, Math.max(0, r + noise));
-        dG[id] = Math.min(255, Math.max(0, g + noise));
-        dB[id] = Math.min(255, Math.max(0, b + noise));
-      }
-    }
-  }
-  function seedLayout(layout, colors) {
-    clearFluid();
-    const m = colors.length;
-    const cols = colors.map(c => {
-      const hex = c.replace('#','');
-      const n = parseInt(hex.length === 3 ? hex.split('').map(s=>s+s).join('') : hex, 16);
-      return [(n>>16)&255, (n>>8)&255, n&255];
-    });
-    if (layout === 'bisection') {
-      for (let j=1; j<=N; j++) {
-        for (let i=1; i<=N; i++) {
-          const id = IX(i,j);
-          const idx = i <= N/2 ? 0 : 1 % m;
-          dR[id] = cols[idx][0];
-          dG[id] = cols[idx][1];
-          dB[id] = cols[idx][2];
-        }
-      }
-    } else if (layout === 'squares') {
-      const nSide = Math.ceil(Math.sqrt(m));
-      const w = N / nSide;
-      let k = 0;
-      for (let j=0; j<nSide; j++) {
-        for (let i=0; i<nSide; i++) {
-          const idx = k % m;
-          const c = cols[idx];
-          for (let y=1+j*w|0; y<=Math.min(N, (j+1)*w|0); y++) {
-            for (let x=1+i*w|0; x<=Math.min(N, (i+1)*w|0); x++) {
-              const id = IX(x,y);
-              dR[id] = c[0]; dG[id] = c[1]; dB[id] = c[2];
-            }
-          }
-          k++;
-        }
-      }
-    } else if (layout === 'sectors') {
-      const cx = (N+2)/2, cy = (N+2)/2;
-      for (let j=1; j<=N; j++) {
-        for (let i=1; i<=N; i++) {
-          const angle = (Math.atan2(j-cy, i-cx) + Math.PI*2) % (Math.PI*2);
-          const sector = Math.floor(angle / (2*Math.PI/m));
-          const c = cols[sector % m];
-          const id = IX(i,j);
-          dR[id] = c[0]; dG[id] = c[1]; dB[id] = c[2];
-        }
-      }
-    } else if (layout === 'rings') {
-      const cx = (N+2)/2, cy = (N+2)/2;
-      const maxDist = Math.hypot(cx,cy);
-      for (let j=1; j<=N; j++) {
-        for (let i=1; i<=N; i++) {
-          const dist = Math.hypot(i-cx, j-cy);
-          const ring = Math.floor(dist / (maxDist / m));
-          const c = cols[ring % m];
-          const id = IX(i,j);
-          dR[id] = c[0]; dG[id] = c[1]; dB[id] = c[2];
-        }
-      }
-    } else if (layout === 'spiral') {
-      const cx = (N+2)/2, cy = (N+2)/2;
-      for (let j=1; j<=N; j++) {
-        for (let i=1; i<=N; i++) {
-          const dx = i-cx, dy = j-cy;
-          const angle = (Math.atan2(dy, dx) + Math.PI*2) % (Math.PI*2);
-          const dist = Math.hypot(dx, dy);
-          const factor = (angle + dist*0.05) % (2*Math.PI);
-          const idx = Math.floor(factor / (2*Math.PI/m));
-          const c = cols[idx % m];
-          const id = IX(i,j);
-          dR[id] = c[0]; dG[id] = c[1]; dB[id] = c[2];
-        }
-      }
-    } else if (layout === 'blotches') {
-      const seeds = [];
-      for (let i=0; i<m; i++) {
-        seeds.push({
-          x: 1 + Math.random()*N,
-          y: 1 + Math.random()*N,
-          c: cols[i]
-        });
-      }
-      for (let j=1; j<=N; j++) {
-        for (let i=1; i<=N; i++) {
-          let best = 0;
-          let bestDist = Infinity;
-          for (let k=0; k<seeds.length; k++) {
-            const dx = i-seeds[k].x;
-            const dy = j-seeds[k].y;
-            const d2 = dx*dx + dy*dy;
-            if (d2 < bestDist) { bestDist = d2; best = k; }
-          }
-          const c = seeds[best].c;
-          const id = IX(i,j);
-          dR[id] = c[0]; dG[id] = c[1]; dB[id] = c[2];
-        }
-      }
-    } else if (layout === 'stripes-v' || layout === 'stripes-h') {
-      const stripes = m;
-      if (layout === 'stripes-v') {
-        const stripeW = N / stripes;
-        for (let j=1; j<=N; j++) {
-          for (let i=1; i<=N; i++) {
-            const idx = Math.floor((i-1)/stripeW) % m;
-            const c = cols[idx];
-            const id = IX(i,j);
-            dR[id] = c[0]; dG[id] = c[1]; dB[id] = c[2];
-          }
-        }
-      } else {
-        const stripeH = N / stripes;
-        for (let j=1; j<=N; j++) {
-          const idx = Math.floor((j-1)/stripeH) % m;
-          const c = cols[idx];
-          for (let i=1; i<=N; i++) {
-            const id = IX(i,j);
-            dR[id] = c[0]; dG[id] = c[1]; dB[id] = c[2];
-          }
-        }
-      }
-    } else if (layout === 'random') {
-      for (let j=1; j<=N; j++) {
-        for (let i=1; i<=N; i++) {
-          const idx = Math.floor(Math.random()*m);
-          const c = cols[idx];
-          const id = IX(i,j);
-          dR[id] = c[0]; dG[id] = c[1]; dB[id] = c[2];
-        }
-      }
-    }
-  }
-  function pushUndo() {
-    const snapshotR = new Float32Array(dR);
-    const snapshotG = new Float32Array(dG);
-    const snapshotB = new Float32Array(dB);
-    undoStack.push({r: snapshotR, g: snapshotG, b: snapshotB});
-    if (undoStack.length > 20) undoStack.shift();
-    redoStack.length = 0;
-  }
-  function undo() {
-    if (undoStack.length === 0) return;
-    const state = undoStack.pop();
-    const current = {r: new Float32Array(dR), g: new Float32Array(dG), b: new Float32Array(dB)};
-    redoStack.push(current);
-    dR.set(state.r); dG.set(state.g); dB.set(state.b);
-  }
-  function redo() {
-    if (redoStack.length === 0) return;
-    const state = redoStack.pop();
-    undoStack.push({r: new Float32Array(dR), g: new Float32Array(dG), b: new Float32Array(dB)});
-    dR.set(state.r); dG.set(state.g); dB.set(state.b);
-  }
-  function showTip(message) {
-    if (!tipsEnabled) return;
-    const tipEl = document.getElementById('tip');
-    tipEl.textContent = message;
-    tipEl.style.opacity = '1';
-    clearTimeout(tipEl._timeout);
-    tipEl._timeout = setTimeout(() => {
-      tipEl.style.opacity = '0';
-    }, 4000 + message.length * 20);
-  }
-  function maybeTip() {}
-  let iter = 20;
-  function set_bnd(b, x) {
-    for(let i=1;i<=N;i++){
-      x[IX(0,i)]   = b===1 ? -x[IX(1,i)]   : x[IX(1,i)];
-      x[IX(N+1,i)] = b===1 ? -x[IX(N,i)]   : x[IX(N,i)];
-      x[IX(i,0)]   = b===2 ? -x[IX(i,1)]   : x[IX(i,1)];
-      x[IX(i,N+1)] = b===2 ? -x[IX(i,N)]   : x[IX(i,N)];
-    }
-    x[IX(0,0)]         = 0.5*(x[IX(1,0)]     + x[IX(0,1)]);
-    x[IX(0,N+1)]       = 0.5*(x[IX(1,N+1)]   + x[IX(0,N)]);
-    x[IX(N+1,0)]       = 0.5*(x[IX(N,0)]     + x[IX(N+1,1)]);
-    x[IX(N+1,N+1)]     = 0.5*(x[IX(N,N+1)]   + x[IX(N+1,N)]);
-  }
-  function lin_solve(b, x, x0, a, c) {
-    const cRecip = 1.0 / c;
-    for (let k=0; k<iter; k++) {
-      for (let j=1; j<=N; j++) {
-        for (let i=1; i<=N; i++) {
-          x[IX(i,j)] = (x0[IX(i,j)] + a*(x[IX(i-1,j)] + x[IX(i+1,j)] + x[IX(i,j-1)] + x[IX(i,j+1)])) * cRecip;
-        }
-      }
-      set_bnd(b,x);
-    }
-  }
-  function diffuse(b,x,x0,diff,dt) {
-    const a = dt * diff * N * N;
-    lin_solve(b,x,x0,a,1+4*a);
-  }
-  function advect(b,d,d0,u,v,dt) {
-    const dt0 = dt * N;
-    for(let j=1;j<=N;j++){
-      for(let i=1;i<=N;i++){
-        let x = i - dt0 * u[IX(i,j)];
-        let y = j - dt0 * v[IX(i,j)];
-        if (x<0.5) x=0.5;
-        if (x>N+0.5) x=N+0.5;
-        const i0 = x|0, i1 = i0+1;
-        if (y<0.5) y=0.5;
-        if (y>N+0.5) y=N+0.5;
-        const j0 = y|0, j1 = j0+1;
-        const s1 = x - i0, s0 = 1 - s1;
-        const t1 = y - j0, t0 = 1 - t1;
-        d[IX(i,j)] =
-          s0 * (t0 * d0[IX(i0,j0)] + t1 * d0[IX(i0,j1)]) +
-          s1 * (t0 * d0[IX(i1,j0)] + t1 * d0[IX(i1,j1)]);
-      }
-    }
-    set_bnd(b,d);
-  }
-  function project(u,v,p,div) {
-    for(let j=1;j<=N;j++){
-      for(let i=1;i<=N;i++){
-        div[IX(i,j)] = -0.5*(u[IX(i+1,j)] - u[IX(i-1,j)] + v[IX(i,j+1)] - v[IX(i,j-1)]) / N;
-        p[IX(i,j)] = 0;
-      }
-    }
-    set_bnd(0,div); set_bnd(0,p);
-    lin_solve(0,p,div,1,4);
-    for(let j=1;j<=N;j++){
-      for(let i=1;i<=N;i++){
-        u[IX(i,j)] -= 0.5*N*(p[IX(i+1,j)] - p[IX(i-1,j)]);
-        v[IX(i,j)] -= 0.5*N*(p[IX(i,j+1)] - p[IX(i,j-1)]);
-      }
-    }
-    set_bnd(1,u); set_bnd(2,v);
-  }
-  function vel_step(u,v,u0,v0,visc,dt) {
-    for(let i=0;i<u.length;i++) { u[i] += u0[i]; v[i] += v0[i]; u0[i] = 0; v0[i] = 0; }
-    diffuse(1,u0,u,visc,dt); diffuse(2,v0,v,visc,dt);
-    project(u0,v0,u,v);
-    advect(1,u,u0,u0,v0,dt); advect(2,v,v0,u0,v0,dt);
-    project(u,v,u0,v0);
-  }
-  function dens_step(r,g,b,r0,g0,b0,diff,dt) {
-    diffuse(0,r0,r,diff,dt); diffuse(0,g0,g,diff,dt); diffuse(0,b0,b,diff,dt);
-    advect(0,r,r0,u,v,dt); advect(0,g,g0,u,v,dt); advect(0,b,b0,u,v,dt);
-  }
-  // Tool implementations (omitted here for brevity — they remain unchanged)
-  // ...
-  // (All tool functions — Bucket, Splatter, Spray, Glitter, Blender, Smudge, Push, Pinch, Ripple — from the earlier version remain intact)
-  
-  function ensureCanvas() {
-    DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    W = Math.floor(window.innerWidth * DPR);
-    H = Math.floor(window.innerHeight * DPR);
-    canvas.width = W;
-    canvas.height = H;
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-    const area = window.innerWidth * window.innerHeight;
-    const target = Math.sqrt(area / 100000);
-    N = clamp(Math.floor(200 * target), 128, 384);
-    alloc();
-    seedBlueStream();
-  }
-  window.addEventListener('resize', ensureCanvas);
-  // UI elements
-  const speedEl = document.getElementById('speed');
-  const strengthEl = document.getElementById('strength');
-  const sizeEl = document.getElementById('size');
-  const viscEl = document.getElementById('visc');
-  const diffEl = document.getElementById('diff');
-  const colorInput = document.getElementById('colorInput');
-  const colorSwatch = document.querySelector('#colorSelector .swatch');
-  const toolbar = document.getElementById('toolbar');
+  let u,v,u0,v0,dR,dG,dB,dR0,dG0,dB0; const IX=(x,y)=>x+y*(N+2);
+  function alloc(){ const s=(N+2)*(N+2); u=new Float32Array(s); v=new Float32Array(s); u0=new Float32Array(s); v0=new Float32Array(s); dR=new Float32Array(s); dG=new Float32Array(s); dB=new Float32Array(s); dR0=new Float32Array(s); dG0=new Float32Array(s); dB0=new Float32Array(s);} 
+  function initFluid(){ alloc(); u.fill(0); v.fill(0); dR.fill(2); dG.fill(4); dB.fill(8);} // faint base
+  function set_bnd(b,x){ for(let i=1;i<=N;i++){ x[IX(0,i)]=b===1?-x[IX(1,i)]:x[IX(1,i)]; x[IX(N+1,i)]=b===1?-x[IX(N,i)]:x[IX(N,i)]; x[IX(i,0)]=b===2?-x[IX(i,1)]:x[IX(i,1)]; x[IX(i,N+1)]=b===2?-x[IX(i,N)]:x[IX(i,N)]; } x[IX(0,0)]=.5*(x[IX(1,0)]+x[IX(0,1)]); x[IX(0,N+1)]=.5*(x[IX(1,N+1)]+x[IX(0,N)]); x[IX(N+1,0)]=.5*(x[IX(N,0)]+x[IX(N+1,1)]); x[IX(N+1,N+1)]=.5*(x[IX(N,N+1)]+x[IX(N+1,N)]); }
+  function lin_solve(b,x,x0,a,c){ const cR=1/c; for(let k=0;k<iter;k++){ for(let j=1;j<=N;j++){ for(let i=1;i<=N;i++){ x[IX(i,j)]=(x0[IX(i,j)]+a*(x[IX(i-1,j)]+x[IX(i+1,j)]+x[IX(i,j-1)] + x[IX(i,j+1)]))*cR; } } set_bnd(b,x);} }
+  function diffuse(b,x,x0,dif,dt){ const a=dt*dif*N*N; lin_solve(b,x,x0,a,1+4*a); }
+  function advect(b,d,d0,u,v,dt){ const dt0=dt*N; for(let j=1;j<=N;j++){ for(let i=1;i<=N;i++){ let x=i-dt0*u[IX(i,j)], y=j-dt0*v[IX(i,j)]; if(x<.5)x=.5; if(x>N+.5)x=N+.5; if(y<.5)y=.5; if(y>N+.5)y=N+.5; const i0=x|0,i1=i0+1,j0=y|0,j1=j0+1; const s1=x-i0,s0=1-s1,t1=y-j0,t0=1-t1; d[IX(i,j)]=s0*(t0*d0[IX(i0,j0)] + t1*d0[IX(i0,j1)]) + s1*(t0*d0[IX(i1,j0)] + t1*d0[IX(i1,j1)]); } } set_bnd(b,d); }
+  function project(u,v,p,div){ for(let j=1;j<=N;j++){ for(let i=1;i<=N;i++){ div[IX(i,j)]=-.5*(u[IX(i+1,j)]-u[IX(i-1,j)] + v[IX(i,j+1)]-v[IX(i,j-1)])/N; p[IX(i,j)]=0; } } set_bnd(0,div); set_bnd(0,p); lin_solve(0,p,div,1,4); for(let j=1;j<=N;j++){ for(let i=1;i<=N;i++){ u[IX(i,j)]-=.5*N*(p[IX(i+1,j)]-p[IX(i-1,j)]); v[IX(i,j)]-=.5*N*(p[IX(i,j+1)]-p[IX(i,j-1)]); } } set_bnd(1,u); set_bnd(2,v); }
+  function vel_step(u,v,u0,v0,visc,dt){ for(let i=0;i<u.length;i++){ u[i]+=u0[i]; v[i]+=v0[i]; u0[i]=0; v0[i]=0; } diffuse(1,u0,u,visc,dt); diffuse(2,v0,v,visc,dt); project(u0,v0,u,v); advect(1,u,u0,u0,v0,dt); advect(2,v,v0,u0,v0,dt); project(u,v,u0,v0); }
+  function dens_step(r,g,b,r0,g0,b0,dif,dt){ diffuse(0,r0,r,dif,dt); diffuse(0,g0,g,dif,dt); diffuse(0,b0,b,dif,dt); advect(0,r,r0,u,v,dt); advect(0,g,g0,u,v,dt); advect(0,b,b0,u,v,dt); }
 
-  // Show toolbar when the cursor is near the bottom of the screen
-  document.addEventListener('mousemove', (e) => {
-    if (e.clientY > window.innerHeight * 0.8) {
-      toolbar.classList.add('show');
-    } else {
-      toolbar.classList.remove('show');
+  // ---------- Seed helpers ----------
+  const E_BLUE = '#1aa4ff';
+  const NEON_AQUA = '#00ffd1';
+  const DEEP_BLUE = '#0b3a7a';
+  function defaultSeed(){ generateLayout('stream', [DEEP_BLUE, E_BLUE, NEON_AQUA]); }
+
+  function clearDye(){ dR.fill(2); dG.fill(4); dB.fill(8); }
+  function setCell(i,j, rgb){ const idx=IX(i,j); dR[idx]=rgb[0]; dG[idx]=rgb[1]; dB[idx]=rgb[2]; }
+  function hexToRgb(hex){ const h=hex.replace('#',''); const n=parseInt(h.length===3?h.split('').map(s=>s+s).join(''):h,16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+
+  function generateLayout(kind, colors){
+    const cols = colors.map(hexToRgb);
+    clearDye();
+    const cx=(N+2)/2, cy=(N+2)/2; const rMax=Math.hypot(N,N)/2;
+
+    if(kind==='stream'){
+      // Speckles background
+      for(let j=1;j<=N;j++){
+        for(let i=1;i<=N;i++){
+          if(Math.random()<0.015){
+            const c = Math.random()<0.5? cols[1%cols.length] : cols[2%cols.length];
+            const idx=IX(i,j); dR[idx]=c[0]; dG[idx]=c[1]; dB[idx]=c[2];
+          }
+        }
+      }
+      // Curved vertical stream
+      const amp = N*0.06, freq = 0.09;
+      for(let j=1;j<=N;j++){
+        const mid = Math.floor(N*0.45 + Math.sin(j*freq)*amp);
+        const w = Math.floor(N*0.05 + (Math.sin(j*0.03)*0.5+0.5)*N*0.015);
+        for(let i=Math.max(1,mid-w); i<=Math.min(N,mid+w); i++){
+          const t=(i-(mid-w))/(2*w+1);
+          const r=Math.floor(cols[1][0]*(1-t)+cols[2][0]*t);
+          const g=Math.floor(cols[1][1]*(1-t)+cols[2][1]*t);
+          const b=Math.floor(cols[1][2]*(1-t)+cols[2][2]*t);
+          setCell(i,j,[r,g,b]);
+        }
+      }
+      return;
     }
-  });
-  // Buttons
-  document.querySelectorAll('#colorTools .tool-btn, #blendTools .tool-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#colorTools .tool-btn, #blendTools .tool-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentTool = btn.dataset.tool;
-      maybeTip(currentTool);
-    });
-  });
-  document.getElementById('undoBtn').addEventListener('click', () => { undo(); });
-  document.getElementById('redoBtn').addEventListener('click', () => { redo(); });
-  // New
-  document.getElementById('newBtn').addEventListener('click', () => {
-    openPanel(newPanel);
-  });
-  document.getElementById('newCreate').addEventListener('click', () => {
-    const count = parseInt(document.getElementById('newColors').value);
-    const layout = document.getElementById('newLayout').value;
-    // generate random colours
-    const cols = [];
-    for(let i=0; i<count; i++){
-      const r = Math.floor(50+Math.random()*205);
-      const g = Math.floor(50+Math.random()*205);
-      const b = Math.floor(50+Math.random()*205);
-      cols.push('#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1));
+
+    if(kind==='split'){
+      for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){ setCell(i,j, (i<=N/2)? cols[0] : cols[1%cols.length]); }
+      return;
     }
-    seedLayout(layout, cols);
-    pushUndo();
-    closePanel(newPanel);
-  });
-  // Export
-  document.getElementById('exportBtn').addEventListener('click', () => {
-    openPanel(exportPanel);
-  });
-  document.getElementById('exportDownload').addEventListener('click', () => {
-    const format = document.getElementById('exportFormat').value;
-    let width = parseInt(document.getElementById('exportWidth').value) || W;
-    let height = parseInt(document.getElementById('exportHeight').value) || H;
-    width = clamp(width, 100, 4096);
-    height = clamp(height, 100, 4096);
-    const quality = parseFloat(document.getElementById('exportQuality').value) || 0.92;
-    exportImage(format, width, height, quality);
-  });
-  document.getElementById('cameraBtn').addEventListener('click', () => {
-    exportImage('jpeg', W, H, 0.92);
-  });
-  // Panels
-  const settingsPanel = document.getElementById('settingsPanel');
-  const newPanel = document.getElementById('newPanel');
-  const exportPanel = document.getElementById('exportPanel');
-  document.querySelectorAll('.close-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      closePanel(e.target.closest('div'));
-    });
-  });
-  function openPanel(panel) {
-    panel.style.display = 'block';
-    setTimeout(() => { panel.classList.add('open'); }, 10);
-    document.addEventListener('mousedown', outsideClick);
-  }
-  function closePanel(panel) {
-    panel.classList.remove('open');
-    panel.style.display = 'none';
-    document.removeEventListener('mousedown', outsideClick);
-  }
-  function outsideClick(e) {
-    if (!settingsPanel.contains(e.target) && !newPanel.contains(e.target) && !exportPanel.contains(e.target) && !toolbar.contains(e.target)) {
-      [settingsPanel, newPanel, exportPanel].forEach(p => { p.style.display='none'; p.classList.remove('open'); });
-      document.removeEventListener('mousedown', outsideClick);
+    if(kind==='squares'){
+      const k=cols.length; const g=Math.ceil(Math.sqrt(k)); const w=Math.ceil(N/g), h=Math.ceil(N/g);
+      for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){
+        const gx=Math.min(g-1, Math.floor((i-1)/w));
+        const gy=Math.min(g-1, Math.floor((j-1)/h));
+        const idx=(gy*g+gx)%k; setCell(i,j, cols[idx]);
+      }
+      return;
     }
-  }
-  // Tooltip and welcome overlay logic
-  const tooltipEl = document.getElementById('tooltip');
-  let descTimeout;
-  function positionTooltip(e) {
-    if (!tooltipEl) return;
-    tooltipEl.style.left = (e.pageX + 12) + 'px';
-    tooltipEl.style.top = (e.pageY - 24) + 'px';
-  }
-  function showTooltip(el, e) {
-    const name = el.dataset.name || '';
-    const desc = el.dataset.desc || '';
-    if (!name) return;
-    tooltipEl.innerHTML = '<strong>' + name + '</strong>';
-    tooltipEl.classList.add('show');
-    positionTooltip(e);
-    clearTimeout(descTimeout);
-    if (desc) {
-      descTimeout = setTimeout(() => {
-        tooltipEl.innerHTML = '<strong>' + name + '</strong><br><span>' + desc + '</span>';
-        positionTooltip(e);
-      }, 3000);
+    if(kind==='sectors'){
+      const k=cols.length;
+      for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){
+        const a=Math.atan2(j-cy, i-cx);
+        const idx=((a+Math.PI)/(2*Math.PI)*k)|0; setCell(i,j, cols[idx%k]);
+      }
+      return;
+    }
+    if(kind==='rings'){
+      const k=cols.length;
+      for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){
+        const r=Math.hypot(i-cx, j-cy); const idx=(Math.floor((r/rMax)*k))%k; setCell(i,j, cols[idx]);
+      }
+      return;
+    }
+    if(kind==='spiral'){
+      const k=cols.length; const wind=3.0;
+      for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){
+        const dx=i-cx, dy=j-cy; const r=Math.hypot(dx,dy)/rMax; const a=Math.atan2(dy,dx);
+        const t = a + wind*r*2*Math.PI; const idx = ((t+Math.PI)/(2*Math.PI)*k)|0; setCell(i,j, cols[idx%k]);
+      }
+      return;
+    }
+    if(kind==='blotches' || kind==='voronoi'){
+      const k=cols.length; const seeds=[]; for(let n=0;n<k;n++){ seeds.push({ x: 1+Math.random()*N, y: 1+Math.random()*N, c:n }); }
+      for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){
+        let best=-1, bd=1e9; for(const s of seeds){ const dx=i-s.x, dy=j-s.y; const d=dx*dx+dy*dy; if(d<bd){ bd=d; best=s.c; } }
+        setCell(i,j, cols[best]);
+      }
+      return;
+    }
+    if(kind==='stripes-v' || kind==='stripes-h'){
+      const k=cols.length; const vertical = (kind==='stripes-v');
+      for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){
+        const t = vertical ? i : j; const idx = Math.floor((t/N)*k)%k; setCell(i,j, cols[idx]);
+      }
+      return;
     }
   }
-  function hideTooltip() {
-    tooltipEl.classList.remove('show');
-    clearTimeout(descTimeout);
+
+  // ---------- Tools & input ----------
+  // Tools: color -> bucket, splatter, spray, glitter
+  //        blend -> blender, smudge, push, pinch, ripple
+  let tool='blender';
+  let holding=false, vortexX=0, vortexY=0, prevX=NaN, prevY=NaN; let timeSec=0;
+  let lastRight = {x:0,y:0};
+  let button=0; // 0 left, 2 right
+  let spinSign=1; // +1 cw (left), -1 ccw (right)
+  let rightTimer=null, rightActive=false;
+
+  let pourColor=hexToRgb(E_BLUE);
+  const swatch = document.getElementById('swatch');
+  const colorWell = document.getElementById('colorWell');
+
+  const colorBtn = document.getElementById('colorBtn');
+  const colorToolsBtn = document.getElementById('colorToolsBtn');
+  const blendToolsBtn = document.getElementById('blendToolsBtn');
+  const colorMenu = document.getElementById('colorMenu');
+  const blendMenu = document.getElementById('blendMenu');
+
+  const newBtn = document.getElementById('newBtn');
+  const newMenu = document.getElementById('newMenu');
+  const bar = document.getElementById('bar');
+
+  const tutorialBtn = document.getElementById('tutorialBtn');
+  let tutorialOn = true;
+  let shownTips = new Set(JSON.parse(sessionStorage.getItem('vortexTipsShown')||'[]'));
+
+  function showTipOnce(key, text){
+    if(!tutorialOn || shownTips.has(key)) return;
+    shownTips.add(key); sessionStorage.setItem('vortexTipsShown', JSON.stringify([...shownTips]));
+    const host=document.getElementById('tips'); const el=document.createElement('div'); el.className='tip'; el.textContent=text; host.appendChild(el);
+    requestAnimationFrame(()=> el.classList.add('show'));
+    const ms = clamp(3000 + text.length*45, 3800, 5200);
+    setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=> el.remove(), 200); }, ms);
   }
-  document.querySelectorAll('[data-name]').forEach(el => {
-    el.addEventListener('mouseenter', (e) => {
-      showTooltip(el, e);
-    });
-    el.addEventListener('mousemove', positionTooltip);
-    el.addEventListener('mouseleave', hideTooltip);
-  });
-  // Welcome overlay show/hide
-  const welcomeOverlayEl = document.getElementById('welcomeOverlay');
-  const welcomeCloseBtn = document.getElementById('welcomeClose');
-  if (welcomeOverlayEl && !localStorage.getItem('fluidArtSeenWelcome')) {
-    welcomeOverlayEl.style.display = 'block';
+
+  function setTool(t){
+    tool=t;
+    [...colorMenu.querySelectorAll('.menu-item'), ...blendMenu.querySelectorAll('.menu-item')]
+      .forEach(el=> el.classList.toggle('active', el.dataset.tool===t));
+    const hint = (
+      t==='bucket'  ? 'Hold to pour color. Right‑click hold spins opposite for spin tools.' :
+      t==='blender' ? 'Hold to spin (left = CW, right = CCW).' :
+      t==='smudge'  ? 'Hold and drag to smudge.' :
+      t==='splatter'? 'Hold to splatter (left = CW, right = CCW).' :
+      t==='spray'   ? 'Hold to spray fine paint.' :
+      t==='glitter' ? 'Hold to sprinkle glitter.' :
+      t==='push'    ? 'Hold and drag to push flow.' :
+      t==='pinch'   ? 'Hold to pinch inward/outward.' :
+                      'Hold to make circular waves.'
+    );
+    document.getElementById('hint').textContent = hint;
+
+    // tips
+    const tipText = {
+      bucket: 'Bucket pours clean color that grows under your cursor.',
+      blender: 'Blender spins fluid. Left = clockwise, right = counter‑clockwise.',
+      smudge: 'Smudge drags color along your hand movement.',
+      splatter: 'Splatter throws random drops. Higher speed adds spin.',
+      spray: 'Spray paints a fine mist. Increase size to widen.',
+      glitter: 'Glitter adds bright speckles with subtle sparkle.',
+      push: 'Push nudges flow in your drag direction.',
+      pinch: 'Pinch pulls in with left click, pushes out with right.',
+      ripple: 'Ripple creates expanding waves from the center.'
+    };
+    showTipOnce(t, tipText[t]);
   }
-  if (welcomeCloseBtn) {
-    welcomeCloseBtn.addEventListener('click', () => {
-      welcomeOverlayEl.style.display = 'none';
-      localStorage.setItem('fluidArtSeenWelcome', 'true');
-    });
+
+  // Color selector (independent)
+  const activatePicker = ()=> colorWell.showPicker && colorWell.showPicker();
+  colorBtn.addEventListener('click', activatePicker);
+  colorBtn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); activatePicker(); }});
+  colorWell.addEventListener('input', ()=>{ const hex=colorWell.value.toLowerCase(); pourColor=hexToRgb(hex); swatch.style.background=hex; });
+
+  // Menus helpers
+  function positionMenu(menu, anchor){ const r=anchor.getBoundingClientRect(); menu.style.left=Math.round(r.left)+'px'; menu.style.bottom=Math.round(window.innerHeight - r.top + 8)+'px'; }
+  function showMenu(menu, anchor){ positionMenu(menu, anchor); menu.classList.add('show'); bar.classList.add('show'); }
+  function hideMenu(menu){ menu.classList.remove('show'); if(!colorMenu.classList.contains('show') && !blendMenu.classList.contains('show') && !newMenu.classList.contains('show') && !exportMenu.classList.contains('show') && overlay.style.display!=='block') bar.classList.remove('show'); }
+  function hideMenus(){ hideMenu(colorMenu); hideMenu(blendMenu); hideMenu(newMenu); hideMenu(exportMenu); }
+
+  // Tools menus (entire button clickable)
+  colorToolsBtn.addEventListener('click', ()=>{ if(colorMenu.classList.contains('show')) hideMenu(colorMenu); else { hideMenu(blendMenu); showMenu(colorMenu, colorToolsBtn); }});
+  colorToolsBtn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); colorToolsBtn.click(); }});
+  blendToolsBtn.addEventListener('click', ()=>{ if(blendMenu.classList.contains('show')) hideMenu(blendMenu); else { hideMenu(colorMenu); showMenu(blendMenu, blendToolsBtn); }});
+  blendToolsBtn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); blendToolsBtn.click(); }});
+  window.addEventListener('click', (e)=>{ if(!colorMenu.contains(e.target) && e.target!==colorToolsBtn && !blendMenu.contains(e.target) && e.target!==blendToolsBtn && !newMenu.contains(e.target) && e.target!==newBtn && !exportMenu.contains(e.target) && e.target!==exportBtn) hideMenus(); });
+
+  colorMenu.addEventListener('click', (e)=>{ const item=e.target.closest('.menu-item'); if(!item) return; setTool(item.dataset.tool); hideMenus(); });
+  blendMenu.addEventListener('click', (e)=>{ const item=e.target.closest('.menu-item'); if(!item) return; setTool(item.dataset.tool); hideMenus(); });
+
+  // Tutorial toggle
+  function setTutorial(on){ tutorialOn=on; tutorialBtn.classList.toggle('active', on); }
+  setTutorial(true);
+  tutorialBtn.addEventListener('click', ()=> setTutorial(!tutorialOn));
+
+  // New menu setup
+  const newCount = document.getElementById('newCount');
+  const newLayout = document.getElementById('newLayout');
+  const newColors = document.getElementById('newColors');
+  const newCancel = document.getElementById('newCancel');
+  const newCreate = document.getElementById('newCreate');
+  function defaultPalette(n){ const base=['#0b3a7a', '#1aa4ff', '#00ffd1', '#7cc7ff', '#5bd0ff', '#79ffe0', '#a4b9ff']; return base.slice(0,n); }
+  function buildColorWells(){ const n=parseInt(newCount.value,10); newColors.innerHTML=''; const palette = defaultPalette(n); for(let i=0;i<n;i++){ const div=document.createElement('div'); div.className='cwell'; const input=document.createElement('input'); input.type='color'; input.value=palette[i]; div.style.background=palette[i]; input.addEventListener('input', ()=> div.style.background=input.value); div.appendChild(input); newColors.appendChild(div);} }
+  const newBtnEl=document.getElementById('newBtn'); const exportBtn=document.getElementById('exportBtn');
+  newBtnEl.addEventListener('click', ()=>{ if(newMenu.classList.contains('show')) hideMenu(newMenu); else { buildColorWells(); showMenu(newMenu, newBtnEl); }});
+  newCount.addEventListener('change', buildColorWells);
+  newCancel.addEventListener('click', ()=> hideMenu(newMenu));
+  newCreate.addEventListener('click', ()=>{ const colors=[...newColors.querySelectorAll('input')].map(i=>i.value); generateLayout(newLayout.value, colors); resetHistory(); setTool('blender'); hideMenus(); });
+
+  // Settings panel (open on quick right‑click)
+  const overlay=document.getElementById('overlay');
+  const panel=document.getElementById('panel');
+  const closeBtn=document.getElementById('close');
+  function closeAll(){ overlay.style.display='none'; panel.classList.remove('show'); hideMenu(exportMenu); if(!colorMenu.classList.contains('show') && !blendMenu.classList.contains('show') && !newMenu.classList.contains('show')) bar.classList.remove('show'); }
+  function openPanelAt(x,y){ overlay.style.display='block'; panel.classList.add('show'); panel.style.left=Math.min(x, window.innerWidth-380)+'px'; panel.style.top=Math.min(y, window.innerHeight-260)+'px'; bar.classList.add('show'); }
+  overlay.addEventListener('click', closeAll);
+  closeBtn.addEventListener('click', closeAll);
+
+  // Drag panel
+  ;(function makeDraggable(){ const drag=document.getElementById('drag'); let dragging=false, ox=0, oy=0; drag.addEventListener('mousedown', (e)=>{ dragging=true; const r=panel.getBoundingClientRect(); ox=e.clientX-r.left; oy=e.clientY-r.top; }); window.addEventListener('mousemove', (e)=>{ if(!dragging) return; panel.style.left = Math.min(Math.max(8, e.clientX-ox), window.innerWidth- panel.offsetWidth - 8)+'px'; panel.style.top = Math.min(Math.max(8, e.clientY-oy), window.innerHeight- panel.offsetHeight - 8)+'px'; }); window.addEventListener('mouseup', ()=> dragging=false); })();
+
+  // ---------- Tools behavior ----------
+  const PX2G = () => (N/Math.max(W,H));
+
+  function addBlender(dt){ if(!holding || tool!=='blender') return; const speed=+speedEl.value,strength=+strengthEl.value,radiusPx=+sizeEl.value*DPR; const[cx,cy]=gridFromPx(vortexX,vortexY); const rG=clamp(radiusPx*PX2G(),2,N), r2=rG*rG; for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){ const dx=i-cx,dy=j-cy,d2=dx*dx+dy*dy; if(d2>r2) continue; const dist=Math.sqrt(d2)+1e-6, tx=(-dy/dist)*spinSign, ty=(dx/dist)*spinSign, w=1-d2/r2, f=dt*speed*strength*w; u0[IX(i,j)]+=tx*f; v0[IX(i,j)]+=ty*f; } }
+
+  function addBucket(dt){ if(!holding || tool!=='bucket') return; const radiusPx=+sizeEl.value*DPR; const[cx,cy]=gridFromPx(vortexX,vortexY); const rG=clamp(radiusPx*PX2G(),2,N), r2=rG*rG; const[rC,gC,bC]=pourColor; const rate=clamp(60*dt,0.1,2); for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){ const dx=i-cx,dy=j-cy,d2=dx*dx+dy*dy; if(d2>r2) continue; const w=Math.max(0,1-d2/r2), a=w*rate, id=IX(i,j); dR[id]+=(rC-dR[id])*a; dG[id]+=(gC-dG[id])*a; dB[id]+=(bC-dB[id])*a; } }
+
+  function addSmudge(dt){ if(!holding || tool!=='smudge' || isNaN(prevX)) return; const[cx,cy]=gridFromPx(vortexX,vortexY); const[pxg,pyg]=gridFromPx(prevX,prevY); const mvx=cx-pxg, mvy=cy-pyg, len=Math.hypot(mvx,mvy)+1e-6, sx=mvx/len, sy=mvy/len; const radiusPx=+sizeEl.value*DPR, rG=clamp(radiusPx*PX2G(),2,N), r2=rG*rG; const pull=+strengthEl.value*0.6*(1+ +speedEl.value*0.2); for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){ const dx=i-cx, dy=j-cy, d2=dx*dx+dy*dy; if(d2>r2) continue; const w=1-d2/r2; const srcX=clamp((i - sx*3)|0,1,N); const srcY=clamp((j - sy*3)|0,1,N); const id=IX(i,j), sid=IX(srcX,srcY), a=w*pull*dt; dR[id]+=(dR[sid]-dR[id])*a; dG[id]+=(dG[sid]-dG[id])*a; dB[id]+=(dB[sid]-dB[id])*a; } }
+
+  let splatterCarry=0; function addSplatter(dt){ if(!holding || tool!=='splatter') return; const speed=+speedEl.value, strength=+strengthEl.value, radiusPx=+sizeEl.value*DPR; const[cx,cy]=gridFromPx(vortexX,vortexY); const[rC,gC,bC]=pourColor; let rate=25*(0.5+speed*0.5)*dt + splatterCarry; let drops=Math.floor(rate); splatterCarry=rate-drops; for(let n=0;n<drops;n++){ const ang=Math.random()*Math.PI*2, rad=Math.random()*radiusPx; const gx=clamp((cx+(rad*Math.cos(ang))*PX2G())|0,2,N-1); const gy=clamp((cy+(rad*Math.sin(ang))*PX2G())|0,2,N-1); const dropR=(0.2+Math.random()*0.8)*(radiusPx*PX2G()); const rG=clamp(dropR,1.2,N/6), r2=rG*rG; for(let j=(gy-rG)|0;j<=(gy+rG)|0;j++){ if(j<1||j>N) continue; for(let i=(gx-rG)|0;i<=(gx+rG)|0;i++){ if(i<1||i>N) continue; const dx=i-gx, dy=j-gy, d2=dx*dx+dy*dy; if(d2>r2) continue; const w=1-d2/r2, id=IX(i,j); dR[id]+=(rC-dR[id])*w; dG[id]+=(gC-dG[id])*w; dB[id]+=(bC-dB[id])*w; } } const spin = speed*.35*strength*spinSign; if(Math.abs(spin)>0.01){ for(let j=(gy-rG)|0;j<=(gy+rG)|0;j++){ if(j<1||j>N) continue; for(let i=(gx-rG)|0;i<=(gx+rG)|0;i++){ if(i<1||i>N) continue; const dx=i-gx, dy=j-gy, d2=dx*dx+dy*dy; if(d2>r2||d2===0) continue; const dist=Math.sqrt(d2), tx=-dy/dist, ty=dx/dist, w=1-d2/r2, f=dt*spin*w; u0[IX(i,j)]+=tx*f; v0[IX(i,j)]+=ty*f; } } } }
   }
-  // Drag for panels
-  document.querySelectorAll('#settingsPanel .panel-header, #newPanel .panel-header, #exportPanel .panel-header').forEach(header => {
-    let offsetX=0, offsetY=0, dragging=false;
-    header.addEventListener('mousedown', e => {
-      dragging = true;
-      const rect = header.parentElement.getBoundingClientRect();
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('mouseup', stop);
-    });
-    function drag(e) {
-      if (!dragging) return;
-      const panel = header.parentElement;
-      panel.style.left = (e.clientX - offsetX) + 'px';
-      panel.style.top = (e.clientY - offsetY) + 'px';
-      panel.style.transform = '';
-    }
-    function stop() {
-      dragging = false;
-      document.removeEventListener('mousemove', drag);
-      document.removeEventListener('mouseup', stop);
-    }
+
+  // Spray: fine dots
+  let sprayCarry=0; function addSpray(dt){ if(!holding || tool!=='spray') return; const rate = 220 * dt * (0.5 + +strengthEl.value/60); let count = Math.floor(rate + sprayCarry); sprayCarry = rate + sprayCarry - count; const radPx = (+sizeEl.value*0.6)*DPR; const [rC,gC,bC]=pourColor; while(count-- > 0){ const ang=Math.random()*Math.PI*2; const rad = (Math.random()**0.5) * radPx; const gx=clamp((gridFromPx(vortexX + Math.cos(ang)*rad, vortexY + Math.sin(ang)*rad)[0])|0,2,N-1); const gy=clamp((gridFromPx(vortexX + Math.cos(ang)*rad, vortexY + Math.sin(ang)*rad)[1])|0,2,N-1); const id=IX(gx,gy); dR[id]+= (rC-dR[id])*0.9; dG[id]+= (gC-dG[id])*0.9; dB[id]+= (bC-dB[id])*0.9; } }
+
+  // Glitter: bright speckles
+  let glitterCarry=0; function addGlitter(dt){ if(!holding || tool!=='glitter') return; const baseRate = 160 * dt; let count = Math.floor(baseRate + glitterCarry); glitterCarry = baseRate + glitterCarry - count; const radPx = (+sizeEl.value*0.5)*DPR; const [rC,gC,bC]=pourColor; while(count-- > 0){ const ang=Math.random()*Math.PI*2; const rad=(Math.random()**0.3)*radPx; const px=vortexX + Math.cos(ang)*rad, py=vortexY + Math.sin(ang)*rad; const [gx,gy]=gridFromPx(px,py); const id=IX(gx|0,gy|0); const sparkle = Math.random()<0.25; const br = sparkle? 1.0 : 0.6 + Math.random()*0.4; const R = Math.min(255, rC*br + (sparkle?60:0)); const G = Math.min(255, gC*br + (sparkle?60:0)); const B = Math.min(255, bC*br + (sparkle?60:0)); dR[id]+= (R - dR[id])*0.9; dG[id]+= (G - dG[id])*0.9; dB[id]+= (B - dB[id])*0.9; } }
+
+  // Push
+  function addPush(dt){ if(!holding || tool!=='push' || isNaN(prevX)) return; const[cx,cy]=gridFromPx(vortexX,vortexY); const[pxg,pyg]=gridFromPx(prevX,prevY); const vx=cx-pxg, vy=cy-pyg; const len=Math.hypot(vx,vy)+1e-6; const dx=vx/len, dy=vy/len; const radiusPx=+sizeEl.value*DPR; const rG=clamp(radiusPx*PX2G(),2,N), r2=rG*rG; const force = +strengthEl.value*dt*(0.6+ +speedEl.value*0.4); for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){ const rx=i-cx, ry=j-cy, d2=rx*rx+ry*ry; if(d2>r2) continue; const w=1-d2/r2; const f=force*w; u0[IX(i,j)]+=dx*f; v0[IX(i,j)]+=dy*f; } }
+
+  // Pinch
+  function addPinch(dt){ if(!holding || tool!=='pinch') return; const[cx,cy]=gridFromPx(vortexX,vortexY); const radiusPx=+sizeEl.value*DPR; const rG=clamp(radiusPx*PX2G(),2,N), r2=rG*rG; const s=(button===0?-1:1); const force = +strengthEl.value*dt*(0.8+ +speedEl.value*0.2); for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){ const rx=i-cx, ry=j-cy, d2=rx*rx+ry*ry; if(d2>r2 || d2===0) continue; const dist=Math.sqrt(d2); const nx=rx/dist, ny=ry/dist; const w=1-d2/r2; const f=force*w*s; u0[IX(i,j)] += nx*f; v0[IX(i,j)] += ny*f; } }
+
+  // Ripple: concentric velocity waves
+  function addRipple(dt){ if(!holding || tool!=='ripple') return; const[cx,cy]=gridFromPx(vortexX,vortexY); const radiusPx=+sizeEl.value*DPR; const rG=clamp(radiusPx*PX2G(),3,N/2); const k = (Math.PI*2)/(rG/3); const w = 6 * (+speedEl.value); const amp = (+strengthEl.value)*0.08; for(let j=1;j<=N;j++) for(let i=1;i<=N;i++){ const rx=i-cx, ry=j-cy; const d=Math.hypot(rx,ry); if(d>rG||d===0) continue; const s=Math.sin(k*d - w*timeSec); const a = amp * (1 - (d*d)/(rG*rG)); const nx=rx/d, ny=ry/d; u0[IX(i,j)] += nx * s * a * dt * 60; v0[IX(i,j)] += ny * s * a * dt * 60; } }
+
+  // ---------- Render & loop ----------
+  let img=null,pixels=null; function draw(){ if(!img||img.width!==W||img.height!==H){ img=ctx.createImageData(W,H); pixels=img.data; } const sx=N/W, sy=N/H; let p=0; for(let y=0;y<H;y++){ const gy=clamp((y*sy+1)|0,1,N); for(let x=0;x<W;x++){ const gx=clamp((x*sx+1)|0,1,N), idx=IX(gx,gy); pixels[p++]=clamp(dR[idx],0,255)|0; pixels[p++]=clamp(dG[idx],0,255)|0; pixels[p++]=clamp(dB[idx],0,255)|0; pixels[p++]=255; } } ctx.putImageData(img,0,0); }
+
+  // ---------- UI bindings ----------
+  const speedEl=document.getElementById('speed'), strengthEl=document.getElementById('strength'), sizeEl=document.getElementById('size'), viscEl=document.getElementById('visc'), diffEl=document.getElementById('diff');
+  const fmt=v=>(Math.abs(v)>=1?Number(v).toFixed(2):Number(v).toFixed(4));
+  function bindVal(id,el){ const s=document.getElementById(id); const u=()=>s.textContent=fmt(el.value); el.addEventListener('input',u); u(); }
+  bindVal('speedV',speedEl); bindVal('strengthV',strengthEl); bindVal('sizeV',sizeEl); bindVal('viscV',viscEl); bindVal('diffV',diffEl);
+
+  const gridFromPx=(px,py)=>[clamp((px/W)*(N+2),1,N), clamp((py/H)*(N+2),1,N)];
+
+  function startHold(px,py,btn){ spinSign = (btn===2? -1 : 1); button=btn; if(!holding) pushHistory(); holding=true; prevX=vortexX=px; prevY=vortexY=py; }
+  function stopHold(){ if(holding){ holding=false; pushHistory(); } }
+
+  canvas.addEventListener('mousedown', e=>{ const px=e.offsetX*DPR, py=e.offsetY*DPR; if(e.button===0){ startHold(px,py,0); } else if(e.button===2){ e.preventDefault(); lastRight={x:e.clientX,y:e.clientY}; rightActive=false; rightTimer=setTimeout(()=>{ rightActive=true; startHold(px,py,2); }, 250); } });
+  window.addEventListener('mouseup', e=>{ if(e.button===2){ if(rightTimer){ clearTimeout(rightTimer); rightTimer=null; } if(!rightActive){ openPanelAt(lastRight.x, lastRight.y); } else { stopHold(); } } else if(e.button===0){ stopHold(); } });
+  canvas.addEventListener('mousemove', e=>{ const px=e.offsetX*DPR, py=e.offsetY*DPR; if(holding){ prevX=vortexX; prevY=vortexY; } else { prevX=px; prevY=py; } vortexX=px; vortexY=py; });
+
+  canvas.addEventListener('touchstart', e=>{ const t=e.touches[0]; const r=canvas.getBoundingClientRect(); startHold((t.clientX-r.left)*DPR,(t.clientY-r.top)*DPR,0); e.preventDefault(); }, {passive:false});
+  canvas.addEventListener('touchend', ()=> stopHold(), {passive:true});
+  canvas.addEventListener('touchmove', e=>{ const t=e.touches[0]; const r=canvas.getBoundingClientRect(); const px=(t.clientX-r.left)*DPR, py=(t.clientY-r.top)*DPR; if(holding){ prevX=vortexX; prevY=vortexY; } vortexX=px; vortexY=py; e.preventDefault(); }, {passive:false});
+
+  document.addEventListener('contextmenu', e=> e.preventDefault());
+
+  // ---------- History (Undo/Redo) ----------
+  const history=[]; const redo=[]; const MAXH=20; function capture(){ return { r:new Float32Array(dR), g:new Float32Array(dG), b:new Float32Array(dB) }; } function restore(s){ dR.set(s.r); dG.set(s.g); dB.set(s.b); } function resetHistory(){ history.length=0; redo.length=0; history.push(capture()); } function pushHistory(){ history.push(capture()); if(history.length>MAXH) history.shift(); redo.length=0; } function undo(){ if(history.length<2) return; const cur=history.pop(); redo.push(cur); const prev=history[history.length-1]; restore(prev); } function redoAct(){ if(redo.length===0) return; const s=redo.pop(); restore(s); history.push(capture()); }
+  document.getElementById('undoBtn').addEventListener('click', undo); document.getElementById('redoBtn').addEventListener('click', redoAct);
+
+  // ---------- Camera / Export ----------
+  const cameraBtn=document.getElementById('cameraBtn');
+  function quickJpg(){ canvas.toBlob((blob)=>{ const a=document.createElement('a'); const t=new Date(); const pad=n=>String(n).padStart(2,'0'); const name=`vortex-${t.getFullYear()}${pad(t.getMonth()+1)}${pad(t.getDate())}-${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}.jpg`; a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0); }, 'image/jpeg', 0.92); }
+  cameraBtn.addEventListener('click', quickJpg);
+
+  // Export menu
+  const exportMenu=document.getElementById('exportMenu');
+  const exFormat=document.getElementById('exFormat');
+  const exW=document.getElementById('exW');
+  const exH=document.getElementById('exH');
+  const exLock=document.getElementById('exLock');
+  const exQ=document.getElementById('exQ');
+  const exRatio=document.getElementById('exRatio');
+  const exCancel=document.getElementById('exCancel');
+  const exSave=document.getElementById('exSave');
+
+  function openExport(){ positionMenu(exportMenu, exportBtn); exportMenu.classList.add('show'); bar.classList.add('show'); const rW=Math.min(1920, W|0), rH=Math.min(1080, H|0); exW.value=rW; exH.value=Math.round(rW*(H/W)); updateRatio(); syncQualityState(); }
+  function closeExport(){ hideMenu(exportMenu); }
+  function updateRatio(){ const gcd=(a,b)=>b?gcd(b,a%b):a; const g=gcd(+exW.value, +exH.value); exRatio.textContent=`${Math.round(exW.value/g)}:${Math.round(exH.value/g)}`; }
+  function syncQualityState(){ const lossy = exFormat.value!=='image/png'; exQ.disabled=!lossy; }
+  function clampDim(){ exW.value=Math.max(256, Math.min(4096, +exW.value|0)); exH.value=Math.max(256, Math.min(4096, +exH.value|0)); }
+
+  exW.addEventListener('input', ()=>{ clampDim(); if(exLock.checked){ exH.value = Math.round(+exW.value * (H/W)); } updateRatio(); });
+  exH.addEventListener('input', ()=>{ clampDim(); if(exLock.checked){ exW.value = Math.round(+exH.value * (W/H)); } updateRatio(); });
+  exFormat.addEventListener('change', syncQualityState);
+
+  exportBtn.addEventListener('click', ()=>{ hideMenus(); openExport(); });
+  exCancel.addEventListener('click', closeExport);
+
+  exSave.addEventListener('click', ()=>{
+    clampDim(); const w=+exW.value|0, h=+exH.value|0; const type=exFormat.value; const q=+exQ.value; const off=document.createElement('canvas'); off.width=w; off.height=h; const octx=off.getContext('2d', {alpha:false}); octx.drawImage(canvas, 0, 0, w, h);
+    off.toBlob((blob)=>{ const a=document.createElement('a'); const ext= type==='image/png'?'png':(type==='image/webp'?'webp':'jpg'); const t=new Date(); const pad=n=>String(n).padStart(2,'0'); const name=`vortex-${t.getFullYear()}${pad(t.getMonth()+1)}${pad(t.getDate())}-${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}.${ext}`; a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0); }, type, type==='image/png'?undefined:q);
+    closeExport();
   });
-  // Colour input
-  colorInput.addEventListener('input', () => {
-    const hex = colorInput.value.toLowerCase();
-    colorSwatch.style.background = hex;
-    const n = parseInt(hex.replace('#',''), 16);
-    pourColor = [(n>>16)&255, (n>>8)&255, n&255];
-  });
-  document.getElementById('colorSelector').addEventListener('click', () => {
-    colorInput.showPicker && colorInput.showPicker();
-  });
-  ensureCanvas();
-  // Start the simulation loop (call to step omitted for brevity)
-  // ...
+
+  window.addEventListener('keydown', (e)=>{ const k = e.key.toLowerCase(); if((e.ctrlKey||e.metaKey) && !e.shiftKey && k==='z'){ e.preventDefault(); undo(); } else if((e.ctrlKey||e.metaKey) && (k==='y' || (e.shiftKey && k==='z'))){ e.preventDefault(); redoAct(); } else if((e.ctrlKey||e.metaKey) && k==='p'){ e.preventDefault(); quickJpg(); } else if((e.ctrlKey||e.metaKey) && k==='s'){ e.preventDefault(); if(exportMenu.classList.contains('show')) closeExport(); else openExport(); } });
+
+  // ---------- Main loop ----------
+  let lastT=performance.now();
+  function step(now){ const dt=clamp((now-lastT)/1000,0.001,0.033) * +speedEl.value; lastT=now; timeSec += dt; addBucket(dt); addBlender(dt); addSmudge(dt); addSplatter(dt); addSpray(dt); addGlitter(dt); addPush(dt); addPinch(dt); addRipple(dt); vel_step(u,v,u0,v0,+viscEl.value,dt); for(let i=0;i<dR0.length;i++){ dR0[i]=dR[i]*0.999; dG0[i]=dG[i]*0.999; dB0[i]=dB[i]*0.999; } dens_step(dR,dG,dB,dR0,dG0,dB0,+diffEl.value,dt); draw(); requestAnimationFrame(step); }
+
+  // Init
+  resize(); setTool('blender'); lastT=performance.now(); requestAnimationFrame(step);
 })();
 </script>
-
-<!-- Welcome overlay -->
-<div id="welcomeOverlay">
-  <div class="panel-header"><h3>Welcome to Bucket</h3><button id="welcomeClose">&times;</button></div>
-  <p>Hover near the bottom of the page to reveal the toolbar. Right‑click anywhere on the canvas to adjust your brush and fluid settings. Have fun creating your art!</p>
-</div>
 </body>
 </html>
