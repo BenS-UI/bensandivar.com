@@ -243,9 +243,9 @@
     window.addEventListener('DOMContentLoaded', () => {
      const welcome = document.getElementById('welcome');
       if (welcome) {
-        const hideHint = () => hint.classList.add('hidden');
+        const hideWelcome = () => welcome.classList.add('hidden');
         setTimeout(() => {
-          document.addEventListener('click', hideHint, { once: true });
+          document.addEventListener('click', hideWelcome, { once: true });
         }, 500); // slight delay to avoid immediate dismissal
       }
     });
