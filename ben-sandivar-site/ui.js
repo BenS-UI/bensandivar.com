@@ -198,27 +198,36 @@
   function closeWheel(){ wheelPop.classList.remove('show'); }
   colorBtn.addEventListener('click', ()=> wheelPop.classList.contains('show')?closeWheel():openWheel());
 
-  // Map client coords -> canvas coords accounting for DPR & CSS scaling
-  function canvasCoords(el, evt){
-    const rect = el.getBoundingClientRect();
-    const scaleX = el.width / rect.width;
-    const scaleY = el.height / rect.height;
-    return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY };
-  }
+// Map client coords -> canvas coords accounting for DPR & CSS scaling
+function canvasCoords(el, evt){
+  const rect = el.getBoundingClientRect();
+  const scaleX = el.width / rect.width;
+  const scaleY = el.height / rect.height;
+  return {
+    x: (evt.clientX - rect.left) * scaleX,
+    y: (evt.clientY - rect.top) * scaleY
+  };
+}
 
-  function pickWheel(ev){
-    const r=wheel.getBoundingClientRect();
-    const cx = r.left + r.width/2;
-    const cy = r.top  + r.height/2;
-    hue = (Math.atan2(ev.clientY-cy, ev.clientX-cx) + Math.PI)/(2*Math.PI);
-    drawWheel(); drawDiamond(); updatePour();
-  }
-  wheel.addEventListener('mousedown', e=>{
-    pickWheel(e);
-    const m=ev=>pickWheel(ev);
-    window.addEventListener('mousemove',m);
-    window.addEventListener('mouseup',()=>window.removeEventListener('mousemove',m),{once:true});
-  });
+function pickWheel(ev){
+  const { x, y } = canvasCoords(wheel, ev);
+  const cx = wheel.width / 2;
+  const cy = wheel.height / 2;
+  hue = (Math.atan2(y - cy, x - cx) + Math.PI) / (2 * Math.PI);
+  drawWheel();
+  drawDiamond();
+  updatePour();
+}
+
+wheel.addEventListener('mousedown', e => {
+  pickWheel(e);
+  const move = ev => pickWheel(ev);
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', () =>
+    window.removeEventListener('mousemove', move),
+    { once: true }
+  );
+});
 
   function pickDiamond(ev){
     const { x:cxRaw, y:cyRaw } = canvasCoords(diamond, ev);
