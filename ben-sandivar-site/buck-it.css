@@ -24,10 +24,10 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font: 13px/1.25 system-ui;
+  font: 8px/1.25 system-ui;
   opacity: 0.9;
   user-select: none;
-  z-index: 1000;
+  z-index: 10;
   padding: 10px 16px;
   border-radius: 12px;
   backdrop-filter: blur(10px);
@@ -36,9 +36,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: opacity 0.3s ease;
 }
+
 #welcome.hidden {
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 /* ============== Toolbar (centered, 5% idle) ============== */
