@@ -237,13 +237,15 @@
   <!-- App (module). This imports ./fluid-core.js internally. -->
   <script type="module" src="app.js"></script>
   <script>
-  const hint = document.getElementById('hint');
-  if (hint) {
-    const hideHint = () => hint.classList.add('hidden');
-    setTimeout(() => {
-      document.addEventListener('click', hideHint, { once: true });
-    }, 500); // slight delay to avoid immediate dismissal
-  }
-</script>
+    window.addEventListener('DOMContentLoaded', () => {
+     const hint = document.getElementById('hint');
+      if (hint) {
+        const hideHint = () => hint.classList.add('hidden');
+        setTimeout(() => {
+          document.addEventListener('click', hideHint, { once: true });
+        }, 500); // slight delay to avoid immediate dismissal
+      }
+    });
+  </script>
 </body>
 </html>
