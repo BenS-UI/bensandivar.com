@@ -6,7 +6,7 @@
   padding: 10vh 8vw;
 }
 
-/* Original grid (kept for other sections) */
+/* Keep default grid for other sections */
 .projects-grid {
   display: grid;
   gap: 2rem;
@@ -46,7 +46,7 @@
   cursor: default;
 }
 
-/* Remove hover lift */
+/* No hover lift */
 .project-card:hover {
   box-shadow:
     0 2px 10px rgba(0,0,0,0.08),
@@ -98,28 +98,34 @@
 
 #projects { position: relative; }
 
-/* Stage */
+/* Stage spans full width; no dead zones */
 #projects .projects-grid {
-  display: block !important;         /* override grid here only */
+  display: block !important;      /* override grid here only */
   position: relative;
-  width: 100% !important;            /* stay inside section */
+  width: 100% !important;
   max-width: 100% !important;
   margin: 0;
   perspective: 1600px;
   height: var(--carousel-h, 540px);
-  overflow: visible;                  /* show side stacks */
+  overflow: visible;               /* keep side cards visible */
 }
 
-/* Slides become absolutely positioned; JS sets transforms */
+/* Slides are absolutely positioned; JS sets transforms */
 #projects .project-card {
   position: absolute !important;
   top: 50%;
   left: 50%;
-  width: var(--card-w, clamp(260px, 32vw, 440px));
+  width: var(--card-w, clamp(240px, 34vw, 460px));
   backface-visibility: hidden;
   transform-origin: 50% 50%;
 }
 
-/* Section-only interaction locks */
+/* Mobile tweaks: slightly softer tilt and taller stage */
+@media (max-width: 640px) {
+  #projects .projects-grid { height: var(--carousel-h, 64vh); }
+  /* JS still controls transforms; width clamp already shrinks cards */
+}
+
+/* Interaction locks (section-only) */
 #projects, #projects * { user-select: none; -webkit-user-select: none; }
 #projects img { -webkit-user-drag: none; user-drag: none; }
