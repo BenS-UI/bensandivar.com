@@ -204,8 +204,8 @@ function canvasCoords(el, evt){
   const scaleX = el.width / rect.width;
   const scaleY = el.height / rect.height;
   return {
-    y: (evt.clientX - rect.left) * scaleX,
-    x: (evt.clientY - rect.top) * scaleY
+    x: (evt.clientX - rect.left) * scaleX,
+    y: (evt.clientY - rect.top) * scaleY
   };
 }
 

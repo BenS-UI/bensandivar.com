@@ -105,13 +105,43 @@
   .about-intro .about-bio p { text-align: left; }
 }
 
-/* Mobile: let content span full width */
+/* ===========================
+   Mobile layout (≤ 768px)
+   - Pic above text
+   - Centered headings & body
+   =========================== */
 @media (max-width: 768px) {
+  /* let sections span full width */
   .intro-content,
   .about-bio {
     flex-basis: 100%;
     max-width: 100%;
   }
+
+  /* stack vertically, image first */
+  .intro-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center; /* default-center children text */
+    padding-inline: 1rem;
+  }
+
+  /* make sure pic is on top even if DOM order ever changes */
+  .profile-container { order: -1; width: 100%; justify-content: center; }
+  .profile-pic { max-width: 260px; width: min(70vw, 320px); }
+  .profile-pic img { width: 100%; }
+
+  /* center all text blocks */
+  .text-container { text-align: center; }
+  .intro-text h1,
+  .intro-text h2,
+  .intro-text .tagline,
+  .about-bio,
+  .about-bio p { text-align: center; }
+
+  /* a slightly narrower readable width for body on small screens */
+  .about-bio { max-width: 42rem; width: 100%; padding-inline: 1rem; }
 }
 
 /* Respect users who prefer less motion */
