@@ -18,16 +18,14 @@
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:var(--text)}
 #view{display:block;width:100vw;height:100vh}
 
-/* BUCK-IT-only navbar backdrop gradient (scoped) */
-#navbar-slot .navbar{position:relative;isolation:isolate}
-#navbar-slot .navbar::before{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(164, 164, 164, 0.8));
-  pointer-events:none;z-index:0;
-  height: 70%;
-  filter: blur(70px)
+/* Override navbar link color only in Bucket */
+.navbar .nav-links a {
+  color: #bbb !important;   /* medium gray */
 }
-#navbar-slot .navbar>*{position:relative;z-index:1}
+
+.navbar .nav-links a:hover {
+  color: #fff !important;   /* brighten on hover */
+}
 
 /* Welcome */
 #welcome{
