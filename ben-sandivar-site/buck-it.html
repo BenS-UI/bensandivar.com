@@ -1,212 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Vortex Paint</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<style>
-  :root{
-    --glass-bg: rgba(20,22,28,.38);
-    --glass-brd: rgba(255,255,255,.24);
-    --pill: rgba(255,255,255,.10);
-    --pill-hover: rgba(255,255,255,.16);
-    --text: #eef3ff;
-    --accent: #8fd3ff;
-    --danger: #ff6b6b;
-  }
-  html,body{height:100%;margin:0;background:#05070c;color:var(--text);overflow:hidden}
-  canvas{display:block;width:100vw;height:100vh}
-
-  /* Toolbar */
-  #bar{position:fixed;left:16px;bottom:16px;display:flex;gap:10px;align-items:center;z-index:20;opacity:.05;transition:opacity .2s}
-  #bar:hover,#bar:focus-within,#bar.show{opacity:1}
-  .btn{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;border:1px solid var(--glass-brd);background:var(--pill);
-       backdrop-filter: blur(12px) saturate(1.2);cursor:pointer;user-select:none;transition:background .15s,transform .06s;color:#fff;
-       box-shadow:0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)}
-  .btn:hover{background:var(--pill-hover)} .btn:active{transform:translateY(1px)}
-  .btn .label{font:13px/1.2 system-ui,Segoe UI,Roboto,sans-serif;letter-spacing:.2px}
-  .btn.active{outline:1px solid var(--accent);box-shadow:0 0 0 3px rgba(143,211,255,.16),0 8px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1)}
-  .iconbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center}
-
-  #swatch{width:18px;height:18px;border-radius:50%;border:2px solid #fff8;box-shadow:0 0 0 2px #0003 inset}
-  #hint{position:fixed;top:12px;left:50%;transform:translateX(-50%);font:13px/1.25 system-ui;opacity:.7;user-select:none}
-
-  /* Glass menus / panels */
-  .menu{position:fixed;inset:auto auto 64px 16px;min-width:260px;background:var(--glass-bg);border:1px solid var(--glass-brd);
-        border-radius:14px;padding:10px;backdrop-filter: blur(12px) saturate(1.2);box-shadow:0 24px 50px rgba(0,0,0,.45);display:none;z-index:30}
-  .menu.show{display:block;animation:pop .12s ease-out}
-  @keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
-  .menu-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;font:13px/1.2 system-ui}
-  .menu-item:hover{background:#ffffff1f}.menu-item.active{background:#8fd3ff2e;outline:1px solid #8fd3ff55}
-  .dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.9}
-
-  /* Selects/inputs high contrast */
-  select,input[type=number]{appearance:none;padding:8px 12px;border-radius:10px;border:1px solid var(--glass-brd);
-    background:linear-gradient(180deg,#0c1018,#0a0e16);color:#fff;width:100%}
-  select:focus,input[type=number]:focus{outline:1px solid var(--accent)}
-  .row{display:flex;align-items:center;gap:10px;padding:6px 8px}
-  .row label{width:90px;font:12px/1 system-ui;opacity:.9}
-
-  /* New menu */
-  #newMenu h4{margin:6px 8px 4px;font:12px/1.1 ui-monospace,Menlo;opacity:.9;letter-spacing:.3px}
-  .colors{display:grid;grid-template-columns:repeat(7,28px);gap:8px;padding:6px 8px}
-  .cwell{width:28px;height:28px;border-radius:50%;border:2px solid #fffa;cursor:pointer;position:relative;overflow:hidden}
-  .cwell input{position:absolute;inset:0;opacity:0}
-  .actions{display:flex;justify-content:flex-end;gap:8px;padding:8px}
-  .ghost{background:transparent;border:1px solid var(--glass-brd);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
-  .primary{background:linear-gradient(180deg,#8fd3ff,#56a4ff);border:0;color:#00121f;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}
-
-  /* Export */
-  #exportMenu .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px}
-  #exportMenu .full{grid-column:1/-1}
-  #exportMenu .small{font:12px/1 ui-monospace;opacity:.8}
-
-  /* Settings panel */
-  #overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:40}
-  #panel{position:fixed;top:92px;left:92px;width:360px;background:var(--glass-bg);border:1px solid var(--glass-brd);border-radius:18px;
-         padding:10px 12px 12px;backdrop-filter: blur(14px) saturate(1.35);box-shadow:0 30px 80px #0008,0 2px 0 #fff1 inset;display:none;z-index:50}
-  #panel.show{display:block;animation:pop .14s ease-out}
-  #drag{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 6px 10px;cursor:grab}
-  #drag:active{cursor:grabbing}
-  #title{font:12px/1.1 ui-monospace,Menlo;opacity:.9;letter-spacing:.3px}
-  #close{width:26px;height:26px;border-radius:8px;border:1px solid var(--glass-brd);background:var(--pill);color:#fff;display:grid;place-items:center;cursor:pointer}
-  #close:hover{background:var(--pill-hover)}
-  #grid{display:grid;grid-template-columns:1fr auto;gap:8px 10px;padding:6px 4px 4px}
-  #grid label{font:12px/1.1 system-ui;opacity:.85}
-  #grid input[type=range]{width:220px}
-  #grid .val{width:48px;text-align:right;font:12px/1 ui-monospace;opacity:.9}
-
-  /* Tips */
-  #tips{position:fixed;left:0;right:0;bottom:84px;display:flex;justify-content:center;pointer-events:none;z-index:35}
-  .tip{background:var(--glass-bg);border:1px solid var(--glass-brd);border-radius:14px;padding:10px 12px;color:#fff;font:13px/1.25 system-ui;
-       max-width:min(70vw,520px);box-shadow:0 20px 60px #0008;backdrop-filter: blur(12px) saturate(1.2);opacity:0;transform:translateY(6px);
-       transition:opacity .2s,transform .2s}
-  .tip.show{opacity:1;transform:none}
-
-  /* Color wheel popover */
-  #wheelPopover{position:fixed;inset:auto auto 64px 16px;display:none;z-index:32}
-  #wheelPopover.show{display:block}
-  .wheel-card{background:var(--glass-bg);border:1px solid var(--glass-brd);border-radius:14px;padding:12px;backdrop-filter:blur(12px) saturate(1.2);
-              box-shadow:0 24px 50px #0008;display:flex;flex-direction:column;align-items:center;gap:10px}
-  #hex{width:120px;text-align:center;border-radius:10px;border:1px solid var(--glass-brd);background:#0c1018;color:#fff;padding:6px 8px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bucket</title>
+  <link rel="stylesheet" href="buck-it.css">
 </head>
 <body>
-<canvas id="view"></canvas>
-<div id="hint">Left = CW • Right = CCW • Ctrl+Z / Ctrl+Y • Ctrl+P snapshot • Ctrl+S export</div>
-<div id="tips"></div>
+  <!-- Canvas -->
+  <canvas id="canvas"></canvas>
 
-<!-- Toolbar -->
-<div id="bar">
-  <button id="colorBtn" class="btn" title="Color">
-    <div id="swatch" style="background:#1aa4ff"></div>
-    <span class="label">Color</span>
-  </button>
-  <button id="colorToolsBtn" class="btn" title="Color tools"><span class="label">Color ▾</span></button>
-  <button id="blendToolsBtn" class="btn" title="Blend tools"><span class="label">Blend ▾</span></button>
-  <button id="newBtn" class="btn" title="New"><span class="label">New ▾</span></button>
-  <button id="settingsBtn" class="btn iconbtn" title="Settings">
-    <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 5 15.4a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6c.31-.2.68-.31 1.06-.31H10a2 2 0 1 1 4 0h-.06c.38 0 .75.11 1.06.31a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.46.46-.6 1.14-.33 1.82.2.31.31.68.31 1.06V10a2 2 0 1 1 0 4h-.09c-.38 0-.75.11-1.06.31z"/>
-    </svg>
-  </button>
-  <button id="undoBtn" class="btn iconbtn" title="Undo (Ctrl+Z)">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20a8 8 0 0 0-8-8H4"/></svg>
-  </button>
-  <button id="redoBtn" class="btn iconbtn" title="Redo (Ctrl+Y)">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20a8 8 0 0 1 8-8h8"/></svg>
-  </button>
-  <button id="cameraBtn" class="btn iconbtn" title="Quick JPG (Ctrl+P)">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-  </button>
-  <button id="exportBtn" class="btn" title="Export… (Ctrl+S)"><span class="label">Export</span></button>
-</div>
-
-<!-- Color wheel popover -->
-<div id="wheelPopover">
-  <div class="wheel-card">
-    <canvas id="wheel" width="220" height="220"></canvas>
-    <canvas id="diamond" width="160" height="160"></canvas>
-    <input id="hex" spellcheck="false" value="#1aa4ff" />
+  <!-- Toolbar -->
+  <div id="toolbar" class="glass">
+    <button id="newBtn" class="tool-btn" title="New Artwork"></button>
+    <button id="undoBtn" class="tool-btn" title="Undo"></button>
+    <button id="redoBtn" class="tool-btn" title="Redo"></button>
+    <button id="snapshotBtn" class="tool-btn" title="Snapshot"></button>
+    <button id="exportBtn" class="tool-btn" title="Export"></button>
+    <button id="settingsBtn" class="tool-btn" title="Settings"></button>
   </div>
-</div>
 
-<!-- Menus -->
-<div id="colorMenu" class="menu" role="menu" aria-label="Color Tools">
-  <div class="menu-item" data-tool="bucket"><span class="dot" style="color:#9ad1ff"></span>Bucket</div>
-  <div class="menu-item" data-tool="splatter"><span class="dot" style="color:#c8ffa8"></span>Splatter</div>
-  <div class="menu-item" data-tool="spray"><span class="dot" style="color:#ffd79a"></span>Spray</div>
-  <div class="menu-item" data-tool="glitter"><span class="dot" style="color:#fff"></span>Glitter</div>
-</div>
-
-<div id="blendMenu" class="menu" role="menu" aria-label="Blend Tools">
-  <div class="menu-item active" data-tool="blender"><span class="dot" style="color:#9ad1ff"></span>Blender</div>
-  <div class="menu-item" data-tool="smudge"><span class="dot" style="color:#ffd79a"></span>Smudge</div>
-  <div class="menu-item" data-tool="push"><span class="dot" style="color:#a8e0ff"></span>Push</div>
-  <div class="menu-item" data-tool="pinch"><span class="dot" style="color:#ffa6c1"></span>Pinch</div>
-  <div class="menu-item" data-tool="ripple"><span class="dot" style="color:#9ae2ff"></span>Ripple</div>
-</div>
-
-<!-- New -->
-<div id="newMenu" class="menu" role="menu" aria-label="New">
-  <h4>New Artwork</h4>
-  <div class="row"><label>Colors</label>
-    <select id="newCount">
-      <option>1</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option>
-    </select>
+  <!-- Floating welcome message -->
+  <div id="welcome" class="glass hidden">
+    <h2>Welcome to Bucket</h2>
+    <p>Hover near the bottom to reveal your tools.  
+       Use right click to spin counter-clockwise.  
+       Tap settings to fine-tune your art.  
+       Have fun creating!</p>
+    <button id="closeWelcome">Got it</button>
   </div>
-  <div class="row"><label>Layout</label>
-    <select id="newLayout">
-      <option value="stream" selected>Blue Stream</option>
-      <option value="sectors">Radial Sectors</option>
-      <option value="rings">Rings</option>
-      <option value="spiral">Spiral</option>
-      <option value="blotches">Blotches</option>
-      <option value="stripes-v">Stripes • Vertical</option>
-      <option value="stripes-h">Stripes • Horizontal</option>
-      <option value="voronoi">Random Regions</option>
-      <option value="squares">Squares</option>
-      <option value="split">Bisection</option>
-    </select>
-  </div>
-  <h4>Palette</h4>
-  <div id="newColors" class="colors"></div>
-  <div class="actions">
-    <button id="newCancel" class="ghost" type="button">Cancel</button>
-    <button id="newCreate" class="primary" type="button">Create</button>
-  </div>
-</div>
 
-<!-- Export -->
-<div id="exportMenu" class="menu" role="dialog" aria-label="Export">
-  <h4 style="margin:6px 8px 8px;font:12px/1.1 ui-monospace;opacity:.9;letter-spacing:.3px">Export</h4>
-  <div class="grid">
-    <label>Format</label>
-    <select id="exFormat"><option value="image/png">PNG</option><option value="image/jpeg" selected>JPG</option><option value="image/webp">WEBP</option></select>
-    <label>Width</label><input id="exW" type="number" min="256" max="4096" value="1920">
-    <label>Height</label><input id="exH" type="number" min="256" max="4096" value="1080">
-    <label>Aspect</label><div><label style="display:flex;align-items:center;gap:8px"><input id="exLock" type="checkbox" checked><span class="small" id="exRatio">16:9</span></label></div>
-    <label>Quality</label><input id="exQ" type="range" min="0.5" max="1" step="0.01" value="0.92">
-    <div class="full actions"><button id="exCancel" class="ghost">Cancel</button><button id="exSave" class="primary">Save</button></div>
-  </div>
-</div>
-
-<!-- Settings -->
-<div id="overlay"></div>
-<div id="panel" role="dialog" aria-modal="true" aria-label="Settings">
-  <div id="drag"><div id="title">Settings</div><button id="close" aria-label="Close">✕</button></div>
-  <div id="grid">
-    <label>Speed</label><div><input id="speed" type="range" min="0" max="4" step="0.01" value="1.5"> <span class="val" id="speedV">1.50</span></div>
-    <label>Strength</label><div><input id="strength" type="range" min="0" max="60" step="0.1" value="24"> <span class="val" id="strengthV">24.0</span></div>
-    <label>Size</label><div><input id="size" type="range" min="10" max="300" step="1" value="120"> <span class="val" id="sizeV">120</span></div>
-    <label>Viscosity</label><div><input id="visc" type="range" min="0" max="0.01" step="0.0001" value="0.0008"> <span class="val" id="viscV">0.0008</span></div>
-    <label>Diffusion</label><div><input id="diff" type="range" min="0" max="0.002" step="0.0001" value="0.0005"> <span class="val" id="diffV">0.0005</span></div>
-    <label>Resolution</label><div><input id="res" type="range" min="60" max="220" step="1" value="90"> <span class="val" id="resV">90</span></div>
-  </div>
-</div>
-
-<script type="module" src="ben-sandivar-site/fluid-art.js"></script>
-<script type="module" src="ben-sandivar-site/app.js"></script>
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script src="tools.js"></script>
+  <script src="ui.js"></script>
 </body>
 </html>

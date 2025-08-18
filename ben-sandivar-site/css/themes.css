@@ -1,38 +1,176 @@
-/* Theme Variables */
-:root {
-  /* all your --color, --font, --radius vars from the snippet */
-}
-body[data-theme="dark"] {
-  /* the dark mode overrides from the snippet */
+/* =========================================================
+   GLOBAL THEME TOKENS + BASE (LIGHT = DEFAULTS)
+   Drop this once, load it after any legacy CSS.
+   Everything else should use these variables.
+   ========================================================= */
+
+:root{
+  /* Layout */
+  --content-max: 1200px;
+  --radius-lg: 12px;
+  --transition: 200ms ease;
+
+  /* Colors — LIGHT */
+  --color-body-bg: #f6f7fb;
+  --color-primary: #0b0b0c;                       /* main text */
+  --color-secondary: #ffffff;                     /* cards/panels */
+  --color-border: rgba(0,0,0,.10);
+  --color-accent: #2f84ff;
+  --color-shadow: rgba(0,0,0,.18);
+
+  /* Optional glass surfaces */
+  --glass-bg: rgba(255,255,255,.08);
+  --glass-border: rgba(0,0,0,.12);
+
+  /* Icon system defaults */
+  --icon-color: #0b0b0c;
+  --icon-color-contrast: #ffffff;
 }
 
-.theme-toggle-container {
+/* =========================================================
+   DARK THEME OVERRIDES
+   (We set the attribute on <body>, so overrides live here.)
+   ========================================================= */
+body[data-theme="dark"]{
+  --color-body-bg: #0b0b0c;
+  --color-primary: #eef2f7;
+  --color-secondary: rgba(255,255,255,.07);
+  --color-border: rgba(255,255,255,.16);
+  --color-accent: #7ab8ff;
+  --color-shadow: rgba(0,0,0,.55);
+
+  --glass-bg: rgba(255,255,255,.06);
+  --glass-border: rgba(255,255,255,.14);
+
+  --icon-color: #ffffff;
+  --icon-color-contrast: #0b0b0c;
+}
+
+/* =========================================================
+   BASE ELEMENTS
+   ========================================================= */
+html, body{
+  background: var(--color-body-bg);
+  color: var(--color-primary);
+}
+
+a{
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: opacity var(--transition);
+}
+a:hover{ opacity: .9; }
+
+/* Generic card/panel helper (optional) */
+.card,
+.panel{
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+/* Generic “glass” helper (used by your music player’s bar) */
+.glass{
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+}
+
+/* =========================================================
+   GLOBAL ICON COLOR NORMALIZATION
+   (Works for inline <svg> and Iconify <img> SVGs)
+   ========================================================= */
+.icon-btn{
+  color: var(--icon-color); /* drives inline SVG via currentColor */
+  line-height: 0;
+}
+.icon-btn svg{
+  width: 20px; height: 20px;
+  display: block;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+.icon-btn img.remote-icon{
+  width: 20px; height: 20px; display: block;
+  /* Keep delivered color in light mode; flip to white in dark */
+  filter: none !important;
+}
+body[data-theme="dark"] .icon-btn img.remote-icon{
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Toggle groups that swap icons with .active */
+.icon-btn .toggle-icon{ display: none !important; }
+.icon-btn .toggle-icon.active{ display: inline-block !important; }
+
+/* Special-case (loop/shuffle) to always follow theme */
+#loopBtn svg, #shuffleBtn svg{
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+#loopBtn img.remote-icon, #shuffleBtn img.remote-icon{
+  filter: none !important;
+}
+body[data-theme="dark"] #loopBtn img.remote-icon,
+body[data-theme="dark"] #shuffleBtn img.remote-icon{
+  filter: brightness(0) invert(1) !important;
+}
+
+/* =========================================================
+   THEME TOGGLE BUTTON (fixed FAB)
+   ========================================================= */
+.theme-toggle-container{
   position: fixed;
   bottom: 2rem;
   right: 2rem;
   z-index: 1000;
 }
 
-#theme-toggle {
+#theme-toggle{
+  width: 52px; height: 52px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
   background: var(--color-secondary);
   color: var(--color-primary);
   border: 1px solid var(--color-border);
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
   box-shadow: 0 4px 12px var(--color-shadow);
-  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  transition: background .3s ease, color .3s ease, transform .2s ease, box-shadow .3s ease, border-color .3s ease;
 }
-
-#theme-toggle:hover {
+#theme-toggle:hover{
   transform: translateY(-2px);
   box-shadow: 0 6px 16px var(--color-shadow);
 }
+#theme-toggle .theme-icon{ font-size: 22px; line-height: 1; }
 
-#theme-toggle .theme-icon {
-  font-size: 24px;
+/* =========================================================
+   SAFETY: ENSURE COMMON SECTIONS PICK UP TOKENS
+   (If any legacy CSS hard-coded colors remain, convert them.)
+   ========================================================= */
+section .page-header h2,
+section .page-header p{ color: var(--color-primary); }
+
+.project-card{
+  background: var(--color-secondary);
+  border-color: var(--color-border);
 }
+
+#gallery .grid-item{
+  border-color: var(--color-border);
+  box-shadow: 0 4px 8px var(--color-shadow);
+}
+
+.music-shell{
+  /* If your music CSS already sets its own gradients,
+     this simply harmonizes its border with theme. */
+  border-color: var(--color-border);
+}
+
+.player-bar{
+  /* Keep your existing layout; ensure glass matches theme vars */
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+/* (End) */
