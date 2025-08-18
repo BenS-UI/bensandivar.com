@@ -16,7 +16,7 @@
 
 /* Page + canvas */
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:var(--text)}
-#view{display:block;width:100vw;height:30vh}
+#view{display:block;width:100vw;height:100vh}
 
 /* BUCK-IT-only navbar backdrop gradient (scoped) */
 #navbar-slot .navbar{position:relative;isolation:isolate}
@@ -24,6 +24,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
   content:"";position:absolute;inset:0;
   background:linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(164, 164, 164, 0.8));
   pointer-events:none;z-index:0;
+  height: 70%;
   filter: blur(70px)
 }
 #navbar-slot .navbar>*{position:relative;z-index:1}
