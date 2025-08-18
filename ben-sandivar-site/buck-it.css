@@ -12,52 +12,53 @@
   --danger: #ff6b6b;
   --shadow: 0 24px 60px rgba(0,0,0,.55);
   --inner: inset 0 1px 0 rgba(255,255,255,.08);
+  --pill: rgba(255,255,255,.10);
+  --pill-hover: rgba(255,255,255,.16);
 }
 
-/* Page + canvas */
+/* Page + canvas (current canvas is #view) */
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:var(--text)}
-#canvas{display:block;width:100vw;height:100vh}
+#view{display:block;width:100vw;height:100vh}
 
-/* ============== Toolbar ============== */
-#toolbar{
-  position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-  display:flex; gap:10px; align-items:center; padding:10px;
-  background:var(--glass); border:1px solid var(--glass-brd); border-radius:16px;
-  backdrop-filter: blur(12px) saturate(1.25);
-  box-shadow: var(--shadow), var(--inner);
+/* Hint */
+#hint{position:fixed;top:12px;left:50%;transform:translateX(-50%);font:13px/1.25 system-ui;opacity:.7;user-select:none}
+
+/* ============== Toolbar (current id: #bar) ============== */
+#bar{
+  position:fixed; left:16px; bottom:16px;
+  display:flex; gap:10px; align-items:center;
   z-index:20; opacity:.05; transition:opacity .18s ease;
 }
-#toolbar:hover, #toolbar:focus-within{opacity:1}
+#bar:hover,#bar:focus-within,#bar.show{opacity:1}
 
-/* Buttons (entire surface clickable) */
-.tool-btn{
-  min-width:40px; height:40px; padding:0 12px;
-  display:grid; place-items:center; gap:8px;
-  border-radius:12px; border:1px solid var(--glass-brd);
-  background:rgba(255,255,255,.10); color:#fff; cursor:pointer;
-  box-shadow: inset 0 0 0 0 transparent;
+.btn{
+  display:flex; align-items:center; gap:10px;
+  padding:12px 16px; border-radius:14px;
+  border:1px solid var(--glass-brd);
+  background:var(--pill); color:#fff; cursor:pointer;
+  backdrop-filter: blur(12px) saturate(1.25);
+  box-shadow: var(--shadow), var(--inner);
   user-select:none; -webkit-user-select:none;
   transition:background .12s, transform .06s, box-shadow .12s;
 }
-.tool-btn:hover{ background:rgba(255,255,255,.16); }
-.tool-btn:active{ transform:translateY(1px); }
-.tool-btn.active{ outline:1px solid var(--accent); box-shadow:0 0 0 3px rgba(143,211,255,.16); }
-.tool-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.btn:hover{ background:var(--pill-hover); }
+.btn:active{ transform:translateY(1px); }
+.btn.active{ outline:1px solid var(--accent); box-shadow:0 0 0 3px rgba(143,211,255,.16), var(--shadow), var(--inner); }
+.btn .label{font:13px/1.2 system-ui,Segoe UI,Roboto,sans-serif;letter-spacing:.2px}
 
-/* Optional icon slot if you inject SVGs */
-.tool-btn > svg{ width:20px; height:20px; pointer-events:none; }
+.iconbtn{ width:38px; height:38px; border-radius:12px; display:grid; place-items:center }
+.btn > *{ pointer-events:none; }
 
-/* ============== Glass Cards / Panels / Menus ============== */
-.glass{
-  background:var(--glass); border:1px solid var(--glass-brd);
-  border-radius:14px; backdrop-filter: blur(12px) saturate(1.2);
-  box-shadow: var(--shadow), var(--inner);
-}
+/* Swatch in Color button */
+#swatch{width:18px;height:18px;border-radius:50%;border:2px solid #fff8;box-shadow:0 0 0 2px #0003 inset}
 
-/* Generic dropdown / pop menu */
+/* ============== Glass Menus / Popovers ============== */
 .menu{
   position:fixed; inset:auto auto 72px 16px; min-width:260px; padding:10px;
   display:none; z-index:30; color:var(--text);
+  background:var(--glass); border:1px solid var(--glass-brd);
+  border-radius:14px; backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: var(--shadow), var(--inner);
 }
 .menu.show{ display:block; animation:menu-pop .12s ease-out; }
 @keyframes menu-pop{ from{transform:translateY(6px);opacity:0} to{transform:none;opacity:1} }
@@ -74,74 +75,75 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
 .row{ display:flex; align-items:center; gap:10px; padding:6px 8px; }
 .row label{ width:92px; font:12px/1.1 system-ui,Segoe UI,Roboto,sans-serif; color:var(--muted); }
 
-/* High-contrast selects and inputs */
-select, input[type="number"], input[type="text"]{
+/* High-contrast selects and inputs (fix white-on-white) */
+.menu select,
+.menu input[type="number"],
+.menu input[type="text"]{
   appearance:none; -webkit-appearance:none;
   width:100%; padding:8px 12px; border-radius:10px;
   background:linear-gradient(180deg,#0c1118,#0a0f16); color:#fff;
   border:1px solid var(--glass-brd);
 }
-select:focus, input:focus{ outline:1.5px solid var(--accent); }
+.menu select:focus,
+.menu input[type="number"]:focus,
+.menu input[type="text"]:focus{ outline:1.5px solid var(--accent); }
 
-/* Action buttons */
-.actions{ display:flex; justify-content:flex-end; gap:8px; padding:8px; }
-.btn-ghost{ background:transparent; border:1px solid var(--glass-brd); color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer; }
-.btn-primary{
+/* ============== New menu ============== */
+#newMenu h4{
+  margin:6px 8px 4px;
+  font:12px/1.1 ui-monospace,Menlo,monospace;
+  color:var(--muted); letter-spacing:.3px;
+}
+.colors{display:grid;grid-template-columns:repeat(7,28px);gap:10px;padding:6px 8px}
+.cwell{
+  width:28px;height:28px;border-radius:50%;
+  border:2px solid #fffa; box-shadow:0 0 0 2px #0003 inset;
+  cursor:pointer; position:relative; background:#1aa4ff;
+}
+.cwell:focus-visible{outline:2px solid var(--accent)}
+.actions{display:flex;justify-content:flex-end;gap:8px;padding:8px}
+.ghost{background:transparent;border:1px solid var(--glass-brd);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
+.primary{
   background:linear-gradient(180deg, var(--accent), var(--accent-2));
   color:#00121f; border:0; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600;
 }
-.btn-ghost:hover{ background:rgba(255,255,255,.08); }
-.btn-primary:hover{ filter:brightness(1.05); }
+.ghost:hover{ background:rgba(255,255,255,.08); }
+.primary:hover{ filter:brightness(1.05); }
 
-/* Export menu grid */
-.grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:6px; }
-.grid .full{ grid-column:1/-1; }
-.small{ font:12px/1 ui-monospace,Menlo,monospace; color:var(--muted); }
+/* ============== Export ============== */
+#exportMenu .grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:6px; }
+#exportMenu .full{ grid-column:1/-1; }
+#exportMenu .small{ font:12px/1 ui-monospace,Menlo,monospace; color:var(--muted); }
 
-/* ============== Welcome Card ============== */
-#welcome{
-  position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
-  max-width:min(560px,90vw); padding:16px 18px; z-index:25;
+/* ============== Settings (current: #overlay + #panel) ============== */
+#overlay{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:35; }
+#overlay.show{ display:block; }
+#panel{
+  position:fixed; top:96px; left:96px; width:360px; padding:10px 12px; z-index:40; display:none;
+  background:var(--glass); border:1px solid var(--glass-brd);
+  border-radius:18px; backdrop-filter: blur(14px) saturate(1.35);
+  box-shadow: var(--shadow), var(--inner);
 }
-#welcome.hidden{ display:none; }
-#welcome h2{ margin:4px 0 10px; font:600 18px/1.2 system-ui,Segoe UI,Roboto,sans-serif; letter-spacing:.2px; }
-#welcome p{ margin:0 0 12px; font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif; color:#dfe8f6; }
-#welcome button{
-  border:0; border-radius:12px; padding:10px 14px; cursor:pointer;
-  background:linear-gradient(180deg, var(--accent), var(--accent-2)); color:#00121f; font-weight:600;
-}
+#panel.show{ display:block; animation:menu-pop .14s ease-out; }
 
-/* ============== Tooltips (hover labels) ============== */
-.tooltip{
-  position:fixed; padding:6px 9px; border-radius:10px;
-  background:var(--glass-strong); border:1px solid var(--glass-brd);
-  color:#fff; font:12px/1.2 system-ui,Segoe UI,Roboto,sans-serif;
-  backdrop-filter: blur(10px); box-shadow: var(--shadow);
-  pointer-events:none; opacity:0; transform:translateY(4px); transition:opacity .12s, transform .12s;
-}
-.tooltip.show{ opacity:1; transform:none; }
-
-/* ============== Settings Panel ============== */
-#settingsPanel{ /* if you mount one via JS, reuse these styles */
-  position:fixed; top:96px; left:96px; width:360px; padding:10px 12px; z-index:40;
-}
-#settingsDrag{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 6px 10px; cursor:grab; }
-#settingsDrag:active{ cursor:grabbing; }
-#settingsTitle{ font:12px/1.1 ui-monospace,Menlo,monospace; color:var(--muted); letter-spacing:.3px; }
-#settingsClose{
+#drag{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 6px 10px; cursor:grab; }
+#drag:active{ cursor:grabbing; }
+#title{ font:12px/1.1 ui-monospace,Menlo,monospace; color:var(--muted); letter-spacing:.3px; }
+#close{
   width:26px; height:26px; border-radius:8px;
   border:1px solid var(--glass-brd); background:rgba(255,255,255,.10);
   color:#fff; display:grid; place-items:center; cursor:pointer;
 }
-#settingsClose:hover{ background:rgba(255,255,255,.16); }
+#close:hover{ background:rgba(255,255,255,.16); }
 
-#settingsGrid{ display:grid; grid-template-columns:1fr auto; gap:8px 10px; padding:6px 4px 4px; }
-#settingsGrid label{ font:12px/1.1 system-ui; color:var(--muted); }
-#settingsGrid .val{ width:48px; text-align:right; font:12px/1 ui-monospace,Menlo; color:#d7e3f9; }
+#grid{ display:grid; grid-template-columns:1fr auto; gap:8px 10px; padding:6px 4px 4px; }
+#grid label{ font:12px/1.1 system-ui; color:var(--muted); }
+#grid input[type="range"]{ width:220px; }
+#grid .val{ width:48px; text-align:right; font:12px/1 ui-monospace,Menlo; color:#d7e3f9; }
 
 /* Sliders */
 input[type="range"]{
-  -webkit-appearance:none; appearance:none; width:220px; height:4px;
+  -webkit-appearance:none; appearance:none; height:4px;
   background:linear-gradient(90deg,#0e1420,#0b111c); border-radius:999px; outline:none;
   border:1px solid rgba(255,255,255,.08);
 }
@@ -153,38 +155,50 @@ input[type="range"]::-moz-range-thumb{
   width:16px; height:16px; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.25);
 }
 
-/* ============== Overlays ============== */
-#overlay{
-  position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:35;
+/* ============== Tips ============== */
+#tips{position:fixed;left:0;right:0;bottom:84px;display:flex;justify-content:center;pointer-events:none;z-index:35}
+.tip{
+  background:var(--glass); border:1px solid var(--glass-brd);
+  border-radius:14px; padding:10px 12px; color:#fff;
+  font:13px/1.25 system-ui; max-width:min(70vw,520px);
+  box-shadow: var(--shadow); backdrop-filter: blur(12px) saturate(1.2);
+  opacity:0; transform:translateY(6px); transition:opacity .2s,transform .2s
 }
-#overlay.show{ display:block; }
+.tip.show{opacity:1;transform:none}
 
-/* ============== Color Picker (wheel + diamond) ============== */
-.color-pop{
-  position:fixed; inset:auto auto 72px 16px; padding:12px; z-index:32; display:none;
+/* ============== Color Wheel Popover (current: #wheelPopover) ============== */
+#wheelPopover{position:fixed;inset:auto auto 72px 16px;display:none;z-index:60}
+#wheelPopover.show{display:block;animation:menu-pop .12s ease-out}
+.wheel-card{
+  background:var(--glass); border:1px solid var(--glass-brd);
+  border-radius:14px; padding:12px;
+  backdrop-filter:blur(12px) saturate(1.2);
+  box-shadow: var(--shadow);
+  display:flex; flex-direction:column; align-items:center; gap:10px
 }
-.color-pop.show{ display:block; animation:menu-pop .12s ease-out; }
-.wheel-wrap{ display:flex; flex-direction:column; align-items:center; gap:10px; }
-#colorWheel, #svDiamond{ display:block; }
-#hexField{
-  width:120px; text-align:center;
-  border-radius:10px; border:1px solid var(--glass-brd);
-  background:#0c1018; color:#fff; padding:6px 8px; font:13px/1.2 ui-monospace,Menlo,monospace;
+#wheel{width:220px;height:220px}
+#diamond{width:160px;height:160px}
+#hex{
+  width:120px;text-align:center;border-radius:10px;border:1px solid var(--glass-brd);
+  background:#0c1018;color:#fff;padding:6px 8px;font:13px/1.2 ui-monospace,Menlo,monospace
 }
 
-/* ============== New / Export headers ============== */
-.menu h4{
-  margin:6px 8px 4px;
-  font:12px/1.1 ui-monospace,Menlo,monospace;
-  color:var(--muted); letter-spacing:.3px;
+/* ============== Tooltips (optional, if you show hover names) ============== */
+.tooltip{
+  position:fixed; padding:6px 9px; border-radius:10px;
+  background:var(--glass-strong); border:1px solid var(--glass-brd);
+  color:#fff; font:12px/1.2 system-ui; backdrop-filter: blur(10px); box-shadow: var(--shadow);
+  pointer-events:none; opacity:0; transform:translateY(4px); transition:opacity .12s, transform .12s;
 }
+.tooltip.show{ opacity:1; transform:none; }
 
 /* ============== Responsive tweaks ============== */
 @media (max-width: 720px){
-  #toolbar{ gap:8px; padding:8px; }
-  .tool-btn{ min-width:36px; height:36px; }
+  #bar{ left:8px; bottom:8px; }
   .menu{ min-width:240px; inset:auto auto 64px 8px; }
+  .btn{ padding:10px 12px }
+  .iconbtn{ width:36px; height:36px }
 }
 
-/* Accessibility helpers */
+/* Accessibility */
 :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
