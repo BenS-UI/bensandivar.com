@@ -7,14 +7,14 @@
 /* Keep normal flow under hero */
 section.bucket-hero{ position:relative; }
 
-/* The section itself should not force a stacking context or z-index */
+/* The music section should not force a stacking context */
 #music.music-player{
   position:relative;
   inset:auto;
   clear:both;
   display:flow-root;
   contain: layout paint;
-  z-index:auto !important; /* neutralize any legacy !important */
+  z-index:auto !important;
 }
 
 /* ===========================
@@ -34,7 +34,6 @@ section.bucket-hero{ position:relative; }
   margin:0 auto;
   border-radius:28px;
   position:relative;
-  /* visual bg stays local to the shell */
   background: radial-gradient(120% 120% at 60% 20%, rgba(255,255,255,.04), rgba(0,0,0,.45));
   border:1px solid var(--color-border);
   box-shadow: 0 8px 22px rgba(0,0,0,.22);
@@ -42,7 +41,7 @@ section.bucket-hero{ position:relative; }
   flex-direction:column;
   height: clamp(560px, 72vh, 860px);
   padding:2.25rem 2rem 1.25rem;
-  overflow:hidden;
+  overflow:hidden;                 /* contain internals */
 }
 @media (min-width:1024px){ .music-shell{ width:75%; } }
 
@@ -75,7 +74,10 @@ section.bucket-hero{ position:relative; }
 /* ===========================
    LAYERS (z-index order)
    =========================== */
-.views-wrap{ flex:1; overflow:auto; padding-top:.25rem; position:relative; }
+.views-wrap{
+  flex:1; overflow:auto; padding-top:.25rem; position:relative;
+  overflow-x:hidden;                 /* prevent horiz scroll on mobile */
+}
 .views-wrap.no-scroll{ overflow:hidden; }
 
 /* aurora behind album art, above list */
@@ -91,23 +93,29 @@ section.bucket-hero{ position:relative; }
 /* ===========================
    LIST VIEW
    =========================== */
-.albums-view{ display:grid; gap:1.75rem; }
+.albums-view{ display:grid; gap:1.5rem; }
 .album-row{
-  display:grid; grid-template-columns:140px 1fr; gap:1rem;
+  display:grid;
+  grid-template-columns: 140px 1fr;
+  gap:1rem;
   background: rgba(255,255,255,.03);
   border:1px solid var(--color-border);
   border-radius:18px; padding:1rem;
 }
-@media (max-width:720px){ .album-row{ grid-template-columns:100px 1fr; } }
-.album-art{ width:120px; height:120px; border-radius:12px; object-fit:cover; box-shadow:0 8px 18px rgba(0,0,0,.28); }
-.playlist-col{ display:flex; flex-direction:column; gap:.6rem; }
+.album-art-col{ width:100%; }
+.album-art{
+  width:120px; height:120px;
+  border-radius:12px; object-fit:cover;
+  box-shadow:0 8px 18px rgba(0,0,0,.28);
+}
+.playlist-col{ display:flex; flex-direction:column; gap:.6rem; min-width:0; }
 .playlist-head{ display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
 .playlist-head h3{ margin:0; font-size:1.1rem; }
 .icon-btn.play-all{
   width:34px; height:34px; border-radius:10px;
   border:1px solid var(--glass-border);
   background: var(--glass-bg);
-  color: var(--icon-color);
+  color: var(--icon-color);               /* same icon color logic */
   backdrop-filter: blur(6px);
 }
 .track-list{ list-style:none; margin:0; padding:0; display:grid; gap:.3rem; }
@@ -117,8 +125,29 @@ section.bucket-hero{ position:relative; }
 }
 .track-row:hover{ background: rgba(255,255,255,.05); }
 .track-row.active .t-title{ font-weight:700; }
-.t-title{ text-align:left; }
+.t-title{ text-align:left; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .t-time{ text-align:right; opacity:.82; min-width:3.2rem; }
+
+/* ---------- MOBILE fixes (no horizontal scroll; comfy layout) ---------- */
+@media (max-width:720px){
+  .music-player{ padding: 0 4vw; }
+  .music-shell{ padding:1rem .9rem .9rem; height:auto; }
+  .albums-view{ gap:1rem; }
+
+  /* shrink left column and make art fit column */
+  .album-row{
+    grid-template-columns: min(28vw, 108px) 1fr;
+    padding:.75rem;
+    gap:.75rem;
+  }
+  .album-art{
+    width:100%; height:auto; aspect-ratio:1/1; /* no overflow */
+  }
+
+  .playlist-head h3{ font-size:1rem; }
+  .track-row{ padding:.4rem .5rem; }
+  .t-title{ font-size:.95rem; }
+}
 
 /* ===========================
    TRACK VIEW (art only)
@@ -127,18 +156,30 @@ section.bucket-hero{ position:relative; }
   background: var(--stage-bg, radial-gradient(120% 140% at 50% 25%, rgba(0,0,0,.36), rgba(0,0,0,.9)));
 }
 .track-view{ border-radius:22px; padding:2rem 1.25rem; }
-.track-stage{ display:grid; justify-items:center; z-index:2; position:relative; }
+.track-stage{
+  display:grid; justify-items:center; align-items:start; z-index:2; position:relative;
+}
 .stage-art-wrap{
   width:min(42%, 440px); aspect-ratio:1/1; border-radius:18px;
   box-shadow:0 14px 32px rgba(0,0,0,.32);
 }
 #stage-art{ width:100%; height:100%; object-fit:cover; border-radius:18px; display:block; }
 
+/* Center + scale art on mobile */
+@media (max-width:720px){
+  .track-view{ padding:1.25rem .75rem; }
+  .track-stage{ align-items:center; }
+  .stage-art-wrap{
+    width:min(84vw, 420px);
+    margin: 0 auto;                 /* centered within app window */
+  }
+}
+
 /* Keep art above list within the shell only */
 .music-shell.track-bg .views-wrap{ z-index: 1; }
 .music-shell.track-bg .track-view .stage-art-wrap{
   position: relative;
-  z-index: 3;          /* above player bar (3 ties okay) and aurora (1) only inside shell */
+  z-index: 3;
   pointer-events: none;
 }
 
@@ -153,25 +194,33 @@ section.bucket-hero{ position:relative; }
 }
 @media (min-width:760px){ .player-bar{ grid-template-columns:auto auto 1fr; } }
 
-.now{ display:grid; grid-template-columns:auto 1fr; gap:.6rem; align-items:center; }
+.now{ display:grid; grid-template-columns:auto 1fr; gap:.6rem; align-items:center; min-width:0; }
 .now-art{ width:40px; height:40px; border-radius:8px; object-fit:cover; box-shadow:0 4px 12px rgba(0,0,0,.25); }
-.now-meta{ display:flex; flex-direction:column; line-height:1.1; }
+.now-meta{ display:flex; flex-direction:column; line-height:1.1; min-width:0; }
 .now-meta small{ opacity:.75; }
 
 /* Controls + buttons */
 .controls{ display:flex; gap:.5rem; align-items:center; }
 .icon-btn{
   display:grid; place-items:center; width:36px; height:36px; border-radius:12px;
-  border:1px solid var(--glass-border); background: var(--glass-bg); color: var(--icon-color);
+  border:1px solid var(--glass-border); background: var(--glass-bg);
+  color: var(--icon-color);                        /* ← theme drives this */
   transition: box-shadow .2s ease, border-color .2s ease, transform .06s ease;
   line-height:0;
 }
 .icon-btn:hover{ border-color: rgba(0,110,255,.5); box-shadow: 0 0 12px rgba(47,132,255,.35); }
 .icon-btn:active{ transform:scale(.97); }
-.icon-btn.primary{ width:42px; height:42px; color: var(--icon-color-contrast); background: rgba(0,110,255,.18); border-color: rgba(0,110,255,.55); }
+
+/* Primary = same icon color logic (no hardcoded white) */
+.icon-btn.primary{
+  width:42px; height:42px;
+  color: var(--icon-color);                        /* ← fix: match others */
+  background: rgba(0,110,255,.18);
+  border-color: rgba(0,110,255,.55);
+}
 .icon-btn.active{ box-shadow: 0 0 16px rgba(47,132,255,.6); }
 
-/* Generic SVG/IMG sizes (colors come from global-theme.css) */
+/* Generic SVG/IMG sizes (colors come from theme + rules below) */
 .icon-btn svg,
 .icon-btn img{ display:block; width:20px; height:20px; }
 
@@ -179,8 +228,11 @@ section.bucket-hero{ position:relative; }
 .icon-btn .toggle-icon{ display:none !important; }
 .icon-btn .toggle-icon.active{ display:inline-block !important; }
 
-/* Remote Iconify images: lock size */
-.remote-icon{ width:20px; height:20px; }
+/* Remote Iconify images: unify color behavior
+   - Light theme: turn black source icons white
+   - Dark theme: show as-is (dark) */
+.icon-btn img.remote-icon{ filter: brightness(0) invert(1); }
+body[data-theme="dark"] .icon-btn img.remote-icon{ filter:none; }
 
 /* ===========================
    PLAYER BAR (50/50 compact)
@@ -212,7 +264,6 @@ section.bucket-hero{ position:relative; }
 .player-bar.compact .icon-btn.primary{ width:34px; height:34px; }
 
 /* Ellipsis + hover tooltips (use title attr) */
-.player-bar .now-meta{ min-width:0; }
 .player-bar .now-meta span,
 .player-bar .now-meta small{
   display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; position:relative;
