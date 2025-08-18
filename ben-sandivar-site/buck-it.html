@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Buck-it</title>
 
-    <!-- Favicons -->
+  <!-- Favicons -->
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" />
   <link rel="shortcut icon" href="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" type="image/png" />
+
 
   <!-- Site fonts/icons used by the navbar -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,19 +35,23 @@
   <!-- Navbar slot -->
   <div id="navbar-slot"></div>
 
-  <!-- Canvas and hints -->
+  <!-- Canvas -->
   <canvas id="view"></canvas>
-<div id="welcome" class="glass">
-  <h3>Welcome to Bucket</h3>
-  <p>
-    Hover near the bottom of the page to reveal the toolbar.  
-    Right‑click anywhere on the canvas to adjust your brush and fluid settings.  
-    Have fun creating your art!
-  </p>
-</div>
-  <div id="tips"></div>
 
-  <!-- Toolbar (centered by CSS in buck-it.css) -->
+  <!-- Original hint element (small status text). Required by app.js -->
+  <div id="hint">Right-click reverses spin • Ctrl+Z / Ctrl+Y • Ctrl+P snapshot • Ctrl+S export</div>
+
+  <!-- Welcome card (separate) -->
+  <div id="welcome" class="glass">
+    <h3>Welcome to Bucket</h3>
+    <p>
+      Hover near the bottom of the page to reveal the toolbar.<br/>
+      Adjust settings to modify your tools and the fluid dynamics of your bucket.<br/>
+      Have fun creating your art!
+    </p>
+  </div>
+
+  <!-- Toolbar -->
   <div id="bar">
     <button id="colorBtn" class="btn" title="Color">
       <div id="swatch" style="background:#1aa4ff"></div>
@@ -66,7 +71,6 @@
     </button>
 
     <button id="settingsBtn" class="btn iconbtn" title="Settings">
-      <!-- gear -->
       <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 5 15.4a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6c.31-.2.68-.31 1.06-.31H10a2 2 0 1 1 4 0h-.06c.38 0 .75.11 1.06.31a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.46.46-.6 1.14-.33 1.82.2.31.31.68.31 1.06V10a2 2 0 1 1 0 4h-.09c-.38 0-.75.11-1.06.31z"/>
@@ -98,6 +102,9 @@
       <input id="hex" spellcheck="false" value="#1aa4ff" />
     </div>
   </div>
+
+  <!-- Hidden native color input (fallback / legacy code paths) -->
+  <input id="colorWell" type="color" value="#1aa4ff" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none" />
 
   <!-- Color tools menu -->
   <div id="colorMenu" class="menu" role="menu" aria-label="Color Tools">
@@ -211,13 +218,13 @@
     </div>
   </div>
 
-  <!-- Navbar fragment loader (adjust path if this file is in a subfolder) -->
+  <!-- Navbar fragment loader -->
   <script>
     (async () => {
       const slot = document.querySelector('#navbar-slot');
       if (!slot) return;
 
-      const path = 'homesplits/navbar.html'; // if /games/buck-it.html, change to ../homesplits/navbar.html
+      const path = 'homesplits/navbar.html'; // adjust if this file lives in a subfolder
       const base = new URL(path, location.href);
 
       const html = await fetch(base, { cache: 'no-store' })
@@ -243,14 +250,16 @@
 
   <!-- App (module). This imports ./fluid-core.js internally. -->
   <script type="module" src="app.js"></script>
+
+  <!-- Welcome dismiss -->
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-     const welcome = document.getElementById('welcome');
+      const welcome = document.getElementById('welcome');
       if (welcome) {
         const hideWelcome = () => welcome.classList.add('hidden');
         setTimeout(() => {
           document.addEventListener('click', hideWelcome, { once: true });
-        }, 500); // slight delay to avoid immediate dismissal
+        }, 300);
       }
     });
   </script>
