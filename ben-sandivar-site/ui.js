@@ -1,61 +1,69 @@
 /* ui.js — UI, menus, color wheel, settings, new/export, tooltips */
-
 (() => {
-  const $ = (sel, root=document) => root.querySelector(sel);
+  const $  = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const clamp = (v,a,b)=>v<a?a:(v>b?b:v);
 
-  // ------- Ensure toolbar buttons exist -------
-  const toolbar = $('#toolbar');
-  if (!toolbar) throw new Error('Toolbar (#toolbar) not found');
+  // ------- Toolbar root (support #bar or #toolbar) -------
+  const toolbar = document.getElementById('bar') || document.getElementById('toolbar');
+  if (!toolbar) {
+    console.error('Toolbar (#bar / #toolbar) not found');
+    return;
+  }
+
   function ensureBtn(id, html, beforeId) {
     let btn = document.getElementById(id);
     if (!btn) {
       btn = document.createElement('button');
-      btn.id = id; btn.className = id === 'settingsBtn' ? 'tool-btn' : 'tool-btn';
+      btn.id = id; btn.className = 'btn' + (id==='settingsBtn' ? ' iconbtn' : '');
       btn.innerHTML = html;
       const before = beforeId ? document.getElementById(beforeId) : null;
-      toolbar.insertBefore(btn, before || toolbar.firstChild);
+      toolbar.insertBefore(btn, before || null);
     }
     return btn;
   }
 
-  const colorBtn = ensureBtn('colorBtn', `<div id="swatch" style="width:18px;height:18px;border-radius:50%;border:2px solid #fff8;box-shadow:0 0 0 2px #0003 inset;background:#1aa4ff"></div>`);
-  const colorToolsBtn = ensureBtn('colorToolsBtn', `<span>Color ▾</span>`);
-  const blendToolsBtn = ensureBtn('blendToolsBtn', `<span>Blend ▾</span>`, 'newBtn');
+  const colorBtn       = ensureBtn('colorBtn', `<div id="swatch" style="width:18px;height:18px;border-radius:50%;border:2px solid #fff8;box-shadow:0 0 0 2px #0003 inset;background:#1aa4ff"></div>`);
+  const colorToolsBtn  = ensureBtn('colorToolsBtn', `<span class="label">Color ▾</span>`);
+  const blendToolsBtn  = ensureBtn('blendToolsBtn', `<span class="label">Blend ▾</span>`);
+  // the rest of buttons are assumed present in HTML; ensure if needed:
+  ensureBtn('newBtn',        `<span class="label">New ▾</span>`);
+  ensureBtn('undoBtn',       ``);
+  ensureBtn('redoBtn',       ``);
+  ensureBtn('cameraBtn',     ``);
+  ensureBtn('exportBtn',     `<span class="label">Export</span>`);
+  ensureBtn('settingsBtn',   ``);
 
-  // ------- Tooltip (name now, longer tip after delay) -------
+  // ------- Tooltip (black, tiny) -------
   const tip = document.createElement('div');
   tip.className = 'tooltip'; document.body.appendChild(tip);
-  function showTip(el, title, long){ 
+  function showTip(el, text){
     const r = el.getBoundingClientRect();
-    tip.textContent = title;
-    tip.style.left = `${r.left + r.width/2 - 20}px`;
-    tip.style.top = `${r.top - 34}px`;
+    tip.textContent = text;
+    tip.style.left = `${Math.round(r.left + r.width/2 - tip.offsetWidth/2)}px`;
+    tip.style.top  = `${Math.round(r.top - 30)}px`;
     tip.classList.add('show');
-    if (long) {
-      clearTimeout(showTip._t);
-      showTip._t = setTimeout(()=>{ tip.textContent = long; }, 1400);
-    }
   }
-  function hideTip(){ tip.classList.remove('show'); clearTimeout(showTip._t); }
-  [['colorBtn','Pick a color','Use the wheel. Adjust brightness and saturation.'],
-   ['colorToolsBtn','Color tools','Bucket, Splatter, Spray, Glitter.'],
-   ['blendToolsBtn','Blend tools','Blender, Smudge, Push, Pinch, Ripple.'],
-   ['newBtn','New artwork','Choose count, layout, and palette.'],
-   ['undoBtn','Undo','Ctrl+Z.'],
-   ['redoBtn','Redo','Ctrl+Y.'],
-   ['snapshotBtn','Snapshot','Quick JPG. Raises resolution temporarily.'],
-   ['exportBtn','Export','Pick format, size, quality. Hi-res.'],
-   ['settingsBtn','Settings','Tune speed, strength, size, viscosity, diffusion, resolution.'],
-  ].forEach(([id,t,l])=>{
+  function hideTip(){ tip.classList.remove('show'); }
+  const hoverHints = [
+    ['colorBtn','Pick a color'],
+    ['colorToolsBtn','Color tools'],
+    ['blendToolsBtn','Blend tools'],
+    ['newBtn','New artwork'],
+    ['undoBtn','Undo (Ctrl+Z)'],
+    ['redoBtn','Redo (Ctrl+Y)'],
+    ['cameraBtn','Snapshot (Ctrl+P)'],
+    ['exportBtn','Export (Ctrl+S)'],
+    ['settingsBtn','Settings'],
+  ];
+  hoverHints.forEach(([id, t])=>{
     const el = document.getElementById(id); if(!el) return;
-    el.addEventListener('mouseenter', ()=> showTip(el,t,l));
+    el.addEventListener('mouseenter', ()=> showTip(el,t));
     el.addEventListener('mouseleave', hideTip);
     el.addEventListener('blur', hideTip);
   });
 
-  // ------- Menus & Panels builders -------
+  // ------- Helpers for menus/panels -------
   function glass(el){ el.classList.add('glass'); return el; }
   function makeMenu(id){
     let m = document.getElementById(id);
@@ -69,7 +77,7 @@
   }
   function showMenu(menu, anchor){
     positionMenu(menu, anchor); menu.classList.add('show');
-    $('#toolbar').style.opacity = 1;
+    (toolbar).style.opacity = 1;
   }
   function hideMenu(menu){ menu.classList.remove('show'); }
   function hideAllMenus(){
@@ -78,7 +86,7 @@
     $('#settingsPanel')?.classList.remove('show');
   }
   window.addEventListener('click', (e)=>{
-    const within = e.target.closest('.menu') || e.target.closest('#toolbar') || e.target.closest('.color-pop') || e.target.closest('#settingsPanel');
+    const within = e.target.closest('.menu, #toolbar, #bar, .color-pop, #settingsPanel');
     if (!within) hideAllMenus();
   });
 
@@ -132,6 +140,18 @@
   document.body.appendChild(wheelPop);
 
   const wheel = $('#colorWheel'), diamond = $('#svDiamond'), hexField = $('#hexField');
+  const DPR = Math.max(1, window.devicePixelRatio || 1);
+
+  // scale canvases for DPR and keep CSS size
+  function scaleCanvas(c){
+    const cssW = c.width, cssH = c.height;
+    c.style.width = cssW + 'px';
+    c.style.height = cssH + 'px';
+    c.width = Math.round(cssW * DPR);
+    c.height= Math.round(cssH * DPR);
+  }
+  scaleCanvas(wheel); scaleCanvas(diamond);
+
   let hue=205/360, sat=0.85, val=1;
 
   function hsvToRgb(h,s,v){
@@ -142,20 +162,20 @@
   const rgbToHex = ([r,g,b]) => '#'+[r,g,b].map(n=>n.toString(16).padStart(2,'0')).join('');
 
   function drawWheel(){
-    const ctx = wheel.getContext('2d'); const w=wheel.width,h=wheel.height,r=Math.min(w,h)/2, ir=r-24;
+    const ctx = wheel.getContext('2d'); const w=wheel.width, h=wheel.height, r=Math.min(w,h)/2, ring=24*DPR, inner=r-ring;
     ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,w,h); ctx.translate(w/2,h/2);
     for(let a=0;a<360;a++){
       const ang=(a-90)*Math.PI/180;
-      ctx.beginPath(); ctx.strokeStyle = rgbToHex(hsvToRgb(a/360,1,1)); ctx.lineWidth=24;
-      ctx.arc(0,0,(ir+12),ang,ang+Math.PI/180); ctx.stroke();
+      ctx.beginPath(); ctx.strokeStyle = rgbToHex(hsvToRgb(a/360,1,1)); ctx.lineWidth=ring;
+      ctx.arc(0,0,(inner+ring/2),ang,ang+Math.PI/180); ctx.stroke();
     }
     const ang=(hue*360-90)*Math.PI/180;
-    ctx.beginPath(); ctx.lineWidth=3; ctx.strokeStyle='#fff';
-    ctx.arc(Math.cos(ang)*(ir+12), Math.sin(ang)*(ir+12), 10, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.lineWidth=2*DPR; ctx.strokeStyle='#fff';
+    ctx.arc(Math.cos(ang)*(inner+ring/2), Math.sin(ang)*(inner+ring/2), 10*DPR, 0, Math.PI*2); ctx.stroke();
     ctx.setTransform(1,0,0,1,0,0);
   }
   function drawDiamond(){
-    const ctx=diamond.getContext('2d'); const w=diamond.width,h=diamond.height; ctx.clearRect(0,0,w,h);
+    const ctx=diamond.getContext('2d'); const w=diamond.width,h=diamond.height; ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,w,h);
     ctx.save(); ctx.translate(w/2,h/2); ctx.rotate(Math.PI/4);
     const size=Math.min(w,h)*0.72, s2=size/2;
     for(let y=-s2;y<s2;y++){
@@ -166,7 +186,7 @@
       ctx.fillStyle=grad; ctx.fillRect(-s2,y,size,1);
     }
     const x = (sat*size - s2), y = ((1-val)*size - s2);
-    ctx.beginPath(); ctx.lineWidth=3; ctx.strokeStyle="#fff"; ctx.rect(x-7,y-7,14,14); ctx.stroke();
+    ctx.beginPath(); ctx.lineWidth=2*DPR; ctx.strokeStyle="#fff"; ctx.rect(x-7*DPR,y-7*DPR,14*DPR,14*DPR); ctx.stroke();
     ctx.restore();
   }
   function updatePour(){
@@ -174,30 +194,54 @@
     $('#swatch').style.background = hex; $('#hexField').value = hex;
     window.Bucket?.setPourHex(hex);
   }
-  function openWheel(){
-    positionMenu(wheelPop, colorBtn); wheelPop.classList.add('show'); drawWheel(); drawDiamond(); updatePour();
-  }
+  function openWheel(){ positionMenu(wheelPop, colorBtn); wheelPop.classList.add('show'); drawWheel(); drawDiamond(); updatePour(); }
   function closeWheel(){ wheelPop.classList.remove('show'); }
   colorBtn.addEventListener('click', ()=> wheelPop.classList.contains('show')?closeWheel():openWheel());
 
+  // Map client coords -> canvas coords accounting for DPR & CSS scaling
+  function canvasCoords(el, evt){
+    const rect = el.getBoundingClientRect();
+    const scaleX = el.width / rect.width;
+    const scaleY = el.height / rect.height;
+    return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY };
+  }
+
   function pickWheel(ev){
-    const r=wheel.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const r=wheel.getBoundingClientRect();
+    const cx = r.left + r.width/2;
+    const cy = r.top  + r.height/2;
     hue = (Math.atan2(ev.clientY-cy, ev.clientX-cx) + Math.PI)/(2*Math.PI);
     drawWheel(); drawDiamond(); updatePour();
   }
-  wheel.addEventListener('mousedown', e=>{ pickWheel(e); const m=ev=>pickWheel(ev); window.addEventListener('mousemove',m); window.addEventListener('mouseup',()=>window.removeEventListener('mousemove',m),{once:true}); });
+  wheel.addEventListener('mousedown', e=>{
+    pickWheel(e);
+    const m=ev=>pickWheel(ev);
+    window.addEventListener('mousemove',m);
+    window.addEventListener('mouseup',()=>window.removeEventListener('mousemove',m),{once:true});
+  });
 
   function pickDiamond(ev){
-    const r=diamond.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
-    const dx=ev.clientX-cx, dy=ev.clientY-cy;
-    const x = (dx*Math.cos(-Math.PI/4) - dy*Math.sin(-Math.PI/4));
-    const y = (dx*Math.sin(-Math.PI/4) + dy*Math.cos(-Math.PI/4));
-    const size=Math.min(r.width,r.height)*0.72, s2=size/2;
-    sat = clamp((x + s2)/size, 0, 1);
-    val = clamp(1 - (y + s2)/size, 0, 1);
+    const { x:cxRaw, y:cyRaw } = canvasCoords(diamond, ev);
+    const w=diamond.width, h=diamond.height;
+    const cx=w/2, cy=h/2;
+    const dx=cxRaw-cx, dy=cyRaw-cy;
+    // inverse rotate by 45deg
+    const cos = Math.SQRT1_2, sin = -Math.SQRT1_2; // cos(45)=sin(45)=sqrt(1/2); negative for -45°
+    const xr = dx*cos - dy*sin;
+    const yr = dx*sin + dy*cos;
+    const size=Math.min(w,h)*0.72, s2=size/2;
+    sat = clamp((xr + s2)/size, 0, 1);
+    val = clamp(1 - (yr + s2)/size, 0, 1);
     drawDiamond(); updatePour();
   }
-  diamond.addEventListener('mousedown', e=>{ pickDiamond(e); const m=ev=>pickDiamond(ev); window.addEventListener('mousemove',m); window.addEventListener('mouseup',()=>window.removeEventListener('mousemove',m),{once:true}); });
+  diamond.addEventListener('mousedown', e=>{
+    pickDiamond(e);
+    const m=ev=>pickDiamond(ev);
+    window.addEventListener('mousemove',m);
+    window.addEventListener('mouseup',()=>window.removeEventListener('mousemove',m),{once:true});
+  });
+  hexField.addEventListener('click', e=> e.stopPropagation());
+  hexField.addEventListener('input', e=> e.stopPropagation());
   hexField.addEventListener('change', ()=>{
     const v=hexField.value.trim();
     if(/^#?[0-9a-fA-F]{6}$/.test(v)){
@@ -207,7 +251,7 @@
     }
   });
 
-  // ------- Settings panel (with resolution) -------
+  // ------- Settings panel (detached from HTML panel) -------
   const overlay = document.createElement('div'); overlay.id='overlay'; document.body.appendChild(overlay);
   const panel = document.createElement('div'); panel.id='settingsPanel'; glass(panel); document.body.appendChild(panel);
 
@@ -227,37 +271,33 @@
   `;
 
   const fmt=v=>(Math.abs(+v)>=1?(+v).toFixed(2):(+v).toFixed(4));
-  const bind = (id, key, formatter=fmt) => {
-    const el = $('#'+id), lab = $('#'+id+'V'); const B = window.Bucket;
-    el.value = B.params[key]; lab.textContent = formatter(el.value);
-    el.addEventListener('input', ()=>{
-      lab.textContent = formatter(el.value);
-      if (key === 'baseFactor') { /* not used */ }
-    });
-    return el;
-  };
+  function whenBucketReady(fn){
+    if (window.Bucket) return fn();
+    let tries=0; const t=setInterval(()=>{ if(window.Bucket){ clearInterval(t); fn(); } else if(++tries>200){ clearInterval(t); } },25);
+  }
+  function bindSlider(id, get, set, format=fmt){
+    const el = $('#'+id), lab = $('#'+id+'V');
+    el.value = get(); lab.textContent = format(el.value);
+    el.addEventListener('input', ()=>{ lab.textContent=format(el.value); set(+el.value); });
+  }
+  whenBucketReady(()=>{
+    bindSlider('sp', ()=>Bucket.params.speed,     v=>Bucket.params.speed=v);
+    bindSlider('st', ()=>Bucket.params.strength,  v=>Bucket.params.strength=v, v=>(+v).toFixed(1));
+    bindSlider('sz', ()=>Bucket.params.size,      v=>Bucket.params.size=v, v=>Math.round(+v));
+    bindSlider('vi', ()=>Bucket.params.viscosity, v=>Bucket.params.viscosity=v);
+    bindSlider('df', ()=>Bucket.params.diffusion, v=>Bucket.params.diffusion=v);
+    const rs=$('#rs'), rsV=$('#rsV'); rs.value=Bucket.params.baseFactor; rsV.textContent=rs.value;
+    rs.addEventListener('input', ()=>{ rsV.textContent=rs.value; Bucket.setBaseFactor(+rs.value); });
+  });
 
-  const sp=bind('sp','speed');     sp.addEventListener('input', ()=> window.Bucket.params.speed = +sp.value);
-  const st=bind('st','strength');  st.addEventListener('input', ()=> window.Bucket.params.strength = +st.value);
-  const sz=bind('sz','size', v=>Math.round(v)); sz.addEventListener('input', ()=> window.Bucket.params.size = +sz.value);
-  const vi=bind('vi','viscosity'); vi.addEventListener('input', ()=> window.Bucket.params.viscosity = +vi.value);
-  const df=bind('df','diffusion'); df.addEventListener('input', ()=> window.Bucket.params.diffusion = +df.value);
-  const rs=$('#rs'), rsV=$('#rsV'); rs.value = window.Bucket.params.baseFactor; rsV.textContent = rs.value;
-  rs.addEventListener('input', ()=>{ rsV.textContent=rs.value; window.Bucket.setBaseFactor(+rs.value); });
-
-  // Drag
+  // Drag settings panel
   (function dragify(){
     const head = $('#settingsDrag'); let drag=false, ox=0, oy=0;
     head.addEventListener('mousedown', e=>{ drag=true; const r=panel.getBoundingClientRect(); ox=e.clientX-r.left; oy=e.clientY-r.top; });
     window.addEventListener('mousemove', e=>{ if(!drag) return; panel.style.left = Math.min(Math.max(8, e.clientX-ox), window.innerWidth - panel.offsetWidth - 8) + 'px'; panel.style.top = Math.min(Math.max(8, e.clientY-oy), window.innerHeight - panel.offsetHeight - 8) + 'px'; });
     window.addEventListener('mouseup', ()=> drag=false);
   })();
-
-  function openSettings(){
-    overlay.classList.add('show'); panel.classList.add('show');
-    // Position nicely
-    panel.style.left = '96px'; panel.style.top = '96px';
-  }
+  function openSettings(){ overlay.classList.add('show'); panel.classList.add('show'); panel.style.left='96px'; panel.style.top='96px'; }
   function closeSettings(){ overlay.classList.remove('show'); panel.classList.remove('show'); }
   overlay.addEventListener('click', closeSettings);
   $('#settingsClose').addEventListener('click', closeSettings);
@@ -287,43 +327,63 @@
     <h4>Palette</h4>
     <div id="newColors" class="colors"></div>
     <div class="actions">
-      <button id="newCancel" class="btn-ghost" type="button">Cancel</button>
-      <button id="newCreate" class="btn-primary" type="button">Create</button>
+      <button id="newCancel" class="ghost" type="button">Cancel</button>
+      <button id="newCreate" class="primary" type="button">Create</button>
     </div>
   `;
-  const newBtn = $('#newBtn'), newCount = $('#newCount'), newLayout = $('#newLayout'), newColors = $('#newColors');
+  const newBtn     = $('#newBtn'),
+        newCount   = () => $('#newCount'),
+        newLayout  = () => $('#newLayout'),
+        newColors  = () => $('#newColors');
+
   function defaultPalette(n){ const base=['#0b3a7a','#1aa4ff','#00ffd1','#7cc7ff','#5bd0ff','#79ffe0','#a4b9ff']; return base.slice(0,n); }
   function buildWells(){
-    const n = +newCount.value; newColors.innerHTML='';
+    const host = newColors(); const n = +newCount().value; host.innerHTML='';
     const pal = defaultPalette(n);
     for(let i=0;i<n;i++){
       const wrap = document.createElement('div'); wrap.className='cwell';
       const input = document.createElement('input'); input.type='color'; input.value=pal[i];
       wrap.style.background = pal[i];
+
+      // keep menu open while interacting with color input
+      ['click','mousedown','pointerdown','input','change','focus'].forEach(evt=>{
+        input.addEventListener(evt, e=> e.stopPropagation());
+        wrap .addEventListener(evt, e=> e.stopPropagation());
+      });
+
+      // open native picker when clicking the circle anywhere
+      wrap.addEventListener('click', e=>{ e.stopPropagation(); input.showPicker?.(); });
+
       input.addEventListener('input', ()=> wrap.style.background = input.value);
-      wrap.appendChild(input); newColors.appendChild(wrap);
+      wrap.appendChild(input); host.appendChild(wrap);
     }
   }
   buildWells();
+
   newBtn.addEventListener('click', ()=>{ showMenu(newMenu, newBtn); });
-  newCount.addEventListener('change', buildWells);
+
+  newMenu.addEventListener('click', e=>{
+    // prevent clicks inside from closing when hitting inputs
+    if (e.target.closest('input,select,button,.cwell')) e.stopPropagation();
+  });
+
+  newMenu.addEventListener('mousedown', e=>{
+    if (e.target.closest('input,select,button,.cwell')) e.stopPropagation();
+  });
+
+  newMenu.addEventListener('change', e=>{
+    if (e.target && e.target.id === 'newCount') buildWells();
+  });
+
   $('#newCancel').addEventListener('click', hideAllMenus);
   $('#newCreate').addEventListener('click', ()=>{
-    const colors = [...newColors.querySelectorAll('input')].map(i=>i.value);
-    window.Bucket?.generateLayout(newLayout.value, colors);
+    const colors = [...newColors().querySelectorAll('input')].map(i=>i.value);
+    window.Bucket?.generateLayout(newLayout().value, colors);
     hideAllMenus();
   });
 
   // ------- Export dialog (hi-res) -------
-  // Kill the simple export listener from app.js by cloning the button.
-  (function hijackExport(){
-    const old = $('#exportBtn');
-    const clone = old.cloneNode(true);
-    old.replaceWith(clone);
-    clone.id = 'exportBtn'; // keep id
-  })();
   const exportBtn = $('#exportBtn');
-
   const exportMenu = makeMenu('exportMenu');
   exportMenu.innerHTML = `
     <h4>Export</h4>
@@ -334,17 +394,20 @@
       <label>Height</label><input id="exH" type="number" min="256" max="4096" step="1" value="1080">
       <label>Aspect</label><div><label style="display:flex;align-items:center;gap:8px"><input id="exLock" type="checkbox" checked><span class="small" id="exRatio">16:9</span></label></div>
       <label>Quality</label><input id="exQ" type="range" min="0.5" max="1" step="0.01" value="0.92">
-      <div class="full actions"><button id="exCancel" class="btn-ghost" type="button">Cancel</button><button id="exSave" class="btn-primary" type="button">Save</button></div>
+      <div class="full actions"><button id="exCancel" class="ghost" type="button">Cancel</button><button id="exSave" class="primary" type="button">Save</button></div>
     </div>
   `;
   function gcd(a,b){ return b?gcd(b,a%b):a; }
   function updateRatio(){ const w=+$('#exW').value|0, h=+$('#exH').value|0; const g=gcd(w,h)||1; $('#exRatio').textContent = `${(w/g)|0}:${(h/g)|0}`; }
   function syncQ(){ $('#exQ').disabled = ($('#exFormat').value==='image/png'); }
   function clampDim(){ const W=$('#exW'), H=$('#exH'); W.value=Math.max(256,Math.min(4096, +W.value|0)); H.value=Math.max(256,Math.min(4096, +H.value|0)); }
+
   exportBtn.addEventListener('click', ()=>{
-    const B=window.Bucket, W=Math.min(1920, B.canvas.width|0), H=Math.round(W*(B.canvas.height/B.canvas.width));
-    $('#exW').value=W; $('#exH').value=H; updateRatio(); syncQ();
-    showMenu(exportMenu, exportBtn);
+    whenBucketReady(()=>{
+      const B=window.Bucket, W=Math.min(1920, B.canvas.width|0), H=Math.round(W*(B.canvas.height/B.canvas.width));
+      $('#exW').value=W; $('#exH').value=H; updateRatio(); syncQ();
+      showMenu(exportMenu, exportBtn);
+    });
   });
   $('#exFormat').addEventListener('change', syncQ);
   $('#exW').addEventListener('input', ()=>{
@@ -368,26 +431,26 @@
   $('#exSave').addEventListener('click', ()=>{
     const type = $('#exFormat').value, q = +$('#exQ').value;
     const w = +$('#exW').value|0, h = +$('#exH').value|0;
-    withHighRes(200, (done)=>{
-      const off = document.createElement('canvas'); off.width=w; off.height=h;
-      const octx = off.getContext('2d', { alpha:false });
-      octx.drawImage(Bucket.canvas,0,0,w,h);
-      off.toBlob((blob)=>{
-        const a=document.createElement('a');
-        const ext = (type==='image/png'?'png':(type==='image/webp'?'webp':'jpg'));
-        const t=new Date(), pad=n=>String(n).padStart(2,'0');
-        a.href=URL.createObjectURL(blob);
-        a.download=`bucket-${t.getFullYear()}${pad(t.getMonth()+1)}${pad(t.getDate())}-${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}.${ext}`;
-        document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },0);
-        done();
-      }, type, type==='image/png'?undefined:q);
-      hideAllMenus();
+    whenBucketReady(()=>{
+      withHighRes(200, (done)=>{
+        const off = document.createElement('canvas'); off.width=w; off.height=h;
+        const octx = off.getContext('2d', { alpha:false });
+        octx.drawImage(Bucket.canvas,0,0,w,h);
+        off.toBlob((blob)=>{
+          const a=document.createElement('a');
+          const ext = (type==='image/png'?'png':(type==='image/webp'?'webp':'jpg'));
+          const t=new Date(), pad=n=>String(n).padStart(2,'0');
+          a.href=URL.createObjectURL(blob);
+          a.download=`bucket-${t.getFullYear()}${pad(t.getMonth()+1)}${pad(t.getDate())}-${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}.${ext}`;
+          document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },0);
+          done();
+        }, type, type==='image/png'?undefined:q);
+        hideAllMenus();
+      });
     });
   });
 
-  // ------- Make color button open color wheel near toolbar -------
+  // ------- Keep wheel by toolbar -------
   function toggleWheel(){ wheelPop.classList.contains('show') ? hideAllMenus() : (showMenu(wheelPop, colorBtn), drawWheel(), drawDiamond(), updatePour()); }
   colorBtn.addEventListener('click', toggleWheel);
-
-  // Done
 })();

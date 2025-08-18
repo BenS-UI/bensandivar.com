@@ -18,40 +18,40 @@
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:var(--text)}
 #view{display:block;width:100vw;height:100vh}
 
-/* Small top hint (used by app.js) */
-#hint{
-  position:fixed; top:14px; left:50%; transform:translateX(-50%);
-  color:#e9eef7; font:13px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  opacity:.8; user-select:none; letter-spacing:.2px; z-index:15;
+/* BUCK-IT-only navbar backdrop gradient (scoped) */
+#navbar-slot .navbar{position:relative;isolation:isolate}
+#navbar-slot .navbar::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom, rgba(255,255,255,.96), rgba(255,255,255,0));
+  pointer-events:none;z-index:0
 }
+#navbar-slot .navbar>*{position:relative;z-index:1}
 
-/* Welcome card (independent of #hint) */
-.glass{
-  background:var(--glass); border:1px solid var(--glass-brd);
-  border-radius:14px; backdrop-filter: blur(12px) saturate(1.2);
-  box-shadow: var(--shadow), var(--inner);
-}
+/* Welcome */
 #welcome{
-  position: fixed;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  z-index: 60; padding: 12px 16px; max-width:min(560px, 90vw);
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  font:13px/1.25 system-ui; opacity:.95; user-select:none;
+  z-index:10; padding:10px 16px; border-radius:12px;
+  backdrop-filter: blur(10px);
+  background:rgba(0,0,0,.55); color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.35);
+  transition:opacity .2s ease;
 }
-#welcome h3{ margin: 0 0 6px; font:600 16px/1.2 system-ui, Segoe UI, Roboto, sans-serif; letter-spacing:.2px }
-#welcome p{ margin: 0; font:13px/1.4 system-ui, Segoe UI, Roboto, sans-serif; color:#e9eef7 }
-#welcome.hidden{ opacity:0; pointer-events:none; transition:opacity .3s ease }
+#welcome.hidden{ display:none }
 
-/* ============== Toolbar (centered, 5% idle) ============== */
+/* ============== Toolbar (centered, wraps on mobile) ============== */
 #bar{
   position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-  display:flex; gap:10px; align-items:center; z-index:20;
-  opacity:.05; transition:opacity .18s ease;
+  display:flex; flex-wrap:wrap; justify-content:center; gap:10px 10px; align-items:center;
+  z-index:20; opacity:.05; transition:opacity .18s ease;
+  max-width:min(94vw, 760px); padding:8px 10px;
 }
 #bar:hover,#bar:focus-within,#bar.show{opacity:1}
 
 .btn{
-  display:flex; align-items:center; gap:10px;
-  padding:12px 16px; border-radius:14px;
-  border:1px solid var(--glass-brd);
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  min-width:40px; height:40px; padding:0 14px;
+  border-radius:12px; border:1px solid var(--glass-brd);
   background:var(--pill); color:#fff; cursor:pointer;
   backdrop-filter: blur(12px) saturate(1.25);
   box-shadow: var(--shadow), var(--inner);
@@ -62,13 +62,18 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
 .btn:active{ transform:translateY(1px) }
 .btn.active{ outline:1px solid var(--accent); box-shadow:0 0 0 3px rgba(143,211,255,.16), var(--shadow), var(--inner) }
 .btn .label{font:13px/1.2 system-ui,Segoe UI,Roboto,sans-serif;letter-spacing:.2px}
-.iconbtn{ width:38px; height:38px; border-radius:12px; display:grid; place-items:center }
+.iconbtn{ width:40px; height:40px; padding:0; line-height:0; display:grid; place-items:center }
 .btn>*{ pointer-events:none }
+
+/* Replace ugly undo/redo SVG with unicode; keep others */
+#undoBtn svg, #redoBtn svg{ display:none }
+#undoBtn::before{ content:"↺"; font-size:18px; line-height:1 }
+#redoBtn::before{ content:"↻"; font-size:18px; line-height:1 }
 
 /* Swatch in Color button */
 #swatch{width:18px;height:18px;border-radius:50%;border:2px solid #fff8;box-shadow:0 0 0 2px #0003 inset}
 
-/* ============== Menus / Popovers ============== */
+/* ============== Glass Menus / Popovers ============== */
 .menu{
   position:fixed; inset:auto auto 72px 16px; min-width:260px; padding:10px;
   display:none; z-index:30; color:var(--text);
@@ -91,7 +96,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
 .row{ display:flex; align-items:center; gap:10px; padding:6px 8px }
 .row label{ width:92px; font:12px/1.1 system-ui,Segoe UI,Roboto,sans-serif; color:var(--muted) }
 
-/* High-contrast selects/inputs (no white-on-white) */
+/* High-contrast selects/inputs (NO white-on-white) */
 .menu select,
 .menu input[type="number"],
 .menu input[type="text"]{
@@ -121,10 +126,13 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg-grad);color:v
 .cwell{
   width:28px; height:28px; border-radius:50%;
   border:2px solid #fffa; box-shadow:0 0 0 2px #0003 inset;
-  cursor:pointer; position:relative;
+  cursor:pointer; position:relative; overflow:hidden;
 }
-.cwell input{ display:none } /* we use data-hex on the well */
-.cwell:focus-visible{ outline:2px solid var(--accent) }
+.cwell input[type="color"]{
+  /* keep it clickable but invisible and constrained to the circle */
+  position:absolute; inset:0; width:100%; height:100%;
+  opacity:0; cursor:pointer; border:0; padding:0; margin:0;
+}
 
 /* ============== Export ============== */
 #exportMenu .grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:6px }
@@ -168,13 +176,13 @@ input[type="range"]::-moz-range-thumb{
   width:16px; height:16px; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.25);
 }
 
-/* Tips */
+/* Tips (flash messages) */
 #tips{position:fixed;left:0;right:0;bottom:84px;display:flex;justify-content:center;pointer-events:none;z-index:35}
 .tip{
-  background:var(--glass); border:1px solid var(--glass-brd);
-  border-radius:14px; padding:10px 12px; color:#fff;
-  font:13px/1.25 system-ui; max-width:min(70vw,520px);
-  box-shadow: var(--shadow); backdrop-filter: blur(12px) saturate(1.2);
+  background:#000c; border:1px solid rgba(255,255,255,.12);
+  border-radius:10px; padding:8px 10px; color:#fff;
+  font:12px/1.25 system-ui; max-width:min(70vw,520px);
+  box-shadow: var(--shadow);
   opacity:0; transform:translateY(6px); transition:opacity .2s,transform .2s
 }
 .tip.show{opacity:1;transform:none}
@@ -190,17 +198,27 @@ input[type="range"]::-moz-range-thumb{
   display:flex; flex-direction:column; align-items:center; gap:10px
 }
 #wheel{width:220px;height:220px;display:block}
-#diamond{width:160px;height:160px;display:block}
-#hex{
+#svDiamond{width:160px;height:160px;display:block}
+#hexField{
   width:120px;text-align:center;border-radius:10px;border:1px solid var(--glass-brd);
   background:#0c1018;color:#fff;padding:6px 8px;font:13px/1.2 ui-monospace,Menlo,monospace
 }
 
+/* Tooltips for button hover (black, small) */
+.tooltip{
+  position:fixed; padding:6px 8px; border-radius:8px;
+  background:#000; color:#fff; border:1px solid rgba(255,255,255,.14);
+  font:12px/1.2 system-ui; pointer-events:none;
+  transform:translateY(4px); opacity:0; transition:opacity .12s, transform .12s;
+  z-index:9999;
+}
+.tooltip.show{ opacity:1; transform:none }
+
 /* Responsive */
 @media (max-width:720px){
   .menu{ min-width:240px; inset:auto auto 64px 8px }
-  .btn{ padding:10px 12px }
-  .iconbtn{ width:36px; height:36px }
+  .btn{ padding:0 12px }
+  .iconbtn{ width:38px; height:38px }
 }
 
 /* Accessibility */
