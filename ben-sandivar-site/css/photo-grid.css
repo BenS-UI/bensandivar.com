@@ -1,48 +1,104 @@
 /* ===========================
-   PHOTO GRID / MASONRY
+   PHOTO GRID / MASONRY (responsive)
    =========================== */
 
-#gallery .gallery-masonry {
-  display: block;
-  width: 75%;
-  margin: 0 auto;
-  column-gap: 15px;
-  column-count: 4;
-}
-
-#gallery .gallery-masonry .grid-item {
-  break-inside: avoid;
-  margin-bottom: 20px;
-  position: relative;
-}
-
+/* Wrapper */
 .photo-grid {
-  padding: 10vh 8vw;
+  padding: 6vh 3vw;                 /* tighter on mobile */
   max-width: var(--content-max);
   margin: 0 auto;
   background: var(--color-body-bg);
 }
 
-@media (min-width: 1024px) {
+/* Masonry via CSS columns */
+#gallery .gallery-masonry {
+  display: block;
+  width: 100%;                      /* full width on mobile */
+  margin: 0 auto;
+  column-gap: 12px;                 /* tighter gap on mobile */
+  column-count: 2;                  /* <- 2 columns mobile */
+}
+
+/* Items inside column layout */
+#gallery .gallery-masonry .grid-item {
+  break-inside: avoid;
+  margin-bottom: 12px;              /* tighter spacing on mobile */
+  position: relative;
+}
+
+/* Small tablets: 3 columns, slightly larger gaps */
+@media (min-width: 600px) {
   .photo-grid {
-    max-width: none;
-    padding-left: 0;
-    padding-right: 0;
+    padding: 7vh 4vw;
+  }
+  #gallery .gallery-masonry {
+    column-count: 3;
+    column-gap: 16px;
+    width: 92%;
+  }
+  #gallery .gallery-masonry .grid-item {
+    margin-bottom: 16px;
   }
 }
 
-.masonry-container { display: flex; gap: 20px; justify-content: center; }
-.masonry-column { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 280px; max-width: 300px; }
+/* Desktop: 4 columns, fixed 75% width, comfortable gaps */
+@media (min-width: 1024px) {
+  .photo-grid {
+    padding: 10vh 0;                /* no side padding at desktop */
+    max-width: none;
+  }
+  #gallery .gallery-masonry {
+    width: 75%;
+    max-width: 75%;
+    column-count: 4;
+    column-gap: 20px;
+  }
+  #gallery .gallery-masonry .grid-item {
+    margin-bottom: 20px;
+  }
+}
 
+/* (Optional) very large screens: add a 5th column if you like */
+/*
+@media (min-width: 1440px) {
+  #gallery .gallery-masonry { column-count: 5; }
+}
+*/
+
+/* If you also use the flex-based variant somewhere, keep it responsive too */
+.masonry-container {
+  display: flex;
+  gap: 12px;                        /* tighter on mobile */
+  justify-content: center;
+}
+.masonry-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 160px;                 /* allow tighter columns on small screens */
+  max-width: 1fr;
+}
+@media (min-width: 600px) {
+  .masonry-container { gap: 16px; }
+  .masonry-column { gap: 16px; min-width: 220px; }
+}
+@media (min-width: 1024px) {
+  .masonry-container { gap: 20px; }
+  .masonry-column { gap: 20px; min-width: 280px; max-width: 300px; }
+}
+
+/* Card visuals */
 .grid-item {
   position: relative;
-  overflow: visible;              /* let backlight bleed out */
-  border-radius: 12px;            /* visual radius; image has clip */
+  overflow: visible;                /* let backlight bleed out */
+  border-radius: 12px;              /* visual radius; image has clip */
   box-shadow: 0 4px 8px var(--color-shadow);
   transition: box-shadow var(--transition);
   border: 1px solid var(--color-border);
   transform-style: preserve-3d;
   will-change: transform;
+
   /* backlight defaults */
   --r: 255; --g: 200; --b: 120;
   --bx: 50%; --by: 50%;
@@ -55,9 +111,9 @@
   display: block;
   object-fit: cover;
   position: relative;
-  z-index: 2;                    /* image above backlight */
+  z-index: 2;                       /* image above backlight */
   border-radius: 12px;
-  pointer-events: none;          /* keep tilt/glow tracking clean */
+  pointer-events: none;             /* keep tilt/glow tracking clean */
   user-select: none;
 }
 
@@ -65,9 +121,9 @@
 .grid-item::before {
   content: "";
   position: absolute;
-  inset: -8%;                    /* tighter than before */
+  inset: -8%;
   border-radius: 16px;
-  z-index: 0;                    /* behind image */
+  z-index: 0;                       /* behind image */
   pointer-events: none;
   opacity: var(--backlight-o, 0);
   transition: opacity 220ms ease;
@@ -95,6 +151,7 @@
       rgba(var(--r), var(--g), var(--b), 0.00) 75%);
 }
 
+/* Caption */
 .grid-caption {
   position: absolute;
   bottom: 0; left: 0; right: 0;
@@ -109,5 +166,3 @@
 
 /* No jump on hover */
 .grid-item:hover { box-shadow: 0 8px 16px var(--color-shadow); }
-
-/* Removed reflection entirely */
