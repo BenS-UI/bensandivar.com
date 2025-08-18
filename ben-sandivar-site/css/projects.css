@@ -6,7 +6,7 @@
   padding: 10vh 8vw;
 }
 
-/* Grid */
+/* Keep original grid styles available site-wide… */
 .projects-grid {
   display: grid;
   gap: 2rem;
@@ -26,8 +26,8 @@
 /* Desktop: 3 cols + fixed 75% width */
 @media (min-width: 1024px) {
   .projects-grid {
-    width: 75%;                     /* exactly 75% */
-    max-width: 75%;                  /* force cap */
+    width: 75%;
+    max-width: 75%;
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -35,7 +35,7 @@
 /* Card */
 .project-card {
   background: var(--color-secondary);
-  border-radius: 12px; /* match gallery */
+  border-radius: 12px;
   border: 1px solid var(--color-border);
   box-shadow:
     0 2px 10px rgba(0,0,0,0.08),
@@ -50,10 +50,11 @@
   cursor: default;
 }
 
+/* Remove "up on hover" effect */
 .project-card:hover {
   box-shadow:
-    0 10px 28px rgba(0,0,0,0.16),
-    0 1px 0 rgba(255,255,255,0.03) inset;
+    0 2px 10px rgba(0,0,0,0.08),
+    0 1px 0 rgba(255,255,255,0.02) inset;
 }
 
 .project-card img {
@@ -101,26 +102,43 @@
 }
 
 /* ===========================
-   SECURITY LOCKS
+   CAROUSEL OVERRIDES (scoped)
    =========================== */
 
-/* Prevent text selection */
-#projects, 
-#projects * {
-  user-select: none;
+/* Scope to this section so we don't affect other grids */
+#projects {
+  position: relative;
 }
 
-/* Block image dragging, context menus, and pointer interactions */
+/* Turn the grid container into a 3D stage */
+#projects .projects-grid {
+  display: block !important;               /* override grid */
+  position: relative;
+  width: 100% !important;                  /* undo desktop 75% centering */
+  max-width: 100% !important;
+  margin: 0;                               /* keep inside section, not centered */
+  perspective: 1600px;
+  height: var(--carousel-h, 540px);        /* JS updates to fit content */
+  overflow: visible;                       /* allow 3D overflow */
+}
+
+/* Cards become absolutely positioned slides within the stage */
+#projects .project-card {
+  position: absolute !important;
+  top: 50%;
+  left: 50%;
+  width: var(--card-w, clamp(260px, 32vw, 440px));
+  /* transform is managed by JS */
+}
+
+/* Optional: prevent accidental text selection and image drag in this section */
+#projects, 
+#projects * { 
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 #projects img {
-  pointer-events: none;
   -webkit-user-drag: none;
   user-drag: none;
-}
-
-/* Disable right-click on the entire section */
-#projects {
-  -webkit-touch-callout: none; /* Safari iOS long press */
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 }
