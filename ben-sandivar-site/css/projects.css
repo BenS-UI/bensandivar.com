@@ -6,7 +6,7 @@
   padding: 10vh 8vw;
 }
 
-/* Keep original grid styles available site-wide… */
+/* Original grid (kept for other sections) */
 .projects-grid {
   display: grid;
   gap: 2rem;
@@ -16,14 +16,10 @@
   justify-content: center;
 }
 
-/* Tablet: 2 cols */
 @media (min-width: 768px) {
-  .projects-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .projects-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* Desktop: 3 cols + fixed 75% width */
 @media (min-width: 1024px) {
   .projects-grid {
     width: 75%;
@@ -50,7 +46,7 @@
   cursor: default;
 }
 
-/* Remove "up on hover" effect */
+/* Remove hover lift */
 .project-card:hover {
   box-shadow:
     0 2px 10px rgba(0,0,0,0.08),
@@ -83,9 +79,7 @@
   line-height: 1.25;
 }
 
-.card-content p {
-  margin: 0 0 0.75rem 0;
-}
+.card-content p { margin: 0 0 0.75rem 0; }
 
 .card-content a {
   color: var(--color-accent);
@@ -96,49 +90,36 @@
   margin-top: auto;
 }
 
-.card-content a:hover {
-  color: var(--color-primary);
-  transform: translateX(2px);
-}
+.card-content a:hover { color: var(--color-primary); transform: translateX(2px); }
 
 /* ===========================
-   CAROUSEL OVERRIDES (scoped)
+   CAROUSEL (scoped to #projects)
    =========================== */
 
-/* Scope to this section so we don't affect other grids */
-#projects {
-  position: relative;
-}
+#projects { position: relative; }
 
-/* Turn the grid container into a 3D stage */
+/* Stage */
 #projects .projects-grid {
-  display: block !important;               /* override grid */
+  display: block !important;         /* override grid here only */
   position: relative;
-  width: 100% !important;                  /* undo desktop 75% centering */
+  width: 100% !important;            /* stay inside section */
   max-width: 100% !important;
-  margin: 0;                               /* keep inside section, not centered */
+  margin: 0;
   perspective: 1600px;
-  height: var(--carousel-h, 540px);        /* JS updates to fit content */
-  overflow: visible;                       /* allow 3D overflow */
+  height: var(--carousel-h, 540px);
+  overflow: visible;                  /* show side stacks */
 }
 
-/* Cards become absolutely positioned slides within the stage */
+/* Slides become absolutely positioned; JS sets transforms */
 #projects .project-card {
   position: absolute !important;
   top: 50%;
   left: 50%;
   width: var(--card-w, clamp(260px, 32vw, 440px));
-  /* transform is managed by JS */
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
 }
 
-/* Optional: prevent accidental text selection and image drag in this section */
-#projects, 
-#projects * { 
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-#projects img {
-  -webkit-user-drag: none;
-  user-drag: none;
-}
+/* Section-only interaction locks */
+#projects, #projects * { user-select: none; -webkit-user-select: none; }
+#projects img { -webkit-user-drag: none; user-drag: none; }
