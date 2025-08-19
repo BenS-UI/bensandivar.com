@@ -98,6 +98,10 @@
   outline:none;
 }
 
+.val {
+  cursor: default;   /* normal arrow cursor */
+}
+
 /* Selects (dark dropdowns) */
 select{
   width:100%; padding:6px 8px; border-radius:10px;
