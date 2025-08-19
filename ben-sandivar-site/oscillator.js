@@ -41,9 +41,9 @@
   const INTERVALS = { "m3":3,"M3":4,"P5":7,"m7":10,"M7":11,"P8":12,"M9":14,"P11":17 };
 
   // ---------- host + shadow ----------
-  const SIZE   = { w: 780, h: 820 };
-  const CIRCLE = { size: 300, radius: 118 };
-  const NOTE_DIAM = 52;
+  const SIZE   = { w: 520, h: 540 };  // shrinks container
+  const CIRCLE = { size: 200, radius: 80 }; // smaller circle
+  const NOTE_DIAM = 36; // smaller note buttons
 
   const host = el("div", { id: WIDGET_ID });
   Object.assign(host.style, { position:"fixed", right:"24px", bottom:"24px", width: SIZE.w+"px", height: SIZE.h+"px", zIndex: 2147483000 });
