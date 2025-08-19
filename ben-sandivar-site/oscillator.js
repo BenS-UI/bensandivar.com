@@ -214,7 +214,11 @@
   const svg = el("svg", {class:"svg", width:String(CIRCLE.size), height:String(CIRCLE.size), viewBox:`0 0 ${CIRCLE.size} ${CIRCLE.size}`});
   circleWrap.appendChild(svg);
 
+  // ---------- knobs container ----------
   const knobs = el("div", {class:"knobs"});
+
+  // Wrap knobs in a padded box so they never clip bottom
+  const knobsBox = el("div", {class:"knobs-box"}, [knobs]);
 
   // Knobs builder
   function makeKnob(labelText, id, {min=0,max=1,step=0.01,value=0,fmt=(v)=>v.toFixed(2)}, onChange){
@@ -314,7 +318,10 @@
 
   const lfoTargetWrap = el("div",{class:"knob"},[
     el("label",{for:"lfoTarget"},"LFO→"),
-    el("select",{id:"lfoTarget"},[ el("option",{value:"pitch"},"Pitch"), el("option",{value:"filter"},"Filter") ]),
+    el("select",{id:"lfoTarget"},[
+      el("option",{value:"pitch"},"Pitch"),
+      el("option",{value:"filter"},"Filter")
+    ]),
     el("input",{class:"val", value:""})
   ]);
   knobs.appendChild(lfoTargetWrap);
@@ -325,7 +332,13 @@
   ]);
   knobs.appendChild(hints);
 
-  const body = el("div", {class:"wrap"}, [header, ctrlTop, circleWrap, knobs]);
+  // Main body layout (now with knobsBox wrapper instead of knobs directly)
+  const body = el("div", {class:"wrap"}, [
+    header,
+    ctrlTop,
+    circleWrap,
+    knobsBox
+  ]);
 
   // Pellet
   const pellet = el("div",{class:"pellet", id:"pelletBtn", title:"Synth"},[
