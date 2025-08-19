@@ -9,66 +9,130 @@
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" />
   <link rel="shortcut icon" href="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" type="image/png" />
 
- <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.18/bundled/lenis.min.js"></script>
-
-  <!-- Oscillator styles -->
-  <link rel="stylesheet" href="/oscillator.css" />
-
-  <!-- Page-only tweaks -->
-  <style>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="oscillator.css" />
+    <style>
     .coming-soon-container {
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      min-height:100vh; text-align:center; position:relative; padding:2rem; width:100%; overflow:hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh; /* Full-screen height */
+      text-align: center;
+      position: relative;
+      padding: 2rem;
+      width: 100%;
+      overflow: hidden; /* Prevent clipping */
     }
+    /* Style for the swirling blog canvas. This canvas sits behind the coming
+       soon content and is much smaller than the hero effect on the home page. */
     #blog-gl {
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      width:500px; height:500px; z-index:0; pointer-events:none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      height: 500px;
+      z-index: 0;
+      pointer-events: none;
     }
-    @media (max-width:768px){ #blog-gl{ width:300px!important; height:300px!important; } }
-
+    /* On mobile, reduce the size to keep the effect subtle */
+    @media (max-width: 768px) {
+      #blog-gl {
+        width: 300px !important;
+        height: 300px !important;
+      }
+    }
     .coming-soon-content {
-      position:relative; z-index:1; max-width:25%;
+      position: relative;
+      z-index: 1;
+      max-width:25%;
       background: var(--color-navbar-bg);
-      padding: 2rem 3rem; border-radius: 16px; backdrop-filter: blur(1.5px);
+      padding: 2rem 3rem;
+      border-radius: 16px;
+      backdrop-filter: blur(1.5px);
       border: 1px solid var(--color-border);
     }
     .coming-soon-content h1 {
-      font-family: var(--font-heading, inherit);
-      font-size: 1.5rem; font-weight: 900; color: var(--color-primary);
-      margin-bottom: .75rem;
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--color-primary);
+      margin-bottom: 1rem;
     }
     .coming-soon-content p {
-      font-size: .95rem; color: var(--color-text);
-      margin: .6rem 0; line-height: 1.6; /* tighter paragraphs */
+      font-size: 0.7rem;
+      color: var(--color-text);
+      margin-bottom: 2rem;
     }
     .coming-soon-content a {
-      display:inline-block; background: var(--color-accent); color:#fff; font-weight:600;
-      padding:.6rem 1.2rem; border-radius: var(--radius,12px); text-decoration:none;
-      transition: var(--transition, .2s ease); font-size:.9rem; margin-top:.75rem;
+      display: inline-block;
+      background: var(--color-accent);
+      color: #FFFFFF;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: var(--transition);
+      font-size: 0.7rem;
     }
-    .coming-soon-content a:hover { background:#2563EB; transform:translateY(-2px); }
+    .coming-soon-content a:hover {
+      background: #2563EB;
+      transform: translateY(-2px);
+    }
+    @media (max-width: 1300px) {
+    .coming-soon-content {
+      position: relative;
+      z-index: 1;
+      max-width:50%;
+      }
+    }
 
-    @media (max-width:1300px){ .coming-soon-content{ max-width:50%; } }
-    @media (max-width:768px){
-      .coming-soon-container{ padding:1rem; margin:0 auto; }
-      .coming-soon-content{ max-width:80%; }
-      .coming-soon-content h1{ font-size:1.25rem; }
-      .coming-soon-content p{ font-size:.95rem; }
+
+    @media (max-width: 768px) {
+      .coming-soon-container {
+        padding: 1rem;
+        margin: 0 auto;
+      }
+      #mini-klein-canvas {
+        width: 300px !important;
+        height: 300px !important;
+      }
+      .coming-soon-content {
+      position: relative;
+      z-index: 1;
+      max-width:80%;
+      }
+      .coming-soon-content h1 {
+        font-size: 2rem;
+      }
+      .coming-soon-content p {
+        font-size: 1rem;
+      }
+      .logo {
+        width: 10px;
+        height: 10px;
+      }
     }
   </style>
 </head>
+    <link rel="stylesheet" href="css/navbar.css">
 <body>
 
-<!-- Navbar -->
+<!-- /homesplits/navbar.html -->
 <nav class="navbar" role="navigation" aria-label="Primary" data-component="navbar">
   <div class="nav-container">
-    <a href="/#hero" class="logo" aria-label="Ben Sandivar — Home">
-      <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Ben Sandivar Logo" />
-    </a>
+<a href="/#hero" class="logo" aria-label="Ben Sandivar — Home">
+    <img src="https://raw.githubusercontent.com/BenS-UI/portfolio/cfc0bc646dc8f7cb21379d516f1b1ca0c0f85e06/B-logo-a.svg" alt="Ben Sandivar Logo" />
+  </a>
+
 
     <button class="more-btn" aria-label="Toggle Menu" aria-expanded="false">
       <span class="material-symbols-outlined" aria-hidden="true">menu</span>
@@ -87,61 +151,58 @@
   </div>
 
   <script>
+    // Tiny, self-contained toggle that won’t conflict with site scripts
     (() => {
       const nav = document.currentScript.closest('nav');
       const btn = nav.querySelector('.more-btn');
       const links = nav.querySelector('.nav-links');
+
       if (!btn || !links) return;
-      const close = () => { nav.setAttribute('data-open','false'); btn.setAttribute('aria-expanded','false'); };
+
+      const close = () => {
+        nav.setAttribute('data-open', 'false');
+        btn.setAttribute('aria-expanded', 'false');
+      };
       const toggle = () => {
         const open = nav.getAttribute('data-open') === 'true';
         nav.setAttribute('data-open', String(!open));
         btn.setAttribute('aria-expanded', String(!open));
       };
+
       btn.addEventListener('click', toggle);
-      links.addEventListener('click', e => { if (e.target.closest('a')) close(); });
-      document.addEventListener('click', e => { if (!nav.contains(e.target) && nav.getAttribute('data-open') === 'true') close(); });
+      links.addEventListener('click', e => {
+        if (e.target.closest('a')) close(); // collapse menu after selecting a link
+      });
+      // Optional: close on outside click (mobile)
+      document.addEventListener('click', e => {
+        if (!nav.contains(e.target) && nav.getAttribute('data-open') === 'true') close();
+      });
     })();
   </script>
-</nav>
+</nav> 
 
-<!-- Coming Soon -->
-<section class="coming-soon-container">
-  <canvas id="blog-gl"></canvas>
-  <div class="coming-soon-content">
-    <h1>Blog Coming Soon</h1>
-    <p>Stay tuned for insights on design, technology, and creative expression.</p>
-    <p>In the meantime, have fun playing with my music widget.</p>
-    <!-- New CTA -->
-    <a href="#" id="lets-play-cta" aria-controls="circle-fifths-synth-widget">Let’s Play</a>
+  <!-- Coming Soon Section -->
+  <section class="coming-soon-container">
+    <canvas id="blog-gl"></canvas>
+    <div class="coming-soon-content">
+      <h1>Blog Coming Soon</h1>
+      <p>Stay tuned for insights on design, technology, and creative expression.<p>
+      <p>In the mean time, have fun playing around with my cool music widget!</p>
+      <a href="../index.html#contact" class="scroll-to">Get in Touch</a>
+    </div>
+  </section>
+
+  <!-- Theme Toggle -->
+  <div class="theme-toggle-container">
+    <button id="theme-toggle">
+      <span class="material-symbols-outlined theme-icon">dark_mode</span>
+    </button>
   </div>
-</section>
 
-<!-- Theme Toggle (your existing logic in scripts.js can flip data-theme or classes) -->
-<div class="theme-toggle-container">
-  <button id="theme-toggle">
-    <span class="material-symbols-outlined theme-icon">dark_mode</span>
-  </button>
-</div>
+  <script src="scripts.js"></script>
 
-<script src="/scripts.js"></script>
-
-<!-- Widget -->
+<!-- usage -->
 <script src="/oscillator.js" defer></script>
-
-<!-- CTA wiring -->
-<script>
-  (function(){
-    const btn = document.getElementById('lets-play-cta');
-    if (!btn) return;
-    function openSynth(){ window.CircleFifthsSynth?.open(); }
-    btn.addEventListener('click', function(e){
-      e.preventDefault();
-      if (window.CircleFifthsSynth) openSynth();
-      else document.addEventListener('CircleFifthsSynthReady', openSynth, { once:true });
-    });
-  })();
-</script>
 
 </body>
 </html>
