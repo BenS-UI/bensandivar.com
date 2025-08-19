@@ -96,6 +96,8 @@
   text-align: center;
   padding: 2rem;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 #blog-gl {
@@ -131,9 +133,10 @@
 .coming-soon-content p {
   font-size: 0.85rem;
   color: var(--color-text);
-  margin: 0.4rem 0; /* ⬅ tighter spacing */
+  margin: 0.4rem 0; /* tighter spacing */
 }
 
+/* Responsive adjustments */
 @media (max-width: 1300px) {
   .coming-soon-content {
     max-width: 60%;
@@ -157,89 +160,6 @@
   #blog-gl {
     width: 300px !important;
     height: 300px !important;
-  }
-
-/* Coming Soon Layout */
-.coming-soon-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh; /* full-screen */
-  text-align: center;
-  position: relative;
-  padding: 2rem;
-  width: 100%;
-  overflow: hidden; /* prevent clipping */
-}
-
-/* Swirling blog canvas (background effect) */
-#blog-gl {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 500px;
-  height: 500px;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* Blog content box */
-.coming-soon-content {
-  position: relative;
-  z-index: 1;
-  max-width: 25%;
-  background: var(--color-navbar-bg);
-  padding: 2rem 3rem;
-  border-radius: 16px;
-  backdrop-filter: blur(1.5px);
-  border: 1px solid var(--color-border);
-}
-
-.coming-soon-content h1 {
-  font-family: var(--font-heading);
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: var(--color-primary);
-  margin-bottom: 1rem;
-}
-
-.coming-soon-content p {
-  font-size: 0.7rem;
-  color: var(--color-text);
-  margin-bottom: 2rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1300px) {
-  .coming-soon-content {
-    max-width: 50%;
-  }
-}
-
-@media (max-width: 768px) {
-  .coming-soon-container {
-    padding: 1rem;
-    margin: 0 auto;
-  }
-
-  #blog-gl {
-    width: 300px !important;
-    height: 300px !important;
-  }
-
-  .coming-soon-content {
-    max-width: 80%;
-    padding: 1.5rem;
-  }
-
-  .coming-soon-content h1 {
-    font-size: 2rem;
-  }
-
-  .coming-soon-content p {
-    font-size: 1rem;
   }
 
   .logo {
