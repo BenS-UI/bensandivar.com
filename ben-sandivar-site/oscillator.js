@@ -37,8 +37,8 @@
     const guess = () => {
       const scripts = document.getElementsByTagName("script");
       const cur = document.currentScript || scripts[scripts.length-1];
-      try { return new URL("./oscillator-widget.css", cur.src).href; } 
-      catch { return "oscillator-widget.css"; }
+      try { return new URL("./oscillator.css", cur.src).href; } 
+      catch { return "oscillator.css"; }
     };
     return guess();
   }
