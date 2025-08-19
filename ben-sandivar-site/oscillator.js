@@ -304,8 +304,7 @@
     el("label",{for:"waveSel"},"Wave"),
     waveformSel,
   ]);
-  knobs.appendChild(waveWrap);
-  const knob = (label,id,opts,apply)=>{ const k = makeKnob(label,id,opts,(v)=>apply(v)); knobs.appendChild(k.root); return k; };
+  
 
   knob("Attack","kAttack",{min:0,max:2,step:0.01,value:audio.settings.attack},v=>audio.settings.attack=v);
   knob("Decay","kDecay",{min:0,max:2,step:0.01,value:audio.settings.decay},v=>audio.settings.decay=v);
@@ -319,6 +318,8 @@
   knob("Delay","kDelay",{min:0,max:1.5,step:0.01,value:audio.settings.delayTime,fmt:v=>v.toFixed(2)+" s"},v=>{audio.settings.delayTime=v; if(audio.delay) audio.delay.delayTime.setValueAtTime(v, now());});
   knob("DlyMix","kDelayMix",{min:0,max:1,step:0.01,value:audio.settings.delayMix},v=>{audio.settings.delayMix=v; if(audio.delayGain) audio.delayGain.gain.setValueAtTime(v, now());});
   knob("Feedback","kFb",{min:0,max:0.95,step:0.01,value:audio.settings.delayFeedback},v=>{audio.settings.delayFeedback=v; if(audio.delayFeedback) audio.delayFeedback.gain.setValueAtTime(v, now());});
+knobs.appendChild(waveWrap);
+  const knob = (label,id,opts,apply)=>{ const k = makeKnob(label,id,opts,(v)=>apply(v)); knobs.appendChild(k.root); return k; };
   knob("LFO Hz","kLfoRate",{min:0.1,max:20,step:0.1,value:audio.settings.lfoRate},v=>{audio.settings.lfoRate=v; if(audio.lfo) audio.lfo.frequency.setValueAtTime(v, now());});
   knob("LFO Amt","kLfoAmt",{min:0,max:1200,step:1,value:audio.settings.lfoAmount,fmt:v=>Math.round(v)},v=>{audio.settings.lfoAmount=v; if(audio.lfoGain) audio.lfoGain.gain.setValueAtTime(v, now());});
 
