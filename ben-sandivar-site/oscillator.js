@@ -294,6 +294,56 @@
     return {root:k, set:setValue, get:()=>state.value};
   }
 
+  const knob = (label,id,opts,apply)=>{ 
+    const k = makeKnob(label,id,opts,(v)=>apply(v)); 
+    knobs.appendChild(k.root); 
+    return k; 
+  };
+
+  knob("Attack","kAttack",{min:0,max:2,step:0.01,value:audio.settings.attack},v=>audio.settings.attack=v);
+  knob("Decay","kDecay",{min:0,max:2,step:0.01,value:audio.settings.decay},v=>audio.settings.decay=v);
+  knob("Sustain","kSustain",{min:0,max:1,step:0.01,value:audio.settings.sustain},v=>audio.settings.sustain=v);
+  knob("Release","kRelease",{min:0,max:4,step:0.01,value:audio.settings.release},v=>audio.settings.release=v);
+  knob("Cutoff","kCutoff",{min:100,max:12000,step:1,value:audio.settings.cutoff,fmt:v=>Math.round(v)+" Hz"},v=>{
+    audio.settings.cutoff=v; if(audio.filter) audio.filter.frequency.setValueAtTime(v, now());
+  });
+  knob("Reson.","kRes",{min:0.1,max:20,step:0.1,value:audio.settings.resonance,fmt:v=>v.toFixed(1)},v=>{
+    audio.settings.resonance=v; if(audio.filter) audio.filter.Q.setValueAtTime(v, now());
+  });
+  knob("Detune","kDetune",{min:-1200,max:1200,step:1,value:audio.settings.detune,fmt:v=>Math.round(v)+" ct"},v=>{
+    audio.settings.detune=v; for(const {osc} of voices.values()) osc.detune.setValueAtTime(v, now());
+  });
+  knob("Glide","kGlide",{min:0,max:1,step:0.01,value:audio.settings.glide},v=>audio.settings.glide=v);
+  knob("Volume","kVol",{min:0,max:1,step:0.01,value:audio.settings.volume},v=>{
+    audio.settings.volume=v; if(audio.master) audio.master.gain.setValueAtTime(v, now());
+  });
+  knob("Delay","kDelay",{min:0,max:1.5,step:0.01,value:audio.settings.delayTime,fmt:v=>v.toFixed(2)+" s"},v=>{
+    audio.settings.delayTime=v; if(audio.delay) audio.delay.delayTime.setValueAtTime(v, now());
+  });
+  knob("DlyMix","kDelayMix",{min:0,max:1,step:0.01,value:audio.settings.delayMix},v=>{
+    audio.settings.delayMix=v; if(audio.delayGain) audio.delayGain.gain.setValueAtTime(v, now());
+  });
+  knob("Feedback","kFb",{min:0,max:0.95,step:0.01,value:audio.settings.delayFeedback},v=>{
+    audio.settings.delayFeedback=v; if(audio.delayFeedback) audio.delayFeedback.gain.setValueAtTime(v, now());
+  });
+  knob("LFO Hz","kLfoRate",{min:0.1,max:20,step:0.1,value:audio.settings.lfoRate},v=>{
+    audio.settings.lfoRate=v; if(audio.lfo) audio.lfo.frequency.setValueAtTime(v, now());
+  });
+  knob("LFO Amt","kLfoAmt",{min:0,max:1200,step:1,value:audio.settings.lfoAmount,fmt:v=>Math.round(v)},v=>{
+    audio.settings.lfoAmount=v; if(audio.lfoGain) audio.lfoGain.gain.setValueAtTime(v, now());
+  });
+
+  // LFO Target select (moved to end, no useless input box)
+  const lfoTargetWrap = el("div",{class:"knob"},[
+    el("label",{for:"lfoTarget"},"LFO→"),
+    el("select",{id:"lfoTarget"},[
+      el("option",{value:"pitch"},"Pitch"),
+      el("option",{value:"filter"},"Filter")
+    ])
+  ]);
+  knobs.appendChild(lfoTargetWrap);
+
+// Waveform select (moved to end, no useless input box)
   const waveformSel = el("select", {id:"waveSel"}, [
     el("option",{value:"sine"},"Sine"),
     el("option",{value:"square"},"Square"),
@@ -302,35 +352,9 @@
   ]);
   const waveWrap = el("div",{class:"knob"},[
     el("label",{for:"waveSel"},"Wave"),
-    waveformSel,
+    waveformSel
   ]);
-  
-
-  knob("Attack","kAttack",{min:0,max:2,step:0.01,value:audio.settings.attack},v=>audio.settings.attack=v);
-  knob("Decay","kDecay",{min:0,max:2,step:0.01,value:audio.settings.decay},v=>audio.settings.decay=v);
-  knob("Sustain","kSustain",{min:0,max:1,step:0.01,value:audio.settings.sustain},v=>audio.settings.sustain=v);
-  knob("Release","kRelease",{min:0,max:4,step:0.01,value:audio.settings.release},v=>audio.settings.release=v);
-  knob("Cutoff","kCutoff",{min:100,max:12000,step:1,value:audio.settings.cutoff,fmt:v=>Math.round(v)+" Hz"},v=>{audio.settings.cutoff=v; if(audio.filter) audio.filter.frequency.setValueAtTime(v, now());});
-  knob("Reson.","kRes",{min:0.1,max:20,step:0.1,value:audio.settings.resonance,fmt:v=>v.toFixed(1)},v=>{audio.settings.resonance=v; if(audio.filter) audio.filter.Q.setValueAtTime(v, now());});
-  knob("Detune","kDetune",{min:-1200,max:1200,step:1,value:audio.settings.detune,fmt:v=>Math.round(v)+" ct"},v=>{audio.settings.detune=v; for(const {osc} of voices.values()) osc.detune.setValueAtTime(v, now());});
-  knob("Glide","kGlide",{min:0,max:1,step:0.01,value:audio.settings.glide},v=>audio.settings.glide=v);
-  knob("Volume","kVol",{min:0,max:1,step:0.01,value:audio.settings.volume},v=>{audio.settings.volume=v; if(audio.master) audio.master.gain.setValueAtTime(v, now());});
-  knob("Delay","kDelay",{min:0,max:1.5,step:0.01,value:audio.settings.delayTime,fmt:v=>v.toFixed(2)+" s"},v=>{audio.settings.delayTime=v; if(audio.delay) audio.delay.delayTime.setValueAtTime(v, now());});
-  knob("DlyMix","kDelayMix",{min:0,max:1,step:0.01,value:audio.settings.delayMix},v=>{audio.settings.delayMix=v; if(audio.delayGain) audio.delayGain.gain.setValueAtTime(v, now());});
-  knob("Feedback","kFb",{min:0,max:0.95,step:0.01,value:audio.settings.delayFeedback},v=>{audio.settings.delayFeedback=v; if(audio.delayFeedback) audio.delayFeedback.gain.setValueAtTime(v, now());});
-knobs.appendChild(waveWrap);
-  const knob = (label,id,opts,apply)=>{ const k = makeKnob(label,id,opts,(v)=>apply(v)); knobs.appendChild(k.root); return k; };
-  knob("LFO Hz","kLfoRate",{min:0.1,max:20,step:0.1,value:audio.settings.lfoRate},v=>{audio.settings.lfoRate=v; if(audio.lfo) audio.lfo.frequency.setValueAtTime(v, now());});
-  knob("LFO Amt","kLfoAmt",{min:0,max:1200,step:1,value:audio.settings.lfoAmount,fmt:v=>Math.round(v)},v=>{audio.settings.lfoAmount=v; if(audio.lfoGain) audio.lfoGain.gain.setValueAtTime(v, now());});
-
-  const lfoTargetWrap = el("div",{class:"knob"},[
-    el("label",{for:"lfoTarget"},"LFO→"),
-    el("select",{id:"lfoTarget"},[
-      el("option",{value:"pitch"},"Pitch"),
-      el("option",{value:"filter"},"Filter")
-    ]),
-  ]);
-  knobs.appendChild(lfoTargetWrap);
+  knobs.appendChild(waveWrap);
 
 //USELESS HINTS BOX I MIGHT NEED LATER//
 //  const hints = el("div",{class:"knob"},[
