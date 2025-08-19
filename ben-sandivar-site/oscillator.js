@@ -1,19 +1,11 @@
 /*! Circle of Fifths Synth Widget — dedicated JS (loads its own CSS)
-   Features: plasma arcs, chords, hover intervals, rotary knobs, numeric edit, key root highlight, minimize pellet with mute.
+   Smaller UI, starts minimized, pellet draggable, external API.
 */
 (function(){
   const WIDGET_ID = "circle-fifths-synth-widget";
   if (document.getElementById(WIDGET_ID)) return;
 
-  // ---------- path helper (CSS lives next to this JS) ----------
-  function getCSSHref() {
-    const scripts = document.getElementsByTagName("script");
-    const cur = document.currentScript || scripts[scripts.length-1];
-    try { return new URL("oscillator.css", cur.src).href; }
-    catch { return "oscillator.css"; }
-  }
-
-  // ---------- small utils ----------
+  // ---------- helpers ----------
   const el = (tag, attrs = {}, children = []) => {
     const n = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) {
@@ -41,16 +33,21 @@
   const INTERVALS = { "m3":3,"M3":4,"P5":7,"m7":10,"M7":11,"P8":12,"M9":14,"P11":17 };
 
   // ---------- host + shadow ----------
-  const SIZE   = { w: 780, h: 820 };
-  const CIRCLE = { size: 300, radius: 118 };
-  const NOTE_DIAM = 52;
+  const SIZE   = { w: 560, h: 640 }; // smaller window
+  const CIRCLE = { size: 210, radius: 84 }; // ~30% smaller
+  let NOTE_DIAM = 36;
 
   const host = el("div", { id: WIDGET_ID });
   Object.assign(host.style, { position:"fixed", right:"24px", bottom:"24px", width: SIZE.w+"px", height: SIZE.h+"px", zIndex: 2147483000 });
   document.body.appendChild(host);
   const root = host.attachShadow({mode:"open"});
 
-  // load CSS into the SHADOW (required to style shadow DOM)
+  // CSS inside shadow
+  function getCSSHref() {
+    const scripts = document.getElementsByTagName("script");
+    const cur = document.currentScript || scripts[scripts.length-1];
+    try { return new URL("oscillator.css", cur.src).href; } catch { return "oscillator.css"; }
+  }
   const cssLink = document.createElement("link");
   cssLink.rel = "stylesheet";
   cssLink.href = getCSSHref();
@@ -70,13 +67,10 @@
     }
   };
   const now = () => (audio.ctx ? audio.ctx.currentTime : 0);
-
   function updatePelletIcons(){
     if (!miniMute) return;
-    if (!audio.started || audio.muted) miniMute.textContent = "🔇";
-    else miniMute.textContent = "🔊";
+    miniMute.textContent = (!audio.started || audio.muted) ? "🔇" : "🔊";
   }
-
   function initAudio(){
     if (audio.ctx) return;
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -189,7 +183,7 @@
     let o=4; while(set.has(o)) o++; return clamp(o,1,7);
   }
 
-  // ---------- header / controls / layout ----------
+  // ---------- UI ----------
   const header = el("div", {class:"hdr"}, [
     el("div", {class:"dot"}),
     el("div", {class:"title"}, "Circle of Fifths Synth"),
@@ -216,7 +210,7 @@
 
   const knobs = el("div", {class:"knobs"});
 
-  // Knobs builder
+  // knob factory (same logic, smaller visuals via CSS)
   function makeKnob(labelText, id, {min=0,max=1,step=0.01,value=0,fmt=(v)=>v.toFixed(2)}, onChange){
     const k = el("div",{class:"knob", id});
     const dial = el("div",{class:"dial", title:labelText},[
@@ -246,7 +240,6 @@
     }
     setValue(value, false);
 
-    // pointer drag
     let dragging=false;
     const getAngle = (e) => {
       const r = dial.getBoundingClientRect();
@@ -268,17 +261,15 @@
     window.addEventListener("touchmove", onMove, {passive:false});
     window.addEventListener("touchend", onUp);
 
-    // wheel fine adjust
     dial.addEventListener("wheel", (e)=>{ e.preventDefault(); const delta = (e.deltaY>0?-1:1)*(step||((max-min)/150)); setValue(state.value + delta, true); }, {passive:false});
 
-    // numeric scrub + validate
     let dragVal = {drag:false, sx:0, orig:0};
     val.addEventListener("mousedown",(e)=>{ dragVal={drag:true,sx:e.clientX,orig:state.value}; e.preventDefault(); });
     window.addEventListener("mousemove",(e)=>{ if(!dragVal.drag) return; const px = e.clientX - dragVal.sx; const sens = (max-min) / 160; setValue(dragVal.orig + px*sens, true); });
     window.addEventListener("mouseup",()=>{ dragVal.drag=false; });
     val.addEventListener("focus", ()=>{ state.prev = state.value; val.select(); });
     val.addEventListener("keydown", (e)=>{ if(e.key==="Enter") val.blur(); if(e.key==="Escape"){ val.value = fmt(state.prev); val.blur(); } });
-    val.addEventListener("blur", ()=>{ const raw = val.value.trim().replace(/[^\-0-9\.]/g,""); const num = Number(raw); if (!isFinite(num)){ val.value = fmt(state.prev); return; } setValue(clamp(num, min, max), true); });
+    val.addEventListener("blur", ()=>{ const raw = val.value.trim().replace(/[^\-0-9\.]/g,""); const num = Number(raw); if (!isFinite(num)){ val.value = fmt(state.prev); return; } const good = clamp(num, min, max); setValue(good, true); });
 
     return {root:k, set:setValue, get:()=>state.value};
   }
@@ -295,22 +286,22 @@
     el("input",{class:"val", value:""})
   ]);
   knobs.appendChild(waveWrap);
-  const knob = (label,id,opts,apply)=>{ const k = makeKnob(label,id,opts,(v)=>apply(v)); knobs.appendChild(k.root); return k; };
+  const addKnob=(label,id,opts,apply)=>{ const k=makeKnob(label,id,opts,(v)=>apply(v)); knobs.appendChild(k.root); return k; };
 
-  knob("Attack","kAttack",{min:0,max:2,step:0.01,value:audio.settings.attack},v=>audio.settings.attack=v);
-  knob("Decay","kDecay",{min:0,max:2,step:0.01,value:audio.settings.decay},v=>audio.settings.decay=v);
-  knob("Sustain","kSustain",{min:0,max:1,step:0.01,value:audio.settings.sustain},v=>audio.settings.sustain=v);
-  knob("Release","kRelease",{min:0,max:4,step:0.01,value:audio.settings.release},v=>audio.settings.release=v);
-  knob("Cutoff","kCutoff",{min:100,max:12000,step:1,value:audio.settings.cutoff,fmt:v=>Math.round(v)+" Hz"},v=>{audio.settings.cutoff=v; if(audio.filter) audio.filter.frequency.setValueAtTime(v, now());});
-  knob("Reson.","kRes",{min:0.1,max:20,step:0.1,value:audio.settings.resonance,fmt:v=>v.toFixed(1)},v=>{audio.settings.resonance=v; if(audio.filter) audio.filter.Q.setValueAtTime(v, now());});
-  knob("Detune","kDetune",{min:-1200,max:1200,step:1,value:audio.settings.detune,fmt:v=>Math.round(v)+" ct"},v=>{audio.settings.detune=v; for(const {osc} of voices.values()) osc.detune.setValueAtTime(v, now());});
-  knob("Glide","kGlide",{min:0,max:1,step:0.01,value:audio.settings.glide},v=>audio.settings.glide=v);
-  knob("Volume","kVol",{min:0,max:1,step:0.01,value:audio.settings.volume},v=>{audio.settings.volume=v; if(audio.master) audio.master.gain.setValueAtTime(v, now());});
-  knob("Delay","kDelay",{min:0,max:1.5,step:0.01,value:audio.settings.delayTime,fmt:v=>v.toFixed(2)+" s"},v=>{audio.settings.delayTime=v; if(audio.delay) audio.delay.delayTime.setValueAtTime(v, now());});
-  knob("DlyMix","kDelayMix",{min:0,max:1,step:0.01,value:audio.settings.delayMix},v=>{audio.settings.delayMix=v; if(audio.delayGain) audio.delayGain.gain.setValueAtTime(v, now());});
-  knob("Feedback","kFb",{min:0,max:0.95,step:0.01,value:audio.settings.delayFeedback},v=>{audio.settings.delayFeedback=v; if(audio.delayFeedback) audio.delayFeedback.gain.setValueAtTime(v, now());});
-  knob("LFO Hz","kLfoRate",{min:0.1,max:20,step:0.1,value:audio.settings.lfoRate},v=>{audio.settings.lfoRate=v; if(audio.lfo) audio.lfo.frequency.setValueAtTime(v, now());});
-  knob("LFO Amt","kLfoAmt",{min:0,max:1200,step:1,value:audio.settings.lfoAmount,fmt:v=>Math.round(v)},v=>{audio.settings.lfoAmount=v; if(audio.lfoGain) audio.lfoGain.gain.setValueAtTime(v, now());});
+  addKnob("Attack","kAttack",{min:0,max:2,step:0.01,value:audio.settings.attack},v=>audio.settings.attack=v);
+  addKnob("Decay","kDecay",{min:0,max:2,step:0.01,value:audio.settings.decay},v=>audio.settings.decay=v);
+  addKnob("Sustain","kSustain",{min:0,max:1,step:0.01,value:audio.settings.sustain},v=>audio.settings.sustain=v);
+  addKnob("Release","kRelease",{min:0,max:4,step:0.01,value:audio.settings.release},v=>audio.settings.release=v);
+  addKnob("Cutoff","kCutoff",{min:100,max:12000,step:1,value:audio.settings.cutoff,fmt:v=>Math.round(v)+" Hz"},v=>{audio.settings.cutoff=v; if(audio.filter) audio.filter.frequency.setValueAtTime(v, now());});
+  addKnob("Reson.","kRes",{min:0.1,max:20,step:0.1,value:audio.settings.resonance,fmt:v=>v.toFixed(1)},v=>{audio.settings.resonance=v; if(audio.filter) audio.filter.Q.setValueAtTime(v, now());});
+  addKnob("Detune","kDetune",{min:-1200,max:1200,step:1,value:audio.settings.detune,fmt:v=>Math.round(v)+" ct"},v=>{audio.settings.detune=v; for(const {osc} of voices.values()) osc.detune.setValueAtTime(v, now());});
+  addKnob("Glide","kGlide",{min:0,max:1,step:0.01,value:audio.settings.glide},v=>audio.settings.glide=v);
+  addKnob("Volume","kVol",{min:0,max:1,step:0.01,value:audio.settings.volume},v=>{audio.settings.volume=v; if(audio.master) audio.master.gain.setValueAtTime(v, now());});
+  addKnob("Delay","kDelay",{min:0,max:1.5,step:0.01,value:audio.settings.delayTime,fmt:v=>v.toFixed(2)+" s"},v=>{audio.settings.delayTime=v; if(audio.delay) audio.delay.delayTime.setValueAtTime(v, now());});
+  addKnob("DlyMix","kDelayMix",{min:0,max:1,step:0.01,value:audio.settings.delayMix},v=>{audio.settings.delayMix=v; if(audio.delayGain) audio.delayGain.gain.setValueAtTime(v, now());});
+  addKnob("Feedback","kFb",{min:0,max:0.95,step:0.01,value:audio.settings.delayFeedback},v=>{audio.settings.delayFeedback=v; if(audio.delayFeedback) audio.delayFeedback.gain.setValueAtTime(v, now());});
+  addKnob("LFO Hz","kLfoRate",{min:0.1,max:20,step:0.1,value:audio.settings.lfoRate},v=>{audio.settings.lfoRate=v; if(audio.lfo) audio.lfo.frequency.setValueAtTime(v, now());});
+  addKnob("LFO Amt","kLfoAmt",{min:0,max:1200,step:1,value:audio.settings.lfoAmount,fmt:v=>Math.round(v)},v=>{audio.settings.lfoAmount=v; if(audio.lfoGain) audio.lfoGain.gain.setValueAtTime(v, now());});
 
   const lfoTargetWrap = el("div",{class:"knob"},[
     el("label",{for:"lfoTarget"},"LFO→"),
@@ -336,18 +327,17 @@
     ])
   ]);
 
-  // mount once (no duplicate re-appends)
+  // mount
   root.appendChild(body);
   root.appendChild(pellet);
 
   // ---------- circle + notes ----------
-  const center = {x:CIRCLE.size/2, y:CIRCLE.size/2}, radius = CIRCLE.radius;
+  const center = {x:CIRCLE.size/2, y:CIRCLE.size/2};
   const noteButtons = new Map();
   function posFor(idx){
     const angle = (-90 + idx * 30) * Math.PI / 180;
-    return { x: center.x + radius * Math.cos(angle), y: center.y + radius * Math.sin(angle) };
+    return { x: center.x + CIRCLE.radius * Math.cos(angle), y: center.y + CIRCLE.radius * Math.sin(angle) };
   }
-
   for (let i=0;i<12;i++){
     const pc = FIFTHS[i]; const p = posFor(i);
     const btn = el("div",{
@@ -356,7 +346,6 @@
       title:`${NAMES[pc]} — hover(+interval), click=sustain, right-click=remove`
     }, NAMES[pc]);
 
-    // Hover: melody + optional interval
     btn.addEventListener("mouseenter", () => {
       if (!audio.started || audio.muted) return;
       if (!isNoteAllowed(pc)) return;
@@ -376,7 +365,6 @@
       }
     });
 
-    // Click: sustain (+ interval if on)
     btn.addEventListener("click", e => {
       e.preventDefault();
       if (!audio.started) { resumeAudio(); powerBtn.classList.add("on"); }
@@ -394,7 +382,7 @@
     circleWrap.appendChild(btn); noteButtons.set(pc, btn);
   }
 
-  // ---------- PLASMA ARCS ----------
+  // ---------- plasma arcs ----------
   const defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
   const grad = document.createElementNS("http://www.w3.org/2000/svg","linearGradient");
   grad.setAttribute("id","plasmaGrad"); grad.setAttribute("x1","0%"); grad.setAttribute("y1","0%"); grad.setAttribute("x2","100%"); grad.setAttribute("y2","0%");
@@ -616,25 +604,18 @@
     updateNoteStates(); syncArcs();
   });
 
-  // drag to move host
+  // drag to move (header)
   (() => {
     let dragging=false,sx=0,sy=0,bx=0,by=0;
-    header.addEventListener("mousedown", e => { dragging=true; sx=e.clientX; sy=e.clientY;
-      const r = host.getBoundingClientRect(); bx=r.right; by=r.bottom; header.style.cursor="grabbing"; e.preventDefault();
-    });
-    window.addEventListener("mousemove", e => {
-      if (!dragging) return; const dx=e.clientX-sx, dy=e.clientY-sy;
-      host.style.right = (document.documentElement.clientWidth - bx - dx) + "px";
-      host.style.bottom = (document.documentElement.clientHeight - by - dy) + "px";
-    });
-    window.addEventListener("mouseup", ()=>{ dragging=false; header.style.cursor="grab"; });
+    const start = e => { dragging=true; sx=e.clientX; sy=e.clientY; const r = host.getBoundingClientRect(); bx=r.right; by=r.bottom; header.style.cursor="grabbing"; e.preventDefault(); };
+    const move  = e => { if (!dragging) return; const dx=e.clientX-sx, dy=e.clientY-sy; setHostPos(document.documentElement.clientWidth - bx - dx, document.documentElement.clientHeight - by - dy); };
+    const end   = () => { dragging=false; header.style.cursor="grab"; clampIntoView(); };
+    header.addEventListener("mousedown", start);
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
   })();
 
-  const lfoTargetSel = lfoTargetWrap.querySelector("#lfoTarget");
-  lfoTargetSel.addEventListener("change", ()=>{ audio.lfoTarget=lfoTargetSel.value; for (const v of voices.values()) attachLFOToVoice(v); });
-  waveformSel.addEventListener("change", ()=>{ audio.settings.waveform = waveformSel.value; });
-
-  // minimize pellet
+  // pellet drag + controls
   const minBtn = header.querySelector("#minBtn");
   const pelletBtn = pellet;
   const miniMute = pellet.querySelector("#miniMute");
@@ -642,28 +623,68 @@
   const orig = {w: SIZE.w, h: SIZE.h};
   let minimized = false;
 
+  function setHostPos(rightPx, bottomPx){
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const w = host.offsetWidth, h = host.offsetHeight;
+    const right = clamp(rightPx, 0, Math.max(0, vw - 40));
+    const bottom = clamp(bottomPx, 0, Math.max(0, vh - 40));
+    host.style.right = right + "px";
+    host.style.bottom = bottom + "px";
+  }
+  function clampIntoView(){
+    const r = host.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    if (r.top < 8) host.style.bottom = (vh - (r.height + 8)) + "px";
+    if (r.left < 8) host.style.right = (vw - (r.width + 8)) + "px";
+    if (r.bottom > vh - 8) host.style.bottom = "8px";
+    if (r.right  > vw - 8) host.style.right  = "8px";
+  }
+
   function setMinimized(v){
     minimized = v;
     if (v){ host.classList.add("minimized"); host.style.width = "80px"; host.style.height = "80px"; }
-    else   { host.classList.remove("minimized"); host.style.width = orig.w+"px"; host.style.height = orig.h+"px"; }
+    else   { host.classList.remove("minimized"); host.style.width = orig.w+"px"; host.style.height = orig.h+"px"; clampIntoView(); }
+    updatePelletIcons();
   }
 
   minBtn.addEventListener("click", ()=> setMinimized(true));
   miniOpen.addEventListener("click", (e)=>{ e.stopPropagation(); setMinimized(false); });
+
   miniMute.addEventListener("click", (e)=>{
     e.stopPropagation();
     if (!audio.started || audio.muted){ resumeAudio(); powerBtn.classList.add("on"); }
     else { suspendAudio(); powerBtn.classList.remove("on"); }
   });
-  pelletBtn.addEventListener("click", ()=> setMinimized(false));
 
-  // start audio on first pointer inside widget
+  // drag pellet anywhere (except clicking the mini buttons)
+  (() => {
+    let dragging=false, sx=0, sy=0, bx=0, by=0, moved=false;
+    const handle = pelletBtn;
+    handle.addEventListener("mousedown", e=>{
+      if (e.target.closest(".mini")) return; // buttons keep click
+      dragging=true; moved=false; sx=e.clientX; sy=e.clientY;
+      const r = host.getBoundingClientRect(); bx=r.right; by=r.bottom;
+      e.preventDefault();
+    });
+    window.addEventListener("mousemove", e=>{
+      if(!dragging) return;
+      const dx=e.clientX-sx, dy=e.clientY-sy;
+      if (Math.abs(dx)+Math.abs(dy)>3) moved=true;
+      setHostPos(document.documentElement.clientWidth - bx - dx, document.documentElement.clientHeight - by - dy);
+    });
+    window.addEventListener("mouseup", e=>{
+      if(!dragging) return; dragging=false;
+      if (!moved && !e.target.closest(".mini")) setMinimized(false); // click-to-open
+      clampIntoView();
+    });
+  })();
+
+  // start audio on first pointer
   root.addEventListener("pointerdown", () => { if (!audio.started){ resumeAudio(); powerBtn.classList.add("on"); } }, {once:false});
 
-  // ---------- arcs orchestration ----------
-  function syncArcs(){ clearStaleArcs(); }
-
-  // layout refresh
+  // layout
   function placeNotes(){
     for(const [pc,btn] of noteButtons){
       const idx=FIFTHS.indexOf(pc); const p=posFor(idx);
@@ -672,7 +693,46 @@
   }
   function refresh(){ placeNotes(); updateNoteStates(); syncArcs(); }
 
-  // go
+  // Compose
+  root.appendChild(header);
+  root.appendChild(ctrlTop);
+  circleWrap.insertBefore(svg, circleWrap.firstChild);
+  root.appendChild(circleWrap);
+  root.appendChild(knobs);
+
+  // responsiveness: compact grid on small viewports
+  function applyCompact(){
+    const compact = window.innerWidth < 1200 || window.innerHeight < 800;
+    host.classList.toggle("compact", compact);
+  }
+  function sizeToViewport(){
+    const w = Math.min(SIZE.w, Math.floor(window.innerWidth * 0.9));
+    const h = Math.min(SIZE.h, Math.floor(window.innerHeight * 0.85));
+    if (!minimized){
+      host.style.width = w+"px";
+      host.style.height = h+"px";
+    }
+  }
+  window.addEventListener("resize", ()=>{ applyCompact(); sizeToViewport(); clampIntoView(); });
+
+  // expose API for external launcher
+  const api = {
+    open: ()=> setMinimized(false),
+    close: ()=> setMinimized(true),
+    toggle: ()=> setMinimized(!minimized),
+    mute: ()=> { suspendAudio(); powerBtn.classList.remove("on"); },
+    unmute: ()=> { resumeAudio(); powerBtn.classList.add("on"); },
+    isOpen: ()=> !minimized,
+    isMuted: ()=> audio.muted || !audio.started,
+    moveTo: (pos)=>{ if (pos && typeof pos.right==="number") host.style.right = pos.right+"px"; if (pos && typeof pos.bottom==="number") host.style.bottom = pos.bottom+"px"; }
+  };
+  window.CircleFifthsSynth = api;
+  document.dispatchEvent(new CustomEvent("CircleFifthsSynthReady", { detail: api }));
+
+  // run
   requestAnimationFrame(animate);
   refresh();
+  applyCompact();
+  sizeToViewport();
+  setMinimized(true); // start minimized
 })();
