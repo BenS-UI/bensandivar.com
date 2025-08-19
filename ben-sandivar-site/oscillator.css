@@ -25,10 +25,10 @@
   background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
 }
 .dot{ width:10px; height:10px; border-radius:50%; background:#22d3ee; box-shadow:0 0 10px #22d3ee; }
-.title{ font-weight:600; font-size:14px; color:#eaffff; letter-spacing:0.2px; }
+.title{ font-weight:600; font-size:13px; color:#eaffff; letter-spacing:0.2px; }
 .btn,.toggle{
-  font-size:12px; color:#eaffff; background: rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.24); padding:6px 10px; border-radius:12px;
+  font-size:11px; color:#eaffff; background: rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.24); padding:5px 9px; border-radius:12px;
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   cursor:pointer; transition: transform .06s ease, background .2s ease;
 }
@@ -36,11 +36,11 @@
 .btn-row{ display:flex; gap:8px; align-items:center; padding:8px 12px; flex-wrap:wrap; }
 
 /* Circle + notes */
-.circle{ position:relative; margin: 8px auto 0; }
+.circle{ position:relative; margin: 6px auto 0; }
 .note{
   position:absolute; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  color:#eaffff; font-weight:700; font-size:13px; letter-spacing:0.4px;
+  color:#eaffff; font-weight:700; font-size:12px; letter-spacing:0.3px;
   background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.28), rgba(255,255,255,0.10));
   border:1px solid rgba(255,255,255,0.28);
   box-shadow: inset 0 2px 8px rgba(255,255,255,0.18), 0 0 0 2px rgba(255,255,255,0.06);
@@ -50,21 +50,21 @@
 .note:hover{ transform:scale(1.06); }
 .inactive{ opacity:.25; pointer-events:none; }
 .active{ box-shadow: inset 0 2px 8px rgba(255,255,255,0.18), 0 0 18px 2px rgba(56,189,248,0.95); }
-.home{ transform: scale(1.14); box-shadow: inset 0 2px 8px rgba(255,255,255,0.18), 0 0 22px 3px rgba(34,211,238,0.95); }
+.home{ transform: scale(1.12); box-shadow: inset 0 2px 8px rgba(255,255,255,0.18), 0 0 22px 3px rgba(34,211,238,0.95); }
 
 /* Plasma */
 .svg{ position:absolute; inset:0; pointer-events:none; mix-blend-mode:screen; }
 
 /* Knobs grid */
 .knobs{
-  display:grid; grid-template-columns: repeat(6, 1fr); gap:12px;
-  padding: 10px 12px 36px;
+  display:grid; grid-template-columns: repeat(6, 1fr); gap:10px;
+  padding: 8px 10px 24px;
 }
 
-/* Rotary knob */
+/* Rotary knob (smaller) */
 .knob{ display:flex; flex-direction:column; align-items:center; gap:6px; color:#eaffff; }
 .dial{
-  position:relative; width:58px; height:58px; border-radius:50%;
+  position:relative; width:40px; height:40px; border-radius:50%;
   background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
   border:1px solid rgba(255,255,255,0.25);
   box-shadow: inset 0 2px 10px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25);
@@ -72,27 +72,27 @@
 }
 .dial:active{ cursor:grabbing; }
 .dial .arc{
-  position:absolute; inset:6px; border-radius:50%;
+  position:absolute; inset:5px; border-radius:50%;
   background: conic-gradient(from 225deg, #38bdf8 var(--pct,0%), rgba(255,255,255,0.08) 0%);
   filter: drop-shadow(0 0 6px rgba(56,189,248,0.6));
 }
 .dial .cap{
-  position:absolute; left:50%; top:50%; width:28px; height:28px; border-radius:50%;
+  position:absolute; left:50%; top:50%; width:20px; height:20px; border-radius:50%;
   transform: translate(-50%,-50%) rotate(var(--deg,0deg));
   background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.25), rgba(255,255,255,0.08));
   border:1px solid rgba(255,255,255,0.25);
   box-shadow: inset 0 1px 6px rgba(0,0,0,0.35);
 }
 .dial .tick{
-  position:absolute; left:50%; top:6px; width:3px; height:8px; border-radius:2px;
-  transform: translateX(-50%) rotate(var(--deg,0deg)); transform-origin: 50% 23px;
+  position:absolute; left:50%; top:4px; width:2px; height:7px; border-radius:2px;
+  transform: translateX(-50%) rotate(var(--deg,0deg)); transform-origin: 50% 15px;
   background:#7de3ff; filter: drop-shadow(0 0 5px rgba(125,227,255,0.9));
 }
-.knob label{ font-size:11px; opacity:.9; }
+.knob label{ font-size:10px; opacity:.9; }
 
 /* Editable numeric */
 .val{
-  width:72px; text-align:center; padding:3px 6px; border-radius:8px;
+  width:64px; text-align:center; padding:3px 6px; border-radius:8px;
   border:1px solid rgba(255,255,255,0.18);
   background:#000; color:#fff; font-size:11px;
   outline:none;
@@ -135,4 +135,13 @@ select option{ background:#000; color:#fff; }
   width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center;
   border-radius:10px; border:1px solid rgba(255,255,255,0.2);
   background: rgba(255,255,255,0.08); cursor:pointer;
+}
+
+/* Compact layout toggles from JS */
+:host(.compact) .knobs { grid-template-columns: repeat(4, 1fr); }
+
+/* Mobile */
+@media (max-width: 768px){
+  :host(.compact) .knobs { grid-template-columns: repeat(3, 1fr); }
+  .title{ font-size:12px; }
 }
