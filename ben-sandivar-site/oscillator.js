@@ -9,7 +9,7 @@
   (function injectCSS() {
     const cssLink = document.createElement("link");
     cssLink.rel = "stylesheet";
-    cssLink.href = getCSSHref(); // resolve relative to this JS file
+    cssLink.href = "ben-sandivar-site/oscillator.css";
     document.head.appendChild(cssLink);
   })();
 
@@ -32,16 +32,6 @@
   const fract = v => v - Math.floor(v);
   const noise1 = x => fract(Math.sin(x*12.9898)*43758.5453);
   const sCurve = t => Math.pow(Math.sin(Math.PI*t), 1.35);
-
-  function getCSSHref() {
-    const guess = () => {
-      const scripts = document.getElementsByTagName("script");
-      const cur = document.currentScript || scripts[scripts.length-1];
-      try { return new URL("./oscillator.css", cur.src).href; } 
-      catch { return "oscillator.css"; }
-    };
-    return guess();
-  }
 
   // ---------- music ----------
   const NAMES  = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
