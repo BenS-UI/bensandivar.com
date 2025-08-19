@@ -41,7 +41,7 @@
   const INTERVALS = { "m3":3,"M3":4,"P5":7,"m7":10,"M7":11,"P8":12,"M9":14,"P11":17 };
 
   // ---------- host + shadow ----------
-  const SIZE   = { w: 520, h: 540 };  // widget footprint
+  const SIZE   = { w: 520, h: 700 };  // widget footprint
   const CIRCLE = { size: 200, radius: 80 }; // circle of fifths
   const NOTE_DIAM = 36; // note buttons
 
