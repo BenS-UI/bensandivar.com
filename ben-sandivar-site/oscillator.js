@@ -303,7 +303,6 @@
   const waveWrap = el("div",{class:"knob"},[
     el("label",{for:"waveSel"},"Wave"),
     waveformSel,
-    el("input",{class:"val", value:""})
   ]);
   knobs.appendChild(waveWrap);
   const knob = (label,id,opts,apply)=>{ const k = makeKnob(label,id,opts,(v)=>apply(v)); knobs.appendChild(k.root); return k; };
@@ -329,15 +328,15 @@
       el("option",{value:"pitch"},"Pitch"),
       el("option",{value:"filter"},"Filter")
     ]),
-    el("input",{class:"val", value:""})
   ]);
   knobs.appendChild(lfoTargetWrap);
 
-  const hints = el("div",{class:"knob"},[
-    el("label",{},"Hints"),
-    el("input",{class:"val", value:"Hover=play(+interval). Click=sustain. Right-click=remove.", readOnly:true})
-  ]);
-  knobs.appendChild(hints);
+//USELESS HINTS BOX I MIGHT NEED LATER//
+//  const hints = el("div",{class:"knob"},[
+//    el("label",{},"Hints"),
+//    el("input",{class:"val", value:"Hover=play(+interval). Click=sustain. Right-click=remove.", readOnly:true})
+//  ]);
+//  knobs.appendChild(hints);
 
   // Main body layout (now with knobsBox wrapper instead of knobs directly)
   const body = el("div", {class:"wrap"}, [
