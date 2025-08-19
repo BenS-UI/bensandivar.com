@@ -5,13 +5,13 @@
   const WIDGET_ID = "circle-fifths-synth-widget";
   if (document.getElementById(WIDGET_ID)) return;
 
-  // ---------- auto-inject CSS ----------
-  (function injectCSS() {
-    const cssLink = document.createElement("link");
-    cssLink.rel = "stylesheet";
-    cssLink.href = "oscillator.css";
-    document.head.appendChild(cssLink);
-  })();
+  // ---------- path helper (CSS lives next to this JS) ----------
+  function getCSSHref() {
+    const scripts = document.getElementsByTagName("script");
+    const cur = document.currentScript || scripts[scripts.length-1];
+    try { return new URL("oscillator.css", cur.src).href; }
+    catch { return "oscillator.css"; }
+  }
 
   // ---------- small utils ----------
   const el = (tag, attrs = {}, children = []) => {
@@ -40,6 +40,22 @@
   const MINOR  = [0,2,3,5,7,8,10];
   const INTERVALS = { "m3":3,"M3":4,"P5":7,"m7":10,"M7":11,"P8":12,"M9":14,"P11":17 };
 
+  // ---------- host + shadow ----------
+  const SIZE   = { w: 780, h: 820 };
+  const CIRCLE = { size: 300, radius: 118 };
+  const NOTE_DIAM = 52;
+
+  const host = el("div", { id: WIDGET_ID });
+  Object.assign(host.style, { position:"fixed", right:"24px", bottom:"24px", width: SIZE.w+"px", height: SIZE.h+"px", zIndex: 2147483000 });
+  document.body.appendChild(host);
+  const root = host.attachShadow({mode:"open"});
+
+  // load CSS into the SHADOW (required to style shadow DOM)
+  const cssLink = document.createElement("link");
+  cssLink.rel = "stylesheet";
+  cssLink.href = getCSSHref();
+  root.appendChild(cssLink);
+
   // ---------- audio ----------
   const audio = {
     ctx:null, master:null, analyser:null, dryGain:null, filter:null, pan:null,
@@ -54,6 +70,12 @@
     }
   };
   const now = () => (audio.ctx ? audio.ctx.currentTime : 0);
+
+  function updatePelletIcons(){
+    if (!miniMute) return;
+    if (!audio.started || audio.muted) miniMute.textContent = "🔇";
+    else miniMute.textContent = "🔊";
+  }
 
   function initAudio(){
     if (audio.ctx) return;
@@ -167,22 +189,7 @@
     let o=4; while(set.has(o)) o++; return clamp(o,1,7);
   }
 
-  // ---------- UI host + shadow ----------
-  const SIZE   = { w: 780, h: 820 };         // larger frame
-  const CIRCLE = { size: 300, radius: 118 };  // smaller wheel
-  const NOTE_DIAM = 52;
-
-  const host = el("div", { id: WIDGET_ID });
-  Object.assign(host.style, { position:"fixed", right:"24px", bottom:"24px", width: SIZE.w+"px", height: SIZE.h+"px", zIndex: 2147483000 });
-  document.body.appendChild(host);
-  const root = host.attachShadow({mode:"open"});
-
-  // load external CSS into shadow
-  const link = document.createElement("link");
-  link.setAttribute("rel","stylesheet"); link.setAttribute("href", getCSSHref());
-  root.appendChild(link);
-
-  // Header
+  // ---------- header / controls / layout ----------
   const header = el("div", {class:"hdr"}, [
     el("div", {class:"dot"}),
     el("div", {class:"title"}, "Circle of Fifths Synth"),
@@ -191,7 +198,6 @@
     el("button", {class:"btn power", id:"powerBtn", title:"Audio On/Off"}, "Power")
   ]);
 
-  // Top controls
   const ctrlTop = el("div", {class:"btn-row"}, [
     el("button", {class:"toggle", id:"intervalToggle", title:"Toggle interval mode"}, "Interval"),
     el("select", {id:"intervalSel", title:"Interval"}, Object.keys(INTERVALS).map(k=>el("option",{},k))),
@@ -204,29 +210,13 @@
     ])
   ]);
 
-  // Circle + SVG
   const circleWrap = el("div", {class:"circle", style:{ width: CIRCLE.size+"px", height: CIRCLE.size+"px" }});
   const svg = el("svg", {class:"svg", width:String(CIRCLE.size), height:String(CIRCLE.size), viewBox:`0 0 ${CIRCLE.size} ${CIRCLE.size}`});
-
-  // Plasma defs
-  const defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
-  const grad = document.createElementNS("http://www.w3.org/2000/svg","linearGradient");
-  grad.setAttribute("id","plasmaGrad"); grad.setAttribute("x1","0%"); grad.setAttribute("y1","0%"); grad.setAttribute("x2","100%"); grad.setAttribute("y2","0%");
-  grad.innerHTML = `<stop offset="0%" stop-color="#0ff" stop-opacity="0.0"/><stop offset="35%" stop-color="#7de3ff" stop-opacity="0.8"/><stop offset="65%" stop-color="#38bdf8" stop-opacity="1.0"/><stop offset="100%" stop-color="#0ff" stop-opacity="0.0"/>`;
-  const glow = document.createElementNS("http://www.w3.org/2000/svg","filter");
-  glow.setAttribute("id","glow"); glow.innerHTML = `<feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>`;
-  const glowWide = document.createElementNS("http://www.w3.org/2000/svg","filter");
-  glowWide.setAttribute("id","glowWide"); glowWide.innerHTML = `<feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>`;
-  defs.appendChild(grad); defs.appendChild(glow); defs.appendChild(glowWide);
-  svg.appendChild(defs);
-
-  const arcLayerBack = document.createElementNS("http://www.w3.org/2000/svg","g");
-  const arcLayerMid  = document.createElementNS("http://www.w3.org/2000/svg","g");
-  const arcLayerFront= document.createElementNS("http://www.w3.org/2000/svg","g");
-  svg.appendChild(arcLayerBack); svg.appendChild(arcLayerMid); svg.appendChild(arcLayerFront);
   circleWrap.appendChild(svg);
 
-  // Knobs
+  const knobs = el("div", {class:"knobs"});
+
+  // Knobs builder
   function makeKnob(labelText, id, {min=0,max=1,step=0.01,value=0,fmt=(v)=>v.toFixed(2)}, onChange){
     const k = el("div",{class:"knob", id});
     const dial = el("div",{class:"dial", title:labelText},[
@@ -242,10 +232,7 @@
     const range = max - min;
     const SWEEP = 270, START = -135;
 
-    function stepClamp(v){
-      const s = step || 0.0001;
-      return Math.round(v / s) * s;
-    }
+    function stepClamp(v){ const s = step || 0.0001; return Math.round(v / s) * s; }
     function setValue(v, fromUser=false){
       v = stepClamp(clamp(v, min, max));
       state.value = v;
@@ -259,7 +246,7 @@
     }
     setValue(value, false);
 
-    // pointer drag on dial
+    // pointer drag
     let dragging=false;
     const getAngle = (e) => {
       const r = dial.getBoundingClientRect();
@@ -284,22 +271,14 @@
     // wheel fine adjust
     dial.addEventListener("wheel", (e)=>{ e.preventDefault(); const delta = (e.deltaY>0?-1:1)*(step||((max-min)/150)); setValue(state.value + delta, true); }, {passive:false});
 
-    // drag on numeric value (horizontal scrub)
+    // numeric scrub + validate
     let dragVal = {drag:false, sx:0, orig:0};
     val.addEventListener("mousedown",(e)=>{ dragVal={drag:true,sx:e.clientX,orig:state.value}; e.preventDefault(); });
     window.addEventListener("mousemove",(e)=>{ if(!dragVal.drag) return; const px = e.clientX - dragVal.sx; const sens = (max-min) / 160; setValue(dragVal.orig + px*sens, true); });
     window.addEventListener("mouseup",()=>{ dragVal.drag=false; });
-
-    // manual input with validation
     val.addEventListener("focus", ()=>{ state.prev = state.value; val.select(); });
     val.addEventListener("keydown", (e)=>{ if(e.key==="Enter") val.blur(); if(e.key==="Escape"){ val.value = fmt(state.prev); val.blur(); } });
-    val.addEventListener("blur", ()=>{
-      const raw = val.value.trim().replace(/[^\-0-9\.]/g,"");
-      const num = Number(raw);
-      if (!isFinite(num)){ val.value = fmt(state.prev); return; }
-      const good = clamp(num, min, max);
-      setValue(good, true);
-    });
+    val.addEventListener("blur", ()=>{ const raw = val.value.trim().replace(/[^\-0-9\.]/g,""); const num = Number(raw); if (!isFinite(num)){ val.value = fmt(state.prev); return; } setValue(clamp(num, min, max), true); });
 
     return {root:k, set:setValue, get:()=>state.value};
   }
@@ -310,31 +289,28 @@
     el("option",{value:"sawtooth"},"Saw"),
     el("option",{value:"triangle"},"Triangle")
   ]);
-
-  const knobs = el("div", {class:"knobs"});
-  function addKnob(label,id,opts,apply){ const k = makeKnob(label,id,opts,(v)=>apply(v)); knobs.appendChild(k.root); return k; }
-
   const waveWrap = el("div",{class:"knob"},[
     el("label",{for:"waveSel"},"Wave"),
     waveformSel,
     el("input",{class:"val", value:""})
   ]);
   knobs.appendChild(waveWrap);
+  const knob = (label,id,opts,apply)=>{ const k = makeKnob(label,id,opts,(v)=>apply(v)); knobs.appendChild(k.root); return k; };
 
-  addKnob("Attack","kAttack",{min:0,max:2,step:0.01,value:audio.settings.attack},v=>audio.settings.attack=v);
-  addKnob("Decay","kDecay",{min:0,max:2,step:0.01,value:audio.settings.decay},v=>audio.settings.decay=v);
-  addKnob("Sustain","kSustain",{min:0,max:1,step:0.01,value:audio.settings.sustain},v=>audio.settings.sustain=v);
-  addKnob("Release","kRelease",{min:0,max:4,step:0.01,value:audio.settings.release},v=>audio.settings.release=v);
-  addKnob("Cutoff","kCutoff",{min:100,max:12000,step:1,value:audio.settings.cutoff,fmt:v=>Math.round(v)+" Hz"},v=>{audio.settings.cutoff=v; if(audio.filter) audio.filter.frequency.setValueAtTime(v, now());});
-  addKnob("Reson.","kRes",{min:0.1,max:20,step:0.1,value:audio.settings.resonance,fmt:v=>v.toFixed(1)},v=>{audio.settings.resonance=v; if(audio.filter) audio.filter.Q.setValueAtTime(v, now());});
-  addKnob("Detune","kDetune",{min:-1200,max:1200,step:1,value:audio.settings.detune,fmt:v=>Math.round(v)+" ct"},v=>{audio.settings.detune=v; for(const {osc} of voices.values()) osc.detune.setValueAtTime(v, now());});
-  addKnob("Glide","kGlide",{min:0,max:1,step:0.01,value:audio.settings.glide},v=>audio.settings.glide=v);
-  addKnob("Volume","kVol",{min:0,max:1,step:0.01,value:audio.settings.volume},v=>{audio.settings.volume=v; if(audio.master) audio.master.gain.setValueAtTime(v, now());});
-  addKnob("Delay","kDelay",{min:0,max:1.5,step:0.01,value:audio.settings.delayTime,fmt:v=>v.toFixed(2)+" s"},v=>{audio.settings.delayTime=v; if(audio.delay) audio.delay.delayTime.setValueAtTime(v, now());});
-  addKnob("DlyMix","kDelayMix",{min:0,max:1,step:0.01,value:audio.settings.delayMix},v=>{audio.settings.delayMix=v; if(audio.delayGain) audio.delayGain.gain.setValueAtTime(v, now());});
-  addKnob("Feedback","kFb",{min:0,max:0.95,step:0.01,value:audio.settings.delayFeedback},v=>{audio.settings.delayFeedback=v; if(audio.delayFeedback) audio.delayFeedback.gain.setValueAtTime(v, now());});
-  addKnob("LFO Hz","kLfoRate",{min:0.1,max:20,step:0.1,value:audio.settings.lfoRate},v=>{audio.settings.lfoRate=v; if(audio.lfo) audio.lfo.frequency.setValueAtTime(v, now());});
-  addKnob("LFO Amt","kLfoAmt",{min:0,max:1200,step:1,value:audio.settings.lfoAmount,fmt:v=>Math.round(v)},v=>{audio.settings.lfoAmount=v; if(audio.lfoGain) audio.lfoGain.gain.setValueAtTime(v, now());});
+  knob("Attack","kAttack",{min:0,max:2,step:0.01,value:audio.settings.attack},v=>audio.settings.attack=v);
+  knob("Decay","kDecay",{min:0,max:2,step:0.01,value:audio.settings.decay},v=>audio.settings.decay=v);
+  knob("Sustain","kSustain",{min:0,max:1,step:0.01,value:audio.settings.sustain},v=>audio.settings.sustain=v);
+  knob("Release","kRelease",{min:0,max:4,step:0.01,value:audio.settings.release},v=>audio.settings.release=v);
+  knob("Cutoff","kCutoff",{min:100,max:12000,step:1,value:audio.settings.cutoff,fmt:v=>Math.round(v)+" Hz"},v=>{audio.settings.cutoff=v; if(audio.filter) audio.filter.frequency.setValueAtTime(v, now());});
+  knob("Reson.","kRes",{min:0.1,max:20,step:0.1,value:audio.settings.resonance,fmt:v=>v.toFixed(1)},v=>{audio.settings.resonance=v; if(audio.filter) audio.filter.Q.setValueAtTime(v, now());});
+  knob("Detune","kDetune",{min:-1200,max:1200,step:1,value:audio.settings.detune,fmt:v=>Math.round(v)+" ct"},v=>{audio.settings.detune=v; for(const {osc} of voices.values()) osc.detune.setValueAtTime(v, now());});
+  knob("Glide","kGlide",{min:0,max:1,step:0.01,value:audio.settings.glide},v=>audio.settings.glide=v);
+  knob("Volume","kVol",{min:0,max:1,step:0.01,value:audio.settings.volume},v=>{audio.settings.volume=v; if(audio.master) audio.master.gain.setValueAtTime(v, now());});
+  knob("Delay","kDelay",{min:0,max:1.5,step:0.01,value:audio.settings.delayTime,fmt:v=>v.toFixed(2)+" s"},v=>{audio.settings.delayTime=v; if(audio.delay) audio.delay.delayTime.setValueAtTime(v, now());});
+  knob("DlyMix","kDelayMix",{min:0,max:1,step:0.01,value:audio.settings.delayMix},v=>{audio.settings.delayMix=v; if(audio.delayGain) audio.delayGain.gain.setValueAtTime(v, now());});
+  knob("Feedback","kFb",{min:0,max:0.95,step:0.01,value:audio.settings.delayFeedback},v=>{audio.settings.delayFeedback=v; if(audio.delayFeedback) audio.delayFeedback.gain.setValueAtTime(v, now());});
+  knob("LFO Hz","kLfoRate",{min:0.1,max:20,step:0.1,value:audio.settings.lfoRate},v=>{audio.settings.lfoRate=v; if(audio.lfo) audio.lfo.frequency.setValueAtTime(v, now());});
+  knob("LFO Amt","kLfoAmt",{min:0,max:1200,step:1,value:audio.settings.lfoAmount,fmt:v=>Math.round(v)},v=>{audio.settings.lfoAmount=v; if(audio.lfoGain) audio.lfoGain.gain.setValueAtTime(v, now());});
 
   const lfoTargetWrap = el("div",{class:"knob"},[
     el("label",{for:"lfoTarget"},"LFO→"),
@@ -351,7 +327,7 @@
 
   const body = el("div", {class:"wrap"}, [header, ctrlTop, circleWrap, knobs]);
 
-  // Pellet with mute + expand
+  // Pellet
   const pellet = el("div",{class:"pellet", id:"pelletBtn", title:"Synth"},[
     el("div",{class:"name"},"Synth"),
     el("div",{class:"row"},[
@@ -360,16 +336,18 @@
     ])
   ]);
 
+  // mount once (no duplicate re-appends)
   root.appendChild(body);
   root.appendChild(pellet);
 
-  // ---------- layout notes ----------
+  // ---------- circle + notes ----------
   const center = {x:CIRCLE.size/2, y:CIRCLE.size/2}, radius = CIRCLE.radius;
   const noteButtons = new Map();
   function posFor(idx){
     const angle = (-90 + idx * 30) * Math.PI / 180;
     return { x: center.x + radius * Math.cos(angle), y: center.y + radius * Math.sin(angle) };
   }
+
   for (let i=0;i<12;i++){
     const pc = FIFTHS[i]; const p = posFor(i);
     const btn = el("div",{
@@ -378,7 +356,7 @@
       title:`${NAMES[pc]} — hover(+interval), click=sustain, right-click=remove`
     }, NAMES[pc]);
 
-    // HOVER (melody + interval)
+    // Hover: melody + optional interval
     btn.addEventListener("mouseenter", () => {
       if (!audio.started || audio.muted) return;
       if (!isNoteAllowed(pc)) return;
@@ -398,7 +376,7 @@
       }
     });
 
-    // CLICK (sustain + interval)
+    // Click: sustain (+ interval if on)
     btn.addEventListener("click", e => {
       e.preventDefault();
       if (!audio.started) { resumeAudio(); powerBtn.classList.add("on"); }
@@ -417,8 +395,23 @@
   }
 
   // ---------- PLASMA ARCS ----------
+  const defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+  const grad = document.createElementNS("http://www.w3.org/2000/svg","linearGradient");
+  grad.setAttribute("id","plasmaGrad"); grad.setAttribute("x1","0%"); grad.setAttribute("y1","0%"); grad.setAttribute("x2","100%"); grad.setAttribute("y2","0%");
+  grad.innerHTML = `<stop offset="0%" stop-color="#0ff" stop-opacity="0.0"/><stop offset="35%" stop-color="#7de3ff" stop-opacity="0.8"/><stop offset="65%" stop-color="#38bdf8" stop-opacity="1.0"/><stop offset="100%" stop-color="#0ff" stop-opacity="0.0"/>`;
+  const glow = document.createElementNS("http://www.w3.org/2000/svg","filter");
+  glow.setAttribute("id","glow"); glow.innerHTML = `<feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>`;
+  const glowWide = document.createElementNS("http://www.w3.org/2000/svg","filter");
+  glowWide.setAttribute("id","glowWide"); glowWide.innerHTML = `<feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>`;
+  defs.appendChild(grad); defs.appendChild(glow); defs.appendChild(glowWide);
+  svg.appendChild(defs);
+
+  const arcLayerBack = document.createElementNS("http://www.w3.org/2000/svg","g");
+  const arcLayerMid  = document.createElementNS("http://www.w3.org/2000/svg","g");
+  const arcLayerFront= document.createElementNS("http://www.w3.org/2000/svg","g");
+  svg.appendChild(arcLayerBack); svg.appendChild(arcLayerMid); svg.appendChild(arcLayerFront);
+
   const arcMap = new Map(); // "a-b" -> {back, mid, front, spark, seed}
-  let animRAF = null;
   let ampSmooth = 0.2;
 
   function keyPair(a,b){ return a<b ? `${a}-${b}` : `${b}-${a}`; }
@@ -438,7 +431,7 @@
       p.setAttribute("opacity", String(opacity));
       if (filter) p.setAttribute("filter", filter);
       if (useGrad) p.setAttribute("stroke","url(#plasmaGrad)");
-      p.setAttribute("stroke-dasharray","6 10"); // flow illusion
+      p.setAttribute("stroke-dasharray","6 10");
       return p;
     };
 
@@ -475,7 +468,6 @@
   }
   function syncArcs(){ clearStaleArcs(); }
 
-  // anchor arcs to button edge
   function anchorPoints(pa, pb){
     const r = NOTE_DIAM/2 - 2;
     const dx = pb.x - pa.x, dy = pb.y - pa.y;
@@ -566,9 +558,8 @@
         }
       }
     }
-    animRAF = requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
   }
-  animRAF = requestAnimationFrame(animate);
 
   function updateNoteStates(){
     for (const [pc, btn] of noteButtons){
@@ -613,7 +604,6 @@
     const [_, rootIdxStr] = v.split(":"); return parseInt(rootIdxStr,10);
   }
 
-  // random chord
   const randBtn = ctrlTop.querySelector("#randChord");
   randBtn.addEventListener("click", () => {
     const current = [...sustained.keys()]; const count = current.length; if (!count) return;
@@ -626,7 +616,7 @@
     updateNoteStates(); syncArcs();
   });
 
-  // drag to move
+  // drag to move host
   (() => {
     let dragging=false,sx=0,sy=0,bx=0,by=0;
     header.addEventListener("mousedown", e => { dragging=true; sx=e.clientX; sy=e.clientY;
@@ -640,12 +630,11 @@
     window.addEventListener("mouseup", ()=>{ dragging=false; header.style.cursor="grab"; });
   })();
 
-  // LFO target + waveform
   const lfoTargetSel = lfoTargetWrap.querySelector("#lfoTarget");
   lfoTargetSel.addEventListener("change", ()=>{ audio.lfoTarget=lfoTargetSel.value; for (const v of voices.values()) attachLFOToVoice(v); });
   waveformSel.addEventListener("change", ()=>{ audio.settings.waveform = waveformSel.value; });
 
-  // Minimize / pellet
+  // minimize pellet
   const minBtn = header.querySelector("#minBtn");
   const pelletBtn = pellet;
   const miniMute = pellet.querySelector("#miniMute");
@@ -657,10 +646,6 @@
     minimized = v;
     if (v){ host.classList.add("minimized"); host.style.width = "80px"; host.style.height = "80px"; }
     else   { host.classList.remove("minimized"); host.style.width = orig.w+"px"; host.style.height = orig.h+"px"; }
-  }
-  function updatePelletIcons(){
-    if (!audio.started || audio.muted) miniMute.textContent = "🔇";
-    else miniMute.textContent = "🔊";
   }
 
   minBtn.addEventListener("click", ()=> setMinimized(true));
@@ -675,8 +660,10 @@
   // start audio on first pointer inside widget
   root.addEventListener("pointerdown", () => { if (!audio.started){ resumeAudio(); powerBtn.classList.add("on"); } }, {once:false});
 
-  // initial paint
-  const svgNS = "http://www.w3.org/2000/svg";
+  // ---------- arcs orchestration ----------
+  function syncArcs(){ clearStaleArcs(); }
+
+  // layout refresh
   function placeNotes(){
     for(const [pc,btn] of noteButtons){
       const idx=FIFTHS.indexOf(pc); const p=posFor(idx);
@@ -685,17 +672,7 @@
   }
   function refresh(){ placeNotes(); updateNoteStates(); syncArcs(); }
 
-  // Compose
-  root.appendChild(header);
-  root.appendChild(ctrlTop);
-  // ensure SVG sits under buttons
-  circleWrap.insertBefore(svg, circleWrap.firstChild);
-  root.appendChild(circleWrap);
-  root.appendChild(knobs);
-
-  // Start animation
-  ampSmooth = 0.2;
-  requestAnimationFrame(function loop(t){ animate(); });
-
+  // go
+  requestAnimationFrame(animate);
   refresh();
 })();
