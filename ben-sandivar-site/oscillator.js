@@ -199,7 +199,7 @@
   // ---------- header / controls / layout ----------
   const header = el("div", {class:"hdr"}, [
     el("div", {class:"dot"}),
-    el("div", {class:"title"}, "Circle of Fifths Synth"),
+    el("div", {class:"title"}, "Ring Oscillator"),
     el("div", {class:"spacer"}),
     el("div", {class:"icon", id:"minBtn", title:"Minimize"}, "–"),
     el("button", {class:"btn power", id:"powerBtn", title:"Audio On/Off"}, "Power")
