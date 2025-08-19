@@ -41,12 +41,19 @@
   const INTERVALS = { "m3":3,"M3":4,"P5":7,"m7":10,"M7":11,"P8":12,"M9":14,"P11":17 };
 
   // ---------- host + shadow ----------
-  const SIZE   = { w: 520, h: 540 };  // shrinks container
-  const CIRCLE = { size: 200, radius: 80 }; // smaller circle
-  const NOTE_DIAM = 36; // smaller note buttons
+  const SIZE   = { w: 520, h: 540 };  // widget footprint
+  const CIRCLE = { size: 200, radius: 80 }; // circle of fifths
+  const NOTE_DIAM = 36; // note buttons
 
   const host = el("div", { id: WIDGET_ID });
-  Object.assign(host.style, { position:"fixed", right:"24px", bottom:"24px", width: SIZE.w+"px", height: SIZE.h+"px", zIndex: 2147483000 });
+  Object.assign(host.style, {
+    position:"fixed",
+    right:"24px",
+    bottom:"24px",
+    width: SIZE.w+"px",
+    height: SIZE.h+"px",
+    zIndex: 2147483000,
+  });
   document.body.appendChild(host);
   const root = host.attachShadow({mode:"open"});
 
@@ -657,8 +664,15 @@
 
   function setMinimized(v){
     minimized = v;
-    if (v){ host.classList.add("minimized"); host.style.width = "80px"; host.style.height = "80px"; }
-    else   { host.classList.remove("minimized"); host.style.width = orig.w+"px"; host.style.height = orig.h+"px"; }
+    if (v){
+      host.classList.add("minimized");
+      host.style.width = "120px";  // match .pellet width
+      host.style.height = "60px";  // match .pellet height
+    } else {
+      host.classList.remove("minimized");
+      host.style.width = orig.w+"px";
+      host.style.height = orig.h+"px";
+    }
   }
 
   minBtn.addEventListener("click", ()=> setMinimized(true));
