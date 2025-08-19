@@ -9,7 +9,7 @@
   (function injectCSS() {
     const cssLink = document.createElement("link");
     cssLink.rel = "stylesheet";
-    cssLink.href = "ben-sandivar-site/oscillator.css";
+    cssLink.href = "oscillator.css";
     document.head.appendChild(cssLink);
   })();
 
