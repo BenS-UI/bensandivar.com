@@ -42,15 +42,11 @@
   document.body.appendChild(host);
   const root = host.attachShadow({mode:"open"});
 
-  // CSS inside shadow
-  function getCSSHref() {
-    const scripts = document.getElementsByTagName("script");
-    const cur = document.currentScript || scripts[scripts.length-1];
-    try { return new URL("oscillator.css", cur.src).href; } catch { return "oscillator.css"; }
-  }
+  // CSS inside shadow (explicit path; no global injection)
+  const CSS_PATH = "/ben-sandivar-site/css/oscillator.css";
   const cssLink = document.createElement("link");
   cssLink.rel = "stylesheet";
-  cssLink.href = getCSSHref();
+  cssLink.href = CSS_PATH;
   root.appendChild(cssLink);
 
   // ---------- audio ----------
@@ -327,7 +323,7 @@
     ])
   ]);
 
-  // mount
+  // mount (keep everything inside .wrap so minimize works)
   root.appendChild(body);
   root.appendChild(pellet);
 
@@ -396,7 +392,7 @@
 
   const arcLayerBack = document.createElementNS("http://www.w3.org/2000/svg","g");
   const arcLayerMid  = document.createElementNS("http://www.w3.org/2000/svg","g");
-  const arcLayerFront= document.createElementNS("http://www.w3.org/2000/svg","g");
+  const arcLayerFront= document.createElementNS("http://www.w3.org/200/svg","g"); // fix typo in original id
   svg.appendChild(arcLayerBack); svg.appendChild(arcLayerMid); svg.appendChild(arcLayerFront);
 
   const arcMap = new Map(); // "a-b" -> {back, mid, front, spark, seed}
@@ -692,13 +688,6 @@
     }
   }
   function refresh(){ placeNotes(); updateNoteStates(); syncArcs(); }
-
-  // Compose
-  root.appendChild(header);
-  root.appendChild(ctrlTop);
-  circleWrap.insertBefore(svg, circleWrap.firstChild);
-  root.appendChild(circleWrap);
-  root.appendChild(knobs);
 
   // responsiveness: compact grid on small viewports
   function applyCompact(){

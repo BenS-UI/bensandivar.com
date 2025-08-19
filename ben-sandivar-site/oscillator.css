@@ -1,3 +1,4 @@
+/* oscillator.css — safe-scoped */
 :host {
   --synth-font: var(--font-sans, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial);
   --synth-fg: var(--color-text, #f0fbff);
@@ -11,7 +12,10 @@
   color: var(--synth-fg);
   font-family: var(--synth-font);
 }
-* { box-sizing: border-box; font-family: inherit; }
+
+/* ✅ Scope all internals to the shadow host */
+:host * { box-sizing: border-box; font-family: inherit; }
+
 :host(.minimized) .wrap { display: none; }
 :host(.minimized) .pellet { display: flex; }
 .wrap {
