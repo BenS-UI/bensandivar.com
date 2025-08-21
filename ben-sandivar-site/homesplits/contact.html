@@ -1,7 +1,9 @@
-<section class="pi-contact" aria-labelledby="pi-contact-title">
-  <div class="pi-wrap" role="region" aria-label="Contact options">
+<section class="pi-section" aria-labelledby="pi-title">
+  <div class="pi-wrap" role="region" aria-label="Contact">
+    <div class="pi-gridlayer" aria-hidden="true"></div>
+
     <p class="pi-eyebrow">Say hello</p>
-    <h2 id="pi-contact-title" class="pi-title">Get in Touch</h2>
+    <h2 id="pi-title" class="pi-title">Get in Touch</h2>
     <p class="pi-lede">
       Quick replies that
       <span class="pi-rotator" aria-live="polite">
@@ -14,58 +16,50 @@
 
     <div class="pi-grid">
       <!-- Email -->
-      <article class="pi-card pi-reveal" tabindex="0" aria-label="Email">
-        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3 6h18v12H3zM3 6l9 7 9-7"/>
-        </svg>
+      <article class="pi-card pi-reveal" tabindex="0" aria-label="Email" data-kind="email"
+               data-k="7"
+               data-ct="106,118,117,123,104,106,123,71,105,108,117,122,104,117,107,112,125,104,121,53,106,118,116">
+        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 6l9 7 9-7"/></svg>
         <h3>Email</h3>
-        <p><a href="mailto:contact@bensandivar.com">contact@bensandivar.com</a></p>
+        <p class="pi-detail" aria-hidden="true" aria-live="polite"></p>
+        <button class="pi-hold" type="button" aria-label="Press and hold to reveal email">
+          <span class="pi-ring" aria-hidden="true"></span>&nbsp;Reveal
+        </button>
       </article>
 
       <!-- Phone -->
-      <article class="pi-card pi-reveal" tabindex="0" aria-label="Phone">
-        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M6 3l4 2-2 3a12 12 0 0 0 8 8l3-2 2 4-3 3c-8 1-16-7-15-15z"/>
-        </svg>
+      <article class="pi-card pi-reveal" tabindex="0" aria-label="Phone" data-kind="phone"
+               data-k="5" data-ct="59,59,60,37,56,55,54,37,55,59,58"
+               data-k2="6" data-ct2="49,57,58,60,60,61,57,56,55,56,60,59">
+        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l4 2-2 3a12 12 0 0 0 8 8l3-2 2 4-3 3c-8 1-16-7-15-15z"/></svg>
         <h3>Phone</h3>
-        <p><a href="tel:+34667321265" aria-label="Call 667 321 265">667&nbsp;321&nbsp;265</a></p>
+        <p class="pi-detail" aria-hidden="true" aria-live="polite"></p>
+        <button class="pi-hold" type="button" aria-label="Press and hold to reveal phone">
+          <span class="pi-ring" aria-hidden="true"></span>&nbsp;Reveal
+        </button>
       </article>
 
       <!-- LinkedIn -->
-      <article class="pi-card pi-reveal" tabindex="0" aria-label="LinkedIn">
-        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 9h4v11H4zM6 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM10 9h4v2a4 4 0 0 1 4-2c3 0 4 2 4 5v6h-4v-6c0-2-1-3-3-3s-3 1-3 3v6h-4z"/>
-        </svg>
+      <article class="pi-card pi-reveal" tabindex="0" aria-label="LinkedIn" data-kind="link"
+               data-k="9"
+               data-ct="113,125,125,121,124,67,56,56,128,128,128,55,117,114,119,116,110,109,114,119,55,108,120,118,56,114,119,56,107,110,119,54,124,106,119,109,114,127,106,123,54,121,126,107,117,114,108,56">
+        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4v11H4zM6 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM10 9h4v2a4 4 0 0 1 4-2c3 0 4 2 4 5v6h-4v-6c0-2-1-3-3-3s-3 1-3 3v6h-4z"/></svg>
         <h3>LinkedIn</h3>
-        <p><a href="https://www.linkedin.com/in/ben-sandivar-public/">LinkedIn Profile</a></p>
+        <p class="pi-detail" aria-hidden="true" aria-live="polite"></p>
+        <button class="pi-hold" type="button" aria-label="Press and hold to reveal LinkedIn profile">
+          <span class="pi-ring" aria-hidden="true"></span>&nbsp;Reveal
+        </button>
       </article>
-    </div>
-
-    <!-- CTA -->
-    <div class="pi-cta" aria-label="Email composer">
-      <div class="pi-cmd">
-        <input class="pi-input" type="text" inputmode="text" placeholder="Subject…"
-               aria-label="Email subject to Ben">
-        <button class="pi-chip" type="button">project inquiry</button>
-        <button class="pi-chip" type="button">speaking</button>
-        <button class="pi-chip" type="button">collaboration</button>
-        <a class="pi-send" href="mailto:contact@bensandivar.com" aria-label="Send email to Ben">Send Email</a>
-      </div>
     </div>
   </div>
 
   <script>
     (() => {
-      const root = document.currentScript.closest('.pi-contact');
+      const root = document.currentScript.closest('.pi-section');
       const wrap = root.querySelector('.pi-wrap');
       const reveals = root.querySelectorAll('.pi-reveal');
-      const input = root.querySelector('.pi-input');
-      const chips = root.querySelectorAll('.pi-chip');
-      const send = root.querySelector('.pi-send');
 
       const setSpot=(x,y)=>{root.style.setProperty('--x',x+'px');root.style.setProperty('--y',y+'px')};
-      const updateHref=()=>{const s=(input?.value||'').trim();const q=s?('?'+new URLSearchParams({subject:s})):"";send.setAttribute('href','mailto:contact@bensandivar.com'+q)};
-
       wrap.addEventListener('pointermove',e=>{const r=wrap.getBoundingClientRect();setSpot(e.clientX-r.left,e.clientY-r.top)},{passive:true});
       wrap.addEventListener('pointerleave',()=>{const r=wrap.getBoundingClientRect();setSpot(r.width*.5,r.height*.3)});
       wrap.addEventListener('focusin',e=>{const t=e.target.closest('.pi-card');if(!t)return;const r=wrap.getBoundingClientRect(),c=t.getBoundingClientRect();setSpot(c.left-r.left+c.width/2,c.top-r.top+c.height/3)});
@@ -73,10 +67,93 @@
       const io=new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('is-in')),{root:root,threshold:.2});
       reveals.forEach(el=>io.observe(el));
 
-      input?.addEventListener('input',updateHref);
-      chips.forEach(b=>b.addEventListener('click',()=>{input.value=b.textContent.trim();updateHref();input.focus()}));
+      const prefersReduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const DUR=900, THRESH=12;
 
-      requestAnimationFrame(()=>{const r=wrap.getBoundingClientRect();setSpot(r.width*.5,r.height*.3);updateHref()});
+      function decode(el){
+        const arr=(el.dataset.ct||'').split(',').map(n=>+n||0), k=+(el.dataset.k||0);
+        return String.fromCharCode.apply(null,arr.map(n=>n-k));
+      }
+      function decode2(el){
+        const arr=(el.dataset.ct2||'').split(',').map(n=>+n||0), k=+(el.dataset.k2||0);
+        return String.fromCharCode.apply(null,arr.map(n=>n-k));
+      }
+
+      function reveal(card){
+        if(card.classList.contains('pi-revealed')) return;
+        const kind = card.dataset.kind;
+        const slot = card.querySelector('.pi-detail');
+        let a=document.createElement('a'); a.rel='noopener noreferrer';
+        if(kind==='email'){
+          const val=decode(card);
+          a.href='mailto:'+val; a.textContent=val;
+        }else if(kind==='phone'){
+          const visible=decode(card), e164=decode2(card);
+          a.href='tel:'+e164; a.textContent=visible;
+        }else if(kind==='link'){
+          const href=decode(card);
+          a.href=href; a.textContent='Open profile';
+          a.target='_blank';
+        }
+        slot.textContent=''; slot.appendChild(a);
+        slot.setAttribute('aria-hidden','false');
+        card.classList.add('pi-revealed');
+      }
+
+      function armHold(card){
+        const btn=card.querySelector('.pi-hold'), ring=btn.querySelector('.pi-ring');
+        let t0=0, raf=0, sx=0, sy=0, held=false, hovered=false;
+
+        const cancel=()=>{held=false; hovered=false; t0=0; ring.style.setProperty('--p','0%'); if(raf) cancelAnimationFrame(raf)};
+        const done=()=>{cancel(); reveal(card)};
+
+        function animate(now){
+          if(!t0) t0=now;
+          const p=Math.min(1,(now-t0)/DUR);
+          ring.style.setProperty('--p',(p*360)+'deg');
+          if(p>=1) return done();
+          raf=requestAnimationFrame(animate);
+        }
+
+        // Hover-in-place (no button)
+        card.addEventListener('pointerenter',e=>{
+          if(prefersReduce) return;
+          hovered=true; t0=0; const r=card.getBoundingClientRect(); sx=e.clientX; sy=e.clientY;
+          const move=(ev)=>{if(!hovered) return; const dx=ev.clientX-sx, dy=ev.clientY-sy; if(Math.hypot(dx,dy)>THRESH) cancel()};
+          const leave=()=>{cancel(); card.removeEventListener('pointermove',move); card.removeEventListener('pointerleave',leave);};
+          card.addEventListener('pointermove',move,{passive:true});
+          card.addEventListener('pointerleave',leave,{once:true});
+          raf=requestAnimationFrame(animate);
+        });
+        card.addEventListener('pointerleave',cancel);
+
+        // Press-and-hold on button (mouse/touch)
+        btn.addEventListener('pointerdown',e=>{
+          e.preventDefault(); held=true; t0=0; const r=btn.getBoundingClientRect(); sx=e.clientX; sy=e.clientY;
+          const move=(ev)=>{if(!held) return; if(Math.hypot(ev.clientX-sx,ev.clientY-sy)>THRESH) cancel()};
+          const up=()=>{cancel(); window.removeEventListener('pointerup',up); window.removeEventListener('pointermove',move)};
+          window.addEventListener('pointermove',move,{passive:true});
+          window.addEventListener('pointerup',up,{once:true});
+          raf=requestAnimationFrame(animate);
+        });
+
+        // Keyboard hold
+        btn.addEventListener('keydown',e=>{
+          if(e.code!=='Space' && e.code!=='Enter') return;
+          if(held) return; held=true; t0=0; raf=requestAnimationFrame(animate);
+        });
+        btn.addEventListener('keyup',e=>{
+          if(e.code==='Space' || e.code==='Enter') cancel();
+        });
+
+        // Escape cancels
+        card.addEventListener('keydown',e=>{ if(e.key==='Escape') cancel(); });
+      }
+
+      root.querySelectorAll('.pi-card').forEach(armHold);
+
+      // initial spotlight
+      requestAnimationFrame(()=>{const r=wrap.getBoundingClientRect();setSpot(r.width*.5,r.height*.3)});
     })();
   </script>
 </section>
