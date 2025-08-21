@@ -1,113 +1,149 @@
-/* Filename: smart-section.css */
-/* Scope: .pi-*  |  Theme bridge (inherits page bg) */
 .pi-section{
-  --surface:var(--color-body-bg,#0b0f1a);
-  --bg:var(--color-body-bg,transparent);
-  --text:var(--color-text,#dbe3f3);
-  --muted:color-mix(in oklch,var(--text),#000 85%);
-  --accent:var(--color-accent,#2f84ff);
-  --accent-2:var(--color-primary,#ffffff);
-  --radius:var(--radius,16px);
-  --x:50%;
-  --y:30%;
-  position:relative; isolation:isolate; padding:10vh 8vw; color:var(--text);
+  --bg: var(--bg, var(--color-body-bg, #0b0f14));
+  --text: var(--text, var(--color-primary, #e6f0ff));
+  --muted: var(--muted, color-mix(in oklab, var(--text) 60%, #000 40%));
+  --surface: var(--surface, color-mix(in oklab, var(--bg) 88%, #fff 12%));
+  --accent: var(--accent, #2f84ff);
+  --accent-2: var(--accent-2, #6ee7ff);
+  --radius: var(--radius, 14px);
+  --shadow: 0 8px 24px color-mix(in oklab, #000 65%, var(--bg) 35%);
+  --x: 50%;--y:50%; /* spotlight position */
+  position: relative; z-index: 0;
+  padding: clamp(48px,10vh,120px) 8vw;
+  color: var(--text);
 }
-.pi-wrap{position:relative; width:min(1100px,92vw); margin:auto; text-align:center}
-
-/* Background grid layer (spotlight affects this only) */
-.pi-gridlayer{position:absolute; inset:0; pointer-events:none; z-index:0}
-.pi-gridlayer::before{
-  content:""; position:absolute; inset:0; opacity:.55;
-  background:
-    repeating-linear-gradient(90deg, color-mix(in oklch,var(--muted),transparent) 0 1px, transparent 1px 36px),
-    repeating-linear-gradient(0deg,  color-mix(in oklch,var(--muted),transparent) 0 1px, transparent 1px 36px);
-  -webkit-mask:
-    radial-gradient(260px circle at var(--x) var(--y), #000 0 70%, transparent 72%),
-    radial-gradient(180% 140% at 50% 50%, #000, transparent 70%); /* soft vignette fade */
-          mask:
-    radial-gradient(260px circle at var(--x) var(--y), #000 0 70%, transparent 72%),
-    radial-gradient(180% 140% at 50% 50%, #000, transparent 70%);
-  -webkit-mask-composite: source-in;
-          mask-composite: intersect;
-}
-@supports not (mask:radial-gradient(50% 50%)){ .pi-gridlayer::before{opacity:.14;-webkit-mask:none;mask:none}}
+.pi-wrap{max-width:min(1200px,75vw);margin:0 auto;display:grid;gap:1.5rem}
 
 /* Header */
-.pi-eyebrow{font:600 .8rem/1 var(--font-heading,inherit); letter-spacing:.08em; text-transform:uppercase; color:color-mix(in oklch,var(--text),#000 40%); margin-bottom:.5rem}
-.pi-title{font:900 clamp(1.6rem,3.2vw,2.6rem)/1.2 var(--font-heading,inherit); margin:.25rem 0 .5rem; color:var(--accent-2)}
-.pi-lede{max-width:60ch; margin:0 auto 1.6rem; color:var(--text); opacity:.9}
+.pi-header{ text-align:center; }
+.pi-eyebrow{letter-spacing:.12em;text-transform:uppercase;font-size:.8rem;opacity:.7}
+.pi-header h2{margin:.25rem 0 .35rem 0;line-height:1.2;font-weight:900}
+.pi-lede{margin:0 auto;max-width:58ch;opacity:.9}
+.pi-lede .pi-verb{font-weight:700}
 
-/* Thinking Micro-Copy */
-.pi-rotator{display:inline-grid; height:1em; overflow:hidden; vertical-align:baseline}
-.pi-rotator-inner{display:grid; grid-auto-rows:1em; animation:pi-rotate 9s steps(4,end) infinite}
-.pi-rotator-inner > span{display:block}
-@keyframes pi-rotate{0%,20%{transform:translateY(0)}25%,45%{transform:translateY(-1em)}50%,70%{transform:translateY(-2em)}75%,95%{transform:translateY(-3em)}}
-@media (prefers-reduced-motion:reduce){ .pi-rotator-inner{animation:none} }
+/* Centered background grid layer (behind cards only) */
+.pi-grid{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:-1}
+.pi-grid::before,
+.pi-grid::after{
+  content:""; position:absolute;
+  width:min(900px,80vw); height:min(520px,60vh);
+  border-radius:calc(var(--radius) * 1.2);
+  background:
+    /* thin grid lines */
+    linear-gradient( to right, color-mix(in oklab, var(--text) 16%, var(--bg) 84%) 1px, transparent 1px ) 0 0/24px 24px,
+    linear-gradient( to bottom, color-mix(in oklab, var(--text) 16%, var(--bg) 84%) 1px, transparent 1px ) 0 0/24px 24px;
+  opacity:.25;
+  /* soft vignette to fade into page bg */
+  -webkit-mask: radial-gradient(closest-side, #000 70%, transparent 100%);
+          mask: radial-gradient(closest-side, #000 70%, transparent 100%);
+}
+.pi-grid::after{
+  /* spotlighted, denser grid only under mask */
+  opacity:.85;
+  background:
+    linear-gradient( to right, color-mix(in oklab, var(--accent) 70%, var(--bg) 30%) 1px, transparent 1px ) 0 0/24px 24px,
+    linear-gradient( to bottom, color-mix(in oklab, var(--accent-2) 70%, var(--bg) 30%) 1px, transparent 1px ) 0 0/24px 24px;
+  -webkit-mask:
+    radial-gradient(36vmin 36vmin at var(--x) var(--y), #000 35%, transparent 60%),
+    radial-gradient(closest-side,#000 68%,transparent 100%);
+          mask:
+    radial-gradient(36vmin 36vmin at var(--x) var(--y), #000 35%, transparent 60%),
+    radial-gradient(closest-side,#000 68%,transparent 100%);
+  -webkit-mask-composite: source-in, intersect;
+          mask-composite: intersect;
+}
 
-/* Grid of cards */
-.pi-grid{position:relative; z-index:1; display:grid; gap:1rem; grid-template-columns:1fr; margin:1.5rem auto 0; width:min(900px,100%)}
-@media (min-width:720px){ .pi-grid{grid-template-columns:repeat(3,1fr)}}
+/* Cards grid */
+.pi-cards{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:720px){.pi-cards{grid-template-columns:repeat(3,1fr)}}
 
 /* Edge-aware cards */
 .pi-card{
-  position:relative; border-radius:var(--radius); padding:1.1rem; text-align:left;
-  background:linear-gradient(180deg,color-mix(in oklch,var(--surface),#fff 6%),color-mix(in oklch,var(--surface),#000 4%));
-  border:1px solid color-mix(in oklch,var(--text),#000 85%); box-shadow:0 10px 26px color-mix(in oklch,#000,transparent 70%);
-  transition:transform .18s ease, box-shadow .25s ease, border-color .2s ease; overflow:hidden
+  position:relative; border-radius:var(--radius);
+  padding:1.1rem; background:
+    linear-gradient(180deg, color-mix(in oklab, #fff 6%, var(--bg) 94%), color-mix(in oklab, #fff 3%, var(--bg) 97%));
+  border:1px solid color-mix(in oklab, var(--text) 12%, var(--bg) 88%);
+  box-shadow: var(--shadow);
+  transition: transform .18s ease, box-shadow .25s ease, border-color .18s ease, background .25s ease;
+  outline:none;
 }
 .pi-card::after{
-  content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
-  background:radial-gradient(260px 260px at var(--x) var(--y), color-mix(in oklch,var(--accent),transparent 82%) 0, transparent 70%);
-  mix-blend-mode:screen; opacity:.5;
-}
-.pi-card:hover{transform:translateY(-2px); box-shadow:0 14px 34px color-mix(in oklch,#000,transparent 65%)}
-.pi-card:focus-within{outline:none; box-shadow:0 0 0 3px color-mix(in oklch,var(--accent),transparent 50%),0 18px 40px color-mix(in oklch,#000,transparent 60%)}
-
-/* Icon with "ink-in" stroke */
-.pi-icon{width:40px; height:40px; margin-bottom:.5rem}
-.pi-icon path{stroke:var(--accent); stroke-width:1.8; fill:none; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; stroke-dasharray:120; stroke-dashoffset:120; opacity:.9}
-.pi-reveal.is-in .pi-icon path{animation:pi-ink .9s ease forwards}
-@keyframes pi-ink{to{stroke-dashoffset:0}}
-@media (prefers-reduced-motion:reduce){ .pi-reveal.is-in .pi-icon path{animation:none; stroke-dashoffset:0}}
-
-/* Text inside cards */
-.pi-card h3{margin:.15rem 0 .25rem; font:700 1.05rem/1.2 var(--font-heading,inherit); color:var(--accent-2)}
-.pi-card p{margin:0; color:color-mix(in oklch,var(--text),#000 20%); line-height:1.5}
-.pi-card a{color:var(--accent); text-decoration:none; border-bottom:1px dashed transparent; transition:color .2s ease,border-color .2s ease}
-.pi-card a:hover{color:var(--accent-2); border-color:currentColor}
-
-/* Concealed detail area */
-.pi-detail{margin-top:.35rem; min-height:1.4em; content-visibility:hidden}
-.pi-detail[aria-hidden="true"]{display:block}
-.pi-revealed .pi-detail{content-visibility:auto}
-
-/* Hold-to-reveal button (fallback & progress) */
-.pi-hold{
-  --p:0%;
-  position:relative; display:inline-grid; place-items:center; margin-top:.6rem; padding:.55rem .8rem; gap:.4rem; border-radius:999px;
-  border:1px dashed color-mix(in oklch,var(--text),#000 78%); background:color-mix(in oklch,var(--surface),#fff 5%); color:var(--text);
-  font:600 .85rem/1 var(--font-heading,inherit); cursor:pointer; transition:transform .12s ease, border-color .2s ease
-}
-.pi-hold:hover{transform:translateY(-1px); border-color:color-mix(in oklch,var(--accent),transparent 35%)}
-.pi-hold:focus{outline:none; box-shadow:0 0 0 3px color-mix(in oklch,var(--accent),transparent 55%)}
-.pi-ring{
-  width:18px; height:18px; border-radius:50%; pointer-events:none;
+  /* highlight biased toward spotlight; does not affect text */
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:
-    conic-gradient(var(--accent) var(--p), color-mix(in oklch,var(--text),#000 80%) 0),
-    radial-gradient(closest-side, var(--bg) 60%, transparent 62%);
+    radial-gradient(220px 220px at var(--x) var(--y),
+      color-mix(in oklab, var(--accent) 20%, transparent 80%),
+      transparent 60%);
+  mix-blend-mode: screen; opacity:.6; transition:opacity .25s ease;
 }
-@media (prefers-reduced-motion:reduce){ .pi-hold{transition:none}}
+.pi-card:hover{ transform: translateY(-2px); box-shadow:0 12px 34px color-mix(in oklab,#000 70%, var(--bg) 30%) }
+.pi-card:focus-within{ box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent), var(--shadow); }
+.pi-label{display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem}
+.pi-chip{
+  --s:48px; display:inline-grid; place-items:center; width:var(--s); height:var(--s);
+  border-radius:12px; font-size:24px; color:#fff;
+  background:
+    radial-gradient(140% 140% at 30% 20%, color-mix(in oklab,var(--accent) 90%, #fff 10%), color-mix(in oklab,var(--accent-2) 60%, var(--bg) 40%));
+  box-shadow: 0 8px 18px color-mix(in oklab, var(--accent) 40%, transparent), inset 0 0 0 1px color-mix(in oklab,#fff 18%, transparent);
+}
+.pi-card h4{margin:0;font-weight:800}
+.pi-card p{margin:.15rem 0 0 0;line-height:1.5;color:var(--muted)}
 
-/* Reveal utility */
-.pi-reveal{opacity:0; transform:translateY(8px); transition:opacity .35s ease, transform .35s ease}
-.pi-reveal.is-in{opacity:1; transform:none}
-@media (prefers-reduced-motion:reduce){ .pi-reveal{opacity:1; transform:none; transition:none}}
+/* Concealed detail */
+.pi-detail{ margin-top:.5rem; min-height:1.6em; border-top:1px solid color-mix(in oklab,var(--text) 10%, var(--bg) 90%); padding-top:.5rem }
+.pi-detail[aria-hidden="true"]{ content-visibility:hidden; contain-intrinsic-size:1.6em; }
 
-/* Responsive tweaks */
-@media (max-width:480px){
-  .pi-lede{font-size:1rem}
-  .pi-card{padding:1rem}
+/* Reveal button with determinate ring */
+.pi-hold{margin-top:.65rem; display:flex; gap:.5rem; align-items:center}
+.pi-btn{
+  --p:0; position:relative; display:inline-flex; align-items:center; justify-content:center;
+  gap:.4rem; padding:.6rem .95rem; border-radius:999px; font-weight:700;
+  color:var(--accent); background:color-mix(in oklab, var(--surface) 96%, #fff 4%);
+  border:1px solid color-mix(in oklab, var(--accent) 35%, var(--bg) 65%);
+  box-shadow:0 8px 24px color-mix(in oklab,#000 60%, var(--bg) 40%); cursor:pointer;
+  transition: transform .12s ease, box-shadow .25s ease, border-color .18s ease, background .25s ease;
+}
+.pi-btn:hover{ transform:translateY(-1px) }
+.pi-btn:focus-visible{ outline: none; box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent), var(--shadow) }
+.pi-btn::after{
+  content:""; position:absolute; inset:-2px; border-radius:inherit; pointer-events:none;
+  background:conic-gradient(var(--accent) calc(var(--p)*1turn), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 0);
+          mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 0);
+  opacity:.9;
+}
+.pi-progress{ font-size:.85rem; opacity:.8 }
+
+/* CTA row (compact command input) */
+.pi-cta{display:grid;place-items:center;margin-top:1.2rem}
+.pi-cmd{display:flex;gap:.5rem;align-items:center; background:color-mix(in oklab,var(--surface) 92%, #fff 8%);
+  border:1px solid color-mix(in oklab,var(--text) 12%, var(--bg) 88%); border-radius:999px; padding:.55rem .8rem; width:min(560px, 100%)}
+.pi-cmd input{
+  flex:1; background:transparent; border:0; outline:none; color:var(--text); font:inherit
+}
+.pi-chipbtn{border:1px solid color-mix(in oklab,var(--text) 14%, var(--bg) 86%); background:transparent; color:var(--text);
+  padding:.35rem .65rem; border-radius:999px; cursor:pointer}
+.pi-chipbtn:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent) }
+
+/* Entrance */
+.pi-section .pi-fade{opacity:0; transform:translateY(8px); transition:opacity .6s ease, transform .6s ease}
+.pi-section.is-in .pi-fade{opacity:1; transform:none}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .pi-grid::after{display:none}
+  .pi-card::after{opacity:.25}
+  .pi-section .pi-fade{transition:none}
 }
 
-/* Ensure strong readable contrast */
-.pi-section, .pi-card p{filter:contrast(110%)}
+/* Degrade if mask unsupported: show low-opacity grid, no spotlight */
+@supports not (mask: radial-gradient(#000,#000)){
+  .pi-grid::after{display:none}
+}
+
+/* Links injected at reveal */
+.pi-detail a{ color:var(--accent); text-decoration:none; border-bottom:1px dashed transparent; transition:color .2s ease, border-color .2s ease }
+.pi-detail a:hover{ color:var(--accent-2); border-color:currentColor }
+
+/* Keyboard help text */
+.pi-kbd{ font-size:.75rem; opacity:.7 }

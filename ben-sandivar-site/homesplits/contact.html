@@ -1,159 +1,225 @@
-<section class="pi-section" aria-labelledby="pi-title">
-  <div class="pi-wrap" role="region" aria-label="Contact">
-    <div class="pi-gridlayer" aria-hidden="true"></div>
+<section class="pi-section" aria-labelledby="pi-h2" role="region">
+  <div class="pi-wrap">
+    <header class="pi-header pi-fade">
+      <div class="pi-eyebrow">Contact</div>
+      <h2 id="pi-h2">Get in touch — we <span class="pi-verb" aria-live="polite">anticipate</span>.</h2>
+      <p class="pi-lede">Playfully intelligent, quietly precise. We <span class="pi-verb" aria-hidden="true">adapt</span> when you do.</p>
+    </header>
 
-    <p class="pi-eyebrow">Say hello</p>
-    <h2 id="pi-title" class="pi-title">Get in Touch</h2>
-    <p class="pi-lede">
-      Quick replies that
-      <span class="pi-rotator" aria-live="polite">
-        <span class="pi-rotator-inner" aria-hidden="true">
-          <span>anticipate</span><span>adapt</span><span>explain</span><span>compare</span>
-        </span>
-      </span>
-      your needs.
-    </p>
+    <!-- Background grid (spotlight affects only this layer) -->
+    <div class="pi-grid" aria-hidden="true"></div>
 
-    <div class="pi-grid">
-      <!-- Email -->
-      <article class="pi-card pi-reveal" tabindex="0" aria-label="Email" data-kind="email"
-               data-k="7"
-               data-ct="106,118,117,123,104,106,123,71,105,108,117,122,104,117,107,112,125,104,121,53,106,118,116">
-        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 6l9 7 9-7"/></svg>
-        <h3>Email</h3>
-        <p class="pi-detail" aria-hidden="true" aria-live="polite"></p>
-        <button class="pi-hold" type="button" aria-label="Press and hold to reveal email">
-          <span class="pi-ring" aria-hidden="true"></span>&nbsp;Reveal
-        </button>
+    <div class="pi-cards pi-fade">
+      <!-- EMAIL -->
+      <article class="pi-card" role="group" tabindex="0"
+        data-type="email"
+        data-obf="bW9jLm5pdmFkbnNhbmJAZm9ydm5pcy5rdWJfOjpwZQ=="
+        data-pep="pe"
+        aria-label="Email card">
+        <div class="pi-label">
+          <span class="pi-chip" aria-hidden="true">✉️</span>
+          <h4>Email</h4>
+        </div>
+        <p class="pi-kbd">Long-hover or press-and-hold to reveal.</p>
+        <div class="pi-detail" aria-live="polite" aria-hidden="true"></div>
+        <div class="pi-hold">
+          <button class="pi-btn" type="button" aria-label="Press and hold to reveal email">
+            Reveal contact
+          </button>
+          <span class="pi-progress" aria-hidden="true">Hold to 100%</span>
+        </div>
       </article>
 
-      <!-- Phone -->
-      <article class="pi-card pi-reveal" tabindex="0" aria-label="Phone" data-kind="phone"
-               data-k="5" data-ct="59,59,60,37,56,55,54,37,55,59,58"
-               data-k2="6" data-ct2="49,57,58,60,60,61,57,56,55,56,60,59">
-        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l4 2-2 3a12 12 0 0 0 8 8l3-2 2 4-3 3c-8 1-16-7-15-15z"/></svg>
-        <h3>Phone</h3>
-        <p class="pi-detail" aria-hidden="true" aria-live="polite"></p>
-        <button class="pi-hold" type="button" aria-label="Press and hold to reveal phone">
-          <span class="pi-ring" aria-hidden="true"></span>&nbsp;Reveal
-        </button>
+      <!-- PHONE -->
+      <article class="pi-card" role="group" tabindex="0"
+        data-type="phone"
+        data-obf="NTE2MjEzNzY2Xzo6cGU="
+        data-pep="pe"
+        aria-label="Phone card">
+        <div class="pi-label">
+          <span class="pi-chip" aria-hidden="true">📞</span>
+          <h4>Phone</h4>
+        </div>
+        <p class="pi-kbd">Hold Space/Enter or press-and-hold.</p>
+        <div class="pi-detail" aria-live="polite" aria-hidden="true"></div>
+        <div class="pi-hold">
+          <button class="pi-btn" type="button" aria-label="Press and hold to reveal phone">
+            Reveal contact
+          </button>
+          <span class="pi-progress" aria-hidden="true">Hold to 100%</span>
+        </div>
       </article>
 
-      <!-- LinkedIn -->
-      <article class="pi-card pi-reveal" tabindex="0" aria-label="LinkedIn" data-kind="link"
-               data-k="9"
-               data-ct="113,125,125,121,124,67,56,56,128,128,128,55,117,114,119,116,110,109,114,119,55,108,120,118,56,114,119,56,107,110,119,54,124,106,119,109,114,127,106,123,54,121,126,107,117,114,108,56">
-        <svg class="pi-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4v11H4zM6 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM10 9h4v2a4 4 0 0 1 4-2c3 0 4 2 4 5v6h-4v-6c0-2-1-3-3-3s-3 1-3 3v6h-4z"/></svg>
-        <h3>LinkedIn</h3>
-        <p class="pi-detail" aria-hidden="true" aria-live="polite"></p>
-        <button class="pi-hold" type="button" aria-label="Press and hold to reveal LinkedIn profile">
-          <span class="pi-ring" aria-hidden="true"></span>&nbsp;Reveal
-        </button>
+      <!-- LINKEDIN -->
+      <article class="pi-card" role="group" tabindex="0"
+        data-type="link"
+        data-obf="L3B1YmxpYy1yYXZpZC1uYWRpdm5hcy1uZWIvbmkvaW4vLm5pYWQtbmVkbnliL25pL3d3dy86OnBl"
+        data-pep="pe"
+        aria-label="LinkedIn card">
+        <div class="pi-label">
+          <span class="pi-chip" aria-hidden="true">🔗</span>
+          <h4>LinkedIn</h4>
+        </div>
+        <p class="pi-kbd">Press-and-hold to reveal the profile.</p>
+        <div class="pi-detail" aria-live="polite" aria-hidden="true"></div>
+        <div class="pi-hold">
+          <button class="pi-btn" type="button" aria-label="Press and hold to reveal LinkedIn">
+            Reveal contact
+          </button>
+          <span class="pi-progress" aria-hidden="true">Hold to 100%</span>
+        </div>
       </article>
+    </div>
+
+    <!-- CTA row -->
+    <div class="pi-cta pi-fade" role="form" aria-label="Quick intent">
+      <div class="pi-cmd">
+        <input type="text" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Command"
+               placeholder="Type an intent… e.g., ‘scope a project’">
+        <button class="pi-chipbtn" type="button">estimate</button>
+        <button class="pi-chipbtn" type="button">timeline</button>
+        <button class="pi-chipbtn" type="button">portfolio</button>
+      </div>
     </div>
   </div>
 
   <script>
-    (() => {
-      const root = document.currentScript.closest('.pi-section');
-      const wrap = root.querySelector('.pi-wrap');
-      const reveals = root.querySelectorAll('.pi-reveal');
+  (() => {
+    const root = document.currentScript.closest('.pi-section');
+    const prefersReduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const CARDS = [...root.querySelectorAll('.pi-card')];
+    const GRID = root.querySelector('.pi-grid');
+    let raf = 0;
 
-      const setSpot=(x,y)=>{root.style.setProperty('--x',x+'px');root.style.setProperty('--y',y+'px')};
-      wrap.addEventListener('pointermove',e=>{const r=wrap.getBoundingClientRect();setSpot(e.clientX-r.left,e.clientY-r.top)},{passive:true});
-      wrap.addEventListener('pointerleave',()=>{const r=wrap.getBoundingClientRect();setSpot(r.width*.5,r.height*.3)});
-      wrap.addEventListener('focusin',e=>{const t=e.target.closest('.pi-card');if(!t)return;const r=wrap.getBoundingClientRect(),c=t.getBoundingClientRect();setSpot(c.left-r.left+c.width/2,c.top-r.top+c.height/3)});
+    // Intersection: gentle entrance
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { root.classList.add('is-in'); io.disconnect(); }
+    }, { threshold: 0.2 });
+    io.observe(root);
 
-      const io=new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('is-in')),{root:root,threshold:.2});
-      reveals.forEach(el=>io.observe(el));
+    // Cognitive Spotlight: update --x/--y relative to grid rect
+    const setXY = (x, y) => {
+      if (!GRID) return;
+      const r = GRID.getBoundingClientRect();
+      const px = ((x - r.left) / r.width) * 100;
+      const py = ((y - r.top) / r.height) * 100;
+      root.style.setProperty('--x', Math.max(0, Math.min(100, px)) + '%');
+      root.style.setProperty('--y', Math.max(0, Math.min(100, py)) + '%');
+    };
+    const onMove = (ev) => {
+      if (prefersReduce) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setXY(ev.clientX, ev.clientY));
+    };
+    root.addEventListener('pointermove', onMove, { passive: true });
+    root.addEventListener('mouseleave', () => { if (!prefersReduce) { root.style.setProperty('--x','50%'); root.style.setProperty('--y','50%'); } });
 
-      const prefersReduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const DUR=900, THRESH=12;
+    // Focus moves spotlight to card center
+    CARDS.forEach(card => {
+      card.addEventListener('focus', () => {
+        const r = card.getBoundingClientRect();
+        setXY(r.left + r.width/2, r.top + r.height/2);
+      });
+    });
 
-      function decode(el){
-        const arr=(el.dataset.ct||'').split(',').map(n=>+n||0), k=+(el.dataset.k||0);
-        return String.fromCharCode.apply(null,arr.map(n=>n-k));
+    // Phrase rotator (Thinking Micro-Copy)
+    const verbs = ['anticipate','adapt','explain','compare'];
+    if (!prefersReduce) {
+      const nodes = root.querySelectorAll('.pi-verb');
+      let i = 0;
+      setInterval(() => {
+        i = (i + 1) % verbs.length;
+        nodes.forEach(n => n.textContent = verbs[i]);
+      }, 2400);
+    }
+
+    // Contact Protection: press-and-hold / long-hover
+    const HOLD_MS = 900, MOVE_PX = 12;
+    const decode = (b64, pep) => {
+      try {
+        const raw = atob(b64);
+        const [rev, got] = raw.split('::');
+        if (got !== pep) return null;
+        return rev.split('').reverse().join('');
+      } catch { return null; }
+    };
+    // Pre-obfuscate values (base64 of reversed + "::pep")
+    // (Strings are not present in plain text in the DOM.)
+
+    const startHold = (ctx) => {
+      if (ctx.done) return;
+      ctx.start = performance.now();
+      ctx.frame = requestAnimationFrame(function tick(t){
+        const p = Math.min(1, (t - ctx.start) / HOLD_MS);
+        ctx.card.querySelector('.pi-btn').style.setProperty('--p', p);
+        if (ctx.cancelled) return;
+        if (p >= 1) { reveal(ctx.card); return; }
+        ctx.frame = requestAnimationFrame(tick);
+      });
+    };
+    const cancelHold = (ctx) => {
+      ctx.cancelled = true;
+      cancelAnimationFrame(ctx.frame);
+      ctx.card.querySelector('.pi-btn').style.setProperty('--p', 0);
+    };
+
+    const reveal = (card) => {
+      if (card.dataset.revealed) return;
+      card.dataset.revealed = "true";
+      const type = card.dataset.type;
+      const val = decode(card.dataset.obf, card.dataset.pep);
+      const live = card.querySelector('.pi-detail');
+      live.setAttribute('aria-hidden','false');
+      live.style.contentVisibility = 'visible';
+      let a;
+      if (type === 'email') {
+        a = document.createElement('a'); a.href = 'mailto:' + val; a.textContent = val;
+      } else if (type === 'phone') {
+        a = document.createElement('a'); a.href = 'tel:' + val; a.textContent = val.replace(/(\d{3})(\d{3})(\d{3,})/,'$1 $2 $3');
+      } else {
+        a = document.createElement('a'); a.href = 'https://' + val; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'LinkedIn Profile';
       }
-      function decode2(el){
-        const arr=(el.dataset.ct2||'').split(',').map(n=>+n||0), k=+(el.dataset.k2||0);
-        return String.fromCharCode.apply(null,arr.map(n=>n-k));
-      }
+      live.replaceChildren(a);
+    };
 
-      function reveal(card){
-        if(card.classList.contains('pi-revealed')) return;
-        const kind = card.dataset.kind;
-        const slot = card.querySelector('.pi-detail');
-        let a=document.createElement('a'); a.rel='noopener noreferrer';
-        if(kind==='email'){
-          const val=decode(card);
-          a.href='mailto:'+val; a.textContent=val;
-        }else if(kind==='phone'){
-          const visible=decode(card), e164=decode2(card);
-          a.href='tel:'+e164; a.textContent=visible;
-        }else if(kind==='link'){
-          const href=decode(card);
-          a.href=href; a.textContent='Open profile';
-          a.target='_blank';
-        }
-        slot.textContent=''; slot.appendChild(a);
-        slot.setAttribute('aria-hidden','false');
-        card.classList.add('pi-revealed');
-      }
+    CARDS.forEach(card => {
+      const btn = card.querySelector('.pi-btn');
+      const ctx = { card, start:0, frame:0, cancelled:false, done:false };
 
-      function armHold(card){
-        const btn=card.querySelector('.pi-hold'), ring=btn.querySelector('.pi-ring');
-        let t0=0, raf=0, sx=0, sy=0, held=false, hovered=false;
+      // Pointer long-hover (requires real movement within threshold)
+      let entered = false, startX=0, startY=0;
+      card.addEventListener('pointerenter', (e)=>{ entered = true; startX=e.clientX; startY=e.clientY; ctx.cancelled=false; });
+      card.addEventListener('pointermove', (e)=>{
+        if (!entered || ctx.done) return;
+        const dx=e.clientX-startX, dy=e.clientY-startY;
+        const dist=Math.hypot(dx,dy);
+        if (dist>MOVE_PX) { startX=e.clientX; startY=e.clientY; cancelHold(ctx); return; }
+        if (!ctx.frame) startHold(ctx);
+      }, {passive:true});
+      card.addEventListener('pointerleave', ()=>{ entered=false; cancelHold(ctx); });
 
-        const cancel=()=>{held=false; hovered=false; t0=0; ring.style.setProperty('--p','0%'); if(raf) cancelAnimationFrame(raf)};
-        const done=()=>{cancel(); reveal(card)};
+      // Press-and-hold on button (mouse/touch/pen)
+      const down = (e)=>{ e.preventDefault(); ctx.cancelled=false; startHold(ctx); };
+      const up = ()=> cancelHold(ctx);
+      btn.addEventListener('pointerdown', down);
+      ['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev, up));
 
-        function animate(now){
-          if(!t0) t0=now;
-          const p=Math.min(1,(now-t0)/DUR);
-          ring.style.setProperty('--p',(p*360)+'deg');
-          if(p>=1) return done();
-          raf=requestAnimationFrame(animate);
-        }
+      // Keyboard: hold Space/Enter
+      const keyDown = (e)=>{
+        if (e.repeat) return;
+        if (e.code==='Space' || e.code==='Enter'){ e.preventDefault(); ctx.cancelled=false; startHold(ctx); }
+      };
+      const keyUp = (e)=>{ if (e.code==='Space' || e.code==='Enter') cancelHold(ctx); };
+      card.addEventListener('keydown', keyDown);
+      card.addEventListener('keyup', keyUp);
 
-        // Hover-in-place (no button)
-        card.addEventListener('pointerenter',e=>{
-          if(prefersReduce) return;
-          hovered=true; t0=0; const r=card.getBoundingClientRect(); sx=e.clientX; sy=e.clientY;
-          const move=(ev)=>{if(!hovered) return; const dx=ev.clientX-sx, dy=ev.clientY-sy; if(Math.hypot(dx,dy)>THRESH) cancel()};
-          const leave=()=>{cancel(); card.removeEventListener('pointermove',move); card.removeEventListener('pointerleave',leave);};
-          card.addEventListener('pointermove',move,{passive:true});
-          card.addEventListener('pointerleave',leave,{once:true});
-          raf=requestAnimationFrame(animate);
-        });
-        card.addEventListener('pointerleave',cancel);
+      // Escape cancels
+      card.addEventListener('keydown', (e)=>{ if (e.key==='Escape') cancelHold(ctx); });
+    });
 
-        // Press-and-hold on button (mouse/touch)
-        btn.addEventListener('pointerdown',e=>{
-          e.preventDefault(); held=true; t0=0; const r=btn.getBoundingClientRect(); sx=e.clientX; sy=e.clientY;
-          const move=(ev)=>{if(!held) return; if(Math.hypot(ev.clientX-sx,ev.clientY-sy)>THRESH) cancel()};
-          const up=()=>{cancel(); window.removeEventListener('pointerup',up); window.removeEventListener('pointermove',move)};
-          window.addEventListener('pointermove',move,{passive:true});
-          window.addEventListener('pointerup',up,{once:true});
-          raf=requestAnimationFrame(animate);
-        });
+    // Helper: seed obfuscated values if author forgot (safety)
+    // (Here we rely on pre-filled data-obf; nothing else to do.)
 
-        // Keyboard hold
-        btn.addEventListener('keydown',e=>{
-          if(e.code!=='Space' && e.code!=='Enter') return;
-          if(held) return; held=true; t0=0; raf=requestAnimationFrame(animate);
-        });
-        btn.addEventListener('keyup',e=>{
-          if(e.code==='Space' || e.code==='Enter') cancel();
-        });
-
-        // Escape cancels
-        card.addEventListener('keydown',e=>{ if(e.key==='Escape') cancel(); });
-      }
-
-      root.querySelectorAll('.pi-card').forEach(armHold);
-
-      // initial spotlight
-      requestAnimationFrame(()=>{const r=wrap.getBoundingClientRect();setSpot(r.width*.5,r.height*.3)});
-    })();
+  })();
   </script>
 </section>
