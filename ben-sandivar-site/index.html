@@ -18,54 +18,73 @@
   <!-- Core libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js" defer></script>
 
-  <!-- Site styles -->
+  <!-- Site styles (order matters) -->
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/cursor.css">
+  <link rel="stylesheet" href="css/page-header.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/hero.css">
+  <link rel="stylesheet" href="css/bucket-hero.css">
+  <link rel="stylesheet" href="css/video-hero.css">
+  <link rel="stylesheet" href="css/photo-grid.css">
+  <link rel="stylesheet" href="css/projects.css">
+  <link rel="stylesheet" href="css/music.css">
+  <link rel="stylesheet" href="css/contact.css">
+  <link rel="stylesheet" href="css/about.css">
+  <link rel="stylesheet" href="css/skills.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/containers.css">
+  <link rel="stylesheet" href="css/992.css">
+  <link rel="stylesheet" href="css/768.css">
+  <!-- Blog overlay + coming-soon styles (no :root overrides) -->
+  <link rel="stylesheet" href="css/blog.css">
+
+  <!-- Site scripts -->
+  <script src="js/theme-toggle.js" defer></script>
+  <script src="scripts.js" defer></script>
+  <!-- SPA router -->
+  <script type="module" src="js/spa-router.js" defer></script>
 </head>
-    <link rel="stylesheet" href="css/reset.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/cursor.css">
-    <link rel="stylesheet" href="css/page-header.css">
-    <link rel="stylesheet" href="css/navbar.css">
-    <link rel="stylesheet" href="css/hero.css">
-    <link rel="stylesheet" href="css/bucket-hero.css">
-    <link rel="stylesheet" href="css/video-hero.css">
-    <link rel="stylesheet" href="css/photo-grid.css">
-    <link rel="stylesheet" href="css/projects.css">
-    <link rel="stylesheet" href="css/music.css">
-    <link rel="stylesheet" href="css/contact.css">
-    <link rel="stylesheet" href="css/about.css">
-    <link rel="stylesheet" href="css/skills.css">
-    <link rel="stylesheet" href="css/footer.css">
-    <link rel="stylesheet" href="css/themes.css">
-    <link rel="stylesheet" href="css/containers.css">
-    <link rel="stylesheet" href="css/992.css">
-    <link rel="stylesheet" href="css/768.css">
-    <script src="js/theme-toggle.js" defer></script>
-
 <body>
-  <!-- Slots for fetched sections -->
-  <div id="navbar-slot"></div>
-  <div id="hero-slot"></div>
-  <div id="bucket-slot"></div>
-  <div id="gallery-slot"></div>
-  <div id="projects-slot"></div>
-  <div id="music-slot"></div>
-  <div id="about-slot"></div>
-  <div id="skills-slot"></div>
-  <div id="iwrite-slot"></div>
-  <div id="contact-slot"></div>
-  <div id="footer-slot"></div>
+  <!-- App content wrapper -->
+  <main id="app-content" tabindex="-1">
+    <!-- Slots for fetched sections -->
+    <div id="navbar-slot"></div>
+    <div id="hero-slot"></div>
+    <div id="bucket-slot"></div>
+    <div id="gallery-slot"></div>
+    <div id="projects-slot"></div>
+    <div id="music-slot"></div>
+    <div id="about-slot"></div>
+    <div id="skills-slot"></div>
+    <div id="iwrite-slot"></div>
+    <div id="contact-slot"></div>
+    <div id="footer-slot"></div>
+  </main>
 
-  <!-- Anything not extracted stays here -->
+  <!-- Blog Overlay (SPA) -->
+  <div id="blog-overlay" class="page-overlay" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="blog-title">
+    <button class="overlay-backdrop" data-overlay-dismiss aria-label="Close blog overlay background"></button>
+    <div class="overlay-card" tabindex="-1">
+      <button class="overlay-close" data-overlay-dismiss aria-label="Close blog overlay">
+        <span aria-hidden="true">✕</span>
+      </button>
+      <div id="blog-overlay-content">
+        <!-- Blog content will be injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme toggle (persistent) -->
   <div class="theme-toggle-container">
     <button id="theme-toggle">
       <span class="material-symbols-outlined theme-icon">dark_mode</span>
     </button>
   </div>
-
-  <!-- Vendor util + site script -->
-  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js" defer></script>
-  <script src="scripts.js" defer></script>
 
   <!-- Fragment loader: fetches HTML and executes any inline scripts inside it -->
   <script>
@@ -81,7 +100,7 @@
         { slot: '#skills-slot',  path: 'homesplits/skills.html' },
         { slot: '#iwrite-slot',  path: 'homesplits/iwrite.html' },
         { slot: '#contact-slot', path: 'homesplits/contact.html' },
-        { slot: '#footer-slot', path: 'homesplits/footer.html' }
+        { slot: '#footer-slot',  path: 'homesplits/footer.html' }
       ];
 
       const fetchText = (url) => fetch(url, { cache: 'no-store' }).then(r => {
@@ -97,7 +116,6 @@
         const scripts = tpl.content.querySelectorAll('script');
         scripts.forEach(old => {
           const s = document.createElement('script');
-          // Copy attributes and fix relative src to fragment base
           for (const { name, value } of Array.from(old.attributes)) {
             if (name === 'src') {
               try { s.src = new URL(value, baseURL).href; } catch { s.src = value; }
@@ -124,11 +142,9 @@
           console.error('Failed to load', path, err);
         }
       })).then(() => {
-        // Signal that all fragments are mounted (useful if scripts.js wants to hook)
         window.dispatchEvent(new Event('components:mounted'));
       });
     })();
   </script>
-
 </body>
 </html>
