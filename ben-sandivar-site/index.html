@@ -40,7 +40,7 @@
   <link rel="stylesheet" href="css/containers.css">
   <link rel="stylesheet" href="css/992.css">
   <link rel="stylesheet" href="css/768.css">
-  <!-- Overlay + blog styles (no :root overrides) -->
+  <!-- Overlay + blog/playground styles (no :root overrides) -->
   <link rel="stylesheet" href="css/blog.css">
 
   <!-- Site scripts -->
@@ -48,8 +48,9 @@
   <script src="scripts.js" defer></script>
   <!-- Hero pause/resume bridge -->
   <script src="js/hero-bridge.js" defer></script>
-  <!-- SPA router -->
+  <!-- SPA router + navbar intercept -->
   <script type="module" src="js/spa-router.js" defer></script>
+  <script src="js/navbar.js" defer></script>
 </head>
 <body>
   <!-- App content -->
@@ -75,6 +76,17 @@
         <span aria-hidden="true">✕</span>
       </button>
       <div id="blog-overlay-content"><!-- injected --></div>
+    </div>
+  </div>
+
+  <!-- Playground Overlay (dialog) -->
+  <div id="playground-overlay" class="page-overlay" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="playground-title">
+    <button class="overlay-backdrop" data-overlay-dismiss aria-label="Close playground overlay background"></button>
+    <div class="overlay-card" tabindex="-1">
+      <button class="overlay-close" data-overlay-dismiss aria-label="Close playground overlay">
+        <span aria-hidden="true">✕</span>
+      </button>
+      <div id="playground-overlay-content"><!-- injected --></div>
     </div>
   </div>
 
