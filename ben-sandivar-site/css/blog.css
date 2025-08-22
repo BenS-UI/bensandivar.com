@@ -1,57 +1,86 @@
-/* Blog page — minimal. No navbar overrides. No global token overrides. */
+/* Blog styles — inherits global navbar + theme */
+/* NOTE: No navbar styles here on purpose. The blog now uses /css/navbar.css entirely. */
 
-/* Layout for the section */
+/* Keep only local tokens that don't fight global theme */
+:root {
+  --color-navbar-bg: rgba(10, 12, 16, 0.6);
+  --color-border: rgba(255, 255, 255, 0.15);
+  --color-shadow: rgba(0, 0, 0, 0.25);
+  --color-text: #d9e1e8;
+  --font-heading: "Gabarito", sans-serif;
+  --transition: all 0.3s ease;
+}
+
+/* Coming Soon Section */
 .coming-soon-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
-  margin-top: var(--nav-height, 64px); /* sits below fixed navbar cleanly */
-  padding: 2rem 1rem;
-  position: relative;
   text-align: center;
+  padding: 2rem;
+  padding-top: var(--nav-height, 72px); /* clears fixed navbar */
+  width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Background canvas stays behind */
 #blog-gl {
   position: absolute;
-  inset: 0;
-  margin: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 420px;
   height: 420px;
   z-index: 0;
   pointer-events: none;
 }
 
-/* Minimal, no panel frame */
 .coming-soon-content {
   position: relative;
   z-index: 1;
-  max-width: clamp(26rem, 46vw, 52rem);
-  padding: 1rem 1.25rem;  /* subtle, not boxy */
-  background: transparent; /* no glass box */
-  border: 0;               /* no white frame */
+  max-width: clamp(28rem, 42vw, 56rem); /* narrower: more discreet */
+  margin: 0 auto;
+  background: var(--color-navbar-bg);
+  padding: 1.5rem 2rem;               /* lighter pad */
+  border-radius: 14px;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  border: 1px solid var(--color-border);
 }
 
-/* Quieter headline and tighter rhythm */
+/* Minimal, quieter headline */
 .coming-soon-content h1 {
-  font-family: var(--font-heading, system-ui, sans-serif);
-  font-size: clamp(1.75rem, 3.2vw, 2.2rem);
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 3.5vw, 2.4rem);
   line-height: 1.15;
   font-weight: 800;
-  color: var(--color-primary, #eaffff);
-  margin: 0 0 0.35rem 0;
+  color: var(--color-primary);
+  margin: 0 0 0.5rem 0;               /* tighter gap */
 }
 
+/* Tighter paragraph spacing */
 .coming-soon-content p {
   font-size: clamp(0.95rem, 1.1vw, 1.05rem);
   line-height: 1.5;
-  color: var(--color-text, #d9e1e8);
-  margin: 0.2rem 0; /* reduce gap between paragraphs */
+  color: var(--color-text);
+  margin: 0.25rem 0;                  /* reduce inter-paragraph gap */
 }
 
+.coming-soon-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  #blog-gl { width: 300px; height: 300px; }
-  .coming-soon-content { max-width: 90%; padding: 0.75rem 1rem; }
+  .coming-soon-content {
+    max-width: 90%;
+    padding: 1.25rem 1rem;
+  }
+
+  #blog-gl {
+    width: 300px !important;
+    height: 300px !important;
+  }
 }
