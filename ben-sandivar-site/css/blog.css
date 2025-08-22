@@ -1,88 +1,13 @@
-/* Navbar */
-.navbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: var(--color-navbar-bg);
-  backdrop-filter: blur(1px);
-  padding: 1rem 0;
-  z-index: 1000;
-  transition: var(--transition);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.navbar:hover {
-  backdrop-filter: blur(12px);
-}
-
-.navbar.scrolled {
-  box-shadow: 0 4px 24px var(--color-shadow);
-}
-
-.nav-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 75%;
-  margin: 0 auto;
-  padding: 0;
-}
-
-.logo img {
-  width: 20px;
-  height: auto;
-  vertical-align: middle;
-}
-
-.logo img:hover {
-  transform: scale(1.05);
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 0.8rem;
-  transition: transform 0.1s ease;
-}
-
-.nav-links a {
-  text-decoration: none;
-  color: var(--color-primary);
-  font-weight: 400;
-  font-size: 0.7rem;
-  transition: var(--transition);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-}
-
-/* Hover coherente con el tema global */
-.nav-links a:hover {
-  color: var(--color-accent);
-  /* tinte del acento sobre fondo transparente */
-  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
-}
-
-.more-btn {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--color-primary);
-  font-size: 2rem;
-  padding: 0.5rem;
-  line-height: 1;
-}
-
-.more-btn:focus {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
+/* BLOG PAGE — page-specific styles only
+   Inherit all colors from css - themes.txt and css - navbar.txt.
+   No local :root. No navbar styles here. */
 
 /* Coming Soon Section */
 .coming-soon-container {
   display: flex;
   flex-direction: column;
-  align-items: center;     /* centra horizontal */
-  justify-content: center; /* centra vertical */
+  align-items: center;
+  justify-content: center;
   min-height: 100vh;
   text-align: center;
   padding: 2rem;
@@ -93,8 +18,7 @@
 
 #blog-gl {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 50% auto auto 50%;
   transform: translate(-50%, -50%);
   width: 500px;
   height: 500px;
@@ -102,62 +26,44 @@
   pointer-events: none;
 }
 
-/* Más ancho y centrado real, sin “empuje” visual */
 .coming-soon-content {
   position: relative;
   z-index: 1;
   max-width: min(800px, 90vw);
   margin-inline: auto;
-  background: var(--color-navbar-bg);
+  /* fallback keeps a soft glass card if theme lacks a surface var */
+  background: var(--color-navbar-bg, rgba(10,12,16,0.6));
   padding: 2.25rem 3rem;
   border-radius: 16px;
   backdrop-filter: blur(2px);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border, rgba(255,255,255,0.15));
   text-align: center;
 }
 
 .coming-soon-content h1 {
-  font-family: var(--font-heading);
-  font-size: 3rem; /* más presencia */
+  font-family: var(--font-heading, ui-sans-serif, system-ui, sans-serif);
+  font-size: 3rem;        /* stronger title */
   font-weight: 900;
-  color: var(--color-primary);
+  color: var(--color-primary, #eef2f7);
   margin-bottom: 1rem;
   line-height: 1.1;
 }
 
 .coming-soon-content p {
   font-size: 1rem;
-  color: var(--color-text);
+  color: var(--color-text, #d9e1e8);
   margin: 0.5rem 0;
 }
 
 /* Responsive */
 @media (max-width: 1300px) {
-  .coming-soon-content {
-    max-width: min(720px, 92vw);
-  }
-  .coming-soon-content h1 {
-    font-size: 2.4rem;
-  }
+  .coming-soon-content { max-width: min(720px, 92vw); }
+  .coming-soon-content h1 { font-size: 2.4rem; }
 }
 
 @media (max-width: 768px) {
-  .coming-soon-content {
-    max-width: 95vw;
-    padding: 1.5rem;
-  }
-  .coming-soon-content h1 {
-    font-size: 1.8rem;
-  }
-  .coming-soon-content p {
-    font-size: 0.95rem;
-  }
-  #blog-gl {
-    width: 300px !important;
-    height: 300px !important;
-  }
-  .logo {
-    width: 10px;
-    height: 10px;
-  }
+  .coming-soon-content { max-width: 95vw; padding: 1.5rem; }
+  .coming-soon-content h1 { font-size: 1.8rem; }
+  .coming-soon-content p { font-size: 0.95rem; }
+  #blog-gl { width: 300px !important; height: 300px !important; }
 }
