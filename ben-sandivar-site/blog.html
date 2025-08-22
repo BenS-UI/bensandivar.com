@@ -19,21 +19,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;700;900&family=Geologica:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
 
-  <!-- Vendor (optional if used elsewhere) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.18/bundled/lenis.min.js" defer></script>
+  <!-- Apply saved theme BEFORE CSS to avoid mismatch/flash -->
+  <script>
+    try {
+      const t = localStorage.getItem('theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch {}
+  </script>
 
-  <!-- CSS: base → themes → page → navbar (navbar last so it overrides) -->
+  <!-- CSS order: base → themes → navbar → page -->
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/themes.css" />
-  <link rel="stylesheet" href="/oscillator.css" />
-  <link rel="stylesheet" href="/css/blog.css" />
   <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/blog.css" />
 </head>
 
 <body>
-  <!-- Single source of truth: injected navbar -->
+  <!-- Single source of truth: include the shared navbar -->
   <div id="navbar-slot" data-include="/homesplits/navbar.html" aria-label="Primary"></div>
 
   <main id="main" tabindex="-1">
@@ -47,61 +49,35 @@
     </section>
   </main>
 
-  <!-- Include loader: tries safe paths, executes scripts inside the include -->
+  <!-- Include loader: pulls the navbar once and runs its scripts -->
   <script>
     (async () => {
       const slot = document.getElementById('navbar-slot');
       if (!slot) return;
-
-      // Candidate paths (root + relative), first that works wins
-      const wanted = slot.dataset.include || '/homesplits/navbar.html';
-      const candidates = [
-        wanted,
-        '/homesplits/navbar.html',
-        'homesplits/navbar.html'
-      ].filter((v, i, a) => !!v && a.indexOf(v) === i);
-
-      let html = null, used = null, lastErr = null;
-
-      for (const url of candidates) {
-        try {
-          const res = await fetch(url, { cache: 'no-store' });
-          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-          html = await res.text();
-          used = url;
-          break;
-        } catch (e) {
-          lastErr = e;
-        }
-      }
-
-      if (!html) {
-        console.error('Navbar include failed:', lastErr);
+      const url = slot.dataset.include || '/homesplits/navbar.html';
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const html = await res.text();
+        slot.innerHTML = html;
+        // Re-exec any scripts inside the included navbar (toggle, scroll code, etc.)
+        slot.querySelectorAll('script').forEach((old) => {
+          const s = document.createElement('script');
+          if (old.src) s.src = old.src;
+          if (old.type) s.type = old.type;
+          if (old.defer) s.defer = true;
+          if (old.async) s.async = true;
+          if (!old.src) s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      } catch (e) {
+        console.error('Navbar include failed:', e);
         slot.innerHTML = '<div style="padding:8px;color:#f88">Navbar failed to load.</div>';
-        return;
       }
-
-      slot.innerHTML = html;
-
-      // Re-execute any scripts inside the included chunk
-      const scripts = slot.querySelectorAll('script');
-      scripts.forEach((old) => {
-        const s = document.createElement('script');
-        if (old.src) s.src = old.src;
-        if (old.type) s.type = old.type;
-        if (old.defer) s.defer = true;
-        if (old.async) s.async = true;
-        if (!old.src) s.textContent = old.textContent;
-        old.replaceWith(s);
-      });
-
-      // Debug hint in console so we know which path worked
-      console.log('[navbar] included from:', used);
     })();
   </script>
 
-  <!-- Site scripts -->
+  <!-- Site scripts (load anything the navbar expects, e.g., toggle handlers) -->
   <script src="/scripts.js" defer></script>
-  <script src="/oscillator.js" defer></script>
 </body>
 </html>
