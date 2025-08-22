@@ -24,17 +24,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.18/bundled/lenis.min.js" defer></script>
 
-  <!-- CSS order: base → themes → navbar → page -->
+  <!-- CSS: base → themes → page → navbar (navbar last so it overrides) -->
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/themes.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
   <link rel="stylesheet" href="/oscillator.css" />
   <link rel="stylesheet" href="/css/blog.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
 </head>
 
 <body>
   <!-- Single source of truth: injected navbar -->
-  <header id="site-navbar" data-include="/homesplits/navbar.html" aria-label="Primary"></header>
+  <div id="navbar-slot" data-include="/homesplits/navbar.html" aria-label="Primary"></div>
 
   <main id="main" tabindex="-1">
     <section class="coming-soon-container" aria-labelledby="coming-soon-title">
@@ -47,32 +47,56 @@
     </section>
   </main>
 
-  <!-- Navbar include loader (generic, tiny, runs once) -->
+  <!-- Include loader: tries safe paths, executes scripts inside the include -->
   <script>
     (async () => {
-      const slot = document.getElementById('site-navbar');
+      const slot = document.getElementById('navbar-slot');
       if (!slot) return;
-      try {
-        const url = slot.dataset.include;
-        const res = await fetch(url, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
-        const html = await res.text();
-        slot.innerHTML = html;
 
-        // Re-execute any scripts inside the included navbar
-        slot.querySelectorAll('script').forEach((old) => {
-          const s = document.createElement('script');
-          if (old.src) s.src = old.src;
-          if (old.type) s.type = old.type;
-          if (old.defer) s.defer = true;
-          if (old.async) s.async = true;
-          if (!old.src) s.textContent = old.textContent;
-          old.replaceWith(s);
-        });
-      } catch (err) {
-        console.error('Navbar include error:', err);
-        slot.innerHTML = '<div style="padding:8px;color:#f88">Navbar failed to load.</div>';
+      // Candidate paths (root + relative), first that works wins
+      const wanted = slot.dataset.include || '/homesplits/navbar.html';
+      const candidates = [
+        wanted,
+        '/homesplits/navbar.html',
+        'homesplits/navbar.html'
+      ].filter((v, i, a) => !!v && a.indexOf(v) === i);
+
+      let html = null, used = null, lastErr = null;
+
+      for (const url of candidates) {
+        try {
+          const res = await fetch(url, { cache: 'no-store' });
+          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          html = await res.text();
+          used = url;
+          break;
+        } catch (e) {
+          lastErr = e;
+        }
       }
+
+      if (!html) {
+        console.error('Navbar include failed:', lastErr);
+        slot.innerHTML = '<div style="padding:8px;color:#f88">Navbar failed to load.</div>';
+        return;
+      }
+
+      slot.innerHTML = html;
+
+      // Re-execute any scripts inside the included chunk
+      const scripts = slot.querySelectorAll('script');
+      scripts.forEach((old) => {
+        const s = document.createElement('script');
+        if (old.src) s.src = old.src;
+        if (old.type) s.type = old.type;
+        if (old.defer) s.defer = true;
+        if (old.async) s.async = true;
+        if (!old.src) s.textContent = old.textContent;
+        old.replaceWith(s);
+      });
+
+      // Debug hint in console so we know which path worked
+      console.log('[navbar] included from:', used);
     })();
   </script>
 
