@@ -569,3 +569,33 @@ function initElectricBlueBlog() {
 // translucent glass. On hover, a block temporarily moves aside to reveal
 // underlying content. This enhances the site with an Awwwards-like layered
 // aesthetic while remaining performant.
+
+// /scripts.js — ConvAI site-wide loader (runs once)
+(() => {
+  if (window.__convaiLoaded) return;
+  window.__convaiLoaded = true;
+
+  const mount = () => {
+    // Add the widget element once
+    if (!document.querySelector('elevenlabs-convai')) {
+      const el = document.createElement('elevenlabs-convai');
+      el.setAttribute('agent-id', 'agent_01k0a396khf3wr7ndjmt03pk33');
+      document.body.appendChild(el);
+    }
+
+    // Load the embed script once
+    if (!document.querySelector('script[src*="convai-widget-embed"]')) {
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+      s.async = true;
+      s.type = 'text/javascript';
+      document.head.appendChild(s);
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mount, { once: true });
+  } else {
+    mount();
+  }
+})();
