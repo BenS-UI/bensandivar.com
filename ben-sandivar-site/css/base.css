@@ -87,3 +87,15 @@ p {
   color: var(--color-text);
   margin-bottom: 1rem;
 }
+
+/* position ConvAI above the theme toggle (adjust bottom as needed) */
+elevenlabs-convai {
+  position: fixed;
+  right: 16px;
+  bottom: calc(56px + 16px); /* 56px = toggle size; tweak if different */
+  z-index: 2147483647;
+}
+
+@media (max-width: 768px) {
+  elevenlabs-convai { right: 12px; bottom: calc(56px + 12px); }
+}
