@@ -1,14 +1,3 @@
-:root {
-  --color-navbar-bg: rgba(10,12,16,0.6);
-  --color-border: rgba(255,255,255,0.15);
-  --color-shadow: rgba(0,0,0,0.25);
-  /* IMPORTANTE: No redefinimos aquí --color-primary ni --color-accent.
-     Dejan de estar localmente y se heredan desde css - themes.txt */
-  --color-text: #d9e1e8;
-  --font-heading: "Gabarito", sans-serif;
-  --transition: all 0.3s ease;
-}
-
 /* Navbar */
 .navbar {
   position: fixed;
