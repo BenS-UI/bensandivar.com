@@ -20,7 +20,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js" defer></script>
 
-  <!-- Site styles (order matters) -->
+  <!-- Site styles -->
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/cursor.css">
@@ -40,19 +40,20 @@
   <link rel="stylesheet" href="css/containers.css">
   <link rel="stylesheet" href="css/992.css">
   <link rel="stylesheet" href="css/768.css">
-  <!-- Blog overlay + coming-soon styles (no :root overrides) -->
+  <!-- Overlay + blog styles (no :root overrides) -->
   <link rel="stylesheet" href="css/blog.css">
 
   <!-- Site scripts -->
   <script src="js/theme-toggle.js" defer></script>
   <script src="scripts.js" defer></script>
+  <!-- Hero pause/resume bridge -->
+  <script src="js/hero-bridge.js" defer></script>
   <!-- SPA router -->
   <script type="module" src="js/spa-router.js" defer></script>
 </head>
 <body>
-  <!-- App content wrapper -->
+  <!-- App content -->
   <main id="app-content" tabindex="-1">
-    <!-- Slots for fetched sections -->
     <div id="navbar-slot"></div>
     <div id="hero-slot"></div>
     <div id="bucket-slot"></div>
@@ -66,27 +67,25 @@
     <div id="footer-slot"></div>
   </main>
 
-  <!-- Blog Overlay (SPA) -->
+  <!-- Blog Overlay (dialog) -->
   <div id="blog-overlay" class="page-overlay" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="blog-title">
     <button class="overlay-backdrop" data-overlay-dismiss aria-label="Close blog overlay background"></button>
     <div class="overlay-card" tabindex="-1">
       <button class="overlay-close" data-overlay-dismiss aria-label="Close blog overlay">
         <span aria-hidden="true">✕</span>
       </button>
-      <div id="blog-overlay-content">
-        <!-- Blog content will be injected here -->
-      </div>
+      <div id="blog-overlay-content"><!-- injected --></div>
     </div>
   </div>
 
-  <!-- Theme toggle (persistent) -->
+  <!-- Theme toggle -->
   <div class="theme-toggle-container">
     <button id="theme-toggle">
       <span class="material-symbols-outlined theme-icon">dark_mode</span>
     </button>
   </div>
 
-  <!-- Fragment loader: fetches HTML and executes any inline scripts inside it -->
+  <!-- Fragment loader -->
   <script>
     (function () {
       const parts = [
@@ -112,7 +111,6 @@
         const tpl = document.createElement('template');
         tpl.innerHTML = html;
 
-        // Execute scripts found in fragment (inline or with src)
         const scripts = tpl.content.querySelectorAll('script');
         scripts.forEach(old => {
           const s = document.createElement('script');
