@@ -1,81 +1,120 @@
-/* BLOG + PLAYGROUND OVERLAYS
-   Inherit global theme tokens. No local :root overrides. */
+/* Blog styles — inherits global theme colors */
+/* Removed local --color-primary and --color-accent to fix navbar color drift */
+:root {
+  --color-navbar-bg: rgba(10, 12, 16, 0.6);
+  --color-border: rgba(255, 255, 255, 0.15);
+  --color-shadow: rgba(0, 0, 0, 0.25);
+  --color-text: #d9e1e8;
+  --font-heading: "Gabarito", sans-serif;
+  --transition: all 0.3s ease;
+}
 
-.page-overlay[hidden] { display: none !important; }
-
-.page-overlay {
+/* Navbar */
+.navbar {
   position: fixed;
-  inset: 0;
-  z-index: 1200;
-  pointer-events: auto;
+  top: 0;
+  width: 100%;
+  background: var(--color-navbar-bg);
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  padding: 1rem 0;
+  z-index: 1000;
+  transition: var(--transition);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.page-overlay .overlay-backdrop {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  background: rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  cursor: pointer;
+.navbar:hover {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
-.page-overlay .overlay-card {
-  position: relative;
-  margin: 6vh auto;
-  max-width: min(900px, 92vw);
-  background: var(--color-navbar-bg, rgba(10,12,16,0.6));
-  border: 1px solid var(--color-border, rgba(255,255,255,0.15));
-  border-radius: 16px;
-  box-shadow: 0 18px 60px rgba(0,0,0,0.35);
-  padding: 2rem 2.25rem;
-  z-index: 1;
+.navbar.scrolled {
+  box-shadow: 0 4px 24px var(--color-shadow);
+}
 
-  /* ensure nice center feel even if content lacks its own centering */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 75%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.logo img {
+  width: 20px;
+  height: auto;
+  vertical-align: middle;
+}
+
+.logo img:hover {
+  transform: scale(1.05);
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 0.8rem;
+  transition: transform 0.1s ease;
+}
+
+/* Uses global theme variables now */
+.nav-links a {
+  text-decoration: none;
+  color: var(--color-primary);
+  font-weight: 400;
+  font-size: 0.7rem;
+  transition: var(--transition);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.nav-links a:hover {
+  color: var(--color-accent);
+  /* fallback + dynamic mix so hover tints with the global accent */
+  background: rgba(56, 189, 248, 0.1);
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+.nav-links a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.more-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 2rem;
+  padding: 0.5rem;
+  line-height: 1;
+}
+
+.more-btn:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Coming Soon Section */
+.coming-soon-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.overlay-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  border: 0;
-  border-radius: 10px;
-  padding: 0.4rem 0.6rem;
-  background: transparent;
-  color: var(--color-primary, #eef2f7);
-  cursor: pointer;
-  transition: transform .15s ease;
-}
-.overlay-close:hover { transform: scale(1.06); }
-
-body.overlay-open {
-  overflow: hidden; /* lock background scroll while any overlay is open */
-}
-
-/* BLOG — Coming Soon layout: force true centering */
-#blog-overlay-content {
-  width: 100%;
-  display: grid;
-  justify-items: center;
-  align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  min-height: 100dvh;
   text-align: center;
-}
-
-.coming-soon-container {
-  display: grid;
-  place-items: center;
-  min-height: 50vh;
-  position: relative;
+  padding: 2rem;
+  padding-top: var(--nav-height, 72px); /* clear fixed navbar */
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 #blog-gl {
   position: absolute;
-  inset: 50% auto auto 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   width: 500px;
   height: 500px;
@@ -86,55 +125,45 @@ body.overlay-open {
 .coming-soon-content {
   position: relative;
   z-index: 1;
-  max-width: min(760px, 90vw);
-  margin-inline: auto;
-  background: var(--color-navbar-bg, rgba(10,12,16,0.6));
-  padding: 2rem 2.5rem;
+  max-width: clamp(32rem, 48vw, 68rem); /* wider on desktop for true visual center */
+  margin: 0 auto;
+  background: var(--color-navbar-bg);
+  padding: 2rem 3rem;
   border-radius: 16px;
-  border: 1px solid var(--color-border, rgba(255,255,255,0.15));
-  text-align: center;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  border: 1px solid var(--color-border);
 }
 
 .coming-soon-content h1 {
-  font-family: var(--font-heading, "Gabarito", sans-serif);
-  font-size: 3rem;
-  font-weight: 900;
-  color: var(--color-primary, #eef2f7);
-  margin-bottom: 0.6rem;
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 5vw, 3rem); /* bigger, headline weight */
   line-height: 1.1;
-  text-wrap: balance;
+  font-weight: 900;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
 }
 
 .coming-soon-content p {
-  font-size: 1rem;
-  color: var(--color-text, #d9e1e8);
-  margin: 0.4rem 0;
+  font-size: clamp(1rem, 1.2vw, 1.125rem);
+  color: var(--color-text);
+  margin: 0.5rem 0;
 }
 
-/* PLAYGROUND content wrapper defaults — keep centered and neat */
-#playground-overlay-content {
-  width: 100%;
-  display: grid;
-  justify-items: center;
-  align-items: start;
-  gap: 1rem;
-  text-align: center;
-}
-
-#playground-overlay-content > * {
-  max-width: min(900px, 92vw);
-  width: 100%;
-}
-
-/* Responsive */
-@media (max-width: 1300px) {
-  .coming-soon-content { max-width: min(700px, 92vw); }
-  .coming-soon-content h1 { font-size: 2.4rem; }
-}
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .page-overlay .overlay-card { margin: 3vh auto; padding: 1.5rem; }
-  #blog-gl { width: 300px; height: 300px; }
-  .coming-soon-content { padding: 1.25rem; max-width: 95vw; }
-  .coming-soon-content h1 { font-size: 1.8rem; }
-  .coming-soon-content p { font-size: 0.95rem; }
+  .coming-soon-content {
+    max-width: 90%;
+    padding: 1.5rem;
+  }
+
+  #blog-gl {
+    width: 300px !important;
+    height: 300px !important;
+  }
+
+  .logo {
+    width: 10px;
+    height: 10px;
+  }
 }

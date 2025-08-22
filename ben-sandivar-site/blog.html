@@ -24,14 +24,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.18/bundled/lenis.min.js"></script>
 
-  <!-- CSS order: theme → navbar → feature/page -->
+  <!-- CSS order: base → themes → navbar → feature/page -->
+  <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/themes.css" />
   <link rel="stylesheet" href="/css/navbar.css" />
   <link rel="stylesheet" href="/oscillator.css" />
-  <link rel="stylesheet" href="/ben-sandivar-site/css/blog.css?v=1" />
+  <link rel="stylesheet" href="/ben-sandivar-site/css/blog.css?v=2" />
 </head>
 
 <body>
+  <a href="#main" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to content</a>
+
   <!-- /homesplits/navbar.html -->
   <nav class="navbar" role="navigation" aria-label="Primary" data-component="navbar">
     <div class="nav-container">
@@ -95,12 +98,12 @@
     </script>
   </nav>
 
-  <main>
+  <main id="main" tabindex="-1">
     <!-- Coming Soon Section -->
-    <section class="coming-soon-container">
+    <section class="coming-soon-container" aria-labelledby="coming-soon-title">
       <canvas id="blog-gl" aria-hidden="true"></canvas>
       <div class="coming-soon-content">
-        <h1>Blog Coming Soon</h1>
+        <h1 id="coming-soon-title">Blog Coming Soon</h1>
         <p>Stay tuned for insights on design, tech, and clear craft.</p>
         <p>In the meantime, try the music widget. It’s fun.</p>
       </div>
@@ -108,7 +111,7 @@
   </main>
 
   <!-- Site scripts -->
-  <script src="/scripts.js"></script>
+  <script src="/scripts.js" defer></script>
   <script src="/oscillator.js" defer></script>
 </body>
 </html>
