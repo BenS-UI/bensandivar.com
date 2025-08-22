@@ -2,8 +2,8 @@
   --color-navbar-bg: rgba(10,12,16,0.6);
   --color-border: rgba(255,255,255,0.15);
   --color-shadow: rgba(0,0,0,0.25);
-  --color-primary: #eaffff;
-  --color-accent: #38bdf8;
+  /* IMPORTANTE: No redefinimos aquí --color-primary ni --color-accent.
+     Dejan de estar localmente y se heredan desde css - themes.txt */
   --color-text: #d9e1e8;
   --font-heading: "Gabarito", sans-serif;
   --transition: all 0.3s ease;
@@ -66,9 +66,11 @@
   border-radius: 8px;
 }
 
+/* Hover coherente con el tema global */
 .nav-links a:hover {
   color: var(--color-accent);
-  background: rgba(59, 130, 246, 0.1);
+  /* tinte del acento sobre fondo transparente */
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
 
 .more-btn {
@@ -90,8 +92,8 @@
 .coming-soon-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: center;     /* centra horizontal */
+  justify-content: center; /* centra vertical */
   min-height: 100vh;
   text-align: center;
   padding: 2rem;
@@ -111,57 +113,60 @@
   pointer-events: none;
 }
 
+/* Más ancho y centrado real, sin “empuje” visual */
 .coming-soon-content {
   position: relative;
   z-index: 1;
-  max-width: 40%;
+  max-width: min(800px, 90vw);
+  margin-inline: auto;
   background: var(--color-navbar-bg);
-  padding: 2rem 3rem;
+  padding: 2.25rem 3rem;
   border-radius: 16px;
   backdrop-filter: blur(2px);
   border: 1px solid var(--color-border);
+  text-align: center;
 }
 
 .coming-soon-content h1 {
   font-family: var(--font-heading);
-  font-size: 1.8rem;
+  font-size: 3rem; /* más presencia */
   font-weight: 900;
   color: var(--color-primary);
   margin-bottom: 1rem;
+  line-height: 1.1;
 }
 
 .coming-soon-content p {
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--color-text);
-  margin: 0.4rem 0; /* tighter spacing */
+  margin: 0.5rem 0;
 }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 1300px) {
   .coming-soon-content {
-    max-width: 60%;
+    max-width: min(720px, 92vw);
+  }
+  .coming-soon-content h1 {
+    font-size: 2.4rem;
   }
 }
 
 @media (max-width: 768px) {
   .coming-soon-content {
-    max-width: 85%;
+    max-width: 95vw;
     padding: 1.5rem;
   }
-
   .coming-soon-content h1 {
-    font-size: 1.4rem;
+    font-size: 1.8rem;
   }
-
   .coming-soon-content p {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
-
   #blog-gl {
     width: 300px !important;
     height: 300px !important;
   }
-
   .logo {
     width: 10px;
     height: 10px;
